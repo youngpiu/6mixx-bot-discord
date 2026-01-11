@@ -6,9 +6,17 @@
     "strict": true,
     "esModuleInterop": true,
     "baseUrl": ".",
+    "outDir": "dist",
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "paths": {
       "~/*": ["src/*"]
     },
     "ignoreDeprecations": "5.0"
-  }
+  },
+  "files": ["src/type.d.ts"],
+  "include": ["src/**/*"]
 }
