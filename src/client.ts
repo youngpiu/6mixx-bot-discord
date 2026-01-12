@@ -14,7 +14,11 @@ import { gracefulShutdown } from '~/utils/shutdown'
 export class BotClient extends SapphireClient {
   constructor() {
     super({
-      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
+      intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
+      ],
       defaultPrefix: env.DEFAULT_PREFIX,
       loadMessageCommandListeners: true,
       logger: { level: LogLevel.Debug }
@@ -26,7 +30,9 @@ export class BotClient extends SapphireClient {
   }
 
   async login(token?: string): Promise<string> {
-    ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(RegisterBehavior.BulkOverwrite)
+    ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
+      RegisterBehavior.BulkOverwrite
+    )
     ApplicationCommandRegistries.setDefaultGuildIds([env.DISCORD_GUILD_ID])
 
     container.prisma = prisma
