@@ -21,15 +21,17 @@ export class BotClient extends SapphireClient {
       ],
       defaultPrefix: env.DEFAULT_PREFIX,
       loadMessageCommandListeners: true,
-      logger: { level: LogLevel.Debug }
+
+      logger: {
+        level: env.NODE_ENV === 'development' ? LogLevel.Debug : LogLevel.Info
+      }
     })
 
-    // Graceful shutdown - centralized
     process.on('SIGINT', () => gracefulShutdown(this))
     process.on('SIGTERM', () => gracefulShutdown(this))
   }
 
-  async login(token?: string): Promise<string> {
+  async login(token: string): Promise<string> {
     ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
       RegisterBehavior.BulkOverwrite
     )
