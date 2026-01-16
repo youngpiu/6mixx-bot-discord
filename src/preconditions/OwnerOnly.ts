@@ -4,6 +4,7 @@ import {
   ContextMenuCommandInteraction,
   Message
 } from 'discord.js'
+import { ERROR_MESSAGE } from '~/constants/message.constant'
 
 export class OwnerOnlyPrecondition extends Precondition {
   public override async messageRun(message: Message) {
@@ -24,7 +25,7 @@ export class OwnerOnlyPrecondition extends Precondition {
     return message.guild?.ownerId === message.author.id
       ? this.ok()
       : this.error({
-          message: 'Chỉ người sở hữu máy chủ mới có thể sử dụng lệnh này!'
+          message: ERROR_MESSAGE.NO_PERMISSION.DESCRIPTION.OWNER_ONLY
         })
   }
 
@@ -34,7 +35,7 @@ export class OwnerOnlyPrecondition extends Precondition {
     return interaction.guild?.ownerId === interaction.user.id
       ? this.ok()
       : this.error({
-          message: 'Chỉ người sở hữu máy chủ mới có thể sử dụng lệnh này!'
+          message: ERROR_MESSAGE.NO_PERMISSION.DESCRIPTION.OWNER_ONLY
         })
   }
 }

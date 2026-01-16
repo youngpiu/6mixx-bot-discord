@@ -11,7 +11,7 @@ import { join } from 'node:path'
 import { env } from '~/config/env'
 import prisma from '~/lib/prisma'
 import redis from '~/lib/redis'
-import { gracefulShutdown } from '~/utils/shutdown'
+import { gracefulShutdown } from '~/utils/shutdown.util'
 
 export class BotClient extends SapphireClient {
   private rootData = getRootData()

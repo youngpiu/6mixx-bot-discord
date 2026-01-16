@@ -4,8 +4,8 @@ import type {
 } from '@sapphire/framework'
 import { Listener, UserError } from '@sapphire/framework'
 import { MessageFlags } from 'discord.js'
-import { ERROR_MESSAGE } from '~/constants/messages'
-import { createErrorEmbed } from '~/utils/embed'
+import { ERROR_MESSAGE } from '~/constants/message.constant'
+import { createErrorEmbed } from '~/utils/embed.util'
 
 export class UserEvent extends Listener<
   typeof Events.ContextMenuCommandDenied

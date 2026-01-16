@@ -1,5 +1,5 @@
 import { EmbedBuilder } from 'discord.js'
-import { RGB_COLOR_TEMPLATE } from '~/constants/colors'
+import { RGB_COLOR_TEMPLATE } from '~/constants/color.constant'
 
 export const createErrorEmbed = (title: string, description: string) => {
   return new EmbedBuilder()
