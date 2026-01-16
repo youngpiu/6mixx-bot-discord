@@ -1,5 +1,6 @@
 import redis from '~/lib/redis'
 import prisma from '~/lib/prisma'
+import { container } from '@sapphire/framework'
 
 let isShuttingDown = false
 
@@ -7,21 +8,18 @@ export async function gracefulShutdown(client?: { destroy: () => void }) {
   if (isShuttingDown) return
   isShuttingDown = true
 
-  console.log('\nShutting down gracefully...')
+  container.logger.info('Shutting down gracefully...')
 
-  // Destroy Discord client
   if (client) {
     client.destroy()
-    console.log('Discord client destroyed')
+    container.logger.info('Discord client destroyed')
   }
 
-  // Close Redis (ioredis)
   redis.disconnect()
-  console.log('Redis connection closed')
+  container.logger.info('Redis connection closed')
 
-  // Disconnect Prisma
   await prisma.$disconnect()
-  console.log('Prisma disconnected')
+  container.logger.info('Prisma disconnected')
 
   process.exit(0)
 }

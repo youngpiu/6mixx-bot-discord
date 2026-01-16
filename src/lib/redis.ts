@@ -1,18 +1,19 @@
 import Redis from 'ioredis'
 import { env } from '~/config/env'
+import { container } from '@sapphire/framework'
 
 const redis = new Redis(env.REDIS_URL)
 
 redis.on('error', (err) => {
-  console.error('Redis connection error:', err)
+  container.logger.error('Redis connection error', err)
 })
 
 redis.on('ready', () => {
-  console.log('Redis connected successfully')
+  container.logger.info('Redis connected successfully')
 })
 
 redis.on('reconnecting', () => {
-  console.log('Redis reconnecting...')
+  container.logger.warn('Redis reconnecting...')
 })
 
 export default redis
