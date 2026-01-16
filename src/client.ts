@@ -5,13 +5,17 @@ import {
   RegisterBehavior,
   SapphireClient
 } from '@sapphire/framework'
+import { getRootData } from '@sapphire/pieces'
 import { GatewayIntentBits } from 'discord.js'
+import { join } from 'node:path'
 import { env } from '~/config/env'
 import prisma from '~/lib/prisma'
 import redis from '~/lib/redis'
 import { gracefulShutdown } from '~/utils/shutdown'
 
 export class BotClient extends SapphireClient {
+  private rootData = getRootData()
+
   constructor() {
     super({
       intents: [
@@ -26,6 +30,10 @@ export class BotClient extends SapphireClient {
         level: env.NODE_ENV === 'development' ? LogLevel.Debug : LogLevel.Info
       }
     })
+
+    this.stores
+      .get('interaction-handlers')
+      .registerPath(join(this.rootData.root, 'interactions'))
 
     process.on('SIGINT', () => gracefulShutdown(this))
     process.on('SIGTERM', () => gracefulShutdown(this))
