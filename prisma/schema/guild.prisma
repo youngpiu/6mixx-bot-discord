@@ -1,0 +1,5 @@
+model Guild {
+  id String @id
+
+  ticketConfig TicketConfig?
+}
