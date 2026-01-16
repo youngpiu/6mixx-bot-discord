@@ -4,7 +4,7 @@ import {
   ContextMenuCommandInteraction,
   Message
 } from 'discord.js'
-import { ERROR_MESSAGE } from '~/constants/message.constant'
+import { ERROR_MESSAGE } from '~/constants/messageConstant'
 
 export class OwnerOnlyPrecondition extends Precondition {
   public override async messageRun(message: Message) {

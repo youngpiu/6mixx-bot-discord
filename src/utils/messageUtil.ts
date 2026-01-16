@@ -18,8 +18,8 @@ import {
   type Message,
   type User
 } from 'discord.js'
-import { RGB_COLOR_TEMPLATE } from '~/constants/color.constant'
-import { RANDOM_LOADING_MESSAGES } from '~/constants/message.constant'
+import { RGB_COLOR_TEMPLATE } from '~/constants/colorConstant'
+import { RANDOM_LOADING_MESSAGES } from '~/constants/messageConstant'
 
 /**
  * Picks a random item from an array

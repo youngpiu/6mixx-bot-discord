@@ -1,7 +1,7 @@
 import type { Events, MessageCommandDeniedPayload } from '@sapphire/framework'
 import { Listener, type UserError } from '@sapphire/framework'
-import { ERROR_MESSAGE } from '~/constants/message.constant'
-import { createErrorEmbed } from '~/utils/embed.util'
+import { ERROR_MESSAGE } from '~/constants/messageConstant'
+import { createErrorEmbed } from '~/utils/embedUtil'
 
 export class UserEvent extends Listener<typeof Events.MessageCommandDenied> {
   public override async run(
