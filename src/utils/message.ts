@@ -4,6 +4,10 @@ import type {
   ContextMenuCommandSuccessPayload,
   MessageCommandSuccessPayload
 } from '@sapphire/framework'
+import type {
+  ChatInputSubcommandSuccessPayload,
+  MessageSubcommandSuccessPayload
+} from '@sapphire/plugin-subcommands'
 import { container } from '@sapphire/framework'
 import { reply } from '@sapphire/plugin-editable-commands'
 import { cyan } from 'colorette'
@@ -14,6 +18,7 @@ import {
   type Message,
   type User
 } from 'discord.js'
+import { RGB_COLOR_TEMPLATE } from '~/constants/colors'
 import { RANDOM_LOADING_MESSAGES } from '~/constants/messages'
 
 /**
@@ -36,7 +41,7 @@ export function sendLoadingMessage(message: Message): Promise<typeof message> {
     embeds: [
       new EmbedBuilder()
         .setDescription(pickRandom(RANDOM_LOADING_MESSAGES))
-        .setColor('#FF0000')
+        .setColor(RGB_COLOR_TEMPLATE.SUCCESS)
     ]
   })
 }
@@ -46,6 +51,8 @@ export function logSuccessCommand(
     | ContextMenuCommandSuccessPayload
     | ChatInputCommandSuccessPayload
     | MessageCommandSuccessPayload
+    | ChatInputSubcommandSuccessPayload
+    | MessageSubcommandSuccessPayload
 ): void {
   let successLoggerData: ReturnType<typeof getSuccessLoggerData>
 

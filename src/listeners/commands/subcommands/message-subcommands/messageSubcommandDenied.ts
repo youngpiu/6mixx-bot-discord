@@ -3,20 +3,25 @@ import {
   type MessageSubcommandDeniedPayload
 } from '@sapphire/plugin-subcommands'
 import { Listener, type UserError } from '@sapphire/framework'
+import { ERROR_MESSAGE } from '~/constants/messages'
+import { createErrorEmbed } from '~/utils/embed'
 
 export class UserEvent extends Listener<
   typeof SubcommandPluginEvents.MessageSubcommandDenied
 > {
   public override async run(
-    { context, message: content }: UserError,
+    { context, message: errorMessage }: UserError,
     { message }: MessageSubcommandDeniedPayload
   ) {
-    // `context: { silent: true }` should make UserError silent:
-    // Use cases for this are for example permissions error when running the `eval` command.
     if (Reflect.get(Object(context), 'silent')) return
 
+    const errorEmbed = createErrorEmbed(
+      ERROR_MESSAGE.NO_PERMISSION.TITLE,
+      errorMessage
+    )
+
     return message.reply({
-      content,
+      embeds: [errorEmbed],
       allowedMentions: { users: [message.author.id], roles: [] }
     })
   }
