@@ -22,9 +22,6 @@ export class TicketConfigSendCommand {
       })
     }
 
-    await interaction.deferReply({
-      flags: ['Ephemeral']
-    })
     const ticketConfig = await container.prisma.ticketConfig.findUnique({
       where: { guildId: interaction.guildId }
     })

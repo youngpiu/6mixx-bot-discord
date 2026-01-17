@@ -34,14 +34,13 @@ export class TicketConfigChannelCommand {
       }
     })
 
-    return interaction.reply({
+    return interaction.editReply({
       embeds: [
         createSuccessEmbed({
           title: 'Thiết lập thành công',
           description: `Đã thiết lập kênh <#${ticketChannel.id}> làm kênh hỗ trợ.`
         })
-      ],
-      flags: ['Ephemeral']
+      ]
     })
   }
 }
