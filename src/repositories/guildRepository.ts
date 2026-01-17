@@ -25,28 +25,18 @@ export class GuildRepository {
     return ticketConfig
   }
 
-  public static async updateTicketConfig(
+  public static async upsertTicketConfig(
     guildId: string,
-    data: Prisma.TicketConfigUpdateInput
+    data: Omit<Prisma.TicketConfigUncheckedCreateInput, 'guildId'>
   ) {
-    const ticketConfig = await container.prisma.ticketConfig.update({
-      where: {
-        guildId
-      },
-      data
+    const ticketConfig = await container.prisma.ticketConfig.upsert({
+      where: { guildId },
+      update: data,
+      create: { guildId, ...data }
     })
 
     await container.redis.del(`guild:${guildId}:ticket-config`)
 
-    return ticketConfig
-  }
-
-  public static async createTicketConfig(
-    data: Prisma.TicketConfigUncheckedCreateInput
-  ) {
-    const ticketConfig = await container.prisma.ticketConfig.create({
-      data
-    })
     return ticketConfig
   }
 }

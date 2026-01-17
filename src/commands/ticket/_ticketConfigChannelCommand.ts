@@ -25,8 +25,7 @@ export class TicketConfigChannelCommand {
       })
     }
 
-    await GuildRepository.createTicketConfig({
-      guildId: interaction.guildId,
+    await GuildRepository.upsertTicketConfig(interaction.guildId, {
       ticketChannelId: ticketChannel.id
     })
 

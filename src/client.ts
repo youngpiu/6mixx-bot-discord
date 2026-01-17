@@ -9,6 +9,7 @@ import { getRootData } from '@sapphire/pieces'
 import { GatewayIntentBits } from 'discord.js'
 import { join } from 'node:path'
 import { env } from '~/config/env'
+import { CustomLogger } from '~/lib/logger'
 import prisma from '~/lib/prisma'
 import redis from '~/lib/redis'
 import { gracefulShutdown } from '~/utils/shutdownUtil'
@@ -27,7 +28,9 @@ export class BotClient extends SapphireClient {
       loadMessageCommandListeners: true,
 
       logger: {
-        level: env.NODE_ENV === 'development' ? LogLevel.Debug : LogLevel.Info
+        instance: new CustomLogger(
+          env.NODE_ENV === 'development' ? LogLevel.Debug : LogLevel.Info
+        )
       }
     })
 
