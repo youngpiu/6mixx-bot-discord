@@ -1,5 +1,7 @@
 import 'dotenv/config'
-import '@sapphire/plugin-logger'
+import '@sapphire/plugin-logger/register'
+import '@sapphire/plugin-subcommands/register'
+import '@sapphire/plugin-editable-commands/register'
 import { BotClient } from '~/client'
 import { env } from '~/config/env'
 
