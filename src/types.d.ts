@@ -1,10 +1,10 @@
 import '@sapphire/framework'
-import type { PrismaClient } from '../../generated/prisma/client'
 import type Redis from 'ioredis'
+import prisma from '~/lib/prisma'
 
 declare module '@sapphire/framework' {
   interface Container {
-    prisma: PrismaClient
+    prisma: typeof prisma
     redis: Redis
   }
 }

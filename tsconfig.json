@@ -17,6 +17,6 @@
     },
     "ignoreDeprecations": "5.0"
   },
-  "files": ["src/type.d.ts"],
+  "files": ["src/types.d.ts"],
   "include": ["src/**/*"]
 }
