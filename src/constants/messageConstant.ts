@@ -19,7 +19,9 @@ export const ERROR_MESSAGE = {
 
   FORBIDDEN: {
     TITLE: 'Không được phép',
-    DESCRIPTION: 'Không được phép'
+    DESCRIPTION: 'Không được phép',
+    OWNER_ONLY_DESCRIPTION:
+      'Chỉ người sở hữu máy chủ mới có thể sử dụng lệnh này.'
   },
   DATABASE_ERROR: {
     TITLE: 'Lỗi cơ sở dữ liệu',

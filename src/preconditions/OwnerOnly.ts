@@ -27,7 +27,7 @@ export class OwnerOnlyPrecondition extends Precondition {
       : this.error({
           context: {
             title: ERROR_MESSAGE.FORBIDDEN.TITLE,
-            description: 'Chỉ người sở hữu máy chủ mới có thể sử dụng lệnh này.'
+            description: ERROR_MESSAGE.FORBIDDEN.OWNER_ONLY_DESCRIPTION
           }
         })
   }
@@ -40,7 +40,7 @@ export class OwnerOnlyPrecondition extends Precondition {
       : this.error({
           context: {
             title: ERROR_MESSAGE.FORBIDDEN.TITLE,
-            description: 'Chỉ người sở hữu máy chủ mới có thể sử dụng lệnh này.'
+            description: ERROR_MESSAGE.FORBIDDEN.OWNER_ONLY_DESCRIPTION
           }
         })
   }
