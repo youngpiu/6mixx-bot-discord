@@ -11,7 +11,8 @@ export const env = {
   REDIS_URL: getEnvVar('REDIS_URL'),
   DEFAULT_PREFIX: getEnvVar('DEFAULT_PREFIX', false) || '!',
   DISCORD_TOKEN: getEnvVar('DISCORD_TOKEN'),
-  DISCORD_GUILD_ID: getEnvVar('DISCORD_GUILD_ID'),
+  MAIN_DISCORD_GUILD_ID: getEnvVar('MAIN_DISCORD_GUILD_ID'),
+  TEST_DISCORD_GUILD_ID: getEnvVar('TEST_DISCORD_GUILD_ID'),
   DISCORD_CLIENT_ID: getEnvVar('DISCORD_CLIENT_ID'),
   NODE_ENV: getEnvVar('NODE_ENV', false) || 'development'
 }

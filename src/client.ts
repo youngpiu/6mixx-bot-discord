@@ -43,7 +43,10 @@ export class BotClient extends SapphireClient {
     ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
       RegisterBehavior.BulkOverwrite
     )
-    ApplicationCommandRegistries.setDefaultGuildIds([env.DISCORD_GUILD_ID])
+    ApplicationCommandRegistries.setDefaultGuildIds([
+      env.MAIN_DISCORD_GUILD_ID,
+      env.TEST_DISCORD_GUILD_ID
+    ])
 
     container.prisma = prisma
     container.redis = redis
