@@ -25,7 +25,10 @@ export class OwnerOnlyPrecondition extends Precondition {
     return message.guild?.ownerId === message.author.id
       ? this.ok()
       : this.error({
-          message: ERROR_MESSAGE.NO_PERMISSION.DESCRIPTION.OWNER_ONLY
+          context: {
+            title: ERROR_MESSAGE.FORBIDDEN.TITLE,
+            description: 'Chỉ người sở hữu máy chủ mới có thể sử dụng lệnh này.'
+          }
         })
   }
 
@@ -35,7 +38,10 @@ export class OwnerOnlyPrecondition extends Precondition {
     return interaction.guild?.ownerId === interaction.user.id
       ? this.ok()
       : this.error({
-          message: ERROR_MESSAGE.NO_PERMISSION.DESCRIPTION.OWNER_ONLY
+          context: {
+            title: ERROR_MESSAGE.FORBIDDEN.TITLE,
+            description: 'Chỉ người sở hữu máy chủ mới có thể sử dụng lệnh này.'
+          }
         })
   }
 }
