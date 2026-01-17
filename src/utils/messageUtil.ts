@@ -1,6 +1,5 @@
 import type {
   ChatInputCommandSuccessPayload,
-  Command,
   ContextMenuCommandSuccessPayload,
   MessageCommandSuccessPayload
 } from '@sapphire/framework'
@@ -21,16 +20,16 @@ import {
 import { RGB_COLOR_TEMPLATE } from '~/constants/colorConstant'
 import { RANDOM_LOADING_MESSAGES } from '~/constants/messageConstant'
 
-export function pickRandom<T>(array: readonly T[]): T {
-  const { length } = array
-  return array[Math.floor(Math.random() * length)]
-}
-
 export function sendLoadingMessage(message: Message): Promise<typeof message> {
+  const randomMessage =
+    RANDOM_LOADING_MESSAGES[
+      Math.floor(Math.random() * RANDOM_LOADING_MESSAGES.length)
+    ]
+
   return reply(message, {
     embeds: [
       new EmbedBuilder()
-        .setDescription(pickRandom(RANDOM_LOADING_MESSAGES))
+        .setDescription(randomMessage)
         .setColor(RGB_COLOR_TEMPLATE.SUCCESS)
     ]
   })
@@ -44,55 +43,32 @@ export function logSuccessCommand(
     | ChatInputSubcommandSuccessPayload
     | MessageSubcommandSuccessPayload
 ): void {
-  let successLoggerData: ReturnType<typeof getSuccessLoggerData>
+  let guild: Guild | null
+  let user: User | APIUser
+  let subcommandName: string | null = null
 
   if ('interaction' in payload && payload.interaction) {
-    successLoggerData = getSuccessLoggerData(
-      payload.interaction.guild,
-      payload.interaction.user,
-      payload.command
-    )
+    guild = payload.interaction.guild
+    user = payload.interaction.user
+
+    if (payload.interaction.isChatInputCommand()) {
+      subcommandName = payload.interaction.options.getSubcommand(false)
+    }
   } else if ('message' in payload && payload.message) {
-    successLoggerData = getSuccessLoggerData(
-      payload.message.guild,
-      payload.message.author,
-      payload.command
-    )
+    guild = payload.message.guild
+    user = payload.message.author
   } else {
     return
   }
 
-  container.logger.debug(
-    `${successLoggerData.shard} - ${successLoggerData.commandName} ${successLoggerData.author} ${successLoggerData.sentAt}`
+  const shard = `[${cyan((guild?.shardId ?? 0).toString())}]`
+  const commandName = cyan(
+    subcommandName
+      ? `${payload.command.name} ${subcommandName}`
+      : payload.command.name
   )
-}
+  const author = `${user.username}[${cyan(user.id)}]`
+  const sentAt = guild ? `${guild.name}[${cyan(guild.id)}]` : 'Direct Messages'
 
-export function getSuccessLoggerData(
-  guild: Guild | null,
-  user: User,
-  command: Command
-) {
-  const shard = getShardInfo(guild?.shardId ?? 0)
-  const commandName = getCommandInfo(command)
-  const author = getAuthorInfo(user)
-  const sentAt = getGuildInfo(guild)
-
-  return { shard, commandName, author, sentAt }
-}
-
-function getShardInfo(id: number) {
-  return `[${cyan(id.toString())}]`
-}
-
-function getCommandInfo(command: Command) {
-  return cyan(command.name)
-}
-
-function getAuthorInfo(author: User | APIUser) {
-  return `${author.username}[${cyan(author.id)}]`
-}
-
-function getGuildInfo(guild: Guild | null) {
-  if (guild === null) return 'Direct Messages'
-  return `${guild.name}[${cyan(guild.id)}]`
+  container.logger.debug(`${shard} - ${commandName} ${author} ${sentAt}`)
 }
