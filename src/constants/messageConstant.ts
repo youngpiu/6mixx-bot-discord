@@ -7,13 +7,29 @@ export const RANDOM_LOADING_MESSAGES: string[] = [
 ]
 
 export const ERROR_MESSAGE = {
-  NO_PERMISSION: {
-    TITLE: 'Không đủ quyền hạn',
-    DESCRIPTION: {
-      OWNER_ONLY: 'Lệnh này chỉ chủ sở hữu máy chủ mới được phép sử dụng.',
-      MANAGER_ONLY: 'Lệnh này chỉ quản lý máy chủ mới được phép sử dụng.',
-      MESSAGE_MANAGER_ONLY:
-        'Lệnh này chỉ thành viên có quyền **Quản lý tin nhắn** mới được phép sử dụng.'
-    }
+  BAD_REQUEST: {
+    TITLE: 'Yêu cầu không hợp lệ',
+    DESCRIPTION: 'Yêu cầu không hợp lệ'
+  },
+
+  NOT_FOUND: {
+    TITLE: 'Không tìm thấy',
+    DESCRIPTION: 'Không tìm thấy'
+  },
+
+  FORBIDDEN: {
+    TITLE: 'Không được phép',
+    DESCRIPTION: 'Không được phép'
+  },
+  DATABASE_ERROR: {
+    TITLE: 'Lỗi cơ sở dữ liệu',
+    DESCRIPTION:
+      'Có lỗi xảy ra với cơ sở dữ liệu, vui lòng thử lại hoặc liên hệ với **Quản trị viên** để được hỗ trợ.'
+  },
+
+  INTERNAL_SERVER_ERROR: {
+    TITLE: 'Lỗi không xác định',
+    DESCRIPTION:
+      'Có lỗi xảy ra với hệ thống, vui lòng thử lại hoặc liên hệ với **Quản trị viên** để được hỗ trợ.'
   }
 } as const
