@@ -15,14 +15,20 @@ export class TicketCommand extends Subcommand {
       description: 'Ticket commands',
       subcommands: [
         {
-          name: 'setup',
-          chatInputRun: 'chatInputSetup',
-          preconditions: ['OwnerOnly']
-        },
-        {
-          name: 'send',
-          chatInputRun: 'chatInputSend',
-          preconditions: ['OwnerOnly']
+          name: 'config',
+          type: 'group',
+          entries: [
+            {
+              name: 'setup',
+              chatInputRun: 'chatInputSetup',
+              preconditions: ['OwnerOnly']
+            },
+            {
+              name: 'send',
+              chatInputRun: 'chatInputSend',
+              preconditions: ['OwnerOnly']
+            }
+          ]
         }
       ]
     })
@@ -45,25 +51,30 @@ export class TicketCommand extends Subcommand {
       builder
         .setName('ticket')
         .setDescription('Ticket commands')
-        .addSubcommand((subcommand) =>
-          subcommand
-            .setName('setup')
-            .setDescription(
-              'Thiết lập kênh để thành viên có thể góp ý, báo cáo.'
+        .addSubcommandGroup((group) =>
+          group
+            .setName('config')
+            .setDescription('Ticket configuration commands')
+            .addSubcommand((subcommand) =>
+              subcommand
+                .setName('setup')
+                .setDescription(
+                  'Thiết lập kênh để thành viên có thể góp ý, báo cáo.'
+                )
+                .addChannelOption((option) =>
+                  option
+                    .setName('ticket-channel')
+                    .addChannelTypes(ChannelType.GuildText)
+                    .setDescription('Kênh để thành viên có thể góp ý, báo cáo.')
+                    .setRequired(true)
+                )
             )
-            .addChannelOption((option) =>
-              option
-                .setName('ticket-channel')
-                .addChannelTypes(ChannelType.GuildText)
-                .setDescription('Kênh để thành viên có thể góp ý, báo cáo.')
-                .setRequired(true)
-            )
-        )
-        .addSubcommand((subcommand) =>
-          subcommand
-            .setName('send')
-            .setDescription(
-              'Gửi tin nhắn chứa hướng dẫn sử dụng tới kênh đã được thiết lập.'
+            .addSubcommand((subcommand) =>
+              subcommand
+                .setName('send')
+                .setDescription(
+                  'Gửi tin nhắn chứa hướng dẫn sử dụng tới kênh đã được thiết lập.'
+                )
             )
         )
     )
