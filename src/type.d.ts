@@ -8,3 +8,10 @@ declare module '@sapphire/framework' {
     redis: Redis
   }
 }
+
+declare global {
+  type ErrorContext = {
+    title: string
+    description: string
+  }
+}

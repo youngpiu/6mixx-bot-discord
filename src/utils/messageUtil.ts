@@ -21,21 +21,11 @@ import {
 import { RGB_COLOR_TEMPLATE } from '~/constants/colorConstant'
 import { RANDOM_LOADING_MESSAGES } from '~/constants/messageConstant'
 
-/**
- * Picks a random item from an array
- * @param array The array to pick a random item from
- * @example
- * const randomEntry = pickRandom([1, 2, 3, 4]) // 1
- */
 export function pickRandom<T>(array: readonly T[]): T {
   const { length } = array
   return array[Math.floor(Math.random() * length)]
 }
 
-/**
- * Sends a loading message to the current channel
- * @param message The message data for which to send the loading message
- */
 export function sendLoadingMessage(message: Message): Promise<typeof message> {
   return reply(message, {
     embeds: [
@@ -56,18 +46,20 @@ export function logSuccessCommand(
 ): void {
   let successLoggerData: ReturnType<typeof getSuccessLoggerData>
 
-  if ('interaction' in payload) {
+  if ('interaction' in payload && payload.interaction) {
     successLoggerData = getSuccessLoggerData(
       payload.interaction.guild,
       payload.interaction.user,
       payload.command
     )
-  } else {
+  } else if ('message' in payload && payload.message) {
     successLoggerData = getSuccessLoggerData(
       payload.message.guild,
       payload.message.author,
       payload.command
     )
+  } else {
+    return
   }
 
   container.logger.debug(
