@@ -7,7 +7,7 @@ import type {
   ChatInputSubcommandSuccessPayload,
   MessageSubcommandSuccessPayload
 } from '@sapphire/plugin-subcommands'
-import { container } from '@sapphire/framework'
+import { container } from '@sapphire/pieces'
 import { reply } from '@sapphire/plugin-editable-commands'
 import { cyan } from 'colorette'
 import {

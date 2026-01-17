@@ -5,12 +5,23 @@ import {
   ContainerBuilder
 } from 'discord.js'
 import { createSuccessEmbed } from '~/utils/embedUtil'
-import { container } from '@sapphire/framework'
+import { container } from '@sapphire/pieces'
 import { RGB_COLOR_TEMPLATE } from '~/constants/colorConstant'
 import { BadRequestError } from '~/core/errorResponse'
+import { ERROR_MESSAGE } from '~/constants/messageConstant'
 
-export class TicketSendCommand {
+export class TicketConfigSendCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
+    await interaction.deferReply({
+      flags: ['Ephemeral']
+    })
+
+    if (!interaction.guildId) {
+      throw new BadRequestError({
+        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
+      })
+    }
+
     await interaction.deferReply({
       flags: ['Ephemeral']
     })

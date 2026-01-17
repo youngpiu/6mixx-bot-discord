@@ -1,10 +1,21 @@
 import { ChatInputCommandInteraction } from 'discord.js'
-import { container } from '@sapphire/framework'
 import { createSuccessEmbed } from '~/utils/embedUtil'
 import { BadRequestError } from '~/core/errorResponse'
+import { ERROR_MESSAGE } from '~/constants/messageConstant'
+import { container } from '@sapphire/pieces'
 
-export class TicketSetupCommand {
+export class TicketConfigChannelCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
+    await interaction.deferReply({
+      flags: ['Ephemeral']
+    })
+
+    if (!interaction.guildId) {
+      throw new BadRequestError({
+        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
+      })
+    }
+
     const ticketChannel = interaction.options.getChannel('ticket-channel')
 
     if (!ticketChannel) {

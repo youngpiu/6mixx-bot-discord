@@ -1,6 +1,6 @@
 import Redis from 'ioredis'
 import { env } from '~/config/env'
-import { container } from '@sapphire/framework'
+import { container } from '@sapphire/pieces'
 
 const redis = new Redis(env.REDIS_URL)
 

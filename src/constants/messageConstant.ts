@@ -9,7 +9,8 @@ export const RANDOM_LOADING_MESSAGES: string[] = [
 export const ERROR_MESSAGE = {
   BAD_REQUEST: {
     TITLE: 'Yêu cầu không hợp lệ',
-    DESCRIPTION: 'Yêu cầu không hợp lệ'
+    DESCRIPTION: 'Yêu cầu không hợp lệ',
+    GUILD_ONLY_DESCRIPTION: 'Lệnh này chỉ có thể sử dụng trong máy chủ.'
   },
 
   NOT_FOUND: {
@@ -26,12 +27,12 @@ export const ERROR_MESSAGE = {
   DATABASE_ERROR: {
     TITLE: 'Lỗi cơ sở dữ liệu',
     DESCRIPTION:
-      'Có lỗi xảy ra với cơ sở dữ liệu, vui lòng thử lại hoặc liên hệ với **Quản trị viên** để được hỗ trợ.'
+      'Có lỗi xảy ra với cơ sở dữ liệu, vui lòng thử lại hoặc liên hệ với **Ban Quản Lý** để được hỗ trợ.'
   },
 
   INTERNAL_SERVER_ERROR: {
     TITLE: 'Lỗi không xác định',
     DESCRIPTION:
-      'Có lỗi xảy ra với hệ thống, vui lòng thử lại hoặc liên hệ với **Quản trị viên** để được hỗ trợ.'
+      'Có lỗi xảy ra với hệ thống, vui lòng thử lại hoặc liên hệ với **Ban Quản Lý** để được hỗ trợ.'
   }
 } as const

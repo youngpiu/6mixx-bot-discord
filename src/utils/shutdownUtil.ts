@@ -1,6 +1,6 @@
 import redis from '~/lib/redis'
 import prisma from '~/lib/prisma'
-import { container } from '@sapphire/framework'
+import { container } from '@sapphire/pieces'
 
 let isShuttingDown = false
 
