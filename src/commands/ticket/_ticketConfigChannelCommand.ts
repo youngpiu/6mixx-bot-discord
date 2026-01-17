@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction } from 'discord.js'
 import { createSuccessEmbed } from '~/utils/embedUtil'
 import { BadRequestError } from '~/core/errorResponse'
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
-import { container } from '@sapphire/pieces'
+import { GuildRepository } from '~/repositories/guildRepository'
 
 export class TicketConfigChannelCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
@@ -25,13 +25,9 @@ export class TicketConfigChannelCommand {
       })
     }
 
-    await container.prisma.ticketConfig.upsert({
-      where: { guildId: interaction.guildId },
-      update: { ticketChannelId: ticketChannel.id },
-      create: {
-        guildId: interaction.guildId,
-        ticketChannelId: ticketChannel.id
-      }
+    await GuildRepository.createTicketConfig({
+      guildId: interaction.guildId,
+      ticketChannelId: ticketChannel.id
     })
 
     return interaction.editReply({

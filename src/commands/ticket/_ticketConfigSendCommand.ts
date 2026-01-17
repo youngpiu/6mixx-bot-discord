@@ -5,10 +5,10 @@ import {
   ContainerBuilder
 } from 'discord.js'
 import { createSuccessEmbed } from '~/utils/embedUtil'
-import { container } from '@sapphire/pieces'
 import { RGB_COLOR_TEMPLATE } from '~/constants/colorConstant'
 import { BadRequestError } from '~/core/errorResponse'
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
+import { GuildRepository } from '~/repositories/guildRepository'
 
 export class TicketConfigSendCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
@@ -22,9 +22,9 @@ export class TicketConfigSendCommand {
       })
     }
 
-    const ticketConfig = await container.prisma.ticketConfig.findUnique({
-      where: { guildId: interaction.guildId }
-    })
+    const ticketConfig = await GuildRepository.getTicketConfig(
+      interaction.guildId
+    )
 
     if (!ticketConfig || !ticketConfig.ticketChannelId) {
       throw new BadRequestError({

@@ -1,7 +1,8 @@
 model TicketConfig {
-  id              String @id @default(cuid())
-  guildId         String @unique
+  id              String   @id @default(cuid())
+  guildId         String   @unique
   ticketChannelId String
+  allowedRoles    String[]
 
   guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
 }
