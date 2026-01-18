@@ -4,6 +4,14 @@ import { Prisma } from 'generated/prisma/client'
 export class GuildRepository {
   private static CACHE_CONFIG_TTL = 60 * 10 // 10 phút
 
+  public static async createGuild(guildId: string) {
+    return await container.prisma.guild.create({
+      data: {
+        guildId
+      }
+    })
+  }
+
   public static async getTicketConfig(guildId: string) {
     const cacheKey = `guild:${guildId}:ticket-config`
     const cached = await container.redis.get(cacheKey)

@@ -1,5 +1,6 @@
 import { Listener } from '@sapphire/framework'
 import { Guild } from 'discord.js'
+import { GuildRepository } from '~/repositories/guildRepository'
 
 export class GuildCreateListener extends Listener {
   constructor(context: Listener.LoaderContext, options: Listener.Options) {
@@ -10,13 +11,7 @@ export class GuildCreateListener extends Listener {
   }
 
   public async run(guild: Guild) {
-    await this.container.prisma.guild.upsert({
-      where: { guildId: guild.id },
-      update: {},
-      create: {
-        guildId: guild.id
-      }
-    })
+    await GuildRepository.createGuild(guild.id)
     this.container.logger.info(
       `Guild ${guild.name} (${guild.id}) has been created.`
     )
