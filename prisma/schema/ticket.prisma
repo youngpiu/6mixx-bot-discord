@@ -15,11 +15,12 @@ model Ticket {
   id String @id @default(cuid())
 
   guildId     String   
-  threadId    String   @unique
+  threadId    String?  @unique
   requesterId String   
   solverId    String?  
 
-  type        TicketType @default(FEEDBACK)
+  type        TicketType   @default(FEEDBACK)
+  code        String       @unique
   reason      String?
 
   status      TicketStatus @default(PROCESSING)

@@ -10,7 +10,11 @@ export const ERROR_MESSAGE = {
   BAD_REQUEST: {
     TITLE: 'Yêu cầu không hợp lệ',
     DESCRIPTION: 'Yêu cầu không hợp lệ',
-    GUILD_ONLY_DESCRIPTION: 'Lệnh này chỉ có thể sử dụng trong máy chủ.'
+    GUILD_ONLY_DESCRIPTION: 'Lệnh này chỉ có thể sử dụng trong máy chủ.',
+    TICKET_CONFIG_NOT_FOUND_DESCRIPTION:
+      'Cấu hình hệ thống hỗ trợ thành viên chưa được thiết lập.',
+    THREAD_NOT_FOUND_DESCRIPTION:
+      'Không tìm thấy phiếu hỗ trợ trong máy chủ **VNMIXX**.'
   },
 
   NOT_FOUND: {

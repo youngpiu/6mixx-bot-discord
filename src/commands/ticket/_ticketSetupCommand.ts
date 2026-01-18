@@ -79,7 +79,7 @@ export class TicketSetupCommand {
       new ContainerBuilder()
         .addTextDisplayComponents((text) =>
           text.setContent(
-            '## Trung Tâm Hỗ Trợ Thành Viên\n' +
+            '## Trung Tâm Hỗ Trợ\n' +
               '-# Tại đây, bạn có thể gửi báo cáo vi phạm luật, góp ý cải thiện máy chủ và báo lỗi nếu có trong máy chủ **VNMIXX**.'
           )
         )
@@ -138,12 +138,12 @@ export class TicketSetupCommand {
             .addTextDisplayComponents((text) =>
               text.setContent(
                 '### Báo lỗi máy chủ\n' +
-                  '-# Dùng khi bạn thấy lỗi của <@1431578647558619207> trong quá trình sử dụng.\n' +
+                  '-# Dùng khi bạn gặp lỗi trong quá trình sử dụng máy chủ **VNMIXX**.\n' +
                   '- Yêu cầu bắt buộc\n' +
                   '  - Mô tả rõ ràng lỗi mà bạn gặp phải\n' +
                   '  - Cung cấp hình ảnh, quá trình tường bước bạn làm trước và sau khi gặp lỗi.\n' +
                   '- Lưu ý\n' +
-                  '  - Không tiếp nhận các lỗi không liên quan tới <@1431578647558619207>\n' +
+                  '  - Không tiếp nhận các lỗi không liên quan tới máy chủ **VNMIXX**\n' +
                   '  - Gửi báo lỗi mà không có mục đích gì sẽ bị hạn chế 1 ngày.'
               )
             )

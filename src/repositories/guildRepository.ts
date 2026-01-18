@@ -4,7 +4,7 @@ import { Prisma } from 'generated/prisma/client'
 export class GuildRepository {
   private static CACHE_CONFIG_TTL = 60 * 10 // 10 phút
 
-  public static async createGuild(guildId: string) {
+  public static async createGuild({ guildId }: { guildId: string }) {
     return await container.prisma.guild.create({
       data: {
         guildId
@@ -12,7 +12,7 @@ export class GuildRepository {
     })
   }
 
-  public static async getTicketConfig(guildId: string) {
+  public static async getTicketConfig({ guildId }: { guildId: string }) {
     const cacheKey = `guild:${guildId}:ticket-config`
     const cached = await container.redis.get(cacheKey)
     if (cached) return JSON.parse(cached)
@@ -22,6 +22,7 @@ export class GuildRepository {
         guildId
       }
     })
+
     if (!ticketConfig) return null
 
     await container.redis.set(
@@ -33,10 +34,13 @@ export class GuildRepository {
     return ticketConfig
   }
 
-  public static async upsertTicketConfig(
-    guildId: string,
+  public static async upsertTicketConfig({
+    guildId,
+    data
+  }: {
+    guildId: string
     data: Omit<Prisma.TicketConfigUncheckedCreateInput, 'guildId'>
-  ) {
+  }) {
     const ticketConfig = await container.prisma.ticketConfig.upsert({
       where: { guildId },
       update: data,

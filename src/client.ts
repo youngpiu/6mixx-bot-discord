@@ -33,7 +33,7 @@ export class BotClient extends SapphireClient {
 
     this.stores
       .get('interaction-handlers')
-      .registerPath(join(this.rootData.root, 'interactions'))
+      .registerPath(join(this.rootData.root, 'handlers'))
 
     process.on('SIGINT', () => gracefulShutdown(this))
     process.on('SIGTERM', () => gracefulShutdown(this))
