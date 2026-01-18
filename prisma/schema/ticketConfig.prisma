@@ -2,6 +2,7 @@ model TicketConfig {
   id              String   @id @default(cuid())
   guildId         String   @unique
   ticketChannelId String
+  tutorialMessageId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

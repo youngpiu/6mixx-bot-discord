@@ -33,14 +33,35 @@ export class TicketSetupCommand {
       })
     }
 
-    await GuildRepository.upsertTicketConfig({
-      guildId: interaction.guildId,
-      data: { ticketChannelId: ticketChannel.id }
+    const existingConfig = await GuildRepository.getTicketConfig({
+      guildId: interaction.guildId
     })
 
-    await ticketChannel.send({
+    if (existingConfig?.tutorialMessageId) {
+      try {
+        const oldChannel = await interaction.client.channels.fetch(
+          existingConfig.ticketChannelId
+        )
+        if (oldChannel?.isTextBased()) {
+          const oldMessage = await oldChannel.messages.fetch(
+            existingConfig.tutorialMessageId
+          )
+          await oldMessage.delete()
+        }
+      } catch {}
+    }
+
+    const tutorialMessage = await ticketChannel.send({
       components: [this.createTicketEmbed()],
       flags: ['IsComponentsV2']
+    })
+
+    await GuildRepository.upsertTicketConfig({
+      guildId: interaction.guildId,
+      data: {
+        ticketChannelId: ticketChannel.id,
+        tutorialMessageId: tutorialMessage.id
+      }
     })
 
     return interaction.editReply({
