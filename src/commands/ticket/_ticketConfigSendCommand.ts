@@ -5,7 +5,6 @@ import {
   ContainerBuilder
 } from 'discord.js'
 import { createSuccessEmbed } from '~/utils/embedUtil'
-import { RGB_COLOR_TEMPLATE } from '~/constants/colorConstant'
 import { BadRequestError } from '~/core/errorResponse'
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { GuildRepository } from '~/repositories/guildRepository'
@@ -61,63 +60,81 @@ export class TicketConfigSendCommand {
   private static createTicketEmbed() {
     return (
       new ContainerBuilder()
-        .setAccentColor(RGB_COLOR_TEMPLATE.TICKET_EMBED)
         .addTextDisplayComponents((text) =>
           text.setContent(
-            '📌 **VNMIXx – Báo cáo & Góp ý**\nVui lòng đọc kỹ quy định trước khi gửi.'
+            '## Trung Tâm Hỗ Trợ Thành Viên\n' +
+              '-# Tại đây, bạn có thể gửi báo cáo vi phạm luật, góp ý cải thiện máy chủ và báo lỗi nếu có trong máy chủ **VNMIXX**.'
           )
         )
 
         // ===== Báo cáo vi phạm =====
-        .addSeparatorComponents((sep) => sep)
-
+        .addSeparatorComponents((sep) => sep.setDivider(true))
         .addSectionComponents((section) =>
           section
             .addTextDisplayComponents((text) =>
               text.setContent(
-                '🚨 **BÁO CÁO VI PHẠM**\n\n' +
-                  '• Chỉ xử lý các vấn đề xảy ra trong **VNMIXx**\n' +
-                  '• **Không xử lý tin nhắn riêng (DM)**\n\n' +
-                  '**Yêu cầu bắt buộc:**\n' +
-                  '• Đính kèm **bằng chứng rõ ràng**\n' +
-                  '• **Tag người liên quan**\n\n' +
-                  '**Cách gửi bằng chứng:**\n' +
-                  '• Ảnh chụp màn hình **đầy đủ, không cắt xén**\n' +
-                  '• Hoặc **Message Link** *(Right click → Copy Message Link)*\n\n' +
-                  '_Gửi báo cáo không có mục đích sẽ bị hạn chế **1 ngày**_'
+                '### Báo cáo vi phạm\n' +
+                  '-# Dùng khi bạn thấy một hành vi vi phạm luật trong máy chủ **VNMIXX**\n' +
+                  '- Yêu cầu bắt buộc\n' +
+                  '  - Đính kèm bằng chứng rõ ràng, chính xác, không qua chỉnh sửa.\n' +
+                  '  - Có thể gửi đường dẫn tin nhắn nếu có và tag người liên quan.\n' +
+                  '- Lưu ý\n' +
+                  '  - Không giải quyết riêng qua tin nhắn riêng tư (DM)\n' +
+                  '  - Gửi báo cáo mà không có mục đích gì sẽ bị hạn chế 1 ngày.'
               )
             )
             .setButtonAccessory(
               new ButtonBuilder()
-                .setCustomId('report_violation')
+                .setCustomId('btn-ticket-report')
                 .setLabel('Báo cáo')
                 .setStyle(ButtonStyle.Danger)
             )
         )
 
-        // ===== Góp ý =====
-        .addSeparatorComponents((sep) => sep)
-
+        // ===== Góp ý cải thiện =====
+        .addSeparatorComponents((sep) => sep.setDivider(true))
         .addSectionComponents((section) =>
           section
             .addTextDisplayComponents((text) =>
               text.setContent(
-                '💡 **GÓP Ý CHO VNMIXx**\n\n' +
-                  '• Chỉ tiếp nhận góp ý liên quan đến **VNMIXx**\n' +
-                  '• **Không phản hồi** góp ý mang tính công kích\n\n' +
-                  '**Yêu cầu bắt buộc:**\n' +
-                  '• Nội dung góp ý **rõ ràng, cụ thể**\n' +
-                  '• Tag người liên quan *(nếu có)*\n\n' +
-                  '**Minh họa:**\n' +
-                  '• Ảnh chụp màn hình *(nếu cần)*\n' +
-                  '• Hoặc **Message Link**'
+                '### Góp ý cải thiện\n' +
+                  '-# Dùng khi bạn có một ý tưởng đề xuất hoặc góp ý cải thiện máy chủ **VNMIXX**.\n' +
+                  '- Yêu cầu bắt buộc\n' +
+                  '  - Mô tả rõ ràng những góp ý, ý tưởng của bạn.\n' +
+                  '  - Có thể gửi hình ảnh, biểu đồ về ý tưởng đó nếu có.\n' +
+                  '- Lưu ý\n' +
+                  '  - Gửi góp ý mà không có mục đích gì sẽ bị hạn chế 1 ngày.'
               )
             )
             .setButtonAccessory(
               new ButtonBuilder()
-                .setCustomId('send_feedback')
+                .setCustomId('btn-ticket-feedback')
                 .setLabel('Góp ý')
                 .setStyle(ButtonStyle.Primary)
+            )
+        )
+
+        // ===== Báo lỗi máy chủ =====
+        .addSeparatorComponents((sep) => sep.setDivider(true))
+        .addSectionComponents((section) =>
+          section
+            .addTextDisplayComponents((text) =>
+              text.setContent(
+                '### Báo lỗi máy chủ\n' +
+                  '-# Dùng khi bạn thấy lỗi của <@1431578647558619207> trong quá trình sử dụng.\n' +
+                  '- Yêu cầu bắt buộc\n' +
+                  '  - Mô tả rõ ràng lỗi mà bạn gặp phải\n' +
+                  '  - Cung cấp hình ảnh, quá trình tường bước bạn làm trước và sau khi gặp lỗi.\n' +
+                  '- Lưu ý\n' +
+                  '  - Không tiếp nhận các lỗi không liên quan tới <@1431578647558619207>\n' +
+                  '  - Gửi báo lỗi mà không có mục đích gì sẽ bị hạn chế 1 ngày.'
+              )
+            )
+            .setButtonAccessory(
+              new ButtonBuilder()
+                .setCustomId('btn-ticket-bug')
+                .setLabel('Báo lỗi')
+                .setStyle(ButtonStyle.Danger)
             )
         )
     )
