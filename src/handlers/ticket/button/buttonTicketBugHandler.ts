@@ -65,45 +65,46 @@ export class ButtonTicketBugHandler extends InteractionHandler {
     )
 
     const thread = await ticketChannel.threads.create({
-      name: `Báo Lỗi - #${code}`,
+      name: `#${code} - Báo Lỗi`,
       type: ChannelType.PrivateThread,
       invitable: false
     })
 
-    const [, , ticketInfoMessage] = await Promise.all([
-      thread.members.add(interaction.user.id),
-      thread.members.add(interaction.guild.ownerId),
-      thread.send({
-        embeds: [
-          new EmbedBuilder()
-            .setTitle('Bắt đầu hỗ trợ')
-            .setDescription(
-              `Vui lòng cung cấp đầy đủ thông tin chi tiết về lỗi bạn gặp phải.`
-            )
-            .setColor([255, 152, 0])
-            .setFields(
-              {
-                name: 'Mã phiếu',
-                value: `**_#${code}_**`,
-                inline: true
-              },
-              {
-                name: 'Người báo lỗi',
-                value: `<@${interaction.user.id}>`,
-                inline: true
-              },
-              {
-                name: 'Thời gian tạo',
-                value: `<t:${Math.floor(now.getTime() / 1000)}:R>`,
-                inline: true
-              }
-            )
-        ]
-      })
-    ])
+    await thread.members.add(interaction.user.id)
+    await thread.members.add(interaction.guild.ownerId)
+
+    await thread.send({
+      embeds: [
+        new EmbedBuilder()
+          .setTitle('Bắt đầu hỗ trợ')
+          .setDescription(
+            `Vui lòng cung cấp đầy đủ thông tin chi tiết về lỗi bạn gặp phải.`
+          )
+          .setColor([255, 152, 0])
+          .setFields(
+            {
+              name: 'Mã phiếu',
+              value: `**_#${code}_**`,
+              inline: true
+            },
+            {
+              name: 'Người báo lỗi',
+              value: `<@${interaction.user.id}>`,
+              inline: true
+            },
+            {
+              name: 'Thời gian tạo',
+              value: `<t:${Math.floor(now.getTime() / 1000)}:R>`,
+              inline: true
+            }
+          )
+      ]
+    })
 
     await Promise.all([
-      ticketInfoMessage.pin(),
+      await thread.send({
+        stickers: ['751606379340365864']
+      }),
       TicketRepository.createTicket({
         guildId: interaction.guildId,
         requesterId: interaction.user.id,
