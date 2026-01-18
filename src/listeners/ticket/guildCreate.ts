@@ -11,10 +11,10 @@ export class GuildCreateListener extends Listener {
 
   public async run(guild: Guild) {
     await this.container.prisma.guild.upsert({
-      where: { id: guild.id },
+      where: { guildId: guild.id },
       update: {},
       create: {
-        id: guild.id
+        guildId: guild.id
       }
     })
     this.container.logger.info(

@@ -1,0 +1,30 @@
+
+enum TicketStatus {
+  PROCESSING 
+  SOLVED     
+  REJECTED   
+}
+
+enum TicketType {
+  FEEDBACK
+  REPORT
+  BUG
+}
+
+model Ticket {
+  id String @id @default(cuid())
+
+  guildId     String   
+  threadId    String   @unique
+  requesterId String   
+  solverId    String?  
+
+  type        TicketType @default(FEEDBACK)
+  reason      String?
+
+  status      TicketStatus @default(PROCESSING)
+
+  solvedAt    DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
