@@ -1,7 +1,6 @@
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChannelType, ChatInputCommandInteraction } from 'discord.js'
-import { TicketConfigSendCommand } from '~/commands/ticket/_ticketConfigSendCommand'
-import { TicketConfigChannelCommand } from '~/commands/ticket/_ticketConfigChannelCommand'
+import { TicketSetupCommand } from '~/commands/ticket/_ticketSetupCommand'
 import { asyncChatInputHandler } from '~/utils/asyncHandleUtil'
 
 export class TicketCommand extends Subcommand {
@@ -15,34 +14,17 @@ export class TicketCommand extends Subcommand {
       description: 'Ticket commands',
       subcommands: [
         {
-          name: 'config',
-          type: 'group',
-          entries: [
-            {
-              name: 'channel',
-              chatInputRun: 'chatInputChannel',
-              preconditions: ['OwnerOnly']
-            },
-            {
-              name: 'send',
-              chatInputRun: 'chatInputSend',
-              preconditions: ['OwnerOnly']
-            }
-          ]
+          name: 'setup',
+          chatInputRun: 'chatInputSetup',
+          preconditions: ['OwnerOnly']
         }
       ]
     })
   }
 
-  public chatInputChannel = asyncChatInputHandler(
+  public chatInputSetup = asyncChatInputHandler(
     async (interaction: ChatInputCommandInteraction) => {
-      return TicketConfigChannelCommand.run(interaction)
-    }
-  )
-
-  public chatInputSend = asyncChatInputHandler(
-    async (interaction: ChatInputCommandInteraction) => {
-      return TicketConfigSendCommand.run(interaction)
+      return TicketSetupCommand.run(interaction)
     }
   )
 
@@ -51,32 +33,20 @@ export class TicketCommand extends Subcommand {
       builder
         .setName('ticket')
         .setDescription('ticket')
-        .addSubcommandGroup((group) =>
-          group
-            .setName('config')
-            .setDescription('ticket-config')
-            .addSubcommand((subcommand) =>
-              subcommand
-                .setName('channel')
-                .setDescription(
-                  'Thiết lập kênh để thành viên có thể gửi các yêu cầu hỗ trợ tới Ban Quản Lý.'
-                )
-                .addChannelOption((option) =>
-                  option
-                    .setName('ticket-channel')
-                    .addChannelTypes(ChannelType.GuildText)
-                    .setDescription(
-                      'Kênh để thành viên có gửi các yêu cầu hỗ trợ tới Ban Quản Lý.'
-                    )
-                    .setRequired(true)
-                )
+        .addSubcommand((subcommand) =>
+          subcommand
+            .setName('setup')
+            .setDescription(
+              'Thiết lập kênh hỗ trợ và gửi hướng dẫn cho thành viên.'
             )
-            .addSubcommand((subcommand) =>
-              subcommand
-                .setName('send')
+            .addChannelOption((option) =>
+              option
+                .setName('ticket-channel')
+                .addChannelTypes(ChannelType.GuildText)
                 .setDescription(
-                  'Gửi tin nhắn chứa hướng dẫn sử dụng tới kênh đã được thiết lập.'
+                  'Kênh để thành viên có gửi các yêu cầu hỗ trợ tới Ban Quản Lý.'
                 )
+                .setRequired(true)
             )
         )
     )

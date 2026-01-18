@@ -2,14 +2,15 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ChatInputCommandInteraction,
-  ContainerBuilder
+  ContainerBuilder,
+  TextChannel
 } from 'discord.js'
 import { createSuccessEmbed } from '~/utils/embedUtil'
 import { BadRequestError } from '~/core/errorResponse'
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { GuildRepository } from '~/repositories/guildRepository'
 
-export class TicketConfigSendCommand {
+export class TicketSetupCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({
       flags: ['Ephemeral']
@@ -21,25 +22,21 @@ export class TicketConfigSendCommand {
       })
     }
 
-    const ticketConfig = await GuildRepository.getTicketConfig(
-      interaction.guildId
-    )
+    const ticketChannel = interaction.options.getChannel(
+      'ticket-channel'
+    ) as TextChannel
 
-    if (!ticketConfig || !ticketConfig.ticketChannelId) {
+    if (!ticketChannel) {
       throw new BadRequestError({
         description:
-          'Vui lòng thiết lập kênh hỗ trợ trước khi sử dụng lệnh này.'
+          'Vui lòng chọn một kênh văn bản để thiết lập hệ thống hỗ trợ cho thành viên'
       })
     }
 
-    const ticketChannel = interaction.guild?.channels.cache.get(
-      ticketConfig.ticketChannelId
-    )
-
-    if (!ticketChannel || !ticketChannel.isTextBased())
-      throw new BadRequestError({
-        description: 'Kênh được thiết lập không còn tồn tại trong máy chủ.'
-      })
+    await GuildRepository.upsertTicketConfig({
+      guildId: interaction.guildId,
+      data: { ticketChannelId: ticketChannel.id }
+    })
 
     await ticketChannel.send({
       components: [this.createTicketEmbed()],
@@ -49,9 +46,8 @@ export class TicketConfigSendCommand {
     return interaction.editReply({
       embeds: [
         createSuccessEmbed({
-          title: 'Gửi thành công',
-          description:
-            'Đã gửi tin nhắn hướng dẫn sử dụng tới kênh đã được thiết lập.'
+          title: 'Thiết lập thành công',
+          description: `Đã thiết lập và gửi tin nhắn hướng dẫn sử dụng tới kênh <#${ticketChannel.id}>.`
         })
       ]
     })
