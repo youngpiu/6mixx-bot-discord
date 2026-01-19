@@ -1,4 +1,5 @@
 import { container } from '@sapphire/pieces'
+import { Prisma } from 'generated/prisma/client'
 import { TicketType } from 'generated/prisma/enums'
 
 const TICKET_PREFIX: Record<TicketType, string> = {
@@ -45,25 +46,6 @@ export class TicketRepository {
     return ticket
   }
 
-  public static async updateThreadIdOfTicket({
-    ticketId,
-    threadId
-  }: {
-    ticketId: string
-    threadId: string
-  }) {
-    const ticket = await container.prisma.ticket.update({
-      where: {
-        id: ticketId
-      },
-      data: {
-        threadId
-      }
-    })
-
-    return ticket
-  }
-
   public static async findByCode({
     guildId,
     code
@@ -90,6 +72,41 @@ export class TicketRepository {
       },
       orderBy: { createdAt: 'desc' },
       take: 25
+    })
+  }
+
+  public static async closeTicket({
+    ticketId,
+    closedById
+  }: {
+    ticketId: string
+    closedById: string
+  }) {
+    return container.prisma.ticket.update({
+      where: { id: ticketId },
+      data: {
+        closedById,
+        closedAt: new Date()
+      }
+    })
+  }
+
+  public static async findByThreadId({ threadId }: { threadId: string }) {
+    return container.prisma.ticket.findUnique({
+      where: { threadId }
+    })
+  }
+
+  public static async updateTicket({
+    ticketId,
+    data
+  }: {
+    ticketId: string
+    data: Prisma.TicketUpdateInput
+  }) {
+    return container.prisma.ticket.update({
+      where: { id: ticketId },
+      data
     })
   }
 }

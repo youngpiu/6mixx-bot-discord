@@ -1,5 +1,6 @@
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChannelType, ChatInputCommandInteraction } from 'discord.js'
+import { TicketCloseCommand } from '~/commands/ticket/_ticketCloseCommand'
 import { TicketSetupCommand } from '~/commands/ticket/_ticketSetupCommand'
 import { asyncChatInputHandler } from '~/utils/asyncHandleUtil'
 
@@ -17,6 +18,22 @@ export class TicketCommand extends Subcommand {
           name: 'setup',
           chatInputRun: 'chatInputSetup',
           preconditions: ['OwnerOnly']
+        },
+        {
+          name: 'remove',
+          chatInputRun: 'chatInputRemove'
+        },
+        {
+          name: 'list',
+          chatInputRun: 'chatInputList'
+        },
+        {
+          name: 'detail',
+          chatInputRun: 'chatInputDetail'
+        },
+        {
+          name: 'close',
+          chatInputRun: 'chatInputClose'
         }
       ]
     })
@@ -25,6 +42,12 @@ export class TicketCommand extends Subcommand {
   public chatInputSetup = asyncChatInputHandler(
     async (interaction: ChatInputCommandInteraction) => {
       return TicketSetupCommand.run(interaction)
+    }
+  )
+
+  public chatInputClose = asyncChatInputHandler(
+    async (interaction: ChatInputCommandInteraction) => {
+      return TicketCloseCommand.run(interaction)
     }
   )
 
@@ -37,7 +60,7 @@ export class TicketCommand extends Subcommand {
           subcommand
             .setName('setup')
             .setDescription(
-              'Thiết lập kênh hỗ trợ và gửi hướng dẫn cho thành viên.'
+              'Thiết lập kênh hỗ trợ và gửi hướng dẫn tới kênh đó.'
             )
             .addChannelOption((option) =>
               option
@@ -47,6 +70,14 @@ export class TicketCommand extends Subcommand {
                   'Kênh để thành viên có gửi các yêu cầu hỗ trợ tới Ban Quản Lý.'
                 )
                 .setRequired(true)
+            )
+        )
+        .addSubcommand((subcommand) =>
+          subcommand
+            .setName('close')
+            .setDescription('Đóng phiếu hỗ trợ đang được mở')
+            .addStringOption((option) =>
+              option.setName('reason').setDescription('Lý do đóng phiếu hỗ trợ')
             )
         )
     )

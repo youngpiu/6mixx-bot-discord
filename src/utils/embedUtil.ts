@@ -13,7 +13,10 @@ export const createErrorEmbed = ({ title, description }: EmbedOptions) => {
     .setDescription(description)
 }
 
-export const createSuccessEmbed = ({ title, description }: EmbedOptions) => {
+export const createSuccessEmbed = ({
+  title = 'Yêu cầu thành công',
+  description
+}: EmbedOptions) => {
   return new EmbedBuilder()
     .setColor(RGB_COLOR_TEMPLATE.SUCCESS)
     .setTitle(title ?? null)

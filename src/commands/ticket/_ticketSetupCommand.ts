@@ -141,7 +141,7 @@ export class TicketSetupCommand {
                   '-# Dùng khi bạn gặp lỗi trong quá trình sử dụng máy chủ **VNMIXX**.\n' +
                   '- Yêu cầu bắt buộc\n' +
                   '  - Mô tả rõ ràng lỗi mà bạn gặp phải\n' +
-                  '  - Cung cấp hình ảnh, quá trình tường bước bạn làm trước và sau khi gặp lỗi.\n' +
+                  '  - Cung cấp hình ảnh, quá trình từng bước bạn làm trước và sau khi gặp lỗi.\n' +
                   '- Lưu ý\n' +
                   '  - Không tiếp nhận các lỗi không liên quan tới máy chủ **VNMIXX**\n' +
                   '  - Gửi báo lỗi mà không có mục đích gì sẽ bị hạn chế 1 ngày.'
