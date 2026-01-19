@@ -11,10 +11,8 @@ export const ERROR_MESSAGE = {
     TITLE: 'Yêu cầu không hợp lệ',
     DESCRIPTION: 'Yêu cầu không hợp lệ',
     GUILD_ONLY_DESCRIPTION: 'Lệnh này chỉ có thể sử dụng trong máy chủ.',
-    TICKET_CONFIG_NOT_FOUND_DESCRIPTION:
-      'Cấu hình hệ thống hỗ trợ thành viên chưa được thiết lập.',
-    THREAD_NOT_FOUND_DESCRIPTION:
-      'Không tìm thấy phiếu hỗ trợ trong máy chủ **VNMIXX**.'
+    TICKET_CONFIG_NOT_FOUND_DESCRIPTION: 'Cấu hình hệ thống hỗ trợ thành viên chưa được thiết lập.',
+    THREAD_NOT_FOUND_DESCRIPTION: 'Không tìm thấy phiếu hỗ trợ trong máy chủ **VNMIXX**.'
   },
 
   NOT_FOUND: {
@@ -25,8 +23,8 @@ export const ERROR_MESSAGE = {
   FORBIDDEN: {
     TITLE: 'Không được phép',
     DESCRIPTION: 'Không được phép',
-    OWNER_ONLY_DESCRIPTION:
-      'Chỉ người sở hữu máy chủ mới có thể sử dụng lệnh này.'
+    OWNER_ONLY_DESCRIPTION: 'Chỉ người sở hữu máy chủ mới có thể sử dụng lệnh này.',
+    ADMIN_ONLY_DESCRIPTION: 'Chỉ người có quyền **Quản trị viên** mới có thể sử dụng lệnh này.'
   },
   DATABASE_ERROR: {
     TITLE: 'Lỗi cơ sở dữ liệu',

@@ -31,18 +31,14 @@ export class BotClient extends SapphireClient {
       }
     })
 
-    this.stores
-      .get('interaction-handlers')
-      .registerPath(join(this.rootData.root, 'handlers'))
+    this.stores.get('interaction-handlers').registerPath(join(this.rootData.root, 'handlers'))
 
     process.on('SIGINT', () => gracefulShutdown(this))
     process.on('SIGTERM', () => gracefulShutdown(this))
   }
 
   async login(token: string): Promise<string> {
-    ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
-      RegisterBehavior.BulkOverwrite
-    )
+    ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(RegisterBehavior.BulkOverwrite)
     ApplicationCommandRegistries.setDefaultGuildIds([
       env.MAIN_DISCORD_GUILD_ID,
       env.TEST_DISCORD_GUILD_ID

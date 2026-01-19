@@ -11,15 +11,7 @@ export class ErrorResponseCore extends Error {
   public description: string
   public timestamp: string
 
-  constructor({
-    name,
-    title,
-    description
-  }: {
-    name: string
-    title: string
-    description: string
-  }) {
+  constructor({ name, title, description }: { name: string; title: string; description: string }) {
     super(title)
     this.name = name
     this.title = title

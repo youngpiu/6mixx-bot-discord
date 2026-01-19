@@ -1,9 +1,5 @@
 import { Precondition } from '@sapphire/framework'
-import {
-  ChatInputCommandInteraction,
-  ContextMenuCommandInteraction,
-  Message
-} from 'discord.js'
+import { ChatInputCommandInteraction, ContextMenuCommandInteraction, Message } from 'discord.js'
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 
 export class OwnerOnlyPrecondition extends Precondition {
@@ -15,9 +11,7 @@ export class OwnerOnlyPrecondition extends Precondition {
     return this.checkOwnerByInteraction(interaction)
   }
 
-  public override async contextMenuRun(
-    interaction: ContextMenuCommandInteraction
-  ) {
+  public override async contextMenuRun(interaction: ContextMenuCommandInteraction) {
     return this.checkOwnerByInteraction(interaction)
   }
 

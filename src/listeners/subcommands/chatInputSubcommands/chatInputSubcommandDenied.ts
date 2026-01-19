@@ -5,9 +5,7 @@ import {
 import { Listener, type UserError } from '@sapphire/framework'
 import { createErrorEmbed } from '~/utils/embedUtil'
 
-export class UserEvent extends Listener<
-  typeof SubcommandPluginEvents.ChatInputSubcommandDenied
-> {
+export class UserEvent extends Listener<typeof SubcommandPluginEvents.ChatInputSubcommandDenied> {
   public override async run(
     { context }: UserError,
     { interaction }: ChatInputSubcommandDeniedPayload

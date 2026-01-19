@@ -7,4 +7,5 @@ model Guild {
   updatedAt DateTime @updatedAt
 
   ticketConfig TicketConfig?
+  tickets      Ticket[]
 }

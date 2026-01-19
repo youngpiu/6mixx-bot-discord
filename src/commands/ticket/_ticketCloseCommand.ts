@@ -1,9 +1,4 @@
-import {
-  ChannelType,
-  ChatInputCommandInteraction,
-  EmbedBuilder,
-  ThreadChannel
-} from 'discord.js'
+import { ChannelType, ChatInputCommandInteraction, EmbedBuilder, ThreadChannel } from 'discord.js'
 import { BadRequestError } from '~/core/errorResponse'
 import { TicketRepository } from '~/repositories/ticketRepository'
 import { createSuccessEmbed } from '~/utils/embedUtil'
@@ -40,7 +35,7 @@ export class TicketCloseCommand {
 
     const reason = interaction.options.getString('reason')
 
-    const updatedTicket = await TicketRepository.updateTicket({
+    const updatedTicket = await TicketRepository.update({
       ticketId: ticket.id,
       data: {
         closedAt: new Date(),

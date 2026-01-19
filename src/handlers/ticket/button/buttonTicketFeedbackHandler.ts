@@ -1,13 +1,5 @@
-import {
-  InteractionHandler,
-  InteractionHandlerTypes
-} from '@sapphire/framework'
-import {
-  ChannelType,
-  EmbedBuilder,
-  type ButtonInteraction,
-  type TextChannel
-} from 'discord.js'
+import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
+import { ChannelType, EmbedBuilder, type ButtonInteraction, type TextChannel } from 'discord.js'
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { BadRequestError } from '~/core/errorResponse'
 import { GuildRepository } from '~/repositories/guildRepository'
@@ -15,10 +7,7 @@ import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
 import { TicketRepository } from '~/repositories/ticketRepository'
 
 export class ButtonTicketFeedbackHandler extends InteractionHandler {
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
+  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.Button
@@ -50,8 +39,7 @@ export class ButtonTicketFeedbackHandler extends InteractionHandler {
 
     if (!ticketConfig) {
       throw new BadRequestError({
-        description:
-          ERROR_MESSAGE.BAD_REQUEST.TICKET_CONFIG_NOT_FOUND_DESCRIPTION
+        description: ERROR_MESSAGE.BAD_REQUEST.TICKET_CONFIG_NOT_FOUND_DESCRIPTION
       })
     }
 
@@ -59,10 +47,7 @@ export class ButtonTicketFeedbackHandler extends InteractionHandler {
 
     const now = new Date()
 
-    const code = await TicketRepository.generateTicketCode(
-      interaction.guildId,
-      'FEEDBACK'
-    )
+    const code = await TicketRepository.generateTicketCode(interaction.guildId, 'FEEDBACK')
 
     const thread = await ticketChannel.threads.create({
       name: `#${code} - Góp Ý`,
@@ -77,9 +62,7 @@ export class ButtonTicketFeedbackHandler extends InteractionHandler {
       embeds: [
         new EmbedBuilder()
           .setTitle('Bắt đầu hỗ trợ')
-          .setDescription(
-            `Vui lòng cung cấp đầy đủ thông tin chi tiết về góp ý của bạn.`
-          )
+          .setDescription(`Vui lòng cung cấp đầy đủ thông tin chi tiết về góp ý của bạn.`)
           .setColor([72, 152, 232])
           .setFields(
             {
@@ -105,7 +88,7 @@ export class ButtonTicketFeedbackHandler extends InteractionHandler {
       thread.send({
         stickers: ['751606379340365864']
       }),
-      TicketRepository.createTicket({
+      TicketRepository.create({
         guildId: interaction.guildId,
         requesterId: interaction.user.id,
         type: 'FEEDBACK',

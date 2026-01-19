@@ -25,12 +25,7 @@ export class GuildRepository {
 
     if (!ticketConfig) return null
 
-    await container.redis.set(
-      cacheKey,
-      JSON.stringify(ticketConfig),
-      'EX',
-      this.CACHE_CONFIG_TTL
-    )
+    await container.redis.set(cacheKey, JSON.stringify(ticketConfig), 'EX', this.CACHE_CONFIG_TTL)
     return ticketConfig
   }
 

@@ -22,14 +22,11 @@ export class TicketSetupCommand {
       })
     }
 
-    const ticketChannel = interaction.options.getChannel(
-      'ticket-channel'
-    ) as TextChannel
+    const ticketChannel = interaction.options.getChannel('ticket-channel') as TextChannel
 
     if (!ticketChannel) {
       throw new BadRequestError({
-        description:
-          'Vui lòng chọn một kênh văn bản để thiết lập hệ thống hỗ trợ cho thành viên'
+        description: 'Vui lòng chọn một kênh văn bản để thiết lập hệ thống hỗ trợ cho thành viên'
       })
     }
 
@@ -39,13 +36,9 @@ export class TicketSetupCommand {
 
     if (existingConfig?.tutorialMessageId) {
       try {
-        const oldChannel = await interaction.client.channels.fetch(
-          existingConfig.ticketChannelId
-        )
+        const oldChannel = await interaction.client.channels.fetch(existingConfig.ticketChannelId)
         if (oldChannel?.isTextBased()) {
-          const oldMessage = await oldChannel.messages.fetch(
-            existingConfig.tutorialMessageId
-          )
+          const oldMessage = await oldChannel.messages.fetch(existingConfig.tutorialMessageId)
           await oldMessage.delete()
         }
       } catch {}

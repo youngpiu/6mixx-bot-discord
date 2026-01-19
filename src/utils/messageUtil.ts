@@ -10,28 +10,16 @@ import type {
 import { container } from '@sapphire/pieces'
 import { reply } from '@sapphire/plugin-editable-commands'
 import { cyan } from 'colorette'
-import {
-  EmbedBuilder,
-  type APIUser,
-  type Guild,
-  type Message,
-  type User
-} from 'discord.js'
+import { EmbedBuilder, type APIUser, type Guild, type Message, type User } from 'discord.js'
 import { RGB_COLOR_TEMPLATE } from '~/constants/colorConstant'
 import { RANDOM_LOADING_MESSAGES } from '~/constants/messageConstant'
 
 export function sendLoadingMessage(message: Message): Promise<typeof message> {
   const randomMessage =
-    RANDOM_LOADING_MESSAGES[
-      Math.floor(Math.random() * RANDOM_LOADING_MESSAGES.length)
-    ]
+    RANDOM_LOADING_MESSAGES[Math.floor(Math.random() * RANDOM_LOADING_MESSAGES.length)]
 
   return reply(message, {
-    embeds: [
-      new EmbedBuilder()
-        .setDescription(randomMessage)
-        .setColor(RGB_COLOR_TEMPLATE.SUCCESS)
-    ]
+    embeds: [new EmbedBuilder().setDescription(randomMessage).setColor(RGB_COLOR_TEMPLATE.SUCCESS)]
   })
 }
 
@@ -63,9 +51,7 @@ export function logSuccessCommand(
 
   const shard = `[${cyan((guild?.shardId ?? 0).toString())}]`
   const commandName = cyan(
-    subcommandName
-      ? `${payload.command.name} ${subcommandName}`
-      : payload.command.name
+    subcommandName ? `${payload.command.name} ${subcommandName}` : payload.command.name
   )
   const author = `${user.username}[${cyan(user.id)}]`
   const sentAt = guild ? `${guild.name}[${cyan(guild.id)}]` : 'Direct Messages'

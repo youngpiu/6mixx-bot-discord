@@ -7,16 +7,22 @@ enum TicketType {
 model Ticket {
   id String @id @default(cuid())
 
-  guildId     String   
+  guildId     String
+  guild       Guild   @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
   threadId    String  @unique
-  requesterId String   
-  closedById  String?  
+  requesterId String
+  closedById  String?
 
-  type        TicketType   @default(FEEDBACK)
-  code        String       @unique
-  reason      String?
+  type   TicketType @default(FEEDBACK)
+  code   String     @unique
+  reason String?
 
-  closedAt    DateTime?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  closedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([guildId, type])
+  @@index([guildId, code])
+  @@index([guildId, createdAt(sort: Desc)])
 }

@@ -3,10 +3,7 @@ import { Listener, type UserError } from '@sapphire/framework'
 import { createErrorEmbed } from '~/utils/embedUtil'
 
 export class UserEvent extends Listener<typeof Events.MessageCommandDenied> {
-  public override async run(
-    { context }: UserError,
-    { message }: MessageCommandDeniedPayload
-  ) {
+  public override async run({ context }: UserError, { message }: MessageCommandDeniedPayload) {
     if (Reflect.get(Object(context), 'silent')) return
 
     const ctx = context as ErrorContext

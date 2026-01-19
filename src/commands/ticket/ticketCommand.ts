@@ -5,10 +5,7 @@ import { TicketSetupCommand } from '~/commands/ticket/_ticketSetupCommand'
 import { asyncChatInputHandler } from '~/utils/asyncHandleUtil'
 
 export class TicketCommand extends Subcommand {
-  public constructor(
-    context: Subcommand.LoaderContext,
-    options: Subcommand.Options
-  ) {
+  public constructor(context: Subcommand.LoaderContext, options: Subcommand.Options) {
     super(context, {
       ...options,
       name: 'ticket',
@@ -20,20 +17,19 @@ export class TicketCommand extends Subcommand {
           preconditions: ['OwnerOnly']
         },
         {
-          name: 'remove',
-          chatInputRun: 'chatInputRemove'
-        },
-        {
           name: 'list',
-          chatInputRun: 'chatInputList'
+          chatInputRun: 'chatInputList',
+          preconditions: ['AdministratorOnly']
         },
         {
           name: 'detail',
-          chatInputRun: 'chatInputDetail'
+          chatInputRun: 'chatInputDetail',
+          preconditions: ['AdministratorOnly']
         },
         {
           name: 'close',
-          chatInputRun: 'chatInputClose'
+          chatInputRun: 'chatInputClose',
+          preconditions: ['AdministratorOnly']
         }
       ]
     })
@@ -59,16 +55,12 @@ export class TicketCommand extends Subcommand {
         .addSubcommand((subcommand) =>
           subcommand
             .setName('setup')
-            .setDescription(
-              'Thiết lập kênh hỗ trợ và gửi hướng dẫn tới kênh đó.'
-            )
+            .setDescription('Thiết lập kênh hỗ trợ và gửi hướng dẫn tới kênh đó.')
             .addChannelOption((option) =>
               option
                 .setName('ticket-channel')
                 .addChannelTypes(ChannelType.GuildText)
-                .setDescription(
-                  'Kênh để thành viên có gửi các yêu cầu hỗ trợ tới Ban Quản Lý.'
-                )
+                .setDescription('Kênh để thành viên có gửi các yêu cầu hỗ trợ tới Ban Quản Lý.')
                 .setRequired(true)
             )
         )
@@ -78,6 +70,18 @@ export class TicketCommand extends Subcommand {
             .setDescription('Đóng phiếu hỗ trợ đang được mở')
             .addStringOption((option) =>
               option.setName('reason').setDescription('Lý do đóng phiếu hỗ trợ')
+            )
+        )
+        .addSubcommand((subcommand) =>
+          subcommand
+            .setName('detail')
+            .setDescription('Thông tin chi tiết về một phiếu hỗ trợ')
+            .addStringOption((option) =>
+              option
+                .setName('ticket-id')
+                .setDescription('ID phiếu hỗ trợ')
+                .setRequired(true)
+                .setAutocomplete(true)
             )
         )
     )

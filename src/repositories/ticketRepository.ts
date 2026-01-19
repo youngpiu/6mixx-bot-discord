@@ -46,29 +46,17 @@ export class TicketRepository {
     return ticket
   }
 
-  public static async findByCode({
-    guildId,
-    code
-  }: {
-    guildId: string
-    code: string
-  }) {
+  public static async findByCode({ guildId, code }: { guildId: string; code: string }) {
     return container.prisma.ticket.findFirst({
       where: { guildId, code }
     })
   }
 
-  public static async searchByCode({
-    guildId,
-    search
-  }: {
-    guildId: string
-    search: string
-  }) {
+  public static async searchByCode({ guildId, search }: { guildId: string; search: string }) {
     return container.prisma.ticket.findMany({
       where: {
         guildId,
-        code: { startsWith: search.toUpperCase() }
+        code: { contains: search.toUpperCase() }
       },
       orderBy: { createdAt: 'desc' },
       take: 25
