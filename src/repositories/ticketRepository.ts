@@ -63,6 +63,59 @@ export class TicketRepository {
     })
   }
 
+  public static async getTickets({
+    guildId,
+    page = 1,
+    limit = 10,
+    type,
+    isOpen
+  }: {
+    guildId: string
+    page: number
+    limit: number
+    type?: TicketType
+    isOpen?: boolean
+  }) {
+    const skip = (page - 1) * limit
+
+    // Build where clause based on isOpen parameter
+    const whereClause = {
+      guildId,
+      type,
+      ...(isOpen === true && { closedAt: null }),
+      ...(isOpen === false && { closedAt: { not: null } })
+    }
+
+    const [items, total] = await Promise.all([
+      container.prisma.ticket.findMany({
+        where: whereClause,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit
+      }),
+
+      container.prisma.ticket.count({
+        where: whereClause
+      })
+    ])
+
+    const totalPages = Math.ceil(total / limit)
+
+    return {
+      items,
+      meta: {
+        total,
+        totalPages,
+        page,
+        limit,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+        type,
+        isOpen
+      }
+    }
+  }
+
   public static async closeTicket({
     ticketId,
     closedById

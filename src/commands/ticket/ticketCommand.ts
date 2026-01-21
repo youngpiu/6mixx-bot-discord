@@ -2,6 +2,7 @@ import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChannelType, ChatInputCommandInteraction } from 'discord.js'
 import { TicketCloseCommand } from '~/commands/ticket/_ticketCloseCommand'
 import { TicketDetailCommand } from '~/commands/ticket/_ticketDetailCommand'
+import { TicketListCommand } from '~/commands/ticket/_ticketListCommand'
 import { TicketSetupCommand } from '~/commands/ticket/_ticketSetupCommand'
 import { asyncChatInputHandler } from '~/utils/asyncHandleUtil'
 
@@ -43,8 +44,7 @@ export class TicketCommand extends Subcommand {
   )
 
   public chatInputList = asyncChatInputHandler(async (interaction: ChatInputCommandInteraction) => {
-    // TODO: Implement list command
-    return interaction.reply({ content: 'Coming soon...', ephemeral: true })
+    return TicketListCommand.run(interaction)
   })
 
   public chatInputDetail = asyncChatInputHandler(
@@ -95,6 +95,9 @@ export class TicketCommand extends Subcommand {
                 .setRequired(true)
                 .setAutocomplete(true)
             )
+        )
+        .addSubcommand((subcommand) =>
+          subcommand.setName('list').setDescription('Danh sách phiếu hỗ trợ')
         )
     )
   }
