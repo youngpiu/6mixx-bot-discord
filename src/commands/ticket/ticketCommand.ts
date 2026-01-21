@@ -1,6 +1,7 @@
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChannelType, ChatInputCommandInteraction } from 'discord.js'
 import { TicketCloseCommand } from '~/commands/ticket/_ticketCloseCommand'
+import { TicketDetailCommand } from '~/commands/ticket/_ticketDetailCommand'
 import { TicketSetupCommand } from '~/commands/ticket/_ticketSetupCommand'
 import { asyncChatInputHandler } from '~/utils/asyncHandleUtil'
 
@@ -38,6 +39,17 @@ export class TicketCommand extends Subcommand {
   public chatInputSetup = asyncChatInputHandler(
     async (interaction: ChatInputCommandInteraction) => {
       return TicketSetupCommand.run(interaction)
+    }
+  )
+
+  public chatInputList = asyncChatInputHandler(async (interaction: ChatInputCommandInteraction) => {
+    // TODO: Implement list command
+    return interaction.reply({ content: 'Coming soon...', ephemeral: true })
+  })
+
+  public chatInputDetail = asyncChatInputHandler(
+    async (interaction: ChatInputCommandInteraction) => {
+      return TicketDetailCommand.run(interaction)
     }
   )
 

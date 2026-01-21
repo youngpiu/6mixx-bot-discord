@@ -26,7 +26,10 @@ export const asyncChatInputHandler = (
     context: ChatInputCommand.RunContext
   ) => Promise<unknown>
 ) => {
-  return async (interaction: ChatInputCommandInteraction, context: ChatInputCommand.RunContext) => {
+  return async (
+    interaction: ChatInputCommandInteraction,
+    context: ChatInputCommand.RunContext
+  ) => {
     try {
       return await fn(interaction, context)
     } catch (error) {
@@ -67,7 +70,9 @@ export const asyncChatInputHandler = (
   }
 }
 
-export const asyncMessageHandler = (fn: (message: Message, args: Args) => Promise<unknown>) => {
+export const asyncMessageHandler = (
+  fn: (message: Message, args: Args) => Promise<unknown>
+) => {
   return async (message: Message, args: Args) => {
     try {
       return await fn(message, args)
@@ -101,7 +106,10 @@ export const asyncMessageHandler = (fn: (message: Message, args: Args) => Promis
   }
 }
 
-type RepliableInteraction = ButtonInteraction | ModalSubmitInteraction | StringSelectMenuInteraction
+type RepliableInteraction =
+  | ButtonInteraction
+  | ModalSubmitInteraction
+  | StringSelectMenuInteraction
 
 export const asyncInteractionHandler = <T extends RepliableInteraction>(
   fn: (interaction: T) => Promise<unknown>

@@ -9,6 +9,7 @@ import { createSuccessEmbed } from '~/utils/embedUtil'
 import { BadRequestError } from '~/core/errorResponse'
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { GuildRepository } from '~/repositories/guildRepository'
+import { deleteReplyInteraction } from '~/utils/interactionUtil'
 
 export class TicketSetupCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
@@ -57,7 +58,7 @@ export class TicketSetupCommand {
       }
     })
 
-    return interaction.editReply({
+    await interaction.editReply({
       embeds: [
         createSuccessEmbed({
           title: 'Thiết lập thành công',
@@ -65,6 +66,8 @@ export class TicketSetupCommand {
         })
       ]
     })
+
+    await deleteReplyInteraction(interaction)
   }
 
   private static createTicketEmbed() {

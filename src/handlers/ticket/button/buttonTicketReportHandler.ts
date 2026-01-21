@@ -5,6 +5,8 @@ import { BadRequestError } from '~/core/errorResponse'
 import { GuildRepository } from '~/repositories/guildRepository'
 import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
 import { TicketRepository } from '~/repositories/ticketRepository'
+import { createSuccessEmbed } from '~/utils/embedUtil'
+import { deleteReplyInteraction } from '~/utils/interactionUtil'
 
 export class ButtonTicketReportHandler extends InteractionHandler {
   public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
@@ -62,49 +64,42 @@ export class ButtonTicketReportHandler extends InteractionHandler {
       embeds: [
         new EmbedBuilder()
           .setTitle('Bắt đầu hỗ trợ')
-          .setDescription(`Vui lòng cung cấp đầy đủ thông tin chi tiết về báo cáo của bạn.`)
-          .setColor([232, 72, 72])
+          .setDescription(`Vui lòng cung cấp đầy đủ thông tin chi tiết\n về báo cáo của bạn.`)
           .setFields(
             {
               name: 'Mã phiếu',
               value: `**_#${code}_**`,
-              inline: true
+              inline: false
             },
             {
               name: 'Người báo cáo',
               value: `<@${interaction.user.id}>`,
-              inline: true
+              inline: false
             },
             {
               name: 'Thời gian tạo',
               value: `<t:${Math.floor(now.getTime() / 1000)}:R>`,
-              inline: true
+              inline: false
             }
           )
       ]
     })
 
-    await Promise.all([
-      thread.send({
-        stickers: ['751606379340365864']
-      }),
-      TicketRepository.create({
-        guildId: interaction.guildId,
-        requesterId: interaction.user.id,
-        type: 'REPORT',
-        threadId: thread.id
-      })
-    ])
+    await TicketRepository.createTicket({
+      guildId: interaction.guildId,
+      requesterId: interaction.user.id,
+      type: 'REPORT',
+      threadId: thread.id
+    })
 
-    return interaction.editReply({
+    await interaction.editReply({
       embeds: [
-        new EmbedBuilder()
-          .setTitle('Tạo thành công')
-          .setDescription(
-            `Phiếu hỗ trợ đã được tạo thành công, bạn hãy vào <#${thread.id}> để cung cấp thông tin chi tiết về báo cáo của bạn.`
-          )
-          .setColor([232, 72, 72])
+        createSuccessEmbed({
+          title: 'Tạo thành công',
+          description: `Phiếu hỗ trợ đã được tạo thành công, bạn hãy vào <#${thread.id}> để cung cấp thông tin chi tiết về báo cáo của bạn.`
+        })
       ]
     })
+    await deleteReplyInteraction(interaction)
   }
 }

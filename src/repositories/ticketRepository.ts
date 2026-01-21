@@ -59,7 +59,7 @@ export class TicketRepository {
         code: { contains: search.toUpperCase() }
       },
       orderBy: { createdAt: 'desc' },
-      take: 25
+      take: 10
     })
   }
 
@@ -82,6 +82,12 @@ export class TicketRepository {
   public static async findByThreadId({ threadId }: { threadId: string }) {
     return container.prisma.ticket.findUnique({
       where: { threadId }
+    })
+  }
+
+  public static async findById({ id }: { id: string }) {
+    return container.prisma.ticket.findUnique({
+      where: { id }
     })
   }
 

@@ -2,6 +2,7 @@ import { ChannelType, ChatInputCommandInteraction, EmbedBuilder, ThreadChannel }
 import { BadRequestError } from '~/core/errorResponse'
 import { TicketRepository } from '~/repositories/ticketRepository'
 import { createSuccessEmbed } from '~/utils/embedUtil'
+import { deleteReplyInteraction } from '~/utils/interactionUtil'
 
 export class TicketCloseCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
@@ -9,16 +10,16 @@ export class TicketCloseCommand {
       flags: ['Ephemeral']
     })
 
-    const ticketChannel = interaction.channel as ThreadChannel
+    const ticketThread = interaction.channel as ThreadChannel
 
-    if (!ticketChannel || ticketChannel.type !== ChannelType.PrivateThread) {
+    if (!ticketThread || ticketThread.type !== ChannelType.PrivateThread) {
       throw new BadRequestError({
         description: 'Vui lòng sử dụng lệnh này trong phiếu hỗ trợ.'
       })
     }
 
     const ticket = await TicketRepository.findByThreadId({
-      threadId: ticketChannel.id
+      threadId: ticketThread.id
     })
 
     if (!ticket) {
@@ -35,7 +36,7 @@ export class TicketCloseCommand {
 
     const reason = interaction.options.getString('reason')
 
-    const updatedTicket = await TicketRepository.update({
+    const updatedTicket = await TicketRepository.updateTicket({
       ticketId: ticket.id,
       data: {
         closedAt: new Date(),
@@ -44,16 +45,17 @@ export class TicketCloseCommand {
       }
     })
 
-    await ticketChannel.send({
+    await ticketThread.send({
       embeds: [
         new EmbedBuilder()
-          .setColor('LuminousVividPink')
           .setTitle('Kết thúc hỗ trợ')
-          .setDescription(
-            'Phiếu hỗ trợ này đã bị đóng. Cảm ơn sự hợp tác của bạn trong thời gian vừa qua.'
-          )
+          .setDescription('Cảm ơn sự hợp tác của bạn \ntrong thời gian vừa qua.')
           .setFields([
-            { name: 'Mã phiếu', value: updatedTicket.code, inline: true },
+            {
+              name: 'Mã phiếu',
+              value: `**_#${updatedTicket.code}_**`,
+              inline: false
+            },
             {
               name: 'Loại phiếu',
               value:
@@ -62,51 +64,46 @@ export class TicketCloseCommand {
                   : updatedTicket.type === 'FEEDBACK'
                     ? 'Góp ý'
                     : 'Báo lỗi',
-              inline: true
+              inline: false
             },
             {
               name: 'Người tạo',
               value: `<@${updatedTicket.requesterId}>`,
-              inline: true
+              inline: false
+            },
+            {
+              name: 'Ngày tạo',
+              value: `<t:${Math.floor(updatedTicket.createdAt.getTime() / 1000)}:R>`,
+              inline: false
             },
             {
               name: 'Người đóng',
               value: `<@${updatedTicket.closedById}>`,
-              inline: true
+              inline: false
+            },
+
+            {
+              name: 'Ngày đóng',
+              value: updatedTicket.closedAt
+                ? `<t:${Math.floor(updatedTicket.closedAt.getTime() / 1000)}:R>`
+                : 'Chưa đóng',
+              inline: false
             },
             ...(reason
               ? [
                   {
                     name: 'Lý do đóng',
                     value: reason,
-                    inline: true
+                    inline: false
                   }
                 ]
-              : []),
-            {
-              name: 'Ngày tạo',
-              value: `<t:${Math.floor(updatedTicket.createdAt.getTime() / 1000)}:R>`,
-              inline: true
-            },
-            {
-              name: 'Ngày đóng',
-              value: updatedTicket.closedAt
-                ? `<t:${Math.floor(updatedTicket.closedAt.getTime() / 1000)}:R>`
-                : 'Chưa đóng',
-              inline: true
-            }
+              : [])
           ])
       ]
     })
 
-    await ticketChannel.setLocked(true)
-    await ticketChannel.setArchived(true)
-    return await interaction.editReply({
-      embeds: [
-        createSuccessEmbed({
-          description: 'Đóng phiếu hỗ trợ này thành công.'
-        })
-      ]
-    })
+    await ticketThread.setLocked(true)
+    await ticketThread.setArchived(true)
+    await deleteReplyInteraction(interaction, 0)
   }
 }
