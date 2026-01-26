@@ -1,14 +1,13 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
 import { type ButtonInteraction } from 'discord.js'
+
+import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
+
 import {
-  decodeState,
   TicketListCommand,
-  TicketListState
+  TicketListState,
+  decodeState
 } from '~/commands/ticket/_ticketListCommand'
-import { container } from '@sapphire/pieces'
-import { ERROR_MESSAGE } from '~/constants/messageConstant'
-import { ErrorResponseCore } from '~/core/errorResponse'
-import { createErrorEmbed } from '~/utils/embedUtil'
 
 export class ButtonTicketListHandler extends InteractionHandler {
   public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
@@ -32,35 +31,11 @@ export class ButtonTicketListHandler extends InteractionHandler {
     return this.some({ action, state })
   }
 
-  public override async run(
-    interaction: ButtonInteraction,
-    result: InteractionHandler.ParseResult<this>
-  ) {
-    const { state } = result as { action: string; state: TicketListState }
-
-    try {
-      await TicketListCommand.handleButton(interaction, state)
-    } catch (error) {
-      let errorEmbed
-
-      if (error instanceof ErrorResponseCore) {
-        errorEmbed = createErrorEmbed({
-          title: error.title,
-          description: error.description
-        })
-      } else {
-        container.logger.error(error)
-        errorEmbed = createErrorEmbed({
-          title: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.TITLE,
-          description: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION
-        })
-      }
-
-      if (interaction.replied || interaction.deferred) {
-        return interaction.editReply({ embeds: [errorEmbed] })
-      }
-
-      return interaction.reply({ embeds: [errorEmbed], flags: ['Ephemeral'] })
-    }
-  }
+  public run = asyncInteractionHandler<
+    ButtonInteraction,
+    { action: string; state: TicketListState }
+  >(async (interaction, result) => {
+    if (!result) return
+    await TicketListCommand.handleButton(interaction, result.state)
+  })
 }

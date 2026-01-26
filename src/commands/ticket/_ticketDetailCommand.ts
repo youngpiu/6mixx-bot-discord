@@ -1,8 +1,12 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js'
-import { BadRequestError } from '~/core/errorResponse'
+
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
-import { TicketRepository } from '~/repositories/ticketRepository'
+import { BadRequestError, NotFoundError } from '~/core/errorResponse'
+
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { getTicketTypeLabel } from '~/utils/ticketUtil'
+
+import { TicketRepository } from '~/repositories/ticketRepository'
 
 export class TicketDetailCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
@@ -16,34 +20,34 @@ export class TicketDetailCommand {
       })
     }
 
-    const ticketCode = interaction.options.getString('ticket-id', true)
+    const id = interaction.options.getString('ticket-id', true)
 
-    if (!ticketCode) {
+    if (!id) {
       throw new BadRequestError({
         description: 'Vui lòng lựa chọn một phiếu hỗ trợ mà bạn muốn xem thông tin chi tiết.'
       })
     }
 
     const ticket = await TicketRepository.findById({
-      id: ticketCode
+      id: id
     })
 
     if (!ticket) {
-      throw new BadRequestError({
-        description: `Hệ thống không tìm thấy phiếu hỗ trợ mà bạn đang tìm kiếm.`
+      throw new NotFoundError({
+        description: `Hệ thống không tìm thấy phiếu hỗ trợ này trong cơ sở dữ liệu.`
       })
     }
 
-    const typeLabel =
-      ticket.type === 'REPORT' ? 'Báo cáo' : ticket.type === 'FEEDBACK' ? 'Góp ý' : 'Báo lỗi'
+    const typeLabel = getTicketTypeLabel(ticket.type)
 
     const fields = [
       { name: 'Mã phiếu', value: `**_#${ticket.code}_**`, inline: false },
       { name: 'Loại phiếu', value: typeLabel, inline: false },
-      { name: 'Địa chỉ kênh', value: `<#${ticket.threadId}>`, inline: false },
+      { name: 'Trạng thái', value: ticket.closedAt ? 'Đóng' : 'Mở', inline: false },
+      { name: 'Kênh', value: `<#${ticket.threadId}>`, inline: false },
       { name: 'Người tạo', value: `<@${ticket.requesterId}>`, inline: false },
       {
-        name: 'Ngày tạo',
+        name: 'Thời gian tạo',
         value: `<t:${Math.floor(ticket.createdAt.getTime() / 1000)}:R>`,
         inline: false
       }
@@ -55,7 +59,7 @@ export class TicketDetailCommand {
 
     if (ticket.closedAt) {
       fields.push({
-        name: 'Ngày đóng',
+        name: 'Thời gian đóng',
         value: `<t:${Math.floor(ticket.closedAt.getTime() / 1000)}:R>`,
         inline: false
       })
@@ -68,10 +72,11 @@ export class TicketDetailCommand {
     await interaction.editReply({
       embeds: [
         new EmbedBuilder()
-          .setColor(ticket.closedAt ? 'Grey' : 'Navy')
+          .setColor(ticket.closedAt ? 'DarkRed' : 'Green')
           .setTitle(`Thông tin phiếu #${ticket.code}`)
           .setFields(fields)
       ]
     })
+    await deleteReplyInteraction(interaction, 60)
   }
 }

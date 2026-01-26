@@ -1,5 +1,6 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
 import type { AutocompleteInteraction } from 'discord.js'
+
 import { TicketRepository } from '~/repositories/ticketRepository'
 
 export class AutocompleTicketHandler extends InteractionHandler {

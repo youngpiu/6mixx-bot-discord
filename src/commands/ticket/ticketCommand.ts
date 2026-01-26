@@ -1,17 +1,19 @@
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChannelType, ChatInputCommandInteraction } from 'discord.js'
+
+import { asyncChatInputHandler } from '~/utils/asyncHandleUtil'
+
 import { TicketCloseCommand } from '~/commands/ticket/_ticketCloseCommand'
 import { TicketDetailCommand } from '~/commands/ticket/_ticketDetailCommand'
 import { TicketListCommand } from '~/commands/ticket/_ticketListCommand'
 import { TicketSetupCommand } from '~/commands/ticket/_ticketSetupCommand'
-import { asyncChatInputHandler } from '~/utils/asyncHandleUtil'
 
 export class TicketCommand extends Subcommand {
   public constructor(context: Subcommand.LoaderContext, options: Subcommand.Options) {
     super(context, {
       ...options,
       name: 'ticket',
-      description: 'Ticket commands',
+      description: 'Quản lý hệ thống hỗ trợ thành viên.',
       subcommands: [
         {
           name: 'setup',
@@ -63,41 +65,43 @@ export class TicketCommand extends Subcommand {
     registry.registerChatInputCommand((builder) =>
       builder
         .setName('ticket')
-        .setDescription('ticket')
+        .setDescription('Quản lý hệ thống hỗ trợ thành viên.')
         .addSubcommand((subcommand) =>
           subcommand
             .setName('setup')
-            .setDescription('Thiết lập kênh hỗ trợ và gửi hướng dẫn tới kênh đó.')
+            .setDescription('Thiết lập kênh tiếp nhận và xử lý yêu cầu hỗ trợ từ thành viên.')
             .addChannelOption((option) =>
               option
                 .setName('ticket-channel')
                 .addChannelTypes(ChannelType.GuildText)
-                .setDescription('Kênh để thành viên có gửi các yêu cầu hỗ trợ tới Ban Quản Lý.')
+                .setDescription('Kênh tiếp nhận và xử lý yêu cầu hỗ trợ từ thành viên.')
                 .setRequired(true)
             )
         )
         .addSubcommand((subcommand) =>
           subcommand
             .setName('close')
-            .setDescription('Đóng phiếu hỗ trợ đang được mở')
+            .setDescription('Đóng phiếu hỗ trợ đang mở tại kênh mà bạn dùng lệnh này.')
             .addStringOption((option) =>
-              option.setName('reason').setDescription('Lý do đóng phiếu hỗ trợ')
+              option.setName('reason').setDescription('Lý do đóng phiếu hỗ trợ này.')
             )
         )
         .addSubcommand((subcommand) =>
           subcommand
             .setName('detail')
-            .setDescription('Thông tin chi tiết về một phiếu hỗ trợ')
+            .setDescription('Xem thông tin chi tiết một phiếu hỗ trợ bằng mã phiếu.')
             .addStringOption((option) =>
               option
                 .setName('ticket-id')
-                .setDescription('ID phiếu hỗ trợ')
+                .setDescription('Mã phiếu hỗ trợ mà bạn muốn xem chi tiết.')
                 .setRequired(true)
                 .setAutocomplete(true)
             )
         )
         .addSubcommand((subcommand) =>
-          subcommand.setName('list').setDescription('Danh sách phiếu hỗ trợ')
+          subcommand
+            .setName('list')
+            .setDescription('Xem danh sách các phiếu hỗ trợ có trong cơ sở dữ liệu.')
         )
     )
   }

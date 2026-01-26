@@ -1,3 +1,4 @@
+import { container } from '@sapphire/pieces'
 import {
   ButtonBuilder,
   ButtonStyle,
@@ -5,11 +6,14 @@ import {
   ContainerBuilder,
   TextChannel
 } from 'discord.js'
-import { createSuccessEmbed } from '~/utils/embedUtil'
-import { BadRequestError } from '~/core/errorResponse'
+
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
-import { GuildRepository } from '~/repositories/guildRepository'
+import { BadRequestError } from '~/core/errorResponse'
+
+import { createSuccessEmbed } from '~/utils/embedUtil'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
+
+import { GuildRepository } from '~/repositories/guildRepository'
 
 export class TicketSetupCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
@@ -27,7 +31,7 @@ export class TicketSetupCommand {
 
     if (!ticketChannel) {
       throw new BadRequestError({
-        description: 'Vui lòng chọn một kênh văn bản để thiết lập hệ thống hỗ trợ cho thành viên'
+        description: 'Vui lòng lựa chọn một kênh văn bản để thiết lập kênh hỗ trợ cho thành viên.'
       })
     }
 
@@ -37,12 +41,14 @@ export class TicketSetupCommand {
 
     if (existingConfig?.tutorialMessageId) {
       try {
-        const oldChannel = await interaction.client.channels.fetch(existingConfig.ticketChannelId)
+        const oldChannel = await container.client.channels.fetch(existingConfig.ticketChannelId)
         if (oldChannel?.isTextBased()) {
           const oldMessage = await oldChannel.messages.fetch(existingConfig.tutorialMessageId)
           await oldMessage.delete()
         }
-      } catch {}
+      } catch {
+        // ignore
+      }
     }
 
     const tutorialMessage = await ticketChannel.send({
@@ -99,7 +105,7 @@ export class TicketSetupCommand {
             .setButtonAccessory(
               new ButtonBuilder()
                 .setCustomId('btn-ticket-report')
-                .setLabel('Báo cáo')
+                .setLabel('🚨 Báo cáo')
                 .setStyle(ButtonStyle.Danger)
             )
         )
@@ -122,8 +128,8 @@ export class TicketSetupCommand {
             .setButtonAccessory(
               new ButtonBuilder()
                 .setCustomId('btn-ticket-feedback')
-                .setLabel('Góp ý')
-                .setStyle(ButtonStyle.Primary)
+                .setLabel('📝 Góp ý')
+                .setStyle(ButtonStyle.Success)
             )
         )
 
@@ -146,8 +152,8 @@ export class TicketSetupCommand {
             .setButtonAccessory(
               new ButtonBuilder()
                 .setCustomId('btn-ticket-bug')
-                .setLabel('Báo lỗi')
-                .setStyle(ButtonStyle.Danger)
+                .setLabel('🐞 Báo lỗi')
+                .setStyle(ButtonStyle.Primary)
             )
         )
     )

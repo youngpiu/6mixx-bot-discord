@@ -1,22 +1,20 @@
 import {
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonStyle,
-  EmbedBuilder,
   type ButtonInteraction,
-  type ChatInputCommandInteraction
+  ButtonStyle,
+  type ChatInputCommandInteraction,
+  EmbedBuilder
 } from 'discord.js'
+
 import { Ticket, TicketType } from 'generated/prisma/client'
+
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { BadRequestError } from '~/core/errorResponse'
-import { TicketRepository } from '~/repositories/ticketRepository'
 
-// Constants
-export const TICKET_TYPE_LABELS: Record<TicketType, string> = {
-  REPORT: 'Báo cáo',
-  FEEDBACK: 'Góp ý',
-  BUG: 'Báo lỗi'
-}
+import { TICKET_TYPE_LABELS } from '~/utils/ticketUtil'
+
+import { TicketRepository } from '~/repositories/ticketRepository'
 
 // Types
 export interface TicketListState {
@@ -133,9 +131,9 @@ export class TicketListCommand {
           name: `${index + 1}. #${ticket.code} ${ticket.closedAt ? '<:close:1463597271496003708>' : '<:open:1463597269889712128>'} `,
           value: [
             `**Loại:** ${typeLabel}`,
-            `**Người yêu cầu:** <@${ticket.requesterId}>`,
+            `**Người tạo:** <@${ticket.requesterId}>`,
             `**Kênh:** <#${ticket.threadId}>`,
-            `**Tạo lúc:** <t:${createdTimestamp}:R>`
+            `**Thời gian tạo:** <t:${createdTimestamp}:R>`
           ].join('\n'),
           inline: false
         })
@@ -193,8 +191,8 @@ export class TicketListCommand {
 
     const types: Array<{ action: string; label: string; state: TicketListState }> = [
       { action: 'type-all', label: '🗂️ Tất cả', state: { ...baseState, type: undefined } },
-      { action: 'type-report', label: '📄 Báo cáo', state: { ...baseState, type: 'REPORT' } },
-      { action: 'type-feedback', label: '💬 Góp ý', state: { ...baseState, type: 'FEEDBACK' } },
+      { action: 'type-report', label: '🚨 Báo cáo', state: { ...baseState, type: 'REPORT' } },
+      { action: 'type-feedback', label: '📝 Góp ý', state: { ...baseState, type: 'FEEDBACK' } },
       { action: 'type-bug', label: '🐞 Báo lỗi', state: { ...baseState, type: 'BUG' } }
     ]
 
