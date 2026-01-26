@@ -95,7 +95,7 @@ export class TicketRepository {
     type?: TicketType
     status?: TicketStatus
   }) {
-    const cacheKey = `tickets:${guildId}:${page}:${limit}:${type}:${status}`
+    const cacheKey = `tickets:${guildId}:${page}:${limit}:${type || 'ALL'}:${status || 'ALL'}`
     const cached = await container.redis.get(cacheKey)
 
     if (cached) {
