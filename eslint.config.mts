@@ -1,8 +1,7 @@
 import js from '@eslint/js'
+import { defineConfig } from 'eslint/config'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
-import { defineConfig } from 'eslint/config'
-import eslintPluginPrettier from 'eslint-plugin-prettier'
 
 export default defineConfig([
   {
@@ -13,26 +12,9 @@ export default defineConfig([
   },
   tseslint.configs.recommended,
   {
-    plugins: {
-      prettier: eslintPluginPrettier
-    },
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': 'warn',
-      'prettier/prettier': [
-        'warn',
-        {
-          arrowParens: 'always',
-          semi: false,
-          trailingComma: 'none',
-          tabWidth: 2,
-          endOfLine: 'auto',
-          useTabs: false,
-          singleQuote: true,
-          printWidth: 80,
-          jsxSingleQuote: true
-        }
-      ]
+      '@typescript-eslint/no-unused-vars': 'warn'
     },
     ignores: ['**/node_modules/', '**/dist/']
   }

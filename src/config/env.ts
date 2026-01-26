@@ -14,5 +14,6 @@ export const env = {
   MAIN_DISCORD_GUILD_ID: getEnvVar('MAIN_DISCORD_GUILD_ID'),
   TEST_DISCORD_GUILD_ID: getEnvVar('TEST_DISCORD_GUILD_ID'),
   DISCORD_CLIENT_ID: getEnvVar('DISCORD_CLIENT_ID'),
-  NODE_ENV: getEnvVar('NODE_ENV', false) || 'development'
+  NODE_ENV: getEnvVar('NODE_ENV', false) || 'development',
+  SUPPORTER_DISCORD_ID: getEnvVar('SUPPORTER_DISCORD_ID')
 }

@@ -1,16 +1,18 @@
 import {
   ApplicationCommandRegistries,
-  container,
   LogLevel,
   RegisterBehavior,
-  SapphireClient
+  SapphireClient,
+  container
 } from '@sapphire/framework'
 import { getRootData } from '@sapphire/pieces'
 import { GatewayIntentBits } from 'discord.js'
 import { join } from 'node:path'
 import { env } from '~/config/env'
+
 import prisma from '~/lib/prisma'
 import redis from '~/lib/redis'
+
 import { gracefulShutdown } from '~/utils/shutdownUtil'
 
 export class BotClient extends SapphireClient {

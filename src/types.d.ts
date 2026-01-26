@@ -1,5 +1,6 @@
 import '@sapphire/framework'
 import type Redis from 'ioredis'
+
 import prisma from '~/lib/prisma'
 
 declare module '@sapphire/framework' {

@@ -4,6 +4,17 @@
   "trailingComma": "none",
   "tabWidth": 2,
   "endOfLine": "auto",
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+  "importOrder": [
+    "<THIRD_PARTY_MODULES>",
+    "^generated/(.*)$",
+    "^~/(core|lib|constants)/(.*)$",
+    "^~/(utils|helpers)/(.*)$",
+    "^~/(commands|listeners|preconditions|handlers|repositories)/(.*)$",
+    "^[./]"
+  ],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
   "useTabs": false,
   "singleQuote": true,
   "printWidth": 100,
