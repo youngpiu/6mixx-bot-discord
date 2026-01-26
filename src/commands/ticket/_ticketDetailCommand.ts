@@ -3,6 +3,7 @@ import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js'
 import { TicketStatus } from 'generated/prisma/enums'
 
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
+import { TICKET_TIMER } from '~/constants/timeConstant'
 import { BadRequestError, NotFoundError } from '~/core/errorResponse'
 
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
@@ -83,6 +84,6 @@ export class TicketDetailCommand {
           .setFields(fields)
       ]
     })
-    await deleteReplyInteraction(interaction, 60)
+    await deleteReplyInteraction(interaction, TICKET_TIMER.INTERACTION_TIMEOUT.DETAIL)
   }
 }

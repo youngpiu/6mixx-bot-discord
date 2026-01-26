@@ -32,8 +32,8 @@ export const ERROR_MESSAGE = {
     DESCRIPTION: (ticketChannelId?: string | null) =>
       ticketChannelId
         ? `Cơ sở dữ liệu đã xảy ra lỗi, vui lòng thử lại sau hoặc báo lỗi tại kênh <#${ticketChannelId}> để được hỗ trợ.`
-        : env.SUPPORTER_DISCORD_USER_ID
-          ? `Cơ sở dữ liệu đã xảy ra lỗi, vui lòng thử lại sau hoặc liên hệ <@${env.SUPPORTER_DISCORD_USER_ID}> để được hỗ trợ.`
+        : env.SUPPORTER_DISCORD_ID
+          ? `Cơ sở dữ liệu đã xảy ra lỗi, vui lòng thử lại sau hoặc liên hệ <@${env.SUPPORTER_DISCORD_ID}> để được hỗ trợ.`
           : `Cơ sở dữ liệu đã xảy ra lỗi, vui lòng thử lại sau hoặc liên hệ **Ban quản lý** để được hỗ trợ.`
   },
 
@@ -42,8 +42,8 @@ export const ERROR_MESSAGE = {
     DESCRIPTION: (ticketChannelId?: string | null) =>
       ticketChannelId
         ? `Hệ thống đã xảy ra lỗi, vui lòng thử lại sau hoặc báo lỗi tại kênh <#${ticketChannelId}> để được hỗ trợ.`
-        : env.SUPPORTER_DISCORD_USER_ID
-          ? `Hệ thống đã xảy ra lỗi, vui lòng thử lại sau hoặc liên hệ <@${env.SUPPORTER_DISCORD_USER_ID}> để được hỗ trợ.`
+        : env.SUPPORTER_DISCORD_ID
+          ? `Hệ thống đã xảy ra lỗi, vui lòng thử lại sau hoặc liên hệ <@${env.SUPPORTER_DISCORD_ID}> để được hỗ trợ.`
           : `Hệ thống đã xảy ra lỗi, vui lòng thử lại sau hoặc liên hệ **Ban quản lý** để được hỗ trợ.`
   }
 } as const

@@ -2,6 +2,7 @@ import { ChannelType, ChatInputCommandInteraction, EmbedBuilder, ThreadChannel }
 
 import { TicketStatus } from 'generated/prisma/enums'
 
+import { COMMON_TIMER } from '~/constants/timeConstant'
 import { BadRequestError, NotFoundError } from '~/core/errorResponse'
 
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
@@ -101,6 +102,6 @@ export class TicketCloseCommand {
 
     await ticketThread.setLocked(true)
     await ticketThread.setArchived(true)
-    await deleteReplyInteraction(interaction, 0)
+    await deleteReplyInteraction(interaction, COMMON_TIMER.INTERACTION_TIMEOUT.IMMEDIATE)
   }
 }

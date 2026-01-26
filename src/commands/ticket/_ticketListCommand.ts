@@ -11,6 +11,7 @@ import { Ticket, TicketType } from 'generated/prisma/client'
 import { TicketStatus } from 'generated/prisma/enums'
 
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
+import { TICKET_TIMER } from '~/constants/timeConstant'
 import { BadRequestError } from '~/core/errorResponse'
 
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
@@ -88,7 +89,7 @@ export class TicketListCommand {
     })
 
     const response = await interaction.editReply(this.createListResponse(items, meta))
-    await deleteReplyInteraction(interaction, 60)
+    await deleteReplyInteraction(interaction, TICKET_TIMER.INTERACTION_TIMEOUT.LIST)
     return response
   }
 
@@ -107,7 +108,7 @@ export class TicketListCommand {
       status: state.status
     })
 
-    await deleteReplyInteraction(interaction, 60)
+    await deleteReplyInteraction(interaction, TICKET_TIMER.INTERACTION_TIMEOUT.LIST)
     return interaction.update(this.createListResponse(items, meta))
   }
 

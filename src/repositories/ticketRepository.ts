@@ -3,6 +3,8 @@ import { container } from '@sapphire/pieces'
 import { Prisma, Ticket } from 'generated/prisma/client'
 import { TicketStatus, TicketType } from 'generated/prisma/enums'
 
+import { TICKET_TIMER } from '~/constants/timeConstant'
+
 const TICKET_PREFIX: Record<TicketType, string> = {
   REPORT: 'BC',
   FEEDBACK: 'GY',
@@ -153,7 +155,7 @@ export class TicketRepository {
       }
     }
 
-    await container.redis.set(cacheKey, JSON.stringify(result), 'EX', 60)
+    await container.redis.set(cacheKey, JSON.stringify(result), 'EX', TICKET_TIMER.TTL.LIST)
 
     return result
   }

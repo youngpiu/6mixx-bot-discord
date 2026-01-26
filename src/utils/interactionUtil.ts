@@ -5,6 +5,8 @@ import {
   StringSelectMenuInteraction
 } from 'discord.js'
 
+import { COMMON_TIMER } from '~/constants/timeConstant'
+
 const deleteTimers = new Map<string, NodeJS.Timeout>()
 
 export const deleteReplyInteraction = async (
@@ -13,7 +15,7 @@ export const deleteReplyInteraction = async (
     | ChatInputCommandInteraction
     | ModalSubmitInteraction
     | StringSelectMenuInteraction,
-  seconds: number = 10
+  seconds: number = COMMON_TIMER.INTERACTION_TIMEOUT.DEFAULT
 ): Promise<void> => {
   // Logic xác định ID chung để debounce (ưu tiên ID của interaction gốc tạo ra message)
   // Nếu là Button/Select (có message), message.interaction.id trỏ về CMD gốc
@@ -31,14 +33,14 @@ export const deleteReplyInteraction = async (
     deleteTimers.delete(id)
   }
 
-  // Nếu seconds <= 0, chỉ hủy timer cũ (nếu có) rồi return
-  if (seconds <= 0) return
+  // Nếu seconds <= 0, xóa ngay lập tức
+  if (seconds <= 0) return interaction.deleteReply().catch(() => {})
 
   // Set timer mới
   const timeout = setTimeout(async () => {
     try {
       // deleteReply() hoạt động cho cả CMD ban đầu và các Button Interaction (đã update message)
-      await interaction.deleteReply()
+      await interaction.deleteReply().catch(() => {})
     } catch {
       // Ignore errors
     } finally {
