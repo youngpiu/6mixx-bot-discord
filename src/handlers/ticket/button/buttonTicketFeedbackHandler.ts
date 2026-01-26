@@ -1,12 +1,15 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
-import { ChannelType, EmbedBuilder, type ButtonInteraction, type TextChannel } from 'discord.js'
+import { type ButtonInteraction, ChannelType, EmbedBuilder, type TextChannel } from 'discord.js'
+
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { BadRequestError } from '~/core/errorResponse'
-import { GuildRepository } from '~/repositories/guildRepository'
+
 import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
-import { TicketRepository } from '~/repositories/ticketRepository'
 import { createSuccessEmbed } from '~/utils/embedUtil'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
+
+import { GuildRepository } from '~/repositories/guildRepository'
+import { TicketRepository } from '~/repositories/ticketRepository'
 
 export class ButtonTicketFeedbackHandler extends InteractionHandler {
   public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
@@ -41,7 +44,7 @@ export class ButtonTicketFeedbackHandler extends InteractionHandler {
 
     if (!ticketConfig) {
       throw new BadRequestError({
-        description: ERROR_MESSAGE.BAD_REQUEST.TICKET_CONFIG_NOT_FOUND_DESCRIPTION
+        description: 'Hệ thống phiếu hỗ trợ chưa được thiết lập. Vui lòng liên hệ Ban Quản Lý.'
       })
     }
 
@@ -52,7 +55,7 @@ export class ButtonTicketFeedbackHandler extends InteractionHandler {
     const code = await TicketRepository.generateTicketCode(interaction.guildId, 'FEEDBACK')
 
     const thread = await ticketChannel.threads.create({
-      name: `#${code} - Góp Ý`,
+      name: `Phiếu #${code} - Góp Ý`,
       type: ChannelType.PrivateThread,
       invitable: false
     })
@@ -60,11 +63,11 @@ export class ButtonTicketFeedbackHandler extends InteractionHandler {
     await thread.members.add(interaction.user.id)
     await thread.members.add(interaction.guild.ownerId)
 
-    const ticketInfoMessage = await thread.send({
+    await thread.send({
       embeds: [
         new EmbedBuilder()
           .setTitle('Bắt đầu hỗ trợ')
-          .setDescription(`Vui lòng cung cấp đầy đủ thông tin chi tiết về góp ý của bạn.`)
+          .setDescription('Vui lòng chia sẻ ý kiến góp ý của bạn.')
           .setFields(
             {
               name: 'Mã phiếu',
@@ -72,7 +75,7 @@ export class ButtonTicketFeedbackHandler extends InteractionHandler {
               inline: false
             },
             {
-              name: 'Người góp ý',
+              name: 'Người tạo',
               value: `<@${interaction.user.id}>`,
               inline: false
             },
@@ -89,7 +92,9 @@ export class ButtonTicketFeedbackHandler extends InteractionHandler {
       guildId: interaction.guildId,
       requesterId: interaction.user.id,
       type: 'FEEDBACK',
-      threadId: thread.id
+      threadId: thread.id,
+      createdAt: now,
+      updatedAt: now
     })
 
     await interaction.editReply({

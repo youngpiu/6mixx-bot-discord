@@ -1,12 +1,15 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
-import { ChannelType, EmbedBuilder, type ButtonInteraction, type TextChannel } from 'discord.js'
+import { type ButtonInteraction, ChannelType, EmbedBuilder, type TextChannel } from 'discord.js'
+
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { BadRequestError } from '~/core/errorResponse'
-import { GuildRepository } from '~/repositories/guildRepository'
+
 import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
-import { TicketRepository } from '~/repositories/ticketRepository'
 import { createSuccessEmbed } from '~/utils/embedUtil'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
+
+import { GuildRepository } from '~/repositories/guildRepository'
+import { TicketRepository } from '~/repositories/ticketRepository'
 
 export class ButtonTicketBugHandler extends InteractionHandler {
   public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
@@ -41,7 +44,7 @@ export class ButtonTicketBugHandler extends InteractionHandler {
 
     if (!ticketConfig) {
       throw new BadRequestError({
-        description: ERROR_MESSAGE.BAD_REQUEST.TICKET_CONFIG_NOT_FOUND_DESCRIPTION
+        description: 'Hệ thống phiếu hỗ trợ chưa được thiết lập. Vui lòng liên hệ Ban Quản Lý.'
       })
     }
 
@@ -52,7 +55,7 @@ export class ButtonTicketBugHandler extends InteractionHandler {
     const code = await TicketRepository.generateTicketCode(interaction.guildId, 'BUG')
 
     const thread = await ticketChannel.threads.create({
-      name: `#${code} - Báo Lỗi`,
+      name: `Phiếu #${code} - Báo Lỗi`,
       type: ChannelType.PrivateThread,
       invitable: false
     })
@@ -64,7 +67,7 @@ export class ButtonTicketBugHandler extends InteractionHandler {
       embeds: [
         new EmbedBuilder()
           .setTitle('Bắt đầu hỗ trợ')
-          .setDescription(`Vui lòng cung cấp đầy đủ thông tin chi tiết về lỗi bạn gặp phải.`)
+          .setDescription('Vui lòng mô tả chi tiết lỗi bạn gặp phải.')
           .setFields(
             {
               name: 'Mã phiếu',
@@ -72,7 +75,7 @@ export class ButtonTicketBugHandler extends InteractionHandler {
               inline: false
             },
             {
-              name: 'Người báo lỗi',
+              name: 'Người tạo',
               value: `<@${interaction.user.id}>`,
               inline: false
             },
@@ -89,7 +92,9 @@ export class ButtonTicketBugHandler extends InteractionHandler {
       guildId: interaction.guildId,
       requesterId: interaction.user.id,
       type: 'BUG',
-      threadId: thread.id
+      threadId: thread.id,
+      createdAt: now,
+      updatedAt: now
     })
 
     await interaction.editReply({

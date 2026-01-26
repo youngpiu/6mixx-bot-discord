@@ -1,4 +1,5 @@
 import { container } from '@sapphire/pieces'
+
 import { Prisma } from 'generated/prisma/client'
 
 export class GuildRepository {
@@ -42,7 +43,12 @@ export class GuildRepository {
       create: { guildId, ...data }
     })
 
-    await container.redis.del(`guild:${guildId}:ticket-config`)
+    await container.redis.set(
+      `guild:${guildId}:ticket-config`,
+      JSON.stringify(ticketConfig),
+      'EX',
+      this.CACHE_CONFIG_TTL
+    )
 
     return ticketConfig
   }

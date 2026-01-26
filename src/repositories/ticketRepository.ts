@@ -1,5 +1,6 @@
 import { container } from '@sapphire/pieces'
-import { Prisma } from 'generated/prisma/client'
+
+import { Prisma, Ticket } from 'generated/prisma/client'
 import { TicketType } from 'generated/prisma/enums'
 
 const TICKET_PREFIX: Record<TicketType, string> = {
@@ -20,16 +21,32 @@ export class TicketRepository {
     return `${TICKET_PREFIX[type]}${String(count + 1).padStart(3, '0')}`
   }
 
+  public static async getTicketChannelId(guildId: string) {
+    if (guildId) return null
+    return (
+      (
+        await container.prisma.ticketConfig.findUnique({
+          where: { guildId },
+          select: { ticketChannelId: true }
+        })
+      )?.ticketChannelId || null
+    )
+  }
+
   public static async createTicket({
     guildId,
     requesterId,
     type,
-    threadId
+    threadId,
+    createdAt,
+    updatedAt
   }: {
     guildId: string
     requesterId: string
     type: TicketType
     threadId: string
+    createdAt?: Date
+    updatedAt?: Date
   }) {
     const code = await this.generateTicketCode(guildId, type)
 
@@ -39,7 +56,9 @@ export class TicketRepository {
         requesterId,
         type,
         code,
-        threadId
+        threadId,
+        createdAt,
+        updatedAt
       }
     })
 
@@ -76,6 +95,26 @@ export class TicketRepository {
     type?: TicketType
     isOpen?: boolean
   }) {
+    const cacheKey = `tickets:${guildId}:${page}:${limit}:${type}:${isOpen}`
+    const cached = await container.redis.get(cacheKey)
+
+    if (cached) {
+      const result = JSON.parse(cached)
+      type CachedTicket = Omit<Ticket, 'createdAt' | 'updatedAt' | 'closedAt'> & {
+        createdAt: string
+        updatedAt: string
+        closedAt: string | null
+      }
+
+      result.items = (result.items as CachedTicket[]).map((item) => ({
+        ...item,
+        createdAt: new Date(item.createdAt),
+        updatedAt: new Date(item.updatedAt),
+        closedAt: item.closedAt ? new Date(item.closedAt) : null
+      }))
+      return result
+    }
+
     const skip = (page - 1) * limit
 
     // Build where clause based on isOpen parameter
@@ -101,7 +140,7 @@ export class TicketRepository {
 
     const totalPages = Math.ceil(total / limit)
 
-    return {
+    const result = {
       items,
       meta: {
         total,
@@ -114,22 +153,10 @@ export class TicketRepository {
         isOpen
       }
     }
-  }
 
-  public static async closeTicket({
-    ticketId,
-    closedById
-  }: {
-    ticketId: string
-    closedById: string
-  }) {
-    return container.prisma.ticket.update({
-      where: { id: ticketId },
-      data: {
-        closedById,
-        closedAt: new Date()
-      }
-    })
+    await container.redis.set(cacheKey, JSON.stringify(result), 'EX', 60)
+
+    return result
   }
 
   public static async findByThreadId({ threadId }: { threadId: string }) {

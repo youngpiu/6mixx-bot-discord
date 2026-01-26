@@ -1,8 +1,10 @@
 import { ChannelType, ChatInputCommandInteraction, EmbedBuilder, ThreadChannel } from 'discord.js'
-import { BadRequestError } from '~/core/errorResponse'
-import { TicketRepository } from '~/repositories/ticketRepository'
-import { createSuccessEmbed } from '~/utils/embedUtil'
+
+import { BadRequestError, NotFoundError } from '~/core/errorResponse'
+
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
+
+import { TicketRepository } from '~/repositories/ticketRepository'
 
 export class TicketCloseCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
@@ -14,7 +16,7 @@ export class TicketCloseCommand {
 
     if (!ticketThread || ticketThread.type !== ChannelType.PrivateThread) {
       throw new BadRequestError({
-        description: 'Vui lòng sử dụng lệnh này trong phiếu hỗ trợ.'
+        description: 'Vui lòng sử dụng lệnh này trong một kênh hỗ trợ mà bạn muốn đóng lại.'
       })
     }
 
@@ -23,14 +25,14 @@ export class TicketCloseCommand {
     })
 
     if (!ticket) {
-      throw new BadRequestError({
-        description: 'Không tìm thấy phiếu hỗ trợ này trong hệ thống.'
+      throw new NotFoundError({
+        description: 'Hệ thống không tìm thấy kênh hỗ trợ này trong cơ sở dữ liệu.'
       })
     }
 
     if (ticket.closedAt) {
       throw new BadRequestError({
-        description: 'Phiếu hỗ trợ này đã được đóng.'
+        description: 'Kênh hỗ trợ này đã được đóng trước đó.'
       })
     }
 
@@ -49,21 +51,13 @@ export class TicketCloseCommand {
       embeds: [
         new EmbedBuilder()
           .setTitle('Kết thúc hỗ trợ')
-          .setDescription('Cảm ơn sự hợp tác của bạn \ntrong thời gian vừa qua.')
+          .setDescription(
+            `Chúng mình xin chân thành cảm ơn sự hợp tác của bạn\ntrong thời gian vừa qua.`
+          )
           .setFields([
             {
               name: 'Mã phiếu',
               value: `**_#${updatedTicket.code}_**`,
-              inline: false
-            },
-            {
-              name: 'Loại phiếu',
-              value:
-                updatedTicket.type === 'REPORT'
-                  ? 'Báo cáo'
-                  : updatedTicket.type === 'FEEDBACK'
-                    ? 'Góp ý'
-                    : 'Báo lỗi',
               inline: false
             },
             {
@@ -72,7 +66,7 @@ export class TicketCloseCommand {
               inline: false
             },
             {
-              name: 'Ngày tạo',
+              name: 'Thời gian tạo',
               value: `<t:${Math.floor(updatedTicket.createdAt.getTime() / 1000)}:R>`,
               inline: false
             },
@@ -83,7 +77,7 @@ export class TicketCloseCommand {
             },
 
             {
-              name: 'Ngày đóng',
+              name: 'Thời gian đóng',
               value: updatedTicket.closedAt
                 ? `<t:${Math.floor(updatedTicket.closedAt.getTime() / 1000)}:R>`
                 : 'Chưa đóng',
