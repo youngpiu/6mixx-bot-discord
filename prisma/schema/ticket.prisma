@@ -4,6 +4,11 @@ enum TicketType {
   BUG
 }
 
+enum TicketStatus {
+  OPEN
+  CLOSED
+}
+
 model Ticket {
   id String @id @default(cuid())
 
@@ -13,8 +18,9 @@ model Ticket {
   requesterId String
   closedById  String?
 
-  type   TicketType @default(FEEDBACK)
-  code   String     @unique
+  type   TicketType   @default(FEEDBACK)
+  status TicketStatus @default(OPEN)
+  code   String       @unique
   reason String?
 
   closedAt DateTime?
@@ -24,5 +30,6 @@ model Ticket {
 
   @@index([guildId, type])
   @@index([guildId, code])
+  @@index([guildId, status])
   @@index([guildId, createdAt(sort: Desc)])
 }

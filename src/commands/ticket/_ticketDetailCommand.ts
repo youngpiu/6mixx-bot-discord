@@ -1,5 +1,7 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js'
 
+import { TicketStatus } from 'generated/prisma/enums'
+
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { BadRequestError, NotFoundError } from '~/core/errorResponse'
 
@@ -43,7 +45,11 @@ export class TicketDetailCommand {
     const fields = [
       { name: 'Mã phiếu', value: `**_#${ticket.code}_**`, inline: false },
       { name: 'Loại phiếu', value: typeLabel, inline: false },
-      { name: 'Trạng thái', value: ticket.closedAt ? 'Đóng' : 'Mở', inline: false },
+      {
+        name: 'Trạng thái',
+        value: ticket.status === TicketStatus.CLOSED ? 'Đóng' : 'Mở',
+        inline: false
+      },
       { name: 'Kênh', value: `<#${ticket.threadId}>`, inline: false },
       { name: 'Người tạo', value: `<@${ticket.requesterId}>`, inline: false },
       {
@@ -72,7 +78,7 @@ export class TicketDetailCommand {
     await interaction.editReply({
       embeds: [
         new EmbedBuilder()
-          .setColor(ticket.closedAt ? 'DarkRed' : 'Green')
+          .setColor(ticket.status === TicketStatus.CLOSED ? 'DarkRed' : 'Green')
           .setTitle(`Thông tin phiếu #${ticket.code}`)
           .setFields(fields)
       ]

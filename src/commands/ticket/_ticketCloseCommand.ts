@@ -1,5 +1,7 @@
 import { ChannelType, ChatInputCommandInteraction, EmbedBuilder, ThreadChannel } from 'discord.js'
 
+import { TicketStatus } from 'generated/prisma/enums'
+
 import { BadRequestError, NotFoundError } from '~/core/errorResponse'
 
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
@@ -30,7 +32,7 @@ export class TicketCloseCommand {
       })
     }
 
-    if (ticket.closedAt) {
+    if (ticket.status === TicketStatus.CLOSED) {
       throw new BadRequestError({
         description: 'Kênh hỗ trợ này đã được đóng trước đó.'
       })
@@ -41,6 +43,7 @@ export class TicketCloseCommand {
     const updatedTicket = await TicketRepository.updateTicket({
       ticketId: ticket.id,
       data: {
+        status: TicketStatus.CLOSED,
         closedAt: new Date(),
         closedById: interaction.user.id,
         reason

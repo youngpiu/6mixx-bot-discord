@@ -1,7 +1,7 @@
 import { container } from '@sapphire/pieces'
 
 import { Prisma, Ticket } from 'generated/prisma/client'
-import { TicketType } from 'generated/prisma/enums'
+import { TicketStatus, TicketType } from 'generated/prisma/enums'
 
 const TICKET_PREFIX: Record<TicketType, string> = {
   REPORT: 'BC',
@@ -87,15 +87,15 @@ export class TicketRepository {
     page = 1,
     limit = 10,
     type,
-    isOpen
+    status
   }: {
     guildId: string
     page: number
     limit: number
     type?: TicketType
-    isOpen?: boolean
+    status?: TicketStatus
   }) {
-    const cacheKey = `tickets:${guildId}:${page}:${limit}:${type}:${isOpen}`
+    const cacheKey = `tickets:${guildId}:${page}:${limit}:${type}:${status}`
     const cached = await container.redis.get(cacheKey)
 
     if (cached) {
@@ -117,12 +117,11 @@ export class TicketRepository {
 
     const skip = (page - 1) * limit
 
-    // Build where clause based on isOpen parameter
+    // Build where clause based on status parameter
     const whereClause = {
       guildId,
       type,
-      ...(isOpen === true && { closedAt: null }),
-      ...(isOpen === false && { closedAt: { not: null } })
+      status
     }
 
     const [items, total] = await Promise.all([
@@ -150,7 +149,7 @@ export class TicketRepository {
         hasNext: page < totalPages,
         hasPrev: page > 1,
         type,
-        isOpen
+        status
       }
     }
 

@@ -8,6 +8,7 @@ import {
 } from 'discord.js'
 
 import { Ticket, TicketType } from 'generated/prisma/client'
+import { TicketStatus } from 'generated/prisma/enums'
 
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { BadRequestError } from '~/core/errorResponse'
@@ -20,7 +21,7 @@ import { TicketRepository } from '~/repositories/ticketRepository'
 export interface TicketListState {
   page: number
   type?: TicketType
-  isOpen?: boolean
+  status?: TicketStatus
 }
 
 export interface TicketListMeta extends TicketListState {
@@ -35,7 +36,7 @@ export interface TicketListMeta extends TicketListState {
 export const encodeState = (state: TicketListState): string => {
   const parts = [`p=${state.page}`]
   if (state.type) parts.push(`t=${state.type}`)
-  if (state.isOpen !== undefined) parts.push(`o=${state.isOpen ? '1' : '0'}`)
+  if (state.status) parts.push(`s=${state.status}`)
   return parts.join(':')
 }
 
@@ -47,7 +48,7 @@ export const decodeState = (encoded: string): TicketListState => {
     const [key, value] = part.split('=')
     if (key === 'p') state.page = parseInt(value, 10) || 1
     if (key === 't') state.type = value as TicketType
-    if (key === 'o') state.isOpen = value === '1'
+    if (key === 's') state.status = value as TicketStatus
   }
 
   return state
@@ -100,7 +101,7 @@ export class TicketListCommand {
       page: state.page,
       limit: 5,
       type: state.type,
-      isOpen: state.isOpen
+      status: state.status
     })
 
     return interaction.update(this.createListResponse(items, meta))
@@ -128,7 +129,7 @@ export class TicketListCommand {
         const createdTimestamp = Math.floor(ticket.createdAt.getTime() / 1000)
 
         embed.addFields({
-          name: `${index + 1}. #${ticket.code} ${ticket.closedAt ? '<:close:1463597271496003708>' : '<:open:1463597269889712128>'} `,
+          name: `${index + 1}. #${ticket.code} ${ticket.status === TicketStatus.CLOSED ? '<:close:1463597271496003708>' : '<:open:1463597269889712128>'} `,
           value: [
             `**Loại:** ${typeLabel}`,
             `**Người tạo:** <@${ticket.requesterId}>`,
@@ -142,7 +143,11 @@ export class TicketListCommand {
 
     // Footer with filters info
     const typeText = meta.type ? TICKET_TYPE_LABELS[meta.type] : 'Tất cả'
-    const statusText = meta.isOpen === undefined ? 'Tất cả' : meta.isOpen ? 'Đang mở' : 'Đã đóng'
+    const statusText = !meta.status
+      ? 'Tất cả'
+      : meta.status === TicketStatus.OPEN
+        ? 'Đang mở'
+        : 'Đã đóng'
 
     embed.setFooter({
       text: `Trang ${meta.page}/${meta.totalPages || 1} • Tổng: ${meta.total} phiếu • Loại: ${typeText} • Trạng thái: ${statusText}`
@@ -152,7 +157,7 @@ export class TicketListCommand {
   }
 
   private static createPagination(meta: TicketListMeta) {
-    const currentState: TicketListState = { page: meta.page, type: meta.type, isOpen: meta.isOpen }
+    const currentState: TicketListState = { page: meta.page, type: meta.type, status: meta.status }
 
     return new ActionRowBuilder<ButtonBuilder>().addComponents(
       createButton(
@@ -187,7 +192,7 @@ export class TicketListCommand {
   }
 
   private static createTypeFilter(meta: TicketListMeta) {
-    const baseState: TicketListState = { page: 1, isOpen: meta.isOpen } // Reset page when filtering
+    const baseState: TicketListState = { page: 1, status: meta.status } // Reset page when filtering
 
     const types: Array<{ action: string; label: string; state: TicketListState }> = [
       { action: 'type-all', label: '🗂️ Tất cả', state: { ...baseState, type: undefined } },
@@ -207,14 +212,22 @@ export class TicketListCommand {
     const baseState: TicketListState = { page: 1, type: meta.type } // Reset page when filtering
 
     const statuses: Array<{ action: string; label: string; state: TicketListState }> = [
-      { action: 'status-all', label: '🗂️ Tất cả', state: { ...baseState, isOpen: undefined } },
-      { action: 'status-open', label: '🟢 Đang mở', state: { ...baseState, isOpen: true } },
-      { action: 'status-closed', label: '🔴 Đã đóng', state: { ...baseState, isOpen: false } }
+      { action: 'status-all', label: '🗂️ Tất cả', state: { ...baseState, status: undefined } },
+      {
+        action: 'status-open',
+        label: '🟢 Đang mở',
+        state: { ...baseState, status: TicketStatus.OPEN }
+      },
+      {
+        action: 'status-closed',
+        label: '🔴 Đã đóng',
+        state: { ...baseState, status: TicketStatus.CLOSED }
+      }
     ]
 
     return new ActionRowBuilder<ButtonBuilder>().addComponents(
       statuses.map(({ action, label, state }) =>
-        createButton(action, state, label, meta.isOpen === state.isOpen, ButtonStyle.Success)
+        createButton(action, state, label, meta.status === state.status, ButtonStyle.Success)
       )
     )
   }
