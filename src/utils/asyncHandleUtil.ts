@@ -1,16 +1,18 @@
 import { Args, ChatInputCommand, container } from '@sapphire/framework'
 import { send } from '@sapphire/plugin-editable-commands'
 import {
-  AutocompleteInteraction,
   ButtonInteraction,
   ChatInputCommandInteraction,
   Message,
   ModalSubmitInteraction,
   StringSelectMenuInteraction
 } from 'discord.js'
+
 import { Prisma } from 'generated/prisma/client'
+
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { ErrorResponseCore } from '~/core/errorResponse'
+
 import { createErrorEmbed } from '~/utils/embedUtil'
 
 const isPrismaError = (error: unknown): boolean =>
@@ -26,15 +28,12 @@ export const asyncChatInputHandler = (
     context: ChatInputCommand.RunContext
   ) => Promise<unknown>
 ) => {
-  return async (
-    interaction: ChatInputCommandInteraction,
-    context: ChatInputCommand.RunContext
-  ) => {
+  return async (interaction: ChatInputCommandInteraction, context: ChatInputCommand.RunContext) => {
     try {
       return await fn(interaction, context)
     } catch (error) {
       let errorEmbed
-
+      const guildId = interaction.guildId
       if (error instanceof ErrorResponseCore) {
         errorEmbed = createErrorEmbed({
           title: error.title,
@@ -44,13 +43,13 @@ export const asyncChatInputHandler = (
         container.logger.error(error)
         errorEmbed = createErrorEmbed({
           title: ERROR_MESSAGE.DATABASE_ERROR.TITLE,
-          description: ERROR_MESSAGE.DATABASE_ERROR.DESCRIPTION
+          description: ERROR_MESSAGE.DATABASE_ERROR.DESCRIPTION(guildId)
         })
       } else {
         container.logger.error(error)
         errorEmbed = createErrorEmbed({
           title: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.TITLE,
-          description: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION
+          description: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION(guildId)
         })
       }
 
@@ -70,15 +69,13 @@ export const asyncChatInputHandler = (
   }
 }
 
-export const asyncMessageHandler = (
-  fn: (message: Message, args: Args) => Promise<unknown>
-) => {
+export const asyncMessageHandler = (fn: (message: Message, args: Args) => Promise<unknown>) => {
   return async (message: Message, args: Args) => {
     try {
       return await fn(message, args)
     } catch (error) {
       let errorEmbed
-
+      const guildId = message.guildId
       if (error instanceof ErrorResponseCore) {
         errorEmbed = createErrorEmbed({
           title: error.title,
@@ -88,13 +85,13 @@ export const asyncMessageHandler = (
         container.logger.error(error)
         errorEmbed = createErrorEmbed({
           title: ERROR_MESSAGE.DATABASE_ERROR.TITLE,
-          description: ERROR_MESSAGE.DATABASE_ERROR.DESCRIPTION
+          description: ERROR_MESSAGE.DATABASE_ERROR.DESCRIPTION(guildId)
         })
       } else {
         container.logger.error(error)
         errorEmbed = createErrorEmbed({
           title: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.TITLE,
-          description: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION
+          description: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION(guildId)
         })
       }
 
@@ -106,19 +103,17 @@ export const asyncMessageHandler = (
   }
 }
 
-type RepliableInteraction =
-  | ButtonInteraction
-  | ModalSubmitInteraction
-  | StringSelectMenuInteraction
+type RepliableInteraction = ButtonInteraction | ModalSubmitInteraction | StringSelectMenuInteraction
 
-export const asyncInteractionHandler = <T extends RepliableInteraction>(
-  fn: (interaction: T) => Promise<unknown>
+export const asyncInteractionHandler = <T extends RepliableInteraction, R = unknown>(
+  fn: (interaction: T, result?: R) => Promise<unknown>
 ) => {
-  return async (interaction: T) => {
+  return async (interaction: T, result?: R) => {
     try {
-      return await fn(interaction)
+      return await fn(interaction, result)
     } catch (error) {
       let errorEmbed
+      const guildId = interaction.guildId
 
       if (error instanceof ErrorResponseCore) {
         errorEmbed = createErrorEmbed({
@@ -129,13 +124,13 @@ export const asyncInteractionHandler = <T extends RepliableInteraction>(
         container.logger.error(error)
         errorEmbed = createErrorEmbed({
           title: ERROR_MESSAGE.DATABASE_ERROR.TITLE,
-          description: ERROR_MESSAGE.DATABASE_ERROR.DESCRIPTION
+          description: ERROR_MESSAGE.DATABASE_ERROR.DESCRIPTION(guildId)
         })
       } else {
         container.logger.error(error)
         errorEmbed = createErrorEmbed({
           title: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.TITLE,
-          description: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION
+          description: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION(guildId)
         })
       }
 

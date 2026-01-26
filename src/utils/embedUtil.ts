@@ -1,4 +1,5 @@
 import { EmbedBuilder } from 'discord.js'
+
 import { RGB_COLOR_TEMPLATE } from '~/constants/colorConstant'
 
 type EmbedOptions = {

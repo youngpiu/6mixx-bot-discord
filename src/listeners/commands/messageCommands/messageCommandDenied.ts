@@ -1,5 +1,6 @@
 import type { Events, MessageCommandDeniedPayload } from '@sapphire/framework'
 import { Listener, type UserError } from '@sapphire/framework'
+
 import { createErrorEmbed } from '~/utils/embedUtil'
 
 export class UserEvent extends Listener<typeof Events.MessageCommandDenied> {

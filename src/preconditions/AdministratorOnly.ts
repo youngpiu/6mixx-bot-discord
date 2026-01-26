@@ -5,6 +5,7 @@ import {
   GuildMember,
   Message
 } from 'discord.js'
+
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 
 export class AdministratorOnlyPrecondition extends Precondition {

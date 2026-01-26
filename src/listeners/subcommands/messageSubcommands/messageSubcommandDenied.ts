@@ -1,8 +1,9 @@
-import {
-  SubcommandPluginEvents,
-  type MessageSubcommandDeniedPayload
-} from '@sapphire/plugin-subcommands'
 import { Listener, type UserError } from '@sapphire/framework'
+import {
+  type MessageSubcommandDeniedPayload,
+  SubcommandPluginEvents
+} from '@sapphire/plugin-subcommands'
+
 import { createErrorEmbed } from '~/utils/embedUtil'
 
 export class UserEvent extends Listener<typeof SubcommandPluginEvents.MessageSubcommandDenied> {

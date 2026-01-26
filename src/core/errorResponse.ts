@@ -50,7 +50,7 @@ export class ForbiddenError extends ErrorResponseCore {
 export class InternalServerError extends ErrorResponseCore {
   constructor({
     title = ERROR_MESSAGE.INTERNAL_SERVER_ERROR.TITLE,
-    description = ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION
+    description = ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION()
   }: ErrorOptions = {}) {
     super({ name: 'INTERNAL_SERVER_ERROR', title, description })
   }

@@ -1,5 +1,6 @@
 import { Precondition } from '@sapphire/framework'
 import { ChatInputCommandInteraction, ContextMenuCommandInteraction, Message } from 'discord.js'
+
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 
 export class OwnerOnlyPrecondition extends Precondition {
