@@ -13,6 +13,7 @@ import { TicketStatus } from 'generated/prisma/enums'
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { BadRequestError } from '~/core/errorResponse'
 
+import { deleteReplyInteraction } from '~/utils/interactionUtil'
 import { TICKET_TYPE_LABELS } from '~/utils/ticketUtil'
 
 import { TicketRepository } from '~/repositories/ticketRepository'
@@ -86,7 +87,9 @@ export class TicketListCommand {
       limit: 5
     })
 
-    return interaction.editReply(this.createListResponse(items, meta))
+    const response = await interaction.editReply(this.createListResponse(items, meta))
+    await deleteReplyInteraction(interaction, 60)
+    return response
   }
 
   public static async handleButton(interaction: ButtonInteraction, state: TicketListState) {
@@ -104,6 +107,7 @@ export class TicketListCommand {
       status: state.status
     })
 
+    await deleteReplyInteraction(interaction, 60)
     return interaction.update(this.createListResponse(items, meta))
   }
 
