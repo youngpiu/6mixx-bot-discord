@@ -31,7 +31,7 @@ COPY . .
 RUN pnpm prisma generate --config ./prisma.config.ts
 
 # Build TypeScript
-RUN pnpm build
+RUN pnpm build && ls -la dist/
 
 # ============================================
 # Stage 3: Production
