@@ -133,9 +133,10 @@ export class TicketListCommand {
       tickets.forEach((ticket, index) => {
         const typeLabel = TICKET_TYPE_LABELS[ticket.type]
         const createdTimestamp = Math.floor(ticket.createdAt.getTime() / 1000)
+        const indexNumber = (meta.page - 1) * meta.limit + index + 1
 
         embed.addFields({
-          name: `${index + 1}. #${ticket.code} ${ticket.status === TicketStatus.CLOSED ? '<:close:1463597271496003708>' : '<:open:1463597269889712128>'} `,
+          name: `${indexNumber}. #${ticket.code} ${ticket.status === TicketStatus.CLOSED ? '<:close:1463597271496003708>' : '<:open:1463597269889712128>'} `,
           value: [
             `**Loại:** ${typeLabel}`,
             `**Người tạo:** <@${ticket.requesterId}>`,
