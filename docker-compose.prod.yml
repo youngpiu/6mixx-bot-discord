@@ -1,0 +1,72 @@
+services:
+  # ============================================
+  # PostgreSQL Database
+  # ============================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: 6mixx-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+      POSTGRES_DB: ${POSTGRES_DB:-mydb}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U admin -d mydb']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bot-network
+
+  # ============================================
+  # Redis Cache
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: 6mixx-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes
+    networks:
+      - bot-network
+
+  # ============================================
+  # Discord Bot
+  # ============================================
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 6mixx-bot
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin}@postgres:5432/${POSTGRES_DB:-mydb}?schema=public
+      REDIS_URL: redis://redis:6379
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
+      MAIN_DISCORD_GUILD_ID: ${MAIN_DISCORD_GUILD_ID}
+      DEFAULT_PREFIX: ${DEFAULT_PREFIX:-.}
+    networks:
+      - bot-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  bot-network:
+    driver: bridge
