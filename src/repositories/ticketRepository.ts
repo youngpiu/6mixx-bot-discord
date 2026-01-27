@@ -3,7 +3,10 @@ import { container } from '@sapphire/pieces'
 import { Prisma, Ticket } from 'generated/prisma/client'
 import { TicketStatus, TicketType } from 'generated/prisma/enums'
 
+import { CACHE_WILDCARD } from '~/constants/commonConstant'
 import { TICKET_TIMER } from '~/constants/timeConstant'
+
+import { deserializeTicket } from '~/utils/ticketUtil'
 
 const TICKET_PREFIX: Record<TicketType, string> = {
   REPORT: 'BC',
@@ -97,23 +100,12 @@ export class TicketRepository {
     type?: TicketType
     status?: TicketStatus
   }) {
-    const cacheKey = `tickets:${guildId}:${page}:${limit}:${type || 'ALL'}:${status || 'ALL'}`
+    const cacheKey = `tickets:${guildId}:${page}:${limit}:${type || CACHE_WILDCARD}:${status || CACHE_WILDCARD}`
     const cached = await container.redis.get(cacheKey)
 
     if (cached) {
       const result = JSON.parse(cached)
-      type CachedTicket = Omit<Ticket, 'createdAt' | 'updatedAt' | 'closedAt'> & {
-        createdAt: string
-        updatedAt: string
-        closedAt: string | null
-      }
-
-      result.items = (result.items as CachedTicket[]).map((item) => ({
-        ...item,
-        createdAt: new Date(item.createdAt),
-        updatedAt: new Date(item.updatedAt),
-        closedAt: item.closedAt ? new Date(item.closedAt) : null
-      }))
+      result.items = (result.items as Ticket[]).map(deserializeTicket)
       return result
     }
 

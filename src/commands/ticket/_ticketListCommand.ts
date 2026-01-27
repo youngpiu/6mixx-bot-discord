@@ -10,6 +10,7 @@ import {
 import { Ticket, TicketType } from 'generated/prisma/client'
 import { TicketStatus } from 'generated/prisma/enums'
 
+import { DEFAULT_PAGINATION_LIMIT } from '~/constants/commonConstant'
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { TICKET_TIMER } from '~/constants/timeConstant'
 import { BadRequestError } from '~/core/errorResponse'
@@ -85,7 +86,7 @@ export class TicketListCommand {
     const { items, meta } = await TicketRepository.getTickets({
       guildId: interaction.guildId,
       page: 1,
-      limit: 5
+      limit: DEFAULT_PAGINATION_LIMIT
     })
 
     const response = await interaction.editReply(this.createListResponse(items, meta))

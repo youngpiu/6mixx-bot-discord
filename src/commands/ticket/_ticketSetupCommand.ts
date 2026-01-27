@@ -81,7 +81,7 @@ export class TicketSetupCommand {
       new ContainerBuilder()
         .addTextDisplayComponents((text) =>
           text.setContent(
-            '## Trung Tâm Hỗ Trợ\n' +
+            '## Trung Tâm Hỗ Trợ VNSWER\n' +
               '-# Tại đây, bạn có thể gửi báo cáo vi phạm luật, góp ý cải thiện máy chủ và báo lỗi nếu có trong máy chủ **VNMIXX**.'
           )
         )
@@ -93,19 +93,19 @@ export class TicketSetupCommand {
             .addTextDisplayComponents((text) =>
               text.setContent(
                 '### Báo cáo vi phạm\n' +
-                  '-# Dùng khi bạn thấy một hành vi vi phạm luật trong máy chủ **VNMIXX**\n' +
-                  '- Yêu cầu bắt buộc\n' +
+                  '-# Dùng khi bạn thấy một hành vi vi phạm luật trong máy chủ **VNMIXX**.\n' +
+                  '- **Yêu cầu bắt buộc**\n' +
                   '  - Đính kèm bằng chứng rõ ràng, chính xác, không qua chỉnh sửa.\n' +
                   '  - Có thể gửi đường dẫn tin nhắn nếu có và tag người liên quan.\n' +
-                  '- Lưu ý\n' +
-                  '  - Không giải quyết riêng qua tin nhắn riêng tư (DM)\n' +
+                  '- **Lưu ý**\n' +
+                  '  - Không giải quyết riêng qua tin nhắn riêng tư (DM).\n' +
                   '  - Gửi báo cáo mà không có mục đích gì sẽ bị hạn chế 1 ngày.'
               )
             )
             .setButtonAccessory(
               new ButtonBuilder()
                 .setCustomId('btn-ticket-report')
-                .setLabel('🚨 Báo cáo')
+                .setLabel('Báo cáo')
                 .setStyle(ButtonStyle.Danger)
             )
         )
@@ -118,17 +118,17 @@ export class TicketSetupCommand {
               text.setContent(
                 '### Góp ý cải thiện\n' +
                   '-# Dùng khi bạn có một ý tưởng đề xuất hoặc góp ý cải thiện máy chủ **VNMIXX**.\n' +
-                  '- Yêu cầu bắt buộc\n' +
+                  '- **Yêu cầu bắt buộc**\n' +
                   '  - Mô tả rõ ràng những góp ý, ý tưởng của bạn.\n' +
                   '  - Có thể gửi hình ảnh, biểu đồ về ý tưởng đó nếu có.\n' +
-                  '- Lưu ý\n' +
+                  '- **Lưu ý**\n' +
                   '  - Gửi góp ý mà không có mục đích gì sẽ bị hạn chế 1 ngày.'
               )
             )
             .setButtonAccessory(
               new ButtonBuilder()
                 .setCustomId('btn-ticket-feedback')
-                .setLabel('📝 Góp ý')
+                .setLabel('Góp ý')
                 .setStyle(ButtonStyle.Success)
             )
         )
@@ -141,19 +141,19 @@ export class TicketSetupCommand {
               text.setContent(
                 '### Báo lỗi máy chủ\n' +
                   '-# Dùng khi bạn gặp lỗi trong quá trình sử dụng máy chủ **VNMIXX**.\n' +
-                  '- Yêu cầu bắt buộc\n' +
-                  '  - Mô tả rõ ràng lỗi mà bạn gặp phải\n' +
+                  '- **Yêu cầu bắt buộc**\n' +
+                  '  - Mô tả rõ ràng lỗi mà bạn gặp phải.\n' +
                   '  - Cung cấp hình ảnh, quá trình từng bước bạn làm trước và sau khi gặp lỗi.\n' +
-                  '- Lưu ý\n' +
-                  '  - Không tiếp nhận các lỗi không liên quan tới máy chủ **VNMIXX**\n' +
+                  '- **Lưu ý**\n' +
+                  '  - Không tiếp nhận các lỗi không liên quan tới máy chủ **VNMIXX**.\n' +
                   '  - Gửi báo lỗi mà không có mục đích gì sẽ bị hạn chế 1 ngày.'
               )
             )
             .setButtonAccessory(
               new ButtonBuilder()
                 .setCustomId('btn-ticket-bug')
-                .setLabel('🐞 Báo lỗi')
-                .setStyle(ButtonStyle.Primary)
+                .setLabel('Báo lỗi')
+                .setStyle(ButtonStyle.Danger)
             )
         )
     )

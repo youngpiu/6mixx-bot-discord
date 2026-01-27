@@ -67,7 +67,7 @@ export class ButtonTicketReportHandler extends InteractionHandler {
       embeds: [
         new EmbedBuilder()
           .setTitle('Bắt đầu hỗ trợ')
-          .setDescription('Vui lòng cung cấp thông tin chi tiết về báo cáo của bạn.')
+          .setDescription('Vui lòng mô tả chi tiết về\n báo cáo của bạn.')
           .setFields(
             {
               name: 'Mã phiếu',

@@ -67,7 +67,7 @@ export class ButtonTicketBugHandler extends InteractionHandler {
       embeds: [
         new EmbedBuilder()
           .setTitle('Bắt đầu hỗ trợ')
-          .setDescription('Vui lòng mô tả chi tiết lỗi bạn gặp phải.')
+          .setDescription('Vui lòng mô tả chi tiết về\n lỗi bạn gặp phải.')
           .setFields(
             {
               name: 'Mã phiếu',

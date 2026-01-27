@@ -67,7 +67,7 @@ export class ButtonTicketFeedbackHandler extends InteractionHandler {
       embeds: [
         new EmbedBuilder()
           .setTitle('Bắt đầu hỗ trợ')
-          .setDescription('Vui lòng chia sẻ ý kiến góp ý của bạn.')
+          .setDescription('Vui lòng mô tả chi tiết về\n góp ý của bạn.')
           .setFields(
             {
               name: 'Mã phiếu',
