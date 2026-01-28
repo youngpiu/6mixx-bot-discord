@@ -69,7 +69,9 @@ export class TicketCommand extends Subcommand {
         .addSubcommand((subcommand) =>
           subcommand
             .setName('setup')
-            .setDescription('Thiết lập kênh tiếp nhận và xử lý yêu cầu hỗ trợ từ thành viên.')
+            .setDescription(
+              '[OWNER] Thiết lập kênh tiếp nhận và xử lý yêu cầu hỗ trợ từ thành viên.'
+            )
             .addChannelOption((option) =>
               option
                 .setName('ticket-channel')
@@ -81,7 +83,9 @@ export class TicketCommand extends Subcommand {
         .addSubcommand((subcommand) =>
           subcommand
             .setName('close')
-            .setDescription('Đóng phiếu hỗ trợ đang mở tại kênh mà bạn dùng lệnh này.')
+            .setDescription(
+              '[ADMINISTRATOR] Đóng kênh và kết thúc phiên hỗ trợ đang mở ở kênh mà bạn dùng lệnh.'
+            )
             .addStringOption((option) =>
               option.setName('reason').setDescription('Lý do đóng phiếu hỗ trợ này.')
             )
@@ -89,7 +93,9 @@ export class TicketCommand extends Subcommand {
         .addSubcommand((subcommand) =>
           subcommand
             .setName('detail')
-            .setDescription('Xem thông tin chi tiết một phiếu hỗ trợ bằng mã phiếu.')
+            .setDescription(
+              '[ADMINISTRATOR] Xem thông tin chi tiết một phiếu hỗ trợ bằng mã phiếu.'
+            )
             .addStringOption((option) =>
               option
                 .setName('ticket-id')
@@ -101,7 +107,9 @@ export class TicketCommand extends Subcommand {
         .addSubcommand((subcommand) =>
           subcommand
             .setName('list')
-            .setDescription('Xem danh sách các phiếu hỗ trợ có trong cơ sở dữ liệu.')
+            .setDescription(
+              '[ADMINISTRATOR] Xem danh sách các phiếu hỗ trợ có trong cơ sở dữ liệu.'
+            )
         )
     )
   }
