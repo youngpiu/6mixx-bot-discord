@@ -6,13 +6,13 @@ import {
   type ChatInputCommandInteraction,
   EmbedBuilder
 } from 'discord.js'
+import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
 import { Ticket, TicketType } from 'generated/prisma/client'
 import { TicketStatus } from 'generated/prisma/enums'
 
 import { DEFAULT_PAGINATION_LIMIT } from '~/constants/commonConstant'
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
-import { TICKET_TIMER } from '~/constants/timeConstant'
 import { BadRequestError } from '~/core/errorResponse'
 
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
@@ -90,7 +90,7 @@ export class TicketListCommand {
     })
 
     const response = await interaction.editReply(this.createListResponse(items, meta))
-    await deleteReplyInteraction(interaction, TICKET_TIMER.INTERACTION_TIMEOUT.LIST)
+    await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)
     return response
   }
 
@@ -109,7 +109,7 @@ export class TicketListCommand {
       status: state.status
     })
 
-    await deleteReplyInteraction(interaction, TICKET_TIMER.INTERACTION_TIMEOUT.LIST)
+    await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)
     return interaction.update(this.createListResponse(items, meta))
   }
 

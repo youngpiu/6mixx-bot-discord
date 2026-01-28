@@ -133,19 +133,19 @@ export class TicketSetupCommand {
             )
         )
 
-        // ===== Báo lỗi máy chủ =====
+        // ===== Báo lỗi BOT =====
         .addSeparatorComponents((sep) => sep.setDivider(true))
         .addSectionComponents((section) =>
           section
             .addTextDisplayComponents((text) =>
               text.setContent(
-                '### Báo lỗi máy chủ\n' +
-                  '-# Dùng khi bạn gặp lỗi trong quá trình sử dụng máy chủ **VNMIXX**.\n' +
+                '### Báo lỗi BOT\n' +
+                  '-# Dùng khi bạn gặp lỗi trong quá trình sử dụng BOT.\n' +
                   '- **Yêu cầu bắt buộc**\n' +
                   '  - Mô tả rõ ràng lỗi mà bạn gặp phải.\n' +
                   '  - Cung cấp hình ảnh, quá trình từng bước bạn làm trước và sau khi gặp lỗi.\n' +
                   '- **Lưu ý**\n' +
-                  '  - Không tiếp nhận các lỗi không liên quan tới máy chủ **VNMIXX**.\n' +
+                  '  - Không tiếp nhận các lỗi không liên quan tới BOT.\n' +
                   '  - Gửi báo lỗi mà không có mục đích gì sẽ bị hạn chế 1 ngày.'
               )
             )

@@ -8,4 +8,5 @@ model Guild {
 
   ticketConfig TicketConfig?
   tickets      Ticket[]
+  donations    Donation[]
 }

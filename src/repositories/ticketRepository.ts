@@ -1,17 +1,17 @@
 import { container } from '@sapphire/pieces'
+import { CACHE_TTL } from '~/config/time'
 
 import { Prisma, Ticket } from 'generated/prisma/client'
 import { TicketStatus, TicketType } from 'generated/prisma/enums'
 
 import { CACHE_WILDCARD } from '~/constants/commonConstant'
-import { TICKET_TIMER } from '~/constants/timeConstant'
 
 import { deserializeTicket } from '~/utils/ticketUtil'
 
 const TICKET_PREFIX: Record<TicketType, string> = {
-  REPORT: 'BC',
-  FEEDBACK: 'GY',
-  BUG: 'BL'
+  REPORT: 'RP',
+  FEEDBACK: 'FB',
+  BUG: 'BU'
 }
 
 export class TicketRepository {
@@ -147,7 +147,7 @@ export class TicketRepository {
       }
     }
 
-    await container.redis.set(cacheKey, JSON.stringify(result), 'EX', TICKET_TIMER.TTL.LIST)
+    await container.redis.set(cacheKey, JSON.stringify(result), 'EX', CACHE_TTL.VERY_SHORT)
 
     return result
   }

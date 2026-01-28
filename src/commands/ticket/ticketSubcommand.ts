@@ -8,12 +8,12 @@ import { TicketDetailCommand } from '~/commands/ticket/_ticketDetailCommand'
 import { TicketListCommand } from '~/commands/ticket/_ticketListCommand'
 import { TicketSetupCommand } from '~/commands/ticket/_ticketSetupCommand'
 
-export class TicketCommand extends Subcommand {
+export class TicketSubcommand extends Subcommand {
   public constructor(context: Subcommand.LoaderContext, options: Subcommand.Options) {
     super(context, {
       ...options,
       name: 'ticket',
-      description: 'Quản lý hệ thống hỗ trợ thành viên.',
+      description: 'Hệ thống hỗ trợ thành viên.',
       subcommands: [
         {
           name: 'setup',

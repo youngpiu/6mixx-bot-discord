@@ -17,5 +17,6 @@ export const env = {
   NODE_ENV: getEnvVar('NODE_ENV', false) || 'development',
   SUPPORTER_DISCORD_ID: getEnvVar('SUPPORTER_DISCORD_ID'),
   BANK_ACCOUNT_NUMBER: getEnvVar('BANK_ACCOUNT_NUMBER'),
-  BANK_NAME: getEnvVar('BANK_NAME')
+  BANK_NAME: getEnvVar('BANK_NAME'),
+  BANK_ACCOUNT_NAME: getEnvVar('BANK_ACCOUNT_NAME')
 }

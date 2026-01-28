@@ -1,8 +1,8 @@
 import { ChannelType, ChatInputCommandInteraction, EmbedBuilder, ThreadChannel } from 'discord.js'
+import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
 import { TicketStatus } from 'generated/prisma/enums'
 
-import { COMMON_TIMER } from '~/constants/timeConstant'
 import { BadRequestError, NotFoundError } from '~/core/errorResponse'
 
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
@@ -79,7 +79,6 @@ export class TicketCloseCommand {
               value: `<@${updatedTicket.closedById}>`,
               inline: false
             },
-
             {
               name: 'Thời gian đóng',
               value: updatedTicket.closedAt
@@ -102,6 +101,6 @@ export class TicketCloseCommand {
 
     await ticketThread.setLocked(true)
     await ticketThread.setArchived(true)
-    await deleteReplyInteraction(interaction, COMMON_TIMER.INTERACTION_TIMEOUT.IMMEDIATE)
+    await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.IMMEDIATE)
   }
 }
