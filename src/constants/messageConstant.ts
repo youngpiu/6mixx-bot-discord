@@ -1,3 +1,4 @@
+import { container } from '@sapphire/pieces'
 import { env } from '~/config/env'
 
 export const RANDOM_LOADING_MESSAGES: string[] = [
@@ -7,6 +8,29 @@ export const RANDOM_LOADING_MESSAGES: string[] = [
   'Đang nấu...',
   'Đợi xíu...'
 ]
+
+// Helper function for error messages
+async function getErrorDescription(guildId: string | null, errorType: string) {
+  if (!guildId) {
+    return env.SUPPORTER_DISCORD_ID
+      ? `${errorType} đã xảy ra lỗi, vui lòng thử lại sau hoặc liên hệ <@${env.SUPPORTER_DISCORD_ID}> để được hỗ trợ.`
+      : `${errorType} đã xảy ra lỗi, vui lòng thử lại sau hoặc liên hệ **Ban quản lý** để được hỗ trợ.`
+  }
+
+  const ticketChannelId = (
+    await container.prisma.ticketConfig.findUnique({
+      where: { guildId }
+    })
+  )?.ticketChannelId
+
+  if (ticketChannelId) {
+    return `${errorType} đã xảy ra lỗi, vui lòng thử lại sau hoặc báo lỗi tại kênh <#${ticketChannelId}> để được hỗ trợ.`
+  }
+
+  return env.SUPPORTER_DISCORD_ID
+    ? `${errorType} đã xảy ra lỗi, vui lòng thử lại sau hoặc liên hệ <@${env.SUPPORTER_DISCORD_ID}> để được hỗ trợ.`
+    : `${errorType} đã xảy ra lỗi, vui lòng thử lại sau hoặc liên hệ **Ban quản lý** để được hỗ trợ.`
+}
 
 export const ERROR_MESSAGE = {
   BAD_REQUEST: {
@@ -29,21 +53,11 @@ export const ERROR_MESSAGE = {
 
   DATABASE_ERROR: {
     TITLE: 'Lỗi cơ sở dữ liệu',
-    DESCRIPTION: (ticketChannelId?: string | null) =>
-      ticketChannelId
-        ? `Cơ sở dữ liệu đã xảy ra lỗi, vui lòng thử lại sau hoặc báo lỗi tại kênh <#${ticketChannelId}> để được hỗ trợ.`
-        : env.SUPPORTER_DISCORD_ID
-          ? `Cơ sở dữ liệu đã xảy ra lỗi, vui lòng thử lại sau hoặc liên hệ <@${env.SUPPORTER_DISCORD_ID}> để được hỗ trợ.`
-          : `Cơ sở dữ liệu đã xảy ra lỗi, vui lòng thử lại sau hoặc liên hệ **Ban quản lý** để được hỗ trợ.`
+    DESCRIPTION: (guildId: string | null) => getErrorDescription(guildId, 'Cơ sở dữ liệu')
   },
 
   INTERNAL_SERVER_ERROR: {
     TITLE: 'Lỗi hệ thống',
-    DESCRIPTION: (ticketChannelId?: string | null) =>
-      ticketChannelId
-        ? `Hệ thống đã xảy ra lỗi, vui lòng thử lại sau hoặc báo lỗi tại kênh <#${ticketChannelId}> để được hỗ trợ.`
-        : env.SUPPORTER_DISCORD_ID
-          ? `Hệ thống đã xảy ra lỗi, vui lòng thử lại sau hoặc liên hệ <@${env.SUPPORTER_DISCORD_ID}> để được hỗ trợ.`
-          : `Hệ thống đã xảy ra lỗi, vui lòng thử lại sau hoặc liên hệ **Ban quản lý** để được hỗ trợ.`
+    DESCRIPTION: (guildId: string | null) => getErrorDescription(guildId, 'Hệ thống')
   }
 } as const

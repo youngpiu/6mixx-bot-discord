@@ -9,7 +9,7 @@ export class DonateCommand extends Command {
     super(context, {
       ...options,
       name: 'donate',
-      description: 'Quyên góp tiền để thuê máy chủ chạy BOT, không dùng cho mục đích cá nhân.'
+      description: '[EVERYONE] Quyên góp chi phí để thuê máy chủ chạy BOT.'
     })
   }
 

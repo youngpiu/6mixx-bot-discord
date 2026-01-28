@@ -43,13 +43,13 @@ export const asyncChatInputHandler = (
         container.logger.error(error)
         errorEmbed = createErrorEmbed({
           title: ERROR_MESSAGE.DATABASE_ERROR.TITLE,
-          description: ERROR_MESSAGE.DATABASE_ERROR.DESCRIPTION(guildId)
+          description: await ERROR_MESSAGE.DATABASE_ERROR.DESCRIPTION(guildId)
         })
       } else {
         container.logger.error(error)
         errorEmbed = createErrorEmbed({
           title: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.TITLE,
-          description: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION(guildId)
+          description: await ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION(guildId)
         })
       }
 
@@ -85,13 +85,13 @@ export const asyncMessageHandler = (fn: (message: Message, args: Args) => Promis
         container.logger.error(error)
         errorEmbed = createErrorEmbed({
           title: ERROR_MESSAGE.DATABASE_ERROR.TITLE,
-          description: ERROR_MESSAGE.DATABASE_ERROR.DESCRIPTION(guildId)
+          description: await ERROR_MESSAGE.DATABASE_ERROR.DESCRIPTION(guildId)
         })
       } else {
         container.logger.error(error)
         errorEmbed = createErrorEmbed({
           title: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.TITLE,
-          description: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION(guildId)
+          description: await ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION(guildId)
         })
       }
 
@@ -124,13 +124,13 @@ export const asyncInteractionHandler = <T extends RepliableInteraction, R = unkn
         container.logger.error(error)
         errorEmbed = createErrorEmbed({
           title: ERROR_MESSAGE.DATABASE_ERROR.TITLE,
-          description: ERROR_MESSAGE.DATABASE_ERROR.DESCRIPTION(guildId)
+          description: await ERROR_MESSAGE.DATABASE_ERROR.DESCRIPTION(guildId)
         })
       } else {
         container.logger.error(error)
         errorEmbed = createErrorEmbed({
           title: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.TITLE,
-          description: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION(guildId)
+          description: await ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION(guildId)
         })
       }
 

@@ -6,10 +6,10 @@ export class GuildRepository {
   private static CACHE_CONFIG_TTL = 60 * 10 // 10 phút
 
   public static async createGuild({ guildId }: { guildId: string }) {
-    return await container.prisma.guild.create({
-      data: {
-        guildId
-      }
+    return await container.prisma.guild.upsert({
+      where: { guildId },
+      create: { guildId },
+      update: {}
     })
   }
 
