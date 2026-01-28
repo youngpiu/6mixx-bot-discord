@@ -60,8 +60,8 @@ export class TicketDetailCommand {
       }
     ]
 
-    if (ticket.closedById) {
-      fields.push({ name: 'Người đóng', value: `<@${ticket.closedById}>`, inline: false })
+    if (ticket.closedBy) {
+      fields.push({ name: 'Người đóng', value: `<@${ticket.closedBy}>`, inline: false })
     }
 
     if (ticket.closedAt) {

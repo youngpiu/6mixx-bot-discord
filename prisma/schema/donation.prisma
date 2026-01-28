@@ -9,20 +9,21 @@ model Donation {
   guildId String
   guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
 
-  donorId   String
-  donorCode String
-  amount    Int
-  message   String? 
+  donorId     String
+  donor       Member  @relation("Donor", fields: [guildId, donorId], references: [guildId, userId])
+  amount      Int
+  message     String? 
 
   status      DonationStatus @default(PENDING)
   confirmedAt DateTime?
-  confirmedBy String? 
+  confirmedBy String?
+  confirmer   Member? @relation("Confirmer", fields: [guildId, confirmedBy], references: [guildId, userId])
 
   createdAt DateTime @default(now())
 
   @@index([guildId, code])
   @@index([guildId, status])
   @@index([guildId, createdAt(sort: Desc)])
-  @@index([guildId, donorCode])
   @@index([guildId, donorId])
 }
+

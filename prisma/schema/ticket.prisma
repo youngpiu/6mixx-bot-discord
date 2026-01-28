@@ -16,7 +16,9 @@ model Ticket {
   guild       Guild   @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
   threadId    String  @unique
   requesterId String
-  closedById  String?
+  requester   Member  @relation("TicketRequester", fields: [guildId, requesterId], references: [guildId, userId])
+  closedBy    String?
+  closer      Member? @relation("TicketCloser", fields: [guildId, closedBy], references: [guildId, userId])
 
   type   TicketType   @default(FEEDBACK)
   status TicketStatus @default(OPEN)
@@ -33,3 +35,4 @@ model Ticket {
   @@index([guildId, status])
   @@index([guildId, createdAt(sort: Desc)])
 }
+

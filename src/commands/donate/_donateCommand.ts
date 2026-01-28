@@ -1,4 +1,5 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js'
+import { container } from '@sapphire/pieces'
+import { ChatInputCommandInteraction, EmbedBuilder, TextChannel } from 'discord.js'
 import { env } from '~/config/env'
 import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
@@ -75,7 +76,7 @@ export class DonateHandler {
       })
       .addFields({
         name: 'Mã người chuyển',
-        value: `*#${donation.donorCode}*`
+        value: `*#${donation.donor.donorCode}*`
       })
       .addFields({
         name: 'Số tiền',
@@ -92,6 +93,39 @@ export class DonateHandler {
 
     await interaction.editReply({ embeds: [embed] })
     await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.VERY_LONG)
+
+    // Notification logic
+    try {
+      const config = await DonateRepository.getConfig(interaction.guildId)
+      if (config?.notificationChannelId) {
+        const channel = (await container.client.channels.fetch(
+          config.notificationChannelId
+        )) as TextChannel
+        if (channel) {
+          const notificationEmbed = new EmbedBuilder()
+            .setColor('Yellow')
+            .setTitle('Yêu cầu quyên góp mới')
+            .addFields(
+              { name: 'Mã giao dịch', value: `*#${donation.code}*`, inline: false },
+              { name: 'Số tiền', value: `${amount.toLocaleString('vi-VN')}đ`, inline: false },
+              { name: 'Mã người chuyển', value: `*#${donation.donor.donorCode}*`, inline: false }
+            )
+            .setTimestamp()
+
+          if (message) {
+            notificationEmbed.addFields({ name: 'Lời nhắn', value: message })
+          }
+          notificationEmbed.addFields({
+            name: 'Thời gian',
+            value: `<t:${Math.floor(Date.now() / 1000)}:R>`
+          })
+
+          await channel.send({ embeds: [notificationEmbed] })
+        }
+      }
+    } catch (error) {
+      container.logger.error('Failed to send donation notification:', error)
+    }
   }
 
   private static parseAmount(input: string): number {

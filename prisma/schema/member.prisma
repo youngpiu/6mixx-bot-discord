@@ -1,0 +1,24 @@
+model Member {
+  id       String @id @default(cuid())
+  guildId  String
+  guild    Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  userId   String
+
+  donorCode String? // Mã ẩn danh khi donate
+
+  // Ticket relations
+  ticketsCreated Ticket[] @relation("TicketRequester")
+  ticketsClosed  Ticket[] @relation("TicketCloser")
+
+  // Donation relations  
+  donations          Donation[] @relation("Donor")
+  donationsConfirmed Donation[] @relation("Confirmer")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([guildId, userId])
+  @@index([guildId])
+  @@index([guildId, donorCode])
+}
+

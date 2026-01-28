@@ -8,6 +8,8 @@ import { CACHE_WILDCARD } from '~/constants/commonConstant'
 
 import { deserializeTicket } from '~/utils/ticketUtil'
 
+import { MemberRepository } from '~/repositories/memberRepository'
+
 const TICKET_PREFIX: Record<TicketType, string> = {
   REPORT: 'RP',
   FEEDBACK: 'FB',
@@ -54,6 +56,9 @@ export class TicketRepository {
     updatedAt?: Date
   }) {
     const code = await this.generateTicketCode(guildId, type)
+
+    // Ensure requester member exists
+    await MemberRepository.getOrCreate({ guildId, userId: requesterId })
 
     const ticket = await container.prisma.ticket.create({
       data: {
@@ -169,11 +174,36 @@ export class TicketRepository {
     data
   }: {
     ticketId: string
-    data: Prisma.TicketUpdateInput
+    data: Prisma.TicketUncheckedUpdateInput
   }) {
     return container.prisma.ticket.update({
       where: { id: ticketId },
       data
+    })
+  }
+
+  public static async closeTicket({
+    ticketId,
+    guildId,
+    closedBy,
+    reason
+  }: {
+    ticketId: string
+    guildId: string
+    closedBy: string
+    reason?: string | null
+  }) {
+    // Ensure closer member exists
+    await MemberRepository.getOrCreate({ guildId, userId: closedBy })
+
+    return container.prisma.ticket.update({
+      where: { id: ticketId },
+      data: {
+        status: 'CLOSED',
+        closedAt: new Date(),
+        closedBy,
+        reason
+      }
     })
   }
 }
