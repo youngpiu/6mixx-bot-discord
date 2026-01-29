@@ -12,6 +12,7 @@ import { Ticket, TicketType } from 'generated/prisma/client'
 import { TicketStatus } from 'generated/prisma/enums'
 
 import { DEFAULT_PAGINATION_LIMIT } from '~/constants/commonConstant'
+import { EMOIJ } from '~/constants/emoijConstant'
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { BadRequestError } from '~/core/errorResponse'
 
@@ -136,7 +137,7 @@ export class TicketListCommand {
         const indexNumber = (meta.page - 1) * meta.limit + index + 1
 
         embed.addFields({
-          name: `${indexNumber}. #${ticket.code} ${ticket.status === TicketStatus.CLOSED ? '<:close:1463597271496003708>' : '<:open:1463597269889712128>'} `,
+          name: `${indexNumber}. #${ticket.code} ${ticket.status === TicketStatus.CLOSED ? EMOIJ.CLOSE : EMOIJ.OPEN} `,
           value: [
             `**Loại:** ${typeLabel}`,
             `**Người tạo:** <@${ticket.requesterId}>`,

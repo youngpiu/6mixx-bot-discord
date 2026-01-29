@@ -22,26 +22,24 @@ export class DonationStatsCommand {
 
     const embed = new EmbedBuilder()
       .setColor(0x5865f2)
-      .setTitle('📊 Thống kê quyên góp')
+      .setTitle('Thống kê quyên góp')
       .addFields(
         {
-          name: '💰 Tổng tiền nhận được',
+          name: 'Tổng tiền nhận được',
           value: `**${stats.totalAmount.toLocaleString('vi-VN')}đ**`,
-          inline: true
+          inline: false
         },
         {
-          name: '👥 Số người donate',
+          name: 'Số người quyên góp',
           value: `**${stats.uniqueDonors}** người`,
-          inline: true
+          inline: false
         },
         {
-          name: '📝 Tổng giao dịch',
+          name: 'Tổng giao dịch',
           value: `**${stats.totalTransactions}** giao dịch`,
-          inline: true
+          inline: false
         }
       )
-      .setFooter({ text: 'Chỉ tính các khoản đã xác nhận' })
-      .setTimestamp()
 
     await interaction.editReply({ embeds: [embed] })
     await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)

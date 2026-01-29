@@ -46,15 +46,14 @@ export class DonationDetailCommand {
 
     const embed = new EmbedBuilder()
       .setColor(donation.status === DonationStatus.CONFIRMED ? 'Green' : 'Yellow')
-      .setTitle(`Thông tin quyên góp #${donation.code}`)
+      .setTitle(`Thông tin giao dịch quyên góp #${donation.code}`)
       .addFields(
         { name: 'Mã giao dịch', value: `*#${donation.code}*`, inline: false },
         { name: 'Mã người chuyển', value: `*#${donation.donor?.donorCode}*`, inline: true },
         { name: 'Số tiền', value: `${donation.amount.toLocaleString('vi-VN')}đ`, inline: true },
         {
           name: 'Trạng thái',
-          value:
-            donation.status === DonationStatus.CONFIRMED ? '✅ Đã xác nhận' : '⏳ Chờ xác nhận',
+          value: donation.status === DonationStatus.CONFIRMED ? 'Đã xác nhận' : 'Chờ xác nhận',
           inline: false
         },
         {
@@ -97,8 +96,6 @@ export class DonationDetailCommand {
 
     await interaction.editReply({ embeds: [embed], components })
 
-    if (donation.status === DonationStatus.CONFIRMED) {
-      await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)
-    }
+    await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)
   }
 }

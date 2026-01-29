@@ -44,7 +44,7 @@ export class DonateCommand extends Command {
 
     if (isNaN(amount) || amount < DONATION_AMOUNT.MIN || amount > DONATION_AMOUNT.MAX) {
       throw new BadRequestError({
-        description: `Số tiền quyên góp phải từ **${DONATION_AMOUNT.MIN.toLocaleString('vi-VN')}đ** đến **${DONATION_AMOUNT.MAX.toLocaleString('vi-VN')}đ**.`
+        description: `Bạn thông cảm nha, số tiền quyên góp phải từ **${DONATION_AMOUNT.MIN.toLocaleString('vi-VN')}đ** đến **${DONATION_AMOUNT.MAX.toLocaleString('vi-VN')}đ**.`
       })
     }
 
@@ -112,13 +112,12 @@ export class DonateCommand extends Command {
         if (channel) {
           const notificationEmbed = new EmbedBuilder()
             .setColor('Yellow')
-            .setTitle('Yêu cầu quyên góp mới')
+            .setTitle('Có người tạo mã QR quyên góp')
             .addFields(
               { name: 'Mã giao dịch', value: `*#${donation.code}*`, inline: false },
               { name: 'Số tiền', value: `${amount.toLocaleString('vi-VN')}đ`, inline: false },
               { name: 'Mã người chuyển', value: `*#${donation.donor.donorCode}*`, inline: false }
             )
-            .setTimestamp()
 
           if (message) {
             notificationEmbed.addFields({ name: 'Lời nhắn', value: message })
@@ -128,7 +127,9 @@ export class DonateCommand extends Command {
             value: `<t:${Math.floor(Date.now() / 1000)}:R>`
           })
 
-          await channel.send({ embeds: [notificationEmbed] })
+          await channel.send({
+            embeds: [notificationEmbed]
+          })
         }
       }
     } catch (error) {
@@ -142,14 +143,9 @@ export class DonateCommand extends Command {
         .setName(this.name)
         .setDescription(this.description)
         .addStringOption((option) =>
-          option
-            .setName('money')
-            .setDescription('Số tiền quyên góp (1,000 - 1,000,000đ)')
-            .setRequired(true)
+          option.setName('money').setDescription('Số tiền quyên góp').setRequired(true)
         )
-        .addStringOption((option) =>
-          option.setName('message').setDescription('Lời nhắn gửi kèm (tùy chọn)')
-        )
+        .addStringOption((option) => option.setName('message').setDescription('Lời nhắn gửi kèm'))
     )
   }
 
