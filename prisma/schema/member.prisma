@@ -14,6 +14,9 @@ model Member {
   donations          Donation[] @relation("Donor")
   donationsConfirmed Donation[] @relation("Confirmer")
 
+  // Expense relations
+  expenses Expense[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

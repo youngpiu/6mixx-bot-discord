@@ -72,7 +72,7 @@ export class DonateCommand extends Command {
       .setDescription(
         [
           'Vui lòng dành ít phút để đọc kỹ các thông tin dưới đây trước khi thực hiện quyên góp:',
-          '- Khoản quyên góp được sử dụng cho chi phí thuê máy chủ và các hạng mục cần thiết phục vụ cho hoạt động của BOT.',
+          '- Khoản quyên góp được sử dụng cho chi phí [thuê máy chủ](https://fptshop.com.vn/tin-tuc/thu-thuat/vps-la-gi-159221) và các hạng mục cần thiết phục vụ cho hoạt động của BOT.',
           '- Không sử dụng khoản tiền này cho mục đích cá nhân hoặc các dịch vụ không liên quan đến BOT.',
           '- Thông tin chuyển khoản được tiếp nhận theo hình thức ẩn danh và không hiển thị công khai trong máy chủ.',
           '- Việc quyên góp không tạo ra bất kỳ hình thức ưu tiên, đặc quyền hoặc miễn trừ nào khi xử lý vi phạm nội quy máy chủ **VNMIXX**.'

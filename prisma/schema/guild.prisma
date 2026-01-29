@@ -11,4 +11,5 @@ model Guild {
   tickets        Ticket[]
   donations      Donation[]
   donationConfig DonationConfig?
+  expenses       Expense[]
 }

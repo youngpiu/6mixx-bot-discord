@@ -8,7 +8,7 @@ import {
 } from 'discord.js'
 import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
-import { Donation, Member } from 'generated/prisma/client'
+import { Donation, Expense, Member } from 'generated/prisma/client'
 import { DonationStatus } from 'generated/prisma/enums'
 
 import { DEFAULT_PAGINATION_LIMIT } from '~/constants/commonConstant'
@@ -19,6 +19,7 @@ import { BadRequestError } from '~/core/errorResponse'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
 
 import { DonateRepository } from '~/repositories/donateRepository'
+import { ExpenseRepository } from '~/repositories/expenseRepository'
 
 type DonationWithDonor = Donation & { donor: Member }
 
@@ -67,36 +68,77 @@ export class DonationStatsCommand {
     await interaction.update(this.createListResponse(items, meta))
   }
 
+  // Handle button: show expenses list
+  public static async handleShowExpenseList(interaction: ButtonInteraction, page: number) {
+    if (!interaction.guildId) {
+      throw new BadRequestError({
+        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
+      })
+    }
+
+    const { items, meta } = await ExpenseRepository.getExpenses({
+      guildId: interaction.guildId,
+      page,
+      limit: DEFAULT_PAGINATION_LIMIT
+    })
+
+    await interaction.update(this.createExpenseListResponse(items, meta))
+  }
+
   // Create stats embed with button
   private static async createStatsResponse(guildId: string) {
-    const stats = await DonateRepository.getStats(guildId)
+    const [donationStats, expenseStats] = await Promise.all([
+      DonateRepository.getStats(guildId),
+      ExpenseRepository.getStats(guildId)
+    ])
+
+    const balance = donationStats.totalAmount - expenseStats.totalAmount
 
     const embed = new EmbedBuilder()
       .setColor(0x5865f2)
-      .setTitle('Thống kê quyên góp')
+      .setTitle('Thống kê quỹ quyên góp')
       .addFields(
         {
           name: 'Tổng tiền nhận được',
-          value: `**${stats.totalAmount.toLocaleString('vi-VN')}đ**`,
-          inline: false
+          value: `**${donationStats.totalAmount.toLocaleString('vi-VN')}đ**`,
+          inline: true
+        },
+        {
+          name: 'Tổng chi tiêu',
+          value: `**${expenseStats.totalAmount.toLocaleString('vi-VN')}đ**`,
+          inline: true
+        },
+        {
+          name: 'Số dư hiện tại',
+          value: `**${balance.toLocaleString('vi-VN')}đ**`,
+          inline: true
         },
         {
           name: 'Số người quyên góp',
-          value: `**${stats.uniqueDonors}** người`,
-          inline: false
+          value: `**${donationStats.uniqueDonors}** người`,
+          inline: true
         },
         {
-          name: 'Tổng giao dịch',
-          value: `**${stats.totalTransactions}** giao dịch`,
-          inline: false
+          name: 'Giao dịch thu',
+          value: `**${donationStats.totalTransactions}** giao dịch`,
+          inline: true
+        },
+        {
+          name: 'Giao dịch chi',
+          value: `**${expenseStats.totalTransactions}** giao dịch`,
+          inline: true
         }
       )
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setCustomId('btn-stats-list:1')
+        .setCustomId('btn-stats-list:first:1')
         .setLabel('Xem khoản thu')
-        .setStyle(ButtonStyle.Primary)
+        .setStyle(ButtonStyle.Success),
+      new ButtonBuilder()
+        .setCustomId('btn-stats-expense:first:1')
+        .setLabel('Xem khoản chi')
+        .setStyle(ButtonStyle.Danger)
     )
 
     return { embeds: [embed], components: [row] }
@@ -158,6 +200,78 @@ export class DonationStatsCommand {
         .setDisabled(!meta.hasNext),
       new ButtonBuilder()
         .setCustomId(`btn-stats-list:last:${meta.totalPages}`)
+        .setLabel('Cuối ⏭️')
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(!meta.hasNext)
+    )
+
+    // Back button row
+    const backRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId('btn-stats-back')
+        .setLabel('← Quay lại thống kê')
+        .setStyle(ButtonStyle.Secondary)
+    )
+
+    return { embeds: [embed], components: [navRow, backRow] }
+  }
+
+  // Create expense list response with pagination and back button
+  private static createExpenseListResponse(
+    expenses: Expense[],
+    meta: {
+      page: number
+      total: number
+      totalPages: number
+      limit: number
+      hasNext: boolean
+      hasPrev: boolean
+    }
+  ) {
+    const embed = new EmbedBuilder().setTitle('Danh sách khoản chi').setColor(0xed4245)
+
+    if (expenses.length === 0) {
+      embed.setDescription('Không có khoản chi nào.')
+    } else {
+      expenses.forEach((expense, index) => {
+        const createdTimestamp = Math.floor(expense.createdAt.getTime() / 1000)
+        const indexNumber = (meta.page - 1) * meta.limit + index + 1
+
+        embed.addFields({
+          name: `${indexNumber}. #${expense.code}`,
+          value: [
+            `**Số tiền:** ${expense.amount.toLocaleString('vi-VN')}đ`,
+            `**Mô tả:** ${expense.description}`,
+            `**Thời gian:** <t:${createdTimestamp}:R>`
+          ].join('\n'),
+          inline: false
+        })
+      })
+    }
+
+    embed.setFooter({
+      text: `Trang ${meta.page}/${meta.totalPages || 1} • Tổng: ${meta.total} khoản`
+    })
+
+    // Navigation row
+    const navRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId('btn-stats-expense:first:1')
+        .setLabel('⏮️ Đầu')
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(!meta.hasPrev),
+      new ButtonBuilder()
+        .setCustomId(`btn-stats-expense:prev:${meta.page - 1}`)
+        .setLabel('◀️ Trước')
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(!meta.hasPrev),
+      new ButtonBuilder()
+        .setCustomId(`btn-stats-expense:next:${meta.page + 1}`)
+        .setLabel('Sau ▶️')
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(!meta.hasNext),
+      new ButtonBuilder()
+        .setCustomId(`btn-stats-expense:last:${meta.totalPages}`)
         .setLabel('Cuối ⏭️')
         .setStyle(ButtonStyle.Primary)
         .setDisabled(!meta.hasNext)
