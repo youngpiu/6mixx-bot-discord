@@ -17,6 +17,7 @@ import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { BadRequestError } from '~/core/errorResponse'
 
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { lines } from '~/utils/textUtil'
 
 import { DonateRepository } from '~/repositories/donateRepository'
 
@@ -132,11 +133,11 @@ export class DonationListCommand {
 
         embed.addFields({
           name: `${indexNumber}. #${donation.code} ${statusIcon}`,
-          value: [
+          value: lines(
             `**Mã người chuyển:** \`${(donation as DonationWithDonor).donor?.donorCode || 'N/A'}\``,
             `**Số tiền:** ${donation.amount.toLocaleString('vi-VN')}đ`,
             `**Thời gian tạo:** <t:${createdTimestamp}:R>`
-          ].join('\n'),
+          ),
           inline: false
         })
       })

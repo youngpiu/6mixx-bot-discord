@@ -17,6 +17,7 @@ import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { BadRequestError } from '~/core/errorResponse'
 
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { lines } from '~/utils/textUtil'
 import { TICKET_TYPE_LABELS } from '~/utils/ticketUtil'
 
 import { TicketRepository } from '~/repositories/ticketRepository'
@@ -138,12 +139,12 @@ export class TicketListCommand {
 
         embed.addFields({
           name: `${indexNumber}. #${ticket.code} ${ticket.status === TicketStatus.CLOSED ? EMOIJ.CLOSE : EMOIJ.OPEN} `,
-          value: [
+          value: lines(
             `**Loại:** ${typeLabel}`,
             `**Người tạo:** <@${ticket.requesterId}>`,
             `**Kênh:** <#${ticket.threadId}>`,
             `**Thời gian tạo:** <t:${createdTimestamp}:R>`
-          ].join('\n'),
+          ),
           inline: false
         })
       })

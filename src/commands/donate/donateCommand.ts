@@ -92,13 +92,6 @@ export class DonateCommand extends Command {
       })
       .setImage(qrUrl)
 
-    if (message) {
-      embed.addFields({
-        name: 'Lời nhắn',
-        value: message
-      })
-    }
-
     await interaction.editReply({ embeds: [embed] })
     await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.VERY_LONG)
 

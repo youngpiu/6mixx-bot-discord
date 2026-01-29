@@ -8,6 +8,7 @@ import { BadRequestError } from '~/core/errorResponse'
 import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
 import { createSuccessEmbed } from '~/utils/embedUtil'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { lines } from '~/utils/textUtil'
 
 import { GuildRepository } from '~/repositories/guildRepository'
 import { TicketRepository } from '~/repositories/ticketRepository'
@@ -68,7 +69,7 @@ export class ButtonTicketReportHandler extends InteractionHandler {
       embeds: [
         new EmbedBuilder()
           .setTitle('Bắt đầu hỗ trợ')
-          .setDescription('Vui lòng mô tả chi tiết về\n báo cáo của bạn.')
+          .setDescription(lines('Vui lòng mô tả chi tiết về', 'báo cáo của bạn.'))
           .setFields(
             {
               name: 'Mã phiếu',

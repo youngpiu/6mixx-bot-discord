@@ -12,6 +12,7 @@ import { BadRequestError } from '~/core/errorResponse'
 
 import { createSuccessEmbed } from '~/utils/embedUtil'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { lines } from '~/utils/textUtil'
 
 import { GuildRepository } from '~/repositories/guildRepository'
 
@@ -81,8 +82,10 @@ export class TicketSetupCommand {
       new ContainerBuilder()
         .addTextDisplayComponents((text) =>
           text.setContent(
-            '## Trung Tâm Hỗ Trợ VNSWER\n' +
+            lines(
+              '## Trung Tâm Hỗ Trợ VNSWER',
               '-# Tại đây, bạn có thể gửi báo cáo vi phạm luật, góp ý cải thiện máy chủ và báo lỗi nếu có trong máy chủ **VNMIXX**.'
+            )
           )
         )
 
@@ -92,14 +95,16 @@ export class TicketSetupCommand {
           section
             .addTextDisplayComponents((text) =>
               text.setContent(
-                '### Báo cáo vi phạm\n' +
-                  '-# Dùng khi bạn thấy một hành vi vi phạm luật trong máy chủ **VNMIXX**.\n' +
-                  '- **Yêu cầu bắt buộc**\n' +
-                  '  - Đính kèm bằng chứng rõ ràng, chính xác, không qua chỉnh sửa.\n' +
-                  '  - Có thể gửi đường dẫn tin nhắn nếu có và tag người liên quan.\n' +
-                  '- **Lưu ý**\n' +
-                  '  - Không giải quyết riêng qua tin nhắn riêng tư (DM).\n' +
+                lines(
+                  '### Báo cáo vi phạm',
+                  '-# Dùng khi bạn thấy một hành vi vi phạm luật trong máy chủ **VNMIXX**.',
+                  '- **Yêu cầu bắt buộc**',
+                  '  - Đính kèm bằng chứng rõ ràng, chính xác, không qua chỉnh sửa.',
+                  '  - Có thể gửi đường dẫn tin nhắn nếu có và tag người liên quan.',
+                  '- **Lưu ý**',
+                  '  - Không giải quyết riêng qua tin nhắn riêng tư (DM).',
                   '  - Gửi báo cáo mà không có mục đích gì sẽ bị hạn chế 1 ngày.'
+                )
               )
             )
             .setButtonAccessory(
@@ -116,13 +121,15 @@ export class TicketSetupCommand {
           section
             .addTextDisplayComponents((text) =>
               text.setContent(
-                '### Góp ý cải thiện\n' +
-                  '-# Dùng khi bạn có một ý tưởng đề xuất hoặc góp ý cải thiện máy chủ **VNMIXX**.\n' +
-                  '- **Yêu cầu bắt buộc**\n' +
-                  '  - Mô tả rõ ràng những góp ý, ý tưởng của bạn.\n' +
-                  '  - Có thể gửi hình ảnh, biểu đồ về ý tưởng đó nếu có.\n' +
-                  '- **Lưu ý**\n' +
+                lines(
+                  '### Góp ý cải thiện',
+                  '-# Dùng khi bạn có một ý tưởng đề xuất hoặc góp ý cải thiện máy chủ **VNMIXX**.',
+                  '- **Yêu cầu bắt buộc**',
+                  '  - Mô tả rõ ràng những góp ý, ý tưởng của bạn.',
+                  '  - Có thể gửi hình ảnh, biểu đồ về ý tưởng đó nếu có.',
+                  '- **Lưu ý**',
                   '  - Gửi góp ý mà không có mục đích gì sẽ bị hạn chế 1 ngày.'
+                )
               )
             )
             .setButtonAccessory(
@@ -139,14 +146,16 @@ export class TicketSetupCommand {
           section
             .addTextDisplayComponents((text) =>
               text.setContent(
-                '### Báo lỗi BOT\n' +
-                  '-# Dùng khi bạn gặp lỗi trong quá trình sử dụng BOT.\n' +
-                  '- **Yêu cầu bắt buộc**\n' +
-                  '  - Mô tả rõ ràng lỗi mà bạn gặp phải.\n' +
-                  '  - Cung cấp hình ảnh, quá trình từng bước bạn làm trước và sau khi gặp lỗi.\n' +
-                  '- **Lưu ý**\n' +
-                  '  - Không tiếp nhận các lỗi không liên quan tới BOT.\n' +
+                lines(
+                  '### Báo lỗi BOT',
+                  '-# Dùng khi bạn gặp lỗi trong quá trình sử dụng BOT.',
+                  '- **Yêu cầu bắt buộc**',
+                  '  - Mô tả rõ ràng lỗi mà bạn gặp phải.',
+                  '  - Cung cấp hình ảnh, quá trình từng bước bạn làm trước và sau khi gặp lỗi.',
+                  '- **Lưu ý**',
+                  '  - Không tiếp nhận các lỗi không liên quan tới BOT.',
                   '  - Gửi báo lỗi mà không có mục đích gì sẽ bị hạn chế 1 ngày.'
+                )
               )
             )
             .setButtonAccessory(

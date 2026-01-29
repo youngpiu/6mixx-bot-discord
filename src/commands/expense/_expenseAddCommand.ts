@@ -6,6 +6,7 @@ import { BadRequestError } from '~/core/errorResponse'
 
 import { createSuccessEmbed } from '~/utils/embedUtil'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { lines } from '~/utils/textUtil'
 
 import { ExpenseRepository } from '~/repositories/expenseRepository'
 
@@ -42,11 +43,11 @@ export class ExpenseAddCommand {
 
     const embed = createSuccessEmbed({
       title: 'Đã thêm khoản chi',
-      description: [
+      description: lines(
         `**Mã:** #${expense.code}`,
         `**Số tiền:** ${amount.toLocaleString('vi-VN')}đ`,
         `**Mô tả:** ${description}`
-      ].join('\n')
+      )
     })
 
     await interaction.editReply({ embeds: [embed] })

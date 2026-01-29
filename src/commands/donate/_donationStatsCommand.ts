@@ -17,6 +17,7 @@ import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { BadRequestError } from '~/core/errorResponse'
 
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { lines } from '~/utils/textUtil'
 
 import { DonateRepository } from '~/repositories/donateRepository'
 import { ExpenseRepository } from '~/repositories/expenseRepository'
@@ -167,11 +168,11 @@ export class DonationStatsCommand {
 
         embed.addFields({
           name: `${indexNumber}. #${donation.code} ${EMOIJ.OK}`,
-          value: [
+          value: lines(
             `**Mã người chuyển:** \`${(donation as DonationWithDonor).donor?.donorCode || 'N/A'}\``,
             `**Số tiền:** ${donation.amount.toLocaleString('vi-VN')}đ`,
             `**Thời gian tạo:** <t:${createdTimestamp}:R>`
-          ].join('\n'),
+          ),
           inline: false
         })
       })
@@ -239,11 +240,11 @@ export class DonationStatsCommand {
 
         embed.addFields({
           name: `${indexNumber}. #${expense.code}`,
-          value: [
+          value: lines(
             `**Số tiền:** ${expense.amount.toLocaleString('vi-VN')}đ`,
             `**Mô tả:** ${expense.description}`,
             `**Thời gian:** <t:${createdTimestamp}:R>`
-          ].join('\n'),
+          ),
           inline: false
         })
       })
