@@ -44,3 +44,21 @@ export const deleteReplyInteraction = async (
 
   deleteTimers.set(id, timeout)
 }
+
+export const checkDmPermission = async (
+  interaction: ButtonInteraction | ChatInputCommandInteraction
+): Promise<boolean> => {
+  try {
+    const dmChannel = await interaction.user.createDM()
+    // Try to send a silent test message
+    const msg = await dmChannel.send({
+      content: 'Bot kiểm tra quyền gửi tin nhắn riêng...',
+      flags: ['SuppressNotifications']
+    })
+    // Delete it immediately
+    await msg.delete().catch(() => {})
+    return true
+  } catch {
+    return false
+  }
+}

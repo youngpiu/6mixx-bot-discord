@@ -100,7 +100,7 @@ export class ConfessionSetupCommand {
           text.setContent(
             lines(
               '## VNMIXX Confession',
-              '-# Nơi bạn có thể chia sẻ câu chuyện của bản thân hoặc mọi điều liên quan đến **NMIXX**.'
+              '-# Nơi bạn có thể chia sẻ câu chuyện của chính mình hoặc mọi điều liên quan đến **NMIXX**.'
             )
           )
         )

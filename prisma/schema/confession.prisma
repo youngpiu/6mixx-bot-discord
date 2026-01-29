@@ -11,10 +11,11 @@ model Confession {
   guildId String
   guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
 
-  authorId    String
-  author      Member @relation(fields: [guildId, authorId], references: [guildId, userId])
-  content     String
-  isAnonymous Boolean @default(true)
+  authorId       String
+  author         Member   @relation(fields: [guildId, authorId], references: [guildId, userId])
+  content        String
+  attachmentUrls String[]
+  isAnonymous    Boolean  @default(true)
 
   status          ConfessionStatus @default(PENDING)
   approvedBy      String?
