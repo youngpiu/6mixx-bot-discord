@@ -1,5 +1,6 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
 import { type ButtonInteraction, ChannelType, EmbedBuilder, type TextChannel } from 'discord.js'
+import { env } from '~/config/env'
 
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { BadRequestError } from '~/core/errorResponse'
@@ -44,7 +45,7 @@ export class ButtonTicketReportHandler extends InteractionHandler {
 
     if (!ticketConfig) {
       throw new BadRequestError({
-        description: 'Hệ thống phiếu hỗ trợ chưa được thiết lập. Vui lòng liên hệ Ban Quản Lý.'
+        description: `Hệ thống phiếu hỗ trợ chưa được thiết lập,vui lòng liên hệ <@${env.SUPPORTER_DISCORD_ID}>`
       })
     }
 
