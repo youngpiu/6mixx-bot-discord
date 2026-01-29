@@ -6,10 +6,12 @@ model Guild {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  members        Member[]
-  ticketConfig   TicketConfig?
-  tickets        Ticket[]
-  donations      Donation[]
-  donationConfig DonationConfig?
-  expenses       Expense[]
+  members          Member[]
+  ticketConfig     TicketConfig?
+  tickets          Ticket[]
+  donations        Donation[]
+  donationConfig   DonationConfig?
+  expenses         Expense[]
+  confessionConfig ConfessionConfig?
+  confessions      Confession[]
 }

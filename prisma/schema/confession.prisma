@@ -1,0 +1,30 @@
+enum ConfessionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Confession {
+  id   String @id @default(cuid())
+  code String @unique
+
+  guildId String
+  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+
+  authorId    String
+  author      Member @relation(fields: [guildId, authorId], references: [guildId, userId])
+  content     String
+  isAnonymous Boolean @default(true)
+
+  status          ConfessionStatus @default(PENDING)
+  approvedBy      String?
+  approver        Member?          @relation("ConfessionApprover", fields: [guildId, approvedBy], references: [guildId, userId])
+  forumPostId     String?
+  rejectionReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([guildId])
+  @@index([guildId, status])
+}

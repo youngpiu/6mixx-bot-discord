@@ -1,0 +1,13 @@
+model ConfessionConfig {
+  id String @id @default(cuid())
+
+  guildId String @unique
+  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+
+  notificationChannelId String
+  forumChannelId        String
+  tutorialThreadId      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
