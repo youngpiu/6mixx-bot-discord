@@ -1,17 +1,27 @@
 model Guild {
-  id String @id @default(cuid())
-
+  id      String @id @default(cuid())
   guildId String @unique
+
+
+  // Ticket config
+  ticketChannelId         String?
+  ticketTutorialMessageId String?
+
+  // Confession config
+  confessionNotificationChannelId String?
+  confessionForumChannelId        String?
+  confessionTutorialThreadId      String?
+
+  // Donation config
+  donationNotificationChannelId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  members          Member[]
-  ticketConfig     TicketConfig?
-  tickets          Ticket[]
-  donations        Donation[]
-  donationConfig   DonationConfig?
-  expenses         Expense[]
-  confessionConfig ConfessionConfig?
-  confessions      Confession[]
+  // Relations
+  members     Member[]
+  tickets     Ticket[]
+  donations   Donation[]
+  expenses    Expense[]
+  confessions Confession[]
 }

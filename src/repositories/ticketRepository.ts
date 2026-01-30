@@ -6,7 +6,7 @@ import { TicketStatus, TicketType } from 'generated/prisma/enums'
 
 import { CACHE_WILDCARD } from '~/constants/commonConstant'
 
-import { deserializeTicket } from '~/utils/ticketUtil'
+import { TicketHelper } from '~/helpers/TicketHelper'
 
 import { MemberRepository } from '~/repositories/memberRepository'
 
@@ -28,23 +28,12 @@ export class TicketRepository {
     return `${TICKET_PREFIX[type]}${String(count + 1).padStart(3, '0')}`
   }
 
-  public static async getTicketChannelId(guildId: string) {
-    if (guildId) return null
-    return (
-      (
-        await container.prisma.ticketConfig.findUnique({
-          where: { guildId },
-          select: { ticketChannelId: true }
-        })
-      )?.ticketChannelId || null
-    )
-  }
-
   public static async createTicket({
     guildId,
     requesterId,
     type,
     threadId,
+    firstMessageId,
     createdAt,
     updatedAt
   }: {
@@ -52,6 +41,7 @@ export class TicketRepository {
     requesterId: string
     type: TicketType
     threadId: string
+    firstMessageId?: string
     createdAt?: Date
     updatedAt?: Date
   }) {
@@ -67,6 +57,7 @@ export class TicketRepository {
         type,
         code,
         threadId,
+        firstMessageId,
         createdAt,
         updatedAt
       }
@@ -110,7 +101,7 @@ export class TicketRepository {
 
     if (cached) {
       const result = JSON.parse(cached)
-      result.items = (result.items as Ticket[]).map(deserializeTicket)
+      result.items = (result.items as Ticket[]).map(TicketHelper.deserializeTicket)
       return result
     }
 

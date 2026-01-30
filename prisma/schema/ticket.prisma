@@ -14,7 +14,8 @@ model Ticket {
 
   guildId     String
   guild       Guild   @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
-  threadId    String  @unique
+  threadId   String  @unique
+  firstMessageId String?
   requesterId String
   requester   Member  @relation("TicketRequester", fields: [guildId, requesterId], references: [guildId, userId])
   closedBy    String?
@@ -35,4 +36,3 @@ model Ticket {
   @@index([guildId, status])
   @@index([guildId, createdAt(sort: Desc)])
 }
-

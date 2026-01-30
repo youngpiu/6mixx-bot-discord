@@ -2,6 +2,7 @@ import { Args, ChatInputCommand, container } from '@sapphire/framework'
 import { send } from '@sapphire/plugin-editable-commands'
 import {
   ButtonInteraction,
+  ChannelSelectMenuInteraction,
   ChatInputCommandInteraction,
   Message,
   ModalSubmitInteraction,
@@ -103,7 +104,11 @@ export const asyncMessageHandler = (fn: (message: Message, args: Args) => Promis
   }
 }
 
-type RepliableInteraction = ButtonInteraction | ModalSubmitInteraction | StringSelectMenuInteraction
+type RepliableInteraction =
+  | ButtonInteraction
+  | ModalSubmitInteraction
+  | StringSelectMenuInteraction
+  | ChannelSelectMenuInteraction
 
 export const asyncInteractionHandler = <T extends RepliableInteraction, R = unknown>(
   fn: (interaction: T, result?: R) => Promise<unknown>

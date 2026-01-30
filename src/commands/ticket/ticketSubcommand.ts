@@ -1,12 +1,10 @@
 import { Subcommand } from '@sapphire/plugin-subcommands'
-import { ChannelType, ChatInputCommandInteraction } from 'discord.js'
+import { ChatInputCommandInteraction } from 'discord.js'
 
 import { asyncChatInputHandler } from '~/utils/asyncHandleUtil'
 
-import { TicketCloseCommand } from '~/commands/ticket/_ticketCloseCommand'
 import { TicketDetailCommand } from '~/commands/ticket/_ticketDetailCommand'
 import { TicketListCommand } from '~/commands/ticket/_ticketListCommand'
-import { TicketSetupCommand } from '~/commands/ticket/_ticketSetupCommand'
 
 export class TicketSubcommand extends Subcommand {
   public constructor(context: Subcommand.LoaderContext, options: Subcommand.Options) {
@@ -16,11 +14,6 @@ export class TicketSubcommand extends Subcommand {
       description: 'Hệ thống hỗ trợ thành viên.',
       subcommands: [
         {
-          name: 'setup',
-          chatInputRun: 'chatInputSetup',
-          preconditions: ['OwnerOnly']
-        },
-        {
           name: 'list',
           chatInputRun: 'chatInputList',
           preconditions: ['AdministratorOnly']
@@ -29,21 +22,10 @@ export class TicketSubcommand extends Subcommand {
           name: 'detail',
           chatInputRun: 'chatInputDetail',
           preconditions: ['AdministratorOnly']
-        },
-        {
-          name: 'close',
-          chatInputRun: 'chatInputClose',
-          preconditions: ['AdministratorOnly']
         }
       ]
     })
   }
-
-  public chatInputSetup = asyncChatInputHandler(
-    async (interaction: ChatInputCommandInteraction) => {
-      return TicketSetupCommand.run(interaction)
-    }
-  )
 
   public chatInputList = asyncChatInputHandler(async (interaction: ChatInputCommandInteraction) => {
     return TicketListCommand.run(interaction)
@@ -55,41 +37,11 @@ export class TicketSubcommand extends Subcommand {
     }
   )
 
-  public chatInputClose = asyncChatInputHandler(
-    async (interaction: ChatInputCommandInteraction) => {
-      return TicketCloseCommand.run(interaction)
-    }
-  )
-
   registerApplicationCommands(registry: Subcommand.Registry) {
     registry.registerChatInputCommand((builder) =>
       builder
         .setName('ticket')
         .setDescription('Quản lý hệ thống hỗ trợ thành viên.')
-        .addSubcommand((subcommand) =>
-          subcommand
-            .setName('setup')
-            .setDescription(
-              '[OWNER] Thiết lập kênh tiếp nhận và xử lý yêu cầu hỗ trợ từ thành viên.'
-            )
-            .addChannelOption((option) =>
-              option
-                .setName('ticket-channel')
-                .addChannelTypes(ChannelType.GuildText)
-                .setDescription('Kênh tiếp nhận và xử lý yêu cầu hỗ trợ từ thành viên.')
-                .setRequired(true)
-            )
-        )
-        .addSubcommand((subcommand) =>
-          subcommand
-            .setName('close')
-            .setDescription(
-              '[ADMINISTRATOR] Đóng kênh và kết thúc phiên hỗ trợ đang mở ở kênh mà bạn dùng lệnh.'
-            )
-            .addStringOption((option) =>
-              option.setName('reason').setDescription('Lý do đóng phiếu hỗ trợ này.')
-            )
-        )
         .addSubcommand((subcommand) =>
           subcommand
             .setName('detail')
