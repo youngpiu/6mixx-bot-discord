@@ -23,7 +23,8 @@ export class BotClient extends SapphireClient {
       intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildVoiceStates
       ],
       defaultPrefix: env.DEFAULT_PREFIX,
       loadMessageCommandListeners: true,
@@ -33,7 +34,7 @@ export class BotClient extends SapphireClient {
       }
     })
 
-    this.stores.get('interaction-handlers').registerPath(join(this.rootData.root, 'handlers'))
+    this.stores.get('interaction-handlers').registerPath(join(this.rootData.root, 'interactions'))
 
     process.on('SIGINT', () => gracefulShutdown(this))
     process.on('SIGTERM', () => gracefulShutdown(this))
