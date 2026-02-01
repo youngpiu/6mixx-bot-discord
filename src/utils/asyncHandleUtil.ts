@@ -15,6 +15,7 @@ import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { ErrorResponseCore } from '~/core/errorResponse'
 
 import { createErrorEmbed } from '~/utils/embedUtil'
+import { deleteReplyInteraction } from '~/utils/interactionUtil'
 
 const isPrismaError = (error: unknown): boolean =>
   error instanceof Prisma.PrismaClientKnownRequestError ||
@@ -61,11 +62,13 @@ export const asyncChatInputHandler = (
         })
       }
 
-      return interaction.reply({
+      await interaction.reply({
         embeds: [errorEmbed],
         flags: ['Ephemeral'],
         allowedMentions: { users: [interaction.user.id], roles: [] }
       })
+
+      await deleteReplyInteraction(interaction)
     }
   }
 }
@@ -146,11 +149,13 @@ export const asyncInteractionHandler = <T extends RepliableInteraction, R = unkn
         })
       }
 
-      return interaction.reply({
+      await interaction.reply({
         embeds: [errorEmbed],
         flags: ['Ephemeral'],
         allowedMentions: { users: [interaction.user.id], roles: [] }
       })
+
+      await deleteReplyInteraction(interaction)
     }
   }
 }

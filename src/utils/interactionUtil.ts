@@ -1,19 +1,10 @@
-import {
-  ButtonInteraction,
-  ChatInputCommandInteraction,
-  ModalSubmitInteraction,
-  StringSelectMenuInteraction
-} from 'discord.js'
+import { ButtonInteraction, ChatInputCommandInteraction, RepliableInteraction } from 'discord.js'
 import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
 const deleteTimers = new Map<string, NodeJS.Timeout>()
 
 export const deleteReplyInteraction = async (
-  interaction:
-    | ButtonInteraction
-    | ChatInputCommandInteraction
-    | ModalSubmitInteraction
-    | StringSelectMenuInteraction,
+  interaction: RepliableInteraction,
   seconds: number = DELETE_REPLY_TIMEOUT.VERY_SHORT
 ): Promise<void> => {
   const messageId =

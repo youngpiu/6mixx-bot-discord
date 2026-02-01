@@ -1,14 +1,10 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
-import {
-  ButtonBuilder,
-  ButtonInteraction,
-  ButtonStyle,
-  ContainerBuilder,
-  TextChannel
-} from 'discord.js'
+import { ButtonBuilder, ButtonInteraction, ButtonStyle, ContainerBuilder } from 'discord.js'
+
+import { BadRequestError, GuildOnlyError } from '~/core/errorResponse'
 
 import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
-import { createErrorEmbed, createSuccessEmbed } from '~/utils/embedUtil'
+import { createSuccessEmbed } from '~/utils/embedUtil'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
 import { lines } from '~/utils/textUtil'
 
@@ -28,64 +24,51 @@ export class ButtonTicketSendHandler extends InteractionHandler {
   }
 
   public run = asyncInteractionHandler<ButtonInteraction>(async (interaction) => {
-    if (!interaction.guildId) return
+    if (!interaction.guildId) throw new GuildOnlyError()
+
+    const guild = await GuildRepository.getGuild(interaction.guildId)
+    const serviceForumChannelId = guild?.serviceForumChannelId
+
+    if (!serviceForumChannelId)
+      throw new BadRequestError({ description: 'Kênh dịch vụ chưa được cài đặt' })
+
+    const forumChannel = interaction.guild?.channels.cache.get(serviceForumChannelId)
+
+    if (!forumChannel || !forumChannel.isThreadOnly()) {
+      throw new BadRequestError({
+        description:
+          'Kênh dịch vụ không tồn tại hoặc không phải là kênh diễn đàn, vui lòng cài đặt lại.'
+      })
+    }
 
     const ticketConfig = await GuildRepository.getTicketConfig(interaction.guildId)
-    const ticketChannelId = ticketConfig?.ticketChannelId
-
-    if (!ticketChannelId) {
-      await interaction.reply({
-        embeds: [
-          createErrorEmbed({
-            description:
-              'Không thể gửi hướng dẫn do bạn chưa thiết lập kênh tiếp nhận yêu cầu hỗ trợ. '
-          })
-        ],
-        flags: ['Ephemeral']
-      })
-
-      await deleteReplyInteraction(interaction)
-      return
-    }
-
-    const channel = interaction.guild?.channels.cache.get(ticketChannelId) as TextChannel
-
-    if (!channel) {
-      await interaction.reply({
-        embeds: [
-          createErrorEmbed({
-            description: 'Kênh tiếp nhận yêu cầu không tồn tại, vui lòng thiết lập lại.'
-          })
-        ],
-        flags: ['Ephemeral']
-      })
-
-      await deleteReplyInteraction(interaction)
-      return
-    }
-
-    if (ticketConfig.ticketTutorialMessageId) {
+    if (ticketConfig?.ticketTutorialThreadId) {
       try {
-        const msg = await channel.messages.fetch(ticketConfig.ticketTutorialMessageId)
-        if (msg) await msg.delete()
+        const oldThread = await forumChannel.threads.fetch(ticketConfig.ticketTutorialThreadId)
+        if (oldThread) await oldThread.delete()
       } catch (error) {
-        this.container.logger.error(error)
+        if (error instanceof Error) {
+          this.container.logger.error(error.message)
+        }
       }
     }
 
-    const sentMessage = await channel.send({
-      components: [await this.createTicketTutorialMessage()],
-      flags: ['IsComponentsV2']
+    const thread = await forumChannel.threads.create({
+      name: '🎟️ NƠI GỬI YÊU CẦU HỖ TRỢ [BÁO CÁO|GÓP Ý|BÁO LỖI] 🎟️',
+      message: {
+        components: [await this.createTicketTutorialMessage()],
+        flags: ['IsComponentsV2']
+      }
     })
 
     await GuildRepository.updateConfig(interaction.guildId, {
-      ticketTutorialMessageId: sentMessage.id
+      ticketTutorialThreadId: thread.id
     })
 
     await interaction.reply({
       embeds: [
         createSuccessEmbed({
-          description: `Tin nhắn hướng dẫn gửi yêu cầu hỗ trợ đã được gửi tới kênh <#${ticketChannelId}>.`
+          description: `Bài đăng hướng dẫn gửi yêu cầu hỗ trợ đã được tạo: <#${thread.id}>`
         })
       ],
       flags: ['Ephemeral']
@@ -98,7 +81,7 @@ export class ButtonTicketSendHandler extends InteractionHandler {
       .addTextDisplayComponents((text) =>
         text.setContent(
           lines(
-            '## Trung Tâm Hỗ Trợ VNSWER',
+            '## Nơi Hỗ Trợ VNSWER',
             '-# Tại đây, bạn có thể gửi báo cáo vi phạm luật, góp ý cải thiện máy chủ và báo lỗi nếu có trong máy chủ **VNMIXX**.'
           )
         )

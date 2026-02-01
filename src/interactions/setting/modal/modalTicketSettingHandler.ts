@@ -1,7 +1,7 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
 import { ModalSubmitInteraction } from 'discord.js'
 
-import { BadRequestError } from '~/core/errorResponse'
+import { GuildOnlyError } from '~/core/errorResponse'
 
 import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
 import { createSuccessEmbed } from '~/utils/embedUtil'
@@ -18,33 +18,42 @@ export class ModalTicketSettingHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ModalSubmitInteraction) {
-    if (interaction.customId !== 'modal-ticket-setting') return this.none()
+    if (interaction.customId !== 'modal-ticket-general-setting') return this.none()
     return this.some()
   }
 
   public run = asyncInteractionHandler<ModalSubmitInteraction>(async (interaction) => {
-    if (!interaction.guildId) return
+    if (!interaction.guildId) throw new GuildOnlyError()
 
-    const channels = interaction.fields.getSelectedChannels('select-ticket-channel')
+    const channels = interaction.fields.getSelectedChannels('select-ticket-category')
+    const categoryChannel = channels?.first()
+    const categoryId = categoryChannel?.id
 
-    const firstChannel = channels?.first()
+    if (categoryId) {
+      await GuildRepository.updateConfig(interaction.guildId, {
+        ticketCategoryId: categoryId
+      })
 
-    if (!firstChannel)
-      throw new BadRequestError({ description: 'Kênh bạn chọn không tồn tại, vui lòng thử lại.' })
-
-    const channelId = firstChannel.id
-
-    await GuildRepository.updateTicketChannel(interaction.guildId, channelId)
-
-    await interaction.reply({
-      embeds: [
-        createSuccessEmbed({
-          title: 'Thiết lập thành công',
-          description: `Kênh <#${channelId}> đã trở thành kênh tiếp nhận yêu cầu hỗ trợ.`
-        })
-      ],
-      flags: ['Ephemeral']
-    })
+      await interaction.reply({
+        embeds: [
+          createSuccessEmbed({
+            title: 'Thiết lập thành công',
+            description: `Danh mục chứa kênh hỗ trợ: <#${categoryId}>`
+          })
+        ],
+        flags: ['Ephemeral']
+      })
+    } else {
+      await interaction.reply({
+        embeds: [
+          createSuccessEmbed({
+            title: 'Thiết lập thành công',
+            description: 'Không có thay đổi nào được lưu.'
+          })
+        ],
+        flags: ['Ephemeral']
+      })
+    }
 
     await deleteReplyInteraction(interaction)
   })
