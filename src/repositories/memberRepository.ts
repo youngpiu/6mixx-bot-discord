@@ -4,22 +4,19 @@ import { customAlphabet } from 'nanoid'
 const generateDonorCode = customAlphabet('0123456789', 4)
 
 export class MemberRepository {
-  /**
-   * Get or create a member record
-   */
-  public static async getOrCreate({ guildId, userId }: { guildId: string; userId: string }) {
-    return container.prisma.member.upsert({
-      where: {
-        guildId_userId: { guildId, userId }
-      },
-      create: { guildId, userId },
-      update: {}
+  public static async createMembers(data: { guildId: string; userId: string }[]) {
+    return container.prisma.member.createMany({
+      data,
+      skipDuplicates: true
     })
   }
 
-  /**
-   * Find a member by guildId and userId
-   */
+  public static async createMember({ guildId, userId }: { guildId: string; userId: string }) {
+    return container.prisma.member.create({
+      data: { guildId, userId }
+    })
+  }
+
   public static async findByUserId({ guildId, userId }: { guildId: string; userId: string }) {
     return container.prisma.member.findUnique({
       where: {
@@ -28,9 +25,6 @@ export class MemberRepository {
     })
   }
 
-  /**
-   * Get or create donor code for a member
-   */
   public static async getOrCreateDonorCode({
     guildId,
     userId
@@ -38,13 +32,15 @@ export class MemberRepository {
     guildId: string
     userId: string
   }): Promise<string> {
-    const member = await this.getOrCreate({ guildId, userId })
+    const member = await this.findByUserId({ guildId, userId })
+    if (!member) {
+      throw new Error('Member not found')
+    }
 
     if (member.donorCode) {
       return member.donorCode
     }
 
-    // Generate unique donor code
     let donorCode: string
     let exists = true
 
@@ -57,32 +53,11 @@ export class MemberRepository {
       exists = !!existing
     }
 
-    // Update member with donor code
     await container.prisma.member.update({
       where: { id: member.id },
       data: { donorCode: donorCode! }
     })
 
     return donorCode!
-  }
-
-  /**
-   * Get donation stats for a member
-   */
-  public static async getDonationStats({ guildId, userId }: { guildId: string; userId: string }) {
-    const result = await container.prisma.donation.aggregate({
-      where: {
-        guildId,
-        donorId: userId,
-        status: 'CONFIRMED'
-      },
-      _sum: { amount: true },
-      _count: true
-    })
-
-    return {
-      totalAmount: result._sum.amount || 0,
-      totalDonations: result._count
-    }
   }
 }
