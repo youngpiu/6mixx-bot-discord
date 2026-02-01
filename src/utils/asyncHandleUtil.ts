@@ -4,10 +4,12 @@ import {
   ButtonInteraction,
   ChannelSelectMenuInteraction,
   ChatInputCommandInteraction,
+  ContainerBuilder,
   Message,
   ModalSubmitInteraction,
   StringSelectMenuInteraction
 } from 'discord.js'
+import { env } from '~/config/env'
 
 import { Prisma } from 'generated/prisma/client'
 
@@ -16,6 +18,9 @@ import { ErrorResponseCore } from '~/core/errorResponse'
 
 import { createErrorEmbed } from '~/utils/embedUtil'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { lines } from '~/utils/textUtil'
+
+import { GuildRepository } from '~/repositories/guildRepository'
 
 const isPrismaError = (error: unknown): boolean =>
   error instanceof Prisma.PrismaClientKnownRequestError ||
@@ -23,6 +28,56 @@ const isPrismaError = (error: unknown): boolean =>
   error instanceof Prisma.PrismaClientValidationError ||
   error instanceof Prisma.PrismaClientRustPanicError ||
   error instanceof Prisma.PrismaClientInitializationError
+
+const sendErrorToNotificationThread = async (
+  guildId: string | null,
+  error: unknown,
+  context?: { user?: { id: string; tag: string }; commandName?: string },
+  errorType?: 'database' | 'internal'
+) => {
+  if (env.NODE_ENV !== 'production') return
+  if (!guildId) return
+
+  const config = await GuildRepository.getGuild(guildId)
+  if (!config?.errorNotificationThreadId) return
+
+  const guild = container.client.guilds.cache.get(guildId)
+  if (!guild) return
+
+  const thread = await guild.channels.fetch(config.errorNotificationThreadId)
+  if (!thread || !thread.isThread()) return
+
+  const errorDetails =
+    error instanceof Error ? (error.stack ?? error.message ?? 'Unknown error') : String(error)
+
+  const timestamp = `<t:${Math.floor(Date.now() / 1000)}:F> - <t:${Math.floor(Date.now() / 1000)}:R>`
+
+  const title = errorType === 'database' ? '🔴 DATABASE ERROR 🔴' : '🔴 INTERNAL SERVER ERROR 🔴'
+  const user = context?.user
+  const containerComponent = new ContainerBuilder()
+    .setAccentColor(0xff0000)
+    .addTextDisplayComponents((t) =>
+      t.setContent(
+        lines(
+          `## ${title}`,
+          `- **Thời gian**: ${timestamp}`,
+          user?.tag && `- **Người dùng**: <@${user.id}>`,
+          context?.commandName && `- **Lệnh**: \`${context.commandName}\``
+        )
+      )
+    )
+
+  containerComponent
+    .addSeparatorComponents((s) => s)
+    .addTextDisplayComponents((t) =>
+      t.setContent('```js\n' + errorDetails.slice(0, 3800) + '\n```')
+    )
+
+  await thread.send({
+    components: [containerComponent],
+    flags: ['IsComponentsV2']
+  })
+}
 
 export const asyncChatInputHandler = (
   fn: (
@@ -47,12 +102,30 @@ export const asyncChatInputHandler = (
           title: ERROR_MESSAGE.DATABASE_ERROR.TITLE,
           description: await ERROR_MESSAGE.DATABASE_ERROR.DESCRIPTION(guildId)
         })
+        await sendErrorToNotificationThread(
+          guildId,
+          error,
+          {
+            user: { id: interaction.user.id, tag: interaction.user.tag },
+            commandName: interaction.commandName
+          },
+          'database'
+        )
       } else {
         container.logger.error(error)
         errorEmbed = createErrorEmbed({
           title: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.TITLE,
           description: await ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION(guildId)
         })
+        await sendErrorToNotificationThread(
+          guildId,
+          error,
+          {
+            user: { id: interaction.user.id, tag: interaction.user.tag },
+            commandName: interaction.commandName
+          },
+          'internal'
+        )
       }
 
       if (interaction.replied || interaction.deferred) {
@@ -91,12 +164,28 @@ export const asyncMessageHandler = (fn: (message: Message, args: Args) => Promis
           title: ERROR_MESSAGE.DATABASE_ERROR.TITLE,
           description: await ERROR_MESSAGE.DATABASE_ERROR.DESCRIPTION(guildId)
         })
+        await sendErrorToNotificationThread(
+          guildId,
+          error,
+          {
+            user: { id: message.author.id, tag: message.author.tag }
+          },
+          'database'
+        )
       } else {
         container.logger.error(error)
         errorEmbed = createErrorEmbed({
           title: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.TITLE,
           description: await ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION(guildId)
         })
+        await sendErrorToNotificationThread(
+          guildId,
+          error,
+          {
+            user: { id: message.author.id, tag: message.author.tag }
+          },
+          'internal'
+        )
       }
 
       return send(message, {
@@ -134,12 +223,28 @@ export const asyncInteractionHandler = <T extends RepliableInteraction, R = unkn
           title: ERROR_MESSAGE.DATABASE_ERROR.TITLE,
           description: await ERROR_MESSAGE.DATABASE_ERROR.DESCRIPTION(guildId)
         })
+        await sendErrorToNotificationThread(
+          guildId,
+          error,
+          {
+            user: { id: interaction.user.id, tag: interaction.user.tag }
+          },
+          'database'
+        )
       } else {
         container.logger.error(error)
         errorEmbed = createErrorEmbed({
           title: ERROR_MESSAGE.INTERNAL_SERVER_ERROR.TITLE,
           description: await ERROR_MESSAGE.INTERNAL_SERVER_ERROR.DESCRIPTION(guildId)
         })
+        await sendErrorToNotificationThread(
+          guildId,
+          error,
+          {
+            user: { id: interaction.user.id, tag: interaction.user.tag }
+          },
+          'internal'
+        )
       }
 
       if (interaction.replied || interaction.deferred) {
