@@ -29,6 +29,25 @@ async function getErrorDescription(guildId: string | null, errorType: string) {
     : `${errorType} đã xảy ra lỗi, vui lòng thử lại sau hoặc liên hệ **Ban quản lý** để được hỗ trợ.`
 }
 
+// Helper function for not configured messages
+async function getNotConfiguredDescription(guildId: string | null, featureName: string) {
+  if (!guildId) {
+    return env.SUPPORTER_DISCORD_ID
+      ? `${featureName} chưa được thiết lập, vui lòng liên hệ <@${env.SUPPORTER_DISCORD_ID}> để được hỗ trợ.`
+      : `${featureName} chưa được thiết lập, vui lòng liên hệ **Ban quản lý** để được hỗ trợ.`
+  }
+
+  const ticketChannelId = (await GuildRepository.getGuild(guildId))?.ticketTutorialThreadId
+
+  if (ticketChannelId) {
+    return `${featureName} chưa được thiết lập, vui lòng báo lỗi tại kênh <#${ticketChannelId}> để được hỗ trợ.`
+  }
+
+  return env.SUPPORTER_DISCORD_ID
+    ? `${featureName} chưa được thiết lập, vui lòng liên hệ <@${env.SUPPORTER_DISCORD_ID}> để được hỗ trợ.`
+    : `${featureName} chưa được thiết lập, vui lòng liên hệ **Ban quản lý** để được hỗ trợ.`
+}
+
 export const ERROR_MESSAGE = {
   BAD_REQUEST: {
     TITLE: 'Yêu cầu không hợp lệ',
@@ -62,5 +81,11 @@ export const ERROR_MESSAGE = {
   INTERNAL_SERVER_ERROR: {
     TITLE: 'Lỗi hệ thống',
     DESCRIPTION: (guildId: string | null) => getErrorDescription(guildId, 'Hệ thống')
+  },
+
+  NOT_CONFIGURED: {
+    TITLE: 'Chưa được thiết lập',
+    DESCRIPTION: (guildId: string | null, featureName: string) =>
+      getNotConfiguredDescription(guildId, featureName)
   }
 } as const

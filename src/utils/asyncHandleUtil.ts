@@ -14,7 +14,7 @@ import { env } from '~/config/env'
 import { Prisma } from 'generated/prisma/client'
 
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
-import { ErrorResponseCore } from '~/core/errorResponse'
+import { ErrorResponseCore, NotConfiguredError } from '~/core/errorResponse'
 
 import { createErrorEmbed } from '~/utils/embedUtil'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
@@ -91,7 +91,13 @@ export const asyncChatInputHandler = (
     } catch (error) {
       let errorEmbed
       const guildId = interaction.guildId
-      if (error instanceof ErrorResponseCore) {
+
+      if (error instanceof NotConfiguredError) {
+        errorEmbed = createErrorEmbed({
+          title: error.title,
+          description: await ERROR_MESSAGE.NOT_CONFIGURED.DESCRIPTION(guildId, error.featureName)
+        })
+      } else if (error instanceof ErrorResponseCore) {
         errorEmbed = createErrorEmbed({
           title: error.title,
           description: error.description
@@ -153,7 +159,13 @@ export const asyncMessageHandler = (fn: (message: Message, args: Args) => Promis
     } catch (error) {
       let errorEmbed
       const guildId = message.guildId
-      if (error instanceof ErrorResponseCore) {
+
+      if (error instanceof NotConfiguredError) {
+        errorEmbed = createErrorEmbed({
+          title: error.title,
+          description: await ERROR_MESSAGE.NOT_CONFIGURED.DESCRIPTION(guildId, error.featureName)
+        })
+      } else if (error instanceof ErrorResponseCore) {
         errorEmbed = createErrorEmbed({
           title: error.title,
           description: error.description
@@ -212,7 +224,12 @@ export const asyncInteractionHandler = <T extends RepliableInteraction, R = unkn
       let errorEmbed
       const guildId = interaction.guildId
 
-      if (error instanceof ErrorResponseCore) {
+      if (error instanceof NotConfiguredError) {
+        errorEmbed = createErrorEmbed({
+          title: error.title,
+          description: await ERROR_MESSAGE.NOT_CONFIGURED.DESCRIPTION(guildId, error.featureName)
+        })
+      } else if (error instanceof ErrorResponseCore) {
         errorEmbed = createErrorEmbed({
           title: error.title,
           description: error.description

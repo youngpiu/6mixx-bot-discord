@@ -100,3 +100,20 @@ export class ManageRolesOnlyError extends ErrorResponseCore {
     super({ name: 'MANAGE_ROLES_ONLY', title, description })
   }
 }
+
+type NotConfiguredErrorOptions = ErrorOptions & {
+  featureName?: string
+}
+
+export class NotConfiguredError extends ErrorResponseCore {
+  public featureName: string
+
+  constructor({
+    title = ERROR_MESSAGE.NOT_CONFIGURED.TITLE,
+    description = 'Tính năng này chưa được thiết lập.',
+    featureName = 'Tính năng này'
+  }: NotConfiguredErrorOptions = {}) {
+    super({ name: 'NOT_CONFIGURED', title, description })
+    this.featureName = featureName
+  }
+}
