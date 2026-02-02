@@ -23,7 +23,7 @@ export class ButtonConfessionCreateNotificationThreadHandler extends Interaction
       threadName: '💌 THÔNG BÁO CONFESSION 💌',
       oldThreadIdKey: 'confessionNotificationThreadId',
       updateKey: 'confessionNotificationThreadId',
-      successMessage: 'Tạo kênh thông báo confession thành công'
+      successMessage: 'Kênh thông báo confession đã được tạo'
     })
   })
 }

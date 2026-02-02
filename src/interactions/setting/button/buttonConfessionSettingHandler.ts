@@ -45,7 +45,7 @@ export class ButtonConfessionSettingHandler extends InteractionHandler {
 
     const modal = new ModalBuilder()
       .setCustomId('modal-confession-general-setting')
-      .setTitle('Cài đặt Confession')
+      .setTitle('Cài đặt tính năng confession')
       .addLabelComponents(forumLabel)
 
     await interaction.showModal(modal)

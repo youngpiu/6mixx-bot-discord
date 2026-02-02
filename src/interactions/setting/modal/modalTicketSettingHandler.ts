@@ -41,7 +41,7 @@ export class ModalTicketSettingHandler extends InteractionHandler {
         createSuccessEmbed({
           title: 'Thiết lập thành công',
           description: categoryId
-            ? `Danh mục chứa các kênh hỗ trợ: <#${categoryId}>`
+            ? `Danh mục chứa các kênh hỗ trợ đã được tạo: <#${categoryId}>`
             : 'Không có thay đổi nào được lưu.'
         })
       ]

@@ -44,7 +44,7 @@ export class ButtonTicketSettingHandler extends InteractionHandler {
 
     const modal = new ModalBuilder()
       .setCustomId('modal-ticket-general-setting')
-      .setTitle('Cài đặt hỗ trợ')
+      .setTitle('Cài đặt tính năng hỗ trợ thành viên')
       .addLabelComponents(categoryLabel)
 
     await interaction.showModal(modal)

@@ -23,7 +23,7 @@ export class ButtonDonationCreateNotificationThreadHandler extends InteractionHa
       threadName: '💸 THÔNG BÁO QUYÊN GÓP 💸',
       oldThreadIdKey: 'donationNotificationThreadId',
       updateKey: 'donationNotificationThreadId',
-      successMessage: 'Tạo kênh thông báo quyên góp thành công'
+      successMessage: 'Kênh thông báo quyên góp đã được tạo'
     })
   })
 }

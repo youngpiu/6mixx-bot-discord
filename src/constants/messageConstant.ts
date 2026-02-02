@@ -33,7 +33,7 @@ export const ERROR_MESSAGE = {
   BAD_REQUEST: {
     TITLE: 'Yêu cầu không hợp lệ',
     DESCRIPTION: 'Yêu cầu bạn gửi không hợp lệ. Vui lòng kiểm tra và thử lại.',
-    GUILD_ONLY_DESCRIPTION: 'Bạn phải thực hiện lệnh này trong một máy chủ.'
+    GUILD_ONLY_DESCRIPTION: 'Lệnh này không thể sử dụng được bên ngoài máy chủ.'
   },
 
   NOT_FOUND: {

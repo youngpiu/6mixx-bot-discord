@@ -23,7 +23,7 @@ export class ButtonTicketCreateNotificationThreadHandler extends InteractionHand
       threadName: '🎟️ THÔNG BÁO HỖ TRỢ 🎟️',
       oldThreadIdKey: 'ticketNotificationThreadId',
       updateKey: 'ticketNotificationThreadId',
-      successMessage: 'Tạo kênh thông báo hỗ trợ thành công'
+      successMessage: 'Kênh thông báo hỗ trợ đã được tạo'
     })
   })
 }

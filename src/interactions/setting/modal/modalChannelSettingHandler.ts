@@ -36,12 +36,12 @@ export class ModalChannelSettingHandler extends InteractionHandler {
 
     if (serviceChannel) {
       updateData.serviceForumChannelId = serviceChannel.id
-      messages.push(`Kênh dịch vụ: <#${serviceChannel.id}>`)
+      messages.push(`Kênh dịch vụ đã được tạo: <#${serviceChannel.id}>`)
     }
 
     if (notificationChannel) {
       updateData.notificationChannelId = notificationChannel.id
-      messages.push(`Kênh thông báo: <#${notificationChannel.id}>`)
+      messages.push(`Kênh thông báo đã được tạo: <#${notificationChannel.id}>`)
     }
 
     if (Object.keys(updateData).length > 0) {

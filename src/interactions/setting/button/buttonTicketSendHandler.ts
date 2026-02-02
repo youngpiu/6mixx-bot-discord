@@ -23,7 +23,7 @@ export class ButtonTicketSendHandler extends InteractionHandler {
       interaction,
       channelIdKey: 'serviceForumChannelId',
       threadIdKey: 'ticketTutorialThreadId',
-      threadName: '🎟️ NƠI GỬI YÊU CẦU HỖ TRỢ [BÁO CÁO|GÓP Ý|BÁO LỖI] 🎟️',
+      threadName: '🎟️ NƠI GỬI YÊU CẦU HỖ TRỢ [ BÁO CÁO | GÓP Ý | BÁO LỖI ] 🎟️',
       messageComponents: [this.createTicketTutorialMessage()],
       successMessage: 'Bài đăng hướng dẫn gửi yêu cầu hỗ trợ đã được tạo',
       errorChannelNotConfigured: 'Kênh dịch vụ chưa được thiết lập.',

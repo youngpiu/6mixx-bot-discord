@@ -26,7 +26,7 @@ export class ButtonGeneralCreateErrorNotificationThreadHandler extends Interacti
       threadName: '⚠️ THÔNG BÁO LỖI BOT ⚠️',
       oldThreadIdKey: 'errorNotificationThreadId',
       updateKey: 'errorNotificationThreadId',
-      successMessage: 'Tạo kênh thông báo lỗi thành công'
+      successMessage: 'Kênh thông báo lỗi đã được tạo'
     })
   })
 }
