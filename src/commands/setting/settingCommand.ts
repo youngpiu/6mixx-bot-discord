@@ -4,6 +4,7 @@ import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
 import { ICON } from '~/constants/iconConstant'
 
+import { asyncChatInputHandler } from '~/utils/asyncHandleUtil'
 import { parseEmoji } from '~/utils/emojiUtil'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
 import { lines } from '~/utils/textUtil'
@@ -29,48 +30,50 @@ export class SettingCommand extends Command {
             .setDescription('Loại cài đặt')
             .setRequired(true)
             .addChoices(
-              { name: '1. Cài đặt chung', value: 'general' },
-              { name: '2. Hệ thống hỗ trợ thành viên', value: 'ticket' },
-              { name: '3. Hệ thống quyên góp', value: 'donation' },
-              { name: '4. Hệ thống Confession', value: 'confession' }
+              { name: '1. Chung', value: 'general' },
+              { name: '2. Hỗ trợ thành viên', value: 'ticket' },
+              { name: '3. Quyên góp', value: 'donation' },
+              { name: '4. Confession', value: 'confession' }
             )
         )
     )
   }
 
-  public override async chatInputRun(interaction: ChatInputCommandInteraction) {
-    const type = interaction.options.getString('type', true)
+  public override chatInputRun = asyncChatInputHandler(
+    async (interaction: ChatInputCommandInteraction) => {
+      const type = interaction.options.getString('type', true)
 
-    let container: ContainerBuilder
+      let container: ContainerBuilder
 
-    switch (type) {
-      case 'general':
-        container = this.createGeneralSettings()
-        break
-      case 'ticket':
-        container = this.createTicketSettings()
-        break
-      case 'donation':
-        container = this.createDonationSettings()
-        break
-      case 'confession':
-        container = this.createConfessionSettings()
-        break
-      default:
-        return
+      switch (type) {
+        case 'general':
+          container = this.createGeneralSettings()
+          break
+        case 'ticket':
+          container = this.createTicketSettings()
+          break
+        case 'donation':
+          container = this.createDonationSettings()
+          break
+        case 'confession':
+          container = this.createConfessionSettings()
+          break
+        default:
+          return
+      }
+
+      await interaction.reply({
+        components: [container],
+        flags: ['Ephemeral', 'IsComponentsV2']
+      })
+
+      await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.VERY_LONG)
     }
-
-    await interaction.reply({
-      components: [container],
-      flags: ['Ephemeral', 'IsComponentsV2']
-    })
-
-    await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.VERY_LONG)
-  }
+  )
 
   private createGeneralSettings(): ContainerBuilder {
     return new ContainerBuilder()
-      .addTextDisplayComponents((text) => text.setContent('# Cài đặt chung'))
+      .addTextDisplayComponents((text) => text.setContent('# Cài đặt hệ thống'))
       .addSeparatorComponents((separator) => separator)
       .addSectionComponents((section) =>
         section
@@ -82,11 +85,21 @@ export class SettingCommand extends Command {
               .setStyle(ButtonStyle.Primary)
           )
       )
+      .addSectionComponents((section) =>
+        section
+          .addTextDisplayComponents((text) => text.setContent(lines('### Tạo kênh thông báo lỗi')))
+          .setButtonAccessory((button) =>
+            button
+              .setCustomId('btn-general-create-error-notification-thread')
+              .setEmoji(parseEmoji(ICON.PLUS))
+              .setStyle(ButtonStyle.Primary)
+          )
+      )
   }
 
   private createTicketSettings(): ContainerBuilder {
     return new ContainerBuilder()
-      .addTextDisplayComponents((text) => text.setContent('# Hệ thống hỗ trợ thành viên'))
+      .addTextDisplayComponents((text) => text.setContent('# Cài đặt tính năng hỗ trợ thành viên'))
       .addSeparatorComponents((separator) => separator)
       .addSectionComponents((section) =>
         section
@@ -122,7 +135,7 @@ export class SettingCommand extends Command {
 
   private createDonationSettings(): ContainerBuilder {
     return new ContainerBuilder()
-      .addTextDisplayComponents((text) => text.setContent('# Hệ thống quyên góp'))
+      .addTextDisplayComponents((text) => text.setContent('# Cài đặt tính năng quyên góp'))
       .addSeparatorComponents((separator) => separator)
       .addSectionComponents((section) =>
         section
@@ -148,7 +161,7 @@ export class SettingCommand extends Command {
 
   private createConfessionSettings(): ContainerBuilder {
     return new ContainerBuilder()
-      .addTextDisplayComponents((text) => text.setContent('# Hệ thống Confession'))
+      .addTextDisplayComponents((text) => text.setContent('# Cài đặt tính năng Confession'))
       .addSeparatorComponents((separator) => separator)
       .addSectionComponents((section) =>
         section

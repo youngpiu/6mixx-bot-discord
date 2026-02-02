@@ -23,7 +23,8 @@ export class ModalTicketSettingHandler extends InteractionHandler {
   }
 
   public run = asyncInteractionHandler<ModalSubmitInteraction>(async (interaction) => {
-    if (!interaction.guildId) throw new GuildOnlyError()
+    if (!interaction.guildId || !interaction.guild) throw new GuildOnlyError()
+    await interaction.deferReply({ flags: ['Ephemeral'] })
 
     const channels = interaction.fields.getSelectedChannels('select-ticket-category')
     const categoryChannel = channels?.first()
@@ -33,27 +34,18 @@ export class ModalTicketSettingHandler extends InteractionHandler {
       await GuildRepository.updateConfig(interaction.guildId, {
         ticketCategoryId: categoryId
       })
-
-      await interaction.reply({
-        embeds: [
-          createSuccessEmbed({
-            title: 'Thiết lập thành công',
-            description: `Danh mục chứa kênh hỗ trợ: <#${categoryId}>`
-          })
-        ],
-        flags: ['Ephemeral']
-      })
-    } else {
-      await interaction.reply({
-        embeds: [
-          createSuccessEmbed({
-            title: 'Thiết lập thành công',
-            description: 'Không có thay đổi nào được lưu.'
-          })
-        ],
-        flags: ['Ephemeral']
-      })
     }
+
+    await interaction.editReply({
+      embeds: [
+        createSuccessEmbed({
+          title: 'Thiết lập thành công',
+          description: categoryId
+            ? `Danh mục chứa các kênh hỗ trợ: <#${categoryId}>`
+            : 'Không có thay đổi nào được lưu.'
+        })
+      ]
+    })
 
     await deleteReplyInteraction(interaction)
   })

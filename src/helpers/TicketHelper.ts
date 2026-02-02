@@ -1,4 +1,5 @@
 import { container } from '@sapphire/pieces'
+import { createTranscript } from 'discord-html-transcripts'
 import {
   ButtonBuilder,
   ButtonInteraction,
@@ -6,13 +7,12 @@ import {
   ChannelType,
   ContainerBuilder,
   MessageFlags,
-  ThreadAutoArchiveDuration,
-  ThreadChannel
+  TextChannel
 } from 'discord.js'
 
 import { Ticket, TicketType } from 'generated/prisma/client'
 
-import { BadRequestError, NotFoundError } from '~/core/errorResponse'
+import { BadRequestError, GuildOnlyError, NotFoundError } from '~/core/errorResponse'
 
 import { createSuccessEmbed } from '~/utils/embedUtil'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
@@ -22,7 +22,7 @@ import { GuildRepository } from '~/repositories/guildRepository'
 import { TicketRepository } from '~/repositories/ticketRepository'
 
 interface CloseTicketOptions {
-  thread: ThreadChannel
+  channel: TextChannel
   closedById: string
   guildId: string
   reason?: string | null
@@ -57,7 +57,7 @@ export class TicketHelper {
   }
 
   /**
-   * Creates a new ticket with thread and initial message
+   * Creates a new ticket with text channel in category and initial message
    * @param options - Create ticket options
    */
   public static async createTicket(options: CreateTicketOptions): Promise<void> {
@@ -65,45 +65,54 @@ export class TicketHelper {
 
     await interaction.deferReply({ flags: 'Ephemeral' })
 
-    if (!interaction.guild || !interaction.guildId) return
+    if (!interaction.guild || !interaction.guildId) throw new GuildOnlyError()
 
-    const ticketChannelId = await GuildRepository.getTicketChannelId(interaction.guildId)
+    const ticketConfig = await GuildRepository.getTicketConfig(interaction.guildId)
+    const ticketCategoryId = ticketConfig?.ticketCategoryId
 
-    if (!ticketChannelId) {
+    if (!ticketCategoryId) {
       throw new BadRequestError({
         description:
           'Hệ thống hỗ trợ thành viên chưa được thiết lập, vui lòng liên hệ **Ban quản lý**.'
       })
     }
 
-    const channel = interaction.guild.channels.cache.get(ticketChannelId)
-    if (!channel || channel.type !== ChannelType.GuildText) {
+    const category = interaction.guild.channels.cache.get(ticketCategoryId)
+    if (!category || category.type !== ChannelType.GuildCategory) {
       throw new NotFoundError({
-        description: 'Kênh hỗ trợ thành viên không tồn tại hoặc không hợp lệ.'
+        description: 'Danh mục chứa kênh hỗ trợ không tồn tại hoặc không hợp lệ.'
       })
     }
 
     const now = new Date()
     const code = await TicketRepository.generateTicketCode(interaction.guildId, type)
 
-    const thread = await channel.threads.create({
-      name: `#${code} - ${this.getTicketTypeLabel(type)}`,
-      autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
-      type: ChannelType.PrivateThread,
-      invitable: false
+    // Create text channel in category with permissions
+    const ticketChannel = await interaction.guild.channels.create({
+      name: `ticket-${code}`,
+      type: ChannelType.GuildText,
+      parent: ticketCategoryId,
+      permissionOverwrites: [
+        {
+          id: interaction.guild.roles.everyone.id,
+          deny: ['ViewChannel']
+        },
+        {
+          id: interaction.user.id,
+          allow: ['ViewChannel', 'SendMessages', 'ReadMessageHistory', 'AttachFiles']
+        }
+      ]
     })
 
-    await thread.members.add(interaction.user.id)
-
-    const container = new ContainerBuilder()
+    const containerMessage = new ContainerBuilder()
       .addTextDisplayComponents((text) => text.setContent(lines('## Bắt đầu hỗ trợ', description)))
       .addSeparatorComponents((separator) => separator)
       .addTextDisplayComponents((text) =>
         text.setContent(
           lines(
-            `**Mã phiếu:** _#${code}_`,
-            `**Người tạo:** <@${interaction.user.id}>`,
-            `**Thời gian tạo:** <t:${Math.floor(now.getTime() / 1000)}:R>`
+            `**- Mã phiếu:** _#${code}_`,
+            `**- Người tạo:** <@${interaction.user.id}>`,
+            `**- Thời gian tạo:** <t:${Math.floor(now.getTime() / 1000)}:R>`
           )
         )
       )
@@ -124,8 +133,8 @@ export class TicketHelper {
           )
       )
 
-    const message = await thread.send({
-      components: [container],
+    const message = await ticketChannel.send({
+      components: [containerMessage],
       flags: MessageFlags.IsComponentsV2
     })
 
@@ -135,8 +144,7 @@ export class TicketHelper {
         guildId: interaction.guildId,
         requesterId: interaction.user.id,
         type,
-        threadId: thread.id,
-        firstMessageId: message.id,
+        channelId: ticketChannel.id,
         createdAt: now,
         updatedAt: now
       }),
@@ -144,7 +152,7 @@ export class TicketHelper {
         embeds: [
           createSuccessEmbed({
             title: 'Tạo thành công',
-            description: `Kênh yêu cầu hỗ trợ của bạn đã được tạo thành công. Vui lòng truy cập vào <#${thread.id}> để thảo luận.`
+            description: `Kênh yêu cầu hỗ trợ của bạn đã được tạo thành công. Vui lòng truy cập vào <#${ticketChannel.id}> để thảo luận.`
           })
         ]
       })
@@ -154,9 +162,9 @@ export class TicketHelper {
   }
 
   public static async closeTicket(options: CloseTicketOptions): Promise<void> {
-    const { thread, closedById, guildId, reason } = options
+    const { channel, closedById, guildId, reason } = options
 
-    const ticket = await TicketRepository.findByThreadId({ threadId: thread.id })
+    const ticket = await TicketRepository.findByChannelId({ channelId: channel.id })
 
     if (!ticket) {
       throw new NotFoundError({
@@ -164,48 +172,48 @@ export class TicketHelper {
       })
     }
 
+    // Generate transcript
+    let transcriptUrl: string | null = null
+    try {
+      const ticketConfig = await GuildRepository.getTicketConfig(guildId)
+      if (ticketConfig?.ticketNotificationThreadId && ticketConfig.notificationChannelId) {
+        const notificationChannel = channel.guild.channels.cache.get(
+          ticketConfig.notificationChannelId
+        ) as TextChannel
+
+        if (notificationChannel) {
+          const thread = await notificationChannel.threads.fetch(
+            ticketConfig.ticketNotificationThreadId
+          )
+          if (thread) {
+            const attachment = await createTranscript(channel, {
+              limit: -1,
+              filename: `ticket-${ticket.code}.html`,
+              poweredBy: false,
+              saveImages: true
+            })
+
+            const message = await thread.send({
+              content: `Transcript cho phiếu hỗ trợ **#${ticket.code}**`,
+              files: [attachment]
+            })
+            transcriptUrl = message.attachments.first()?.url ?? null
+          }
+        }
+      }
+    } catch (error) {
+      container.logger.error('Failed to generate/send transcript:', error)
+    }
+
     const updatedTicket = await TicketRepository.closeTicket({
       ticketId: ticket.id,
       guildId,
       closedBy: closedById,
-      reason
+      reason,
+      transcriptUrl
     })
 
-    const editFirstMessagePromise = ticket.firstMessageId
-      ? thread.messages
-          .fetch(ticket.firstMessageId)
-          .then((firstMessage) => {
-            const updatedContainer = new ContainerBuilder()
-              .addTextDisplayComponents((text) =>
-                text.setContent(
-                  lines(
-                    '## Bắt đầu hỗ trợ',
-                    `Phiếu hỗ trợ **#${updatedTicket.code}** đã được đóng.`
-                  )
-                )
-              )
-              .addSeparatorComponents((separator) => separator)
-              .addTextDisplayComponents((text) =>
-                text.setContent(
-                  lines(
-                    `**Mã phiếu:** _#${updatedTicket.code}_`,
-                    `**Người tạo:** <@${updatedTicket.requesterId}>`,
-                    `**Thời gian tạo:** <t:${Math.floor(updatedTicket.createdAt.getTime() / 1000)}:R>`
-                  )
-                )
-              )
-
-            return firstMessage.edit({
-              components: [updatedContainer],
-              flags: MessageFlags.IsComponentsV2
-            })
-          })
-          .catch((error) => {
-            container.logger.error(error)
-          })
-      : Promise.resolve()
-
-    const closeMessagePromise = thread.send({
+    await channel.send({
       components: [
         new ContainerBuilder()
           .addTextDisplayComponents((text) =>
@@ -234,11 +242,13 @@ export class TicketHelper {
       flags: ['IsComponentsV2']
     })
 
-    await Promise.all([
-      editFirstMessagePromise,
-      closeMessagePromise,
-      thread.setLocked(true),
-      thread.setArchived(true)
-    ])
+    // Delete the ticket channel after 10 seconds
+    setTimeout(async () => {
+      try {
+        await channel.delete()
+      } catch (error) {
+        container.logger.error(`Failed to delete ticket channel ${channel.id}:`, error)
+      }
+    }, 10000)
   }
 }

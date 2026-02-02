@@ -8,8 +8,7 @@ import {
   TextChannel
 } from 'discord.js'
 
-import { ERROR_MESSAGE } from '~/constants/messageConstant'
-import { BadRequestError } from '~/core/errorResponse'
+import { BadRequestError, GuildOnlyError } from '~/core/errorResponse'
 
 import { createSuccessEmbed } from '~/utils/embedUtil'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
@@ -23,9 +22,7 @@ export class ConfessionSetupCommand {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
     if (!interaction.guildId) {
-      throw new BadRequestError({
-        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
-      })
+      throw new GuildOnlyError()
     }
 
     const notificationChannel = interaction.options.getChannel(
@@ -41,14 +38,16 @@ export class ConfessionSetupCommand {
     }
 
     // Ensure guild exists
-    await GuildRepository.createGuild({ guildId: interaction.guildId })
+    await GuildRepository.getOrCreate(interaction.guildId)
 
     // Check if config exists and delete old thread
     const existingConfig = await ConfessionRepository.getConfig(interaction.guildId)
 
-    if (existingConfig?.tutorialThreadId) {
+    if (existingConfig?.confessionTutorialThreadId) {
       try {
-        const oldThread = await container.client.channels.fetch(existingConfig.tutorialThreadId)
+        const oldThread = await container.client.channels.fetch(
+          existingConfig.confessionTutorialThreadId
+        )
         if (oldThread?.isThread()) {
           await oldThread.delete()
         }
@@ -67,13 +66,9 @@ export class ConfessionSetupCommand {
     })
 
     // Save config
-    await ConfessionRepository.upsertConfig({
-      guildId: interaction.guildId,
-      data: {
-        notificationChannelId: notificationChannel.id,
-        forumChannelId: forumChannel.id,
-        tutorialThreadId: tutorialThread.id
-      }
+    await GuildRepository.updateConfig(interaction.guildId, {
+      confessionForumChannelId: forumChannel.id,
+      confessionTutorialThreadId: tutorialThread.id
     })
 
     await interaction.editReply({

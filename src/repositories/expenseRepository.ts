@@ -1,8 +1,6 @@
 import { container } from '@sapphire/pieces'
 import { nanoid } from 'nanoid'
 
-import { MemberRepository } from '~/repositories/memberRepository'
-
 const CODE_PREFIX = 'EXP'
 const CODE_LENGTH = 6
 
@@ -22,10 +20,6 @@ interface GetExpensesInput {
 export class ExpenseRepository {
   public static async createExpense(data: CreateExpenseInput) {
     // Ensure member exists
-    await MemberRepository.getOrCreate({
-      guildId: data.guildId,
-      userId: data.createdBy
-    })
 
     const code = `${CODE_PREFIX}${nanoid(CODE_LENGTH).toUpperCase()}`
 

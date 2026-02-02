@@ -1,16 +1,10 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
-import {
-  ButtonInteraction,
-  ChannelSelectMenuBuilder,
-  ChannelType,
-  LabelBuilder,
-  ModalBuilder
-} from 'discord.js'
+import { ButtonInteraction, ChannelType, ModalBuilder } from 'discord.js'
 
 import { GuildOnlyError } from '~/core/errorResponse'
 
+import { SettingHelper } from '~/helpers/SettingHelper'
 import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
-import { getChannelPlaceholder } from '~/utils/channelUtil'
 
 import { GuildRepository } from '~/repositories/guildRepository'
 
@@ -33,35 +27,24 @@ export class ButtonTicketSettingHandler extends InteractionHandler {
     const config = await GuildRepository.getGuild(interaction.guildId)
     const ticketCategoryId = config?.ticketCategoryId
 
-    const categoryResult = getChannelPlaceholder(
-      interaction.guild,
-      ticketCategoryId,
-      ChannelType.GuildCategory,
-      {
-        channelConfiguredAndExists: 'Chọn danh mục',
-        channelConfiguredButDeleted: 'Danh mục bạn đã cài đặt không tồn tại',
-        channelNotConfigured: 'Chưa cài đặt danh mục',
+    const categoryLabel = SettingHelper.createChannelLabel({
+      guild: interaction.guild,
+      channelId: ticketCategoryId,
+      customId: 'select-ticket-category',
+      channelType: ChannelType.GuildCategory,
+      label: 'Danh mục kênh',
+      description: 'Các kênh hỗ trợ sẽ được tạo trong danh mục này.',
+      placeholders: {
+        channelConfiguredAndExists: 'Chọn danh mục kênh',
+        channelConfiguredButDeleted: 'Danh mục kênh đã thiết lập không còn tồn tại',
+        channelNotConfigured: 'Chưa thiết lập danh mục kênh',
         noChannelsInServer: 'Không có danh mục nào'
       }
-    )
-
-    const categorySelect = new ChannelSelectMenuBuilder()
-      .setCustomId('select-ticket-category')
-      .setPlaceholder(categoryResult.placeholder)
-      .setChannelTypes([ChannelType.GuildCategory])
-
-    if (ticketCategoryId && categoryResult.exists) {
-      categorySelect.setDefaultChannels([ticketCategoryId])
-    }
-
-    const categoryLabel = new LabelBuilder()
-      .setLabel('Danh mục kênh')
-      .setDescription('Các kênh hỗ trợ sẽ được tạo trong danh mục này.')
-      .setChannelSelectMenuComponent(categorySelect)
+    })
 
     const modal = new ModalBuilder()
       .setCustomId('modal-ticket-general-setting')
-      .setTitle('Cài đặt chung')
+      .setTitle('Cài đặt hỗ trợ')
       .addLabelComponents(categoryLabel)
 
     await interaction.showModal(modal)

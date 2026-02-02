@@ -1,7 +1,7 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
 import { ButtonInteraction } from 'discord.js'
 
-import { createNotificationThread } from '~/helpers/SettingHelper'
+import { SettingHelper } from '~/helpers/SettingHelper'
 import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
 
 export class ButtonTicketCreateNotificationThreadHandler extends InteractionHandler {
@@ -18,9 +18,9 @@ export class ButtonTicketCreateNotificationThreadHandler extends InteractionHand
   }
 
   public run = asyncInteractionHandler<ButtonInteraction>(async (interaction) => {
-    await createNotificationThread({
+    await SettingHelper.createNotificationThread({
       interaction,
-      threadName: '🎟️ NƠI GỬI THÔNG BÁO HỖ TRỢ 🎟️',
+      threadName: '🎟️ THÔNG BÁO HỖ TRỢ 🎟️',
       oldThreadIdKey: 'ticketNotificationThreadId',
       updateKey: 'ticketNotificationThreadId',
       successMessage: 'Tạo kênh thông báo hỗ trợ thành công'

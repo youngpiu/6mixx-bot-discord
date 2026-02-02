@@ -24,13 +24,28 @@ export class BotClient extends SapphireClient {
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildVoiceStates
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildMembers
       ],
       defaultPrefix: env.DEFAULT_PREFIX,
       loadMessageCommandListeners: true,
 
       logger: {
         level: env.NODE_ENV === 'development' ? LogLevel.Debug : LogLevel.Info
+      },
+      tasks: {
+        bull: {
+          connection: redis,
+          defaultJobOptions: {
+            removeOnComplete: true,
+            removeOnFail: true
+          },
+          streams: {
+            events: {
+              maxLen: 1000
+            }
+          }
+        }
       }
     })
 

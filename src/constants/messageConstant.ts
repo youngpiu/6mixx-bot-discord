@@ -1,5 +1,6 @@
-import { container } from '@sapphire/pieces'
 import { env } from '~/config/env'
+
+import { GuildRepository } from '~/repositories/guildRepository'
 
 export const RANDOM_LOADING_MESSAGES: string[] = [
   'Đang xử lý...',
@@ -17,11 +18,7 @@ async function getErrorDescription(guildId: string | null, errorType: string) {
       : `${errorType} đã xảy ra lỗi, vui lòng thử lại sau hoặc liên hệ **Ban quản lý** để được hỗ trợ.`
   }
 
-  const ticketChannelId = (
-    await container.prisma.ticketConfig.findUnique({
-      where: { guildId }
-    })
-  )?.ticketChannelId
+  const ticketChannelId = (await GuildRepository.getGuild(guildId))?.ticketTutorialThreadId
 
   if (ticketChannelId) {
     return `${errorType} đã xảy ra lỗi, vui lòng thử lại sau hoặc báo lỗi tại kênh <#${ticketChannelId}> để được hỗ trợ.`
@@ -36,7 +33,7 @@ export const ERROR_MESSAGE = {
   BAD_REQUEST: {
     TITLE: 'Yêu cầu không hợp lệ',
     DESCRIPTION: 'Yêu cầu bạn gửi không hợp lệ. Vui lòng kiểm tra và thử lại.',
-    GUILD_ONLY_DESCRIPTION: 'Lệnh này chỉ khả dụng trong máy chủ, không hỗ trợ tin nhắn riêng.'
+    GUILD_ONLY_DESCRIPTION: 'Bạn phải thực hiện lệnh này trong một máy chủ.'
   },
 
   NOT_FOUND: {
@@ -48,7 +45,13 @@ export const ERROR_MESSAGE = {
     TITLE: 'Không đủ quyền hạn',
     DESCRIPTION: 'Bạn không có quyền thực hiện hành động này.',
     OWNER_ONLY_DESCRIPTION: 'Chỉ người sở hữu máy chủ mới có thể sử dụng lệnh này.',
-    ADMIN_ONLY_DESCRIPTION: 'Chỉ người có quyền **Quản trị viên** mới có thể sử dụng lệnh này.'
+    ADMIN_ONLY_DESCRIPTION: 'Chỉ người có quyền **Quản trị viên** mới có thể sử dụng lệnh này.',
+    MANAGE_MESSAGES_ONLY_DESCRIPTION:
+      'Chỉ người có quyền **Quản lý tin nhắn** mới có thể sử dụng lệnh này.',
+    MANAGE_CHANNELS_ONLY_DESCRIPTION:
+      'Chỉ người có quyền **Quản lý kênh** mới có thể sử dụng lệnh này.',
+    MANAGE_ROLES_ONLY_DESCRIPTION:
+      'Chỉ người có quyền **Quản lý vai trò** mới có thể sử dụng lệnh này.'
   },
 
   DATABASE_ERROR: {

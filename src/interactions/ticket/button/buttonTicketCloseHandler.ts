@@ -1,6 +1,8 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
-import { ButtonInteraction, ThreadChannel } from 'discord.js'
+import { ButtonInteraction, TextChannel } from 'discord.js'
 import { DELETE_REPLY_TIMEOUT } from '~/config/time'
+
+import { GuildOnlyError } from '~/core/errorResponse'
 
 import { TicketHelper } from '~/helpers/TicketHelper'
 import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
@@ -24,10 +26,10 @@ export class ButtonTicketCloseHandler extends InteractionHandler {
   public run = asyncInteractionHandler<ButtonInteraction>(async (interaction) => {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction.guildId) return
+    if (!interaction.guildId) throw new GuildOnlyError()
 
     await TicketHelper.closeTicket({
-      thread: interaction.channel as ThreadChannel,
+      channel: interaction.channel as TextChannel,
       closedById: interaction.user.id,
       guildId: interaction.guildId
     })

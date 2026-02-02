@@ -1,9 +1,8 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
-import { ModalSubmitInteraction, ThreadChannel } from 'discord.js'
+import { ChannelType, ModalSubmitInteraction, TextChannel } from 'discord.js'
 import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
-import { ERROR_MESSAGE } from '~/constants/messageConstant'
-import { BadRequestError } from '~/core/errorResponse'
+import { BadRequestError, GuildOnlyError } from '~/core/errorResponse'
 
 import { TicketHelper } from '~/helpers/TicketHelper'
 import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
@@ -26,22 +25,20 @@ export class ModalTicketCloseReasonHandler extends InteractionHandler {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
     if (!interaction.guildId) {
-      throw new BadRequestError({
-        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
-      })
+      throw new GuildOnlyError()
     }
 
-    const thread = interaction.channel
-    if (!thread || !thread.isThread()) {
+    const channel = interaction.channel
+    if (!channel || channel.type !== ChannelType.GuildText) {
       throw new BadRequestError({
-        description: 'Lệnh này chỉ có thể sử dụng trong một thread phiếu hỗ trợ.'
+        description: 'Lệnh này chỉ có thể sử dụng trong kênh phiếu hỗ trợ.'
       })
     }
 
     const reason = interaction.fields.getTextInputValue('reason')
 
     await TicketHelper.closeTicket({
-      thread: thread as ThreadChannel,
+      channel: channel as TextChannel,
       closedById: interaction.user.id,
       guildId: interaction.guildId,
       reason

@@ -1,14 +1,9 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
 import { ButtonBuilder, ButtonInteraction, ButtonStyle, ContainerBuilder } from 'discord.js'
 
-import { BadRequestError, GuildOnlyError } from '~/core/errorResponse'
-
+import { SettingHelper } from '~/helpers/SettingHelper'
 import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
-import { createSuccessEmbed } from '~/utils/embedUtil'
-import { deleteReplyInteraction } from '~/utils/interactionUtil'
 import { lines } from '~/utils/textUtil'
-
-import { GuildRepository } from '~/repositories/guildRepository'
 
 export class ButtonTicketSendHandler extends InteractionHandler {
   public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
@@ -24,59 +19,19 @@ export class ButtonTicketSendHandler extends InteractionHandler {
   }
 
   public run = asyncInteractionHandler<ButtonInteraction>(async (interaction) => {
-    if (!interaction.guildId) throw new GuildOnlyError()
-
-    const guild = await GuildRepository.getGuild(interaction.guildId)
-    const serviceForumChannelId = guild?.serviceForumChannelId
-
-    if (!serviceForumChannelId)
-      throw new BadRequestError({ description: 'Kênh dịch vụ chưa được cài đặt' })
-
-    const forumChannel = interaction.guild?.channels.cache.get(serviceForumChannelId)
-
-    if (!forumChannel || !forumChannel.isThreadOnly()) {
-      throw new BadRequestError({
-        description:
-          'Kênh dịch vụ không tồn tại hoặc không phải là kênh diễn đàn, vui lòng cài đặt lại.'
-      })
-    }
-
-    const ticketConfig = await GuildRepository.getTicketConfig(interaction.guildId)
-    if (ticketConfig?.ticketTutorialThreadId) {
-      try {
-        const oldThread = await forumChannel.threads.fetch(ticketConfig.ticketTutorialThreadId)
-        if (oldThread) await oldThread.delete()
-      } catch (error) {
-        if (error instanceof Error) {
-          this.container.logger.error(error.message)
-        }
-      }
-    }
-
-    const thread = await forumChannel.threads.create({
-      name: '🎟️ NƠI GỬI YÊU CẦU HỖ TRỢ [BÁO CÁO|GÓP Ý|BÁO LỖI] 🎟️',
-      message: {
-        components: [await this.createTicketTutorialMessage()],
-        flags: ['IsComponentsV2']
-      }
+    await SettingHelper.createGuideThread({
+      interaction,
+      channelIdKey: 'serviceForumChannelId',
+      threadIdKey: 'ticketTutorialThreadId',
+      threadName: '🎟️ NƠI GỬI YÊU CẦU HỖ TRỢ [BÁO CÁO|GÓP Ý|BÁO LỖI] 🎟️',
+      messageComponents: [this.createTicketTutorialMessage()],
+      successMessage: 'Bài đăng hướng dẫn gửi yêu cầu hỗ trợ đã được tạo',
+      errorChannelNotConfigured: 'Kênh dịch vụ chưa được thiết lập.',
+      errorChannelInvalid: 'Kênh dịch vụ không tồn tại hoặc không phải là kênh diễn đàn.'
     })
-
-    await GuildRepository.updateConfig(interaction.guildId, {
-      ticketTutorialThreadId: thread.id
-    })
-
-    await interaction.reply({
-      embeds: [
-        createSuccessEmbed({
-          description: `Bài đăng hướng dẫn gửi yêu cầu hỗ trợ đã được tạo: <#${thread.id}>`
-        })
-      ],
-      flags: ['Ephemeral']
-    })
-    await deleteReplyInteraction(interaction)
   })
 
-  private async createTicketTutorialMessage() {
+  private createTicketTutorialMessage() {
     const container = new ContainerBuilder()
       .addTextDisplayComponents((text) =>
         text.setContent(

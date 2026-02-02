@@ -36,6 +36,7 @@ export class ButtonTicketListHandler extends InteractionHandler {
     { action: string; state: TicketListState }
   >(async (interaction, result) => {
     if (!result) return
+    await interaction.deferReply({ flags: ['Ephemeral'] })
     await TicketListCommand.handleButton(interaction, result.state)
   })
 }

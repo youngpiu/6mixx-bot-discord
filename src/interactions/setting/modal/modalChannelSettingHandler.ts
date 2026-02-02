@@ -24,14 +24,12 @@ export class ModalChannelSettingHandler extends InteractionHandler {
 
   public run = asyncInteractionHandler<ModalSubmitInteraction>(async (interaction) => {
     if (!interaction.guildId || !interaction.guild) throw new GuildOnlyError()
+    await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    const serviceChannels = interaction.fields.getSelectedChannels('select-service-channel')
-    const serviceChannel = serviceChannels?.first()
-
-    const notificationChannels = interaction.fields.getSelectedChannels(
-      'select-notification-channel'
-    )
-    const notificationChannel = notificationChannels?.first()
+    const serviceChannel = interaction.fields.getSelectedChannels('select-service-channel')?.first()
+    const notificationChannel = interaction.fields
+      .getSelectedChannels('select-notification-channel')
+      ?.first()
 
     const updateData: { serviceForumChannelId?: string; notificationChannelId?: string } = {}
     const messages: string[] = []
@@ -50,14 +48,13 @@ export class ModalChannelSettingHandler extends InteractionHandler {
       await GuildRepository.updateConfig(interaction.guildId, updateData)
     }
 
-    await interaction.reply({
+    await interaction.editReply({
       embeds: [
         createSuccessEmbed({
-          title: 'Cài đặt thành công',
+          title: 'Thiết lập thành công',
           description: messages.length > 0 ? messages.join('\n') : 'Không có thay đổi nào được lưu.'
         })
-      ],
-      flags: ['Ephemeral']
+      ]
     })
 
     await deleteReplyInteraction(interaction)
