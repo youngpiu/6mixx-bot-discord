@@ -1,23 +1,23 @@
+/// User in a guild
 model Member {
   id       String @id @default(cuid())
+
   guildId  String
   guild    Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+
+  /// Discord User ID
   userId   String
+  
+  /// Donation Identifier
+  donorCode String?
 
-  donorCode String? // Mã ẩn danh khi donate
-
-  // Ticket relations
+  /// --- Relations ---
   ticketsCreated Ticket[] @relation("TicketRequester")
   ticketsClosed  Ticket[] @relation("TicketCloser")
 
-  // Donation relations  
   donations          Donation[] @relation("Donor")
   donationsConfirmed Donation[] @relation("Confirmer")
 
-  // Expense relations
-  expenses Expense[]
-
-  // Confession relations
   confessions         Confession[]
   confessionsApproved Confession[] @relation("ConfessionApprover")
 
