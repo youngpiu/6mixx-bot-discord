@@ -14,8 +14,7 @@ import { TicketStatus } from 'generated/prisma/enums'
 import { DEFAULT_PAGINATION_LIMIT } from '~/constants/commonConstant'
 import { EMOIJ } from '~/constants/emoijConstant'
 import { ICON } from '~/constants/iconConstant'
-import { ERROR_MESSAGE } from '~/constants/messageConstant'
-import { BadRequestError } from '~/core/errorResponse'
+import { GuildOnlyError } from '~/core/errorResponse'
 
 import { TicketHelper } from '~/helpers/TicketHelper'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
@@ -87,11 +86,7 @@ export class TicketListCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction.guildId) {
-      throw new BadRequestError({
-        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
-      })
-    }
+    if (!interaction.guildId) throw new GuildOnlyError()
 
     const { items, meta } = await TicketRepository.getTickets({
       guildId: interaction.guildId,
@@ -105,11 +100,7 @@ export class TicketListCommand {
   }
 
   public static async handleButton(interaction: ButtonInteraction, state: TicketListState) {
-    if (!interaction.guildId) {
-      throw new BadRequestError({
-        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
-      })
-    }
+    if (!interaction.guildId) throw new GuildOnlyError()
 
     const { items, meta } = await TicketRepository.getTickets({
       guildId: interaction.guildId,
@@ -120,7 +111,7 @@ export class TicketListCommand {
     })
 
     await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)
-    return interaction.update(this.createListResponse(items, meta))
+    return interaction.editReply(this.createListResponse(items, meta))
   }
 
   public static createListResponse(tickets: Ticket[], meta: TicketListMeta) {
@@ -135,7 +126,7 @@ export class TicketListCommand {
   }
 
   private static createEmbed(tickets: Ticket[], meta: TicketListMeta) {
-    const embed = new EmbedBuilder().setTitle('Danh sách phiếu hỗ trợ').setColor(0x5865f2)
+    const embed = new EmbedBuilder().setTitle('Danh sách phiếu hỗ trợ').setColor('Navy')
 
     if (tickets.length === 0) {
       embed.setDescription('Không có phiếu hỗ trợ nào.')
@@ -148,10 +139,10 @@ export class TicketListCommand {
         embed.addFields({
           name: `${indexNumber}. #${ticket.code} ${ticket.status === TicketStatus.CLOSED ? EMOIJ.CLOSE : EMOIJ.OPEN} `,
           value: lines(
-            `**Loại:** ${typeLabel}`,
-            `**Người tạo:** <@${ticket.requesterId}>`,
-            `• **Thread:** <#${ticket.threadId}>`,
-            `**Thời gian tạo:** <t:${createdTimestamp}:R>`
+            `- **Loại:** ${typeLabel}`,
+            `- **Người tạo:** <@${ticket.requesterId}>`,
+            `- **Thời gian tạo:** <t:${createdTimestamp}:R>`,
+            ticket.status === TicketStatus.OPEN && `- **Kênh hỗ trợ:** <#${ticket.channelId}>`
           ),
           inline: false
         })

@@ -95,9 +95,9 @@ export class ModalConfessionHandler extends InteractionHandler {
           .setTitle(`Confession mới #${confession.code}`)
           .setDescription(
             lines(
-              `**Loại:** ${isAnonymous ? 'Ẩn danh' : 'Công khai'}`,
-              `**Nội dung:** ${content.length > 100 ? content.substring(0, 100) + '...' : content}`,
-              `**Hình ảnh:** ${attachmentUrls.length > 0 ? `${attachmentUrls.length} file` : 'Không có'}`
+              `- **Loại:** ${isAnonymous ? 'Ẩn danh' : 'Công khai'}`,
+              `- **Nội dung:** ${content.length > 100 ? content.substring(0, 100) + '...' : content}`,
+              `- **Hình ảnh:** ${attachmentUrls.length > 0 ? `${attachmentUrls.length} file` : 'Không có'}`
             )
           )
           .setColor(isAnonymous ? 0x57f287 : 0xed4245)

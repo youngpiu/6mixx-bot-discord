@@ -44,16 +44,16 @@ export class ButtonChannelSettingHandler extends InteractionHandler {
 
     const notificationLabel = SettingHelper.createChannelLabel({
       guild: interaction.guild,
-      channelId: config?.notificationChannelId,
+      channelId: config?.notificationForumChannelId,
       customId: 'select-notification-channel',
-      channelType: ChannelType.GuildText,
+      channelType: ChannelType.GuildForum,
       label: 'Kênh thông báo',
       description: 'Các kênh thông báo riêng cho từng loại sẽ được tạo ở kênh này.',
       placeholders: {
         channelConfiguredAndExists: 'Chọn kênh thông báo',
         channelConfiguredButDeleted: 'Kênh thông báo đã thiết lập không còn tồn tại',
         channelNotConfigured: 'Chưa thiết lập kênh thông báo',
-        noChannelsInServer: 'Không có kênh văn bản nào'
+        noChannelsInServer: 'Không có kênh diễn đàn nào'
       }
     })
 

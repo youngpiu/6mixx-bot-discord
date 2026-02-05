@@ -3,8 +3,7 @@ import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
 import { TicketStatus } from 'generated/prisma/enums'
 
-import { ERROR_MESSAGE } from '~/constants/messageConstant'
-import { BadRequestError, NotFoundError } from '~/core/errorResponse'
+import { GuildOnlyError, NotFoundError } from '~/core/errorResponse'
 
 import { TicketHelper } from '~/helpers/TicketHelper'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
@@ -18,18 +17,10 @@ export class TicketDetailCommand {
     })
 
     if (!interaction.guildId) {
-      throw new BadRequestError({
-        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
-      })
+      throw new GuildOnlyError()
     }
 
     const id = interaction.options.getString('ticket-id', true)
-
-    if (!id) {
-      throw new BadRequestError({
-        description: 'Vui lòng lựa chọn một phiếu hỗ trợ mà bạn muốn xem thông tin chi tiết.'
-      })
-    }
 
     const ticket = await TicketRepository.findById({
       id: id
@@ -51,7 +42,7 @@ export class TicketDetailCommand {
         value: ticket.status === TicketStatus.CLOSED ? 'Đóng' : 'Mở',
         inline: false
       },
-      { name: 'Thread', value: `<#${ticket.threadId}>`, inline: false },
+      { name: 'Thread', value: `<#${ticket.channelId}>`, inline: false },
       { name: 'Người tạo', value: `<@${ticket.requesterId}>`, inline: false },
       {
         name: 'Thời gian tạo',
@@ -74,6 +65,14 @@ export class TicketDetailCommand {
 
     if (ticket.reason) {
       fields.push({ name: 'Lý do đóng', value: ticket.reason, inline: false })
+    }
+
+    if (ticket.transcriptUrl) {
+      fields.push({
+        name: 'Lịch sử trò chuyện',
+        value: `[Xem tại đây](${ticket.transcriptUrl})`,
+        inline: false
+      })
     }
 
     await interaction.editReply({

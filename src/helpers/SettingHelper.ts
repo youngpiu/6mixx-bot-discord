@@ -4,6 +4,7 @@ import {
   ButtonInteraction,
   ChannelSelectMenuBuilder,
   ChannelType,
+  ForumChannel,
   Guild,
   LabelBuilder,
   TextChannel
@@ -70,33 +71,49 @@ export class SettingHelper {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
     const config = await GuildRepository.getGuild(interaction.guildId)
-    const notificationChannelId = config?.notificationChannelId
+    const notificationChannelId = config?.notificationForumChannelId
 
     if (!notificationChannelId)
       throw new BadRequestError({ description: 'Kênh thông báo chưa được thiết lập.' })
 
     const notificationChannel = await interaction.guild.channels.fetch(notificationChannelId)
-    if (!notificationChannel || notificationChannel.type !== ChannelType.GuildText)
-      throw new BadRequestError({
-        description: 'Kênh thông báo không tồn tại hoặc không phải là kênh văn bản.'
-      })
+    if (!notificationChannel)
+      throw new BadRequestError({ description: 'Kênh thông báo chưa được thiết lập.' })
 
-    const textChannel = notificationChannel as TextChannel
+    if (
+      notificationChannel.type !== ChannelType.GuildText &&
+      notificationChannel.type !== ChannelType.GuildForum
+    ) {
+      throw new BadRequestError({
+        description: 'Kênh thông báo phải là kênh văn bản hoặc diễn đàn.'
+      })
+    }
+
+    const channel = notificationChannel as TextChannel | ForumChannel
 
     const oldThreadId = config?.[oldThreadIdKey]
     if (oldThreadId) {
       try {
-        const oldThread = await textChannel.threads.fetch(oldThreadId)
+        const oldThread = await channel.threads.fetch(oldThreadId)
         if (oldThread) await oldThread.delete()
       } catch (error) {
         container.logger.error(error)
       }
     }
 
-    const thread = await textChannel.threads.create({
-      name: threadName,
-      type: ChannelType.PublicThread
-    })
+    let thread
+
+    if (notificationChannel.type === ChannelType.GuildForum) {
+      thread = await (notificationChannel as ForumChannel).threads.create({
+        name: threadName,
+        message: { content: threadName }
+      })
+    } else {
+      thread = await (notificationChannel as TextChannel).threads.create({
+        name: threadName,
+        type: ChannelType.PublicThread
+      })
+    }
 
     await GuildRepository.updateConfig(interaction.guildId, {
       [updateKey]: thread.id

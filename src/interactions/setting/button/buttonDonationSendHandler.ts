@@ -60,7 +60,7 @@ export class ButtonDonationSendHandler extends InteractionHandler {
             '- **Lưu ý:**',
             '  - Không một ai kể cả **Ban quản lý** có thể biết được danh tính người quyên góp.',
             '  - Việc quyên góp không tạo ra bất kỳ hình thức ưu tiên, đặc quyền hoặc miễn trừ nào khi xử lý vi phạm nội quy máy chủ **VNMIXX**.',
-            `  - <@${env.SUPPORTER_DISCORD_ID}> chịu **trách nhiệm cá nhân** hoàn toàn về mọi cam kết của chính mình đối với người quyên góp.`
+            `  - <@${env.BOT_OWNER_DISCORD_ID}> chịu **trách nhiệm cá nhân** hoàn toàn về mọi cam kết của chính mình đối với người quyên góp.`
           )
         )
       )

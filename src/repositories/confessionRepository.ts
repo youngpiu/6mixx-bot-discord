@@ -13,7 +13,7 @@ export class ConfessionRepository {
   }: {
     guildId: string
     data: {
-      notificationChannelId?: string
+      notificationForumChannelId?: string
       confessionForumChannelId?: string
       confessionTutorialThreadId?: string
       confessionNotificationThreadId?: string
