@@ -12,11 +12,14 @@ import { Ticket, TicketType } from 'generated/prisma/client'
 import { TicketStatus } from 'generated/prisma/enums'
 
 import { DEFAULT_PAGINATION_LIMIT } from '~/constants/commonConstant'
+import { EMOIJ } from '~/constants/emoijConstant'
+import { ICON } from '~/constants/iconConstant'
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { BadRequestError } from '~/core/errorResponse'
 
+import { TicketHelper } from '~/helpers/TicketHelper'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
-import { TICKET_TYPE_LABELS } from '~/utils/ticketUtil'
+import { lines } from '~/utils/textUtil'
 
 import { TicketRepository } from '~/repositories/ticketRepository'
 
@@ -61,16 +64,23 @@ export const decodeState = (encoded: string): TicketListState => {
 const createButton = (
   action: string,
   state: TicketListState,
-  label: string,
+  emoji: string | undefined,
   disabled: boolean,
-  style = ButtonStyle.Secondary
+  style = ButtonStyle.Secondary,
+  label?: string
 ) => {
   const customId = `ticket-list:${action}:${encodeState(state)}`
-  return new ButtonBuilder()
-    .setCustomId(customId)
-    .setLabel(label)
-    .setStyle(style)
-    .setDisabled(disabled)
+  const button = new ButtonBuilder().setCustomId(customId).setStyle(style).setDisabled(disabled)
+
+  if (emoji) {
+    button.setEmoji(emoji)
+  }
+
+  if (label) {
+    button.setLabel(label)
+  }
+
+  return button
 }
 
 export class TicketListCommand {
@@ -131,25 +141,25 @@ export class TicketListCommand {
       embed.setDescription('Không có phiếu hỗ trợ nào.')
     } else {
       tickets.forEach((ticket, index) => {
-        const typeLabel = TICKET_TYPE_LABELS[ticket.type]
+        const typeLabel = TicketHelper.TICKET_TYPE_LABELS[ticket.type]
         const createdTimestamp = Math.floor(ticket.createdAt.getTime() / 1000)
         const indexNumber = (meta.page - 1) * meta.limit + index + 1
 
         embed.addFields({
-          name: `${indexNumber}. #${ticket.code} ${ticket.status === TicketStatus.CLOSED ? '<:close:1463597271496003708>' : '<:open:1463597269889712128>'} `,
-          value: [
+          name: `${indexNumber}. #${ticket.code} ${ticket.status === TicketStatus.CLOSED ? EMOIJ.CLOSE : EMOIJ.OPEN} `,
+          value: lines(
             `**Loại:** ${typeLabel}`,
             `**Người tạo:** <@${ticket.requesterId}>`,
-            `**Kênh:** <#${ticket.threadId}>`,
+            `• **Thread:** <#${ticket.threadId}>`,
             `**Thời gian tạo:** <t:${createdTimestamp}:R>`
-          ].join('\n'),
+          ),
           inline: false
         })
       })
     }
 
     // Footer with filters info
-    const typeText = meta.type ? TICKET_TYPE_LABELS[meta.type] : 'Tất cả'
+    const typeText = meta.type ? TicketHelper.TICKET_TYPE_LABELS[meta.type] : 'Tất cả'
     const statusText = !meta.status
       ? 'Tất cả'
       : meta.status === TicketStatus.OPEN
@@ -168,30 +178,38 @@ export class TicketListCommand {
 
     return new ActionRowBuilder<ButtonBuilder>().addComponents(
       createButton(
+        'pagination-indicator',
+        currentState,
+        undefined,
+        true,
+        ButtonStyle.Secondary,
+        'Trang'
+      ),
+      createButton(
         'first',
         { ...currentState, page: 1 },
-        '⏮️ Đầu',
+        ICON.CHEVRONS_LEFT,
         !meta.hasPrev,
         ButtonStyle.Primary
       ),
       createButton(
         'prev',
         { ...currentState, page: meta.page - 1 },
-        '◀️ Trước',
+        ICON.CHEVRON_LEFT,
         !meta.hasPrev,
         ButtonStyle.Primary
       ),
       createButton(
         'next',
         { ...currentState, page: meta.page + 1 },
-        'Sau ▶️',
+        ICON.CHEVRON_RIGHT,
         !meta.hasNext,
         ButtonStyle.Primary
       ),
       createButton(
         'last',
         { ...currentState, page: meta.totalPages },
-        'Cuối ⏭️',
+        ICON.CHEVRONS_RIGHT,
         !meta.hasNext,
         ButtonStyle.Primary
       )
@@ -201,16 +219,50 @@ export class TicketListCommand {
   private static createTypeFilter(meta: TicketListMeta) {
     const baseState: TicketListState = { page: 1, status: meta.status } // Reset page when filtering
 
-    const types: Array<{ action: string; label: string; state: TicketListState }> = [
-      { action: 'type-all', label: '🗂️ Tất cả', state: { ...baseState, type: undefined } },
-      { action: 'type-report', label: '🚨 Báo cáo', state: { ...baseState, type: 'REPORT' } },
-      { action: 'type-feedback', label: '📝 Góp ý', state: { ...baseState, type: 'FEEDBACK' } },
-      { action: 'type-bug', label: '🐞 Báo lỗi', state: { ...baseState, type: 'BUG' } }
+    const types: Array<{
+      action: string
+      emoji: string | undefined
+      state: TicketListState
+      label?: string
+      disabled?: boolean
+      style?: ButtonStyle
+    }> = [
+      {
+        action: 'type-filter-indicator',
+        emoji: undefined,
+        label: 'Loại',
+        state: { ...baseState, type: undefined },
+        disabled: true,
+        style: ButtonStyle.Secondary
+      },
+      {
+        action: 'type-all',
+        emoji: ICON.LAYER_GROUP,
+        state: { ...baseState, type: undefined }
+      },
+      {
+        action: 'type-report',
+        emoji: ICON.FLAG,
+        state: { ...baseState, type: 'REPORT' }
+      },
+      {
+        action: 'type-feedback',
+        emoji: ICON.LIGHTBULB_ON,
+        state: { ...baseState, type: 'FEEDBACK' }
+      },
+      { action: 'type-bug', emoji: ICON.BUG, state: { ...baseState, type: 'BUG' } }
     ]
 
     return new ActionRowBuilder<ButtonBuilder>().addComponents(
-      types.map(({ action, label, state }) =>
-        createButton(action, state, label, meta.type === state.type, ButtonStyle.Success)
+      types.map(({ action, emoji, state, label, disabled, style }) =>
+        createButton(
+          action,
+          state,
+          emoji,
+          disabled ?? meta.type === state.type,
+          style ?? ButtonStyle.Primary,
+          label
+        )
       )
     )
   }
@@ -218,23 +270,49 @@ export class TicketListCommand {
   private static createStatusFilter(meta: TicketListMeta) {
     const baseState: TicketListState = { page: 1, type: meta.type } // Reset page when filtering
 
-    const statuses: Array<{ action: string; label: string; state: TicketListState }> = [
-      { action: 'status-all', label: '🗂️ Tất cả', state: { ...baseState, status: undefined } },
+    const statuses: Array<{
+      action: string
+      emoji: string | undefined
+      state: TicketListState
+      label?: string
+      disabled?: boolean
+      style?: ButtonStyle
+    }> = [
+      {
+        action: 'status-filter-indicator',
+        emoji: undefined,
+        label: 'T.Thái',
+        state: { ...baseState, status: undefined },
+        disabled: true,
+        style: ButtonStyle.Secondary
+      },
+      {
+        action: 'status-all',
+        emoji: ICON.LAYER_GROUP,
+        state: { ...baseState, status: undefined }
+      },
       {
         action: 'status-open',
-        label: '🟢 Đang mở',
+        emoji: ICON.LOCK_OPEN,
         state: { ...baseState, status: TicketStatus.OPEN }
       },
       {
         action: 'status-closed',
-        label: '🔴 Đã đóng',
+        emoji: ICON.LOCK,
         state: { ...baseState, status: TicketStatus.CLOSED }
       }
     ]
 
     return new ActionRowBuilder<ButtonBuilder>().addComponents(
-      statuses.map(({ action, label, state }) =>
-        createButton(action, state, label, meta.status === state.status, ButtonStyle.Success)
+      statuses.map(({ action, emoji, state, label, disabled, style }) =>
+        createButton(
+          action,
+          state,
+          emoji,
+          disabled ?? meta.status === state.status,
+          style ?? ButtonStyle.Primary,
+          label
+        )
       )
     )
   }

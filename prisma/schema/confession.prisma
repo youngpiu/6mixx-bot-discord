@@ -1,0 +1,38 @@
+/// Status of a confession
+enum ConfessionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// User Confession
+model Confession {
+  id   String @id @default(cuid())
+
+  /// Unique Code (e.g. CFS-1)
+  code String @unique
+
+  guildId String
+  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+
+  /// Content of the confession
+  content        String
+  attachmentUrls String[]
+  isAnonymous    Boolean  @default(true)
+
+  status          ConfessionStatus @default(PENDING)
+  rejectionReason String?
+  forumPostId     String?
+
+  authorId       String
+  author         Member   @relation(fields: [guildId, authorId], references: [guildId, userId])
+
+  approvedBy      String?
+  approver        Member?          @relation("ConfessionApprover", fields: [guildId, approvedBy], references: [guildId, userId])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([guildId])
+  @@index([guildId, status])
+}

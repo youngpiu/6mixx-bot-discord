@@ -23,17 +23,33 @@ export class BotClient extends SapphireClient {
       intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildMembers
       ],
       defaultPrefix: env.DEFAULT_PREFIX,
       loadMessageCommandListeners: true,
 
       logger: {
         level: env.NODE_ENV === 'development' ? LogLevel.Debug : LogLevel.Info
+      },
+      tasks: {
+        bull: {
+          connection: redis,
+          defaultJobOptions: {
+            removeOnComplete: true,
+            removeOnFail: true
+          },
+          streams: {
+            events: {
+              maxLen: 1000
+            }
+          }
+        }
       }
     })
 
-    this.stores.get('interaction-handlers').registerPath(join(this.rootData.root, 'handlers'))
+    this.stores.get('interaction-handlers').registerPath(join(this.rootData.root, 'interactions'))
 
     process.on('SIGINT', () => gracefulShutdown(this))
     process.on('SIGTERM', () => gracefulShutdown(this))

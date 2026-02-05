@@ -1,11 +1,26 @@
 import { container } from '@sapphire/pieces'
 import { customAlphabet } from 'nanoid'
 
+import { GuildRepository } from '~/repositories/guildRepository'
 import { MemberRepository } from '~/repositories/memberRepository'
 
 const generateNanoId = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 6)
 
 export class DonateRepository {
+  public static async getConfig(guildId: string) {
+    return GuildRepository.getDonationConfig(guildId)
+  }
+
+  public static async updateConfig(
+    guildId: string,
+    data: {
+      donationTutorialThreadId?: string
+      donationNotificationThreadId?: string
+    }
+  ) {
+    return GuildRepository.updateDonationConfig(guildId, data)
+  }
+
   private static async generateDonationCode(): Promise<string> {
     let code: string
     let exists = true
@@ -59,47 +74,52 @@ export class DonateRepository {
     })
   }
 
-  public static async upsertConfig({
-    guildId,
-    notificationChannelId
-  }: {
-    guildId: string
-    notificationChannelId: string | null
-  }) {
-    return container.prisma.donationConfig.upsert({
-      where: { guildId },
-      create: { guildId, notificationChannelId },
-      update: { notificationChannelId }
+  public static async findById(id: string) {
+    return container.prisma.donation.findUnique({
+      where: { id },
+      include: {
+        donor: true
+      }
     })
   }
 
-  public static async getConfig(guildId: string) {
-    return container.prisma.donationConfig.findUnique({
-      where: { guildId }
+  public static async markAsPendingVerification(id: string) {
+    return container.prisma.donation.update({
+      where: { id, status: 'PENDING' },
+      data: {
+        status: 'PENDING_VERIFICATION'
+      }
     })
   }
 
   public static async confirmDonation({
     code,
-    guildId,
     confirmedBy
   }: {
     code: string
-    guildId: string
     confirmedBy: string
   }) {
     // Ensure confirmer member exists
-    await MemberRepository.getOrCreate({ guildId, userId: confirmedBy })
+    // Member should exist from join sync
 
     return container.prisma.donation.update({
       where: { code },
       data: {
-        status: 'CONFIRMED',
+        status: 'TRANSFERRED',
         confirmedAt: new Date(),
         confirmedBy
       },
       include: {
         donor: true
+      }
+    })
+  }
+
+  public static async cancelDonation(id: string) {
+    return container.prisma.donation.update({
+      where: { id, status: 'PENDING' },
+      data: {
+        status: 'CANCELED'
       }
     })
   }
@@ -128,7 +148,7 @@ export class DonateRepository {
     guildId: string
     page: number
     limit: number
-    status?: 'PENDING' | 'CONFIRMED'
+    status?: 'PENDING' | 'TRANSFERRED'
   }) {
     const skip = (page - 1) * limit
 
@@ -174,7 +194,7 @@ export class DonateRepository {
       container.prisma.donation.aggregate({
         where: {
           guildId,
-          status: 'CONFIRMED'
+          status: 'TRANSFERRED'
         },
         _sum: { amount: true },
         _count: true
@@ -182,7 +202,7 @@ export class DonateRepository {
       container.prisma.donation.findMany({
         where: {
           guildId,
-          status: 'CONFIRMED'
+          status: 'TRANSFERRED'
         },
         distinct: ['donorId'],
         select: { donorId: true }

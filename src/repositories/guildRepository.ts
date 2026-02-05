@@ -1,55 +1,126 @@
 import { container } from '@sapphire/pieces'
-
-import { Prisma } from 'generated/prisma/client'
+import { CACHE_TTL } from '~/config/time'
 
 export class GuildRepository {
-  private static CACHE_CONFIG_TTL = 60 * 10 // 10 phút
+  public static async invalidateCache(guildId: string) {
+    await container.redis.del(`guild:${guildId}`)
+  }
 
-  public static async createGuild({ guildId }: { guildId: string }) {
-    return await container.prisma.guild.upsert({
+  public static async getGuild(guildId: string) {
+    return container.prisma.guild.findUnique({
+      where: { guildId }
+    })
+  }
+
+  public static async getOrCreate(guildId: string) {
+    return container.prisma.guild.upsert({
       where: { guildId },
       create: { guildId },
       update: {}
     })
   }
 
-  public static async getTicketConfig({ guildId }: { guildId: string }) {
-    const cacheKey = `guild:${guildId}:ticket-config`
+  public static async getGuildCached(guildId: string) {
+    const cacheKey = `guild:${guildId}`
     const cached = await container.redis.get(cacheKey)
     if (cached) return JSON.parse(cached)
 
-    const ticketConfig = await container.prisma.ticketConfig.findUnique({
-      where: {
-        guildId
-      }
-    })
-
-    if (!ticketConfig) return null
-
-    await container.redis.set(cacheKey, JSON.stringify(ticketConfig), 'EX', this.CACHE_CONFIG_TTL)
-    return ticketConfig
+    const guild = await this.getGuild(guildId)
+    if (guild) {
+      await container.redis.set(cacheKey, JSON.stringify(guild), 'EX', CACHE_TTL.MEDIUM)
+    }
+    return guild
   }
 
-  public static async upsertTicketConfig({
-    guildId,
-    data
-  }: {
-    guildId: string
-    data: Omit<Prisma.TicketConfigUncheckedCreateInput, 'guildId'>
-  }) {
-    const ticketConfig = await container.prisma.ticketConfig.upsert({
+  public static async updateConfig(
+    guildId: string,
+    data: {
+      serviceForumChannelId?: string
+      notificationChannelId?: string
+      ticketCategoryId?: string
+      ticketTutorialThreadId?: string
+      ticketNotificationThreadId?: string
+      confessionForumChannelId?: string
+      confessionTutorialThreadId?: string
+      confessionNotificationThreadId?: string
+      donationTutorialThreadId?: string
+      donationNotificationThreadId?: string
+      errorNotificationThreadId?: string
+    }
+  ) {
+    await this.getOrCreate(guildId)
+    const guild = await container.prisma.guild.update({
       where: { guildId },
-      update: data,
-      create: { guildId, ...data }
+      data
     })
+    await this.invalidateCache(guildId)
+    return guild
+  }
 
-    await container.redis.set(
-      `guild:${guildId}:ticket-config`,
-      JSON.stringify(ticketConfig),
-      'EX',
-      this.CACHE_CONFIG_TTL
-    )
+  public static async getTicketConfig(guildId: string) {
+    const guild = await this.getGuildCached(guildId)
+    return guild
+      ? {
+          ticketCategoryId: guild.ticketCategoryId,
+          ticketTutorialThreadId: guild.ticketTutorialThreadId,
+          ticketNotificationThreadId: guild.ticketNotificationThreadId,
+          notificationChannelId: guild.notificationChannelId
+        }
+      : null
+  }
 
-    return ticketConfig
+  public static async getConfessionConfig(guildId: string) {
+    const guild = await this.getGuildCached(guildId)
+    if (!guild) return null
+    return {
+      notificationChannelId: guild.notificationChannelId,
+      forumChannelId: guild.confessionForumChannelId,
+      confessionTutorialThreadId: guild.confessionTutorialThreadId,
+      confessionNotificationThreadId: guild.confessionNotificationThreadId
+    }
+  }
+
+  public static async getDonationConfig(guildId: string) {
+    const guild = await this.getGuildCached(guildId)
+    return guild
+      ? {
+          donationTutorialThreadId: guild.donationTutorialThreadId,
+          donationNotificationThreadId: guild.donationNotificationThreadId
+        }
+      : null
+  }
+
+  public static async updateTicketConfig(
+    guildId: string,
+    data: {
+      ticketCategoryId?: string
+      ticketTutorialThreadId?: string
+      ticketNotificationThreadId?: string
+      notificationChannelId?: string
+    }
+  ) {
+    return this.updateConfig(guildId, data)
+  }
+
+  public static async updateConfessionConfig(
+    guildId: string,
+    data: {
+      notificationChannelId?: string
+      confessionForumChannelId?: string
+      confessionTutorialThreadId?: string
+      confessionNotificationThreadId?: string
+    }
+  ) {
+    return this.updateConfig(guildId, data)
+  }
+
+  public static async updateDonationConfig(
+    guildId: string,
+    data: {
+      donationTutorialThreadId?: string
+      donationNotificationThreadId?: string
+    }
+  ) {
+    return this.updateConfig(guildId, data)
   }
 }

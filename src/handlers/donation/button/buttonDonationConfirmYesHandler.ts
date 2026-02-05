@@ -1,5 +1,6 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
 import { ButtonInteraction } from 'discord.js'
+import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
 import { NotFoundError } from '~/core/errorResponse'
 
@@ -40,13 +41,8 @@ export class ButtonDonationConfirmYesHandler extends InteractionHandler {
     })
 
     const descriptionParts = [
-      `Đã xác nhận khoản quyên góp với mã giao dịch **#${donation.code}** do \`${donation.donor?.donorCode}\` gửi.`,
-      `Số tiền: **${donation.amount.toLocaleString('vi-VN')}đ**`
+      `Bạn đã xác nhận là đã nhận được khoản quyên góp với mã giao dịch **#${donation.code}** do **#${donation.donor?.donorCode}** gửi.`
     ]
-
-    if (donation.message) {
-      descriptionParts.push(`Lời nhắn: *${donation.message}*`)
-    }
 
     await interaction.update({
       embeds: [
@@ -58,6 +54,6 @@ export class ButtonDonationConfirmYesHandler extends InteractionHandler {
       components: []
     })
 
-    await deleteReplyInteraction(interaction)
+    await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.SHORT)
   })
 }

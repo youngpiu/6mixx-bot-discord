@@ -22,9 +22,9 @@ export class ButtonDonationConfirmNoHandler extends InteractionHandler {
 
     const embed = new EmbedBuilder()
       .setColor('Orange')
-      .setTitle('Chưa nhận được')
+      .setTitle('Xác nhận thất bại')
       .setDescription(
-        `Bạn chưa nhận được khoản quyên góp với mã **#${code}**. Vui lòng kiểm tra lại sau.`
+        `Bạn đã xác nhận là chưa nhận được khoản quyên góp với mã giao dịch **#${code}**, vui lòng kiểm tra lại sau.`
       )
 
     await interaction.update({ embeds: [embed], components: [] })

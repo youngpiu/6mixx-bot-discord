@@ -1,14 +1,35 @@
+/// Server configuration
 model Guild {
-  id String @id @default(cuid())
-
+  id      String @id @default(cuid())
   guildId String @unique
+
+  /// --- General Config ---
+  serviceForumChannelId      String?
+  notificationForumChannelId String?
+  errorNotificationThreadId  String?
+
+  /// --- Ticket Config ---
+  ticketCategoryId           String?
+  ticketTutorialThreadId     String?
+  ticketNotificationThreadId String?
+
+  /// --- Confession Config ---
+  confessionForumChannelId       String?
+  confessionTutorialThreadId     String?
+  confessionNotificationThreadId String?
+  confessionCounter              Int     @default(1)
+
+  /// --- Donation Config ---
+  donationTutorialThreadId     String?
+  donationNotificationThreadId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  /// --- Relations ---
   members        Member[]
-  ticketConfig   TicketConfig?
   tickets        Ticket[]
+  ticketCounters TicketCounter[]
   donations      Donation[]
-  donationConfig DonationConfig?
+  confessions    Confession[]
 }

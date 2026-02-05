@@ -6,6 +6,7 @@ import { asyncChatInputHandler } from '~/utils/asyncHandleUtil'
 import { DonateSetupCommand } from '~/commands/donate/_donateSetupCommand'
 import { DonationDetailCommand } from '~/commands/donate/_donationDetailCommand'
 import { DonationListCommand } from '~/commands/donate/_donationListCommand'
+import { DonationStatsCommand } from '~/commands/donate/_donationStatsCommand'
 
 export class DonationSubcommand extends Subcommand {
   public constructor(context: Subcommand.LoaderContext, options: Subcommand.Options) {
@@ -28,6 +29,10 @@ export class DonationSubcommand extends Subcommand {
           name: 'detail',
           chatInputRun: 'chatInputDetail',
           preconditions: ['OwnerOnly']
+        },
+        {
+          name: 'stats',
+          chatInputRun: 'chatInputStats'
         }
       ]
     })
@@ -46,6 +51,12 @@ export class DonationSubcommand extends Subcommand {
   public chatInputDetail = asyncChatInputHandler(
     async (interaction: ChatInputCommandInteraction) => {
       return DonationDetailCommand.run(interaction)
+    }
+  )
+
+  public chatInputStats = asyncChatInputHandler(
+    async (interaction: ChatInputCommandInteraction) => {
+      return DonationStatsCommand.run(interaction)
     }
   )
 
@@ -82,6 +93,9 @@ export class DonationSubcommand extends Subcommand {
                 .setRequired(true)
                 .setAutocomplete(true)
             )
+        )
+        .addSubcommand((subcommand) =>
+          subcommand.setName('stats').setDescription('[EVERYONE] Xem thống kê quyên góp.')
         )
     )
   }

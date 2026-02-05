@@ -6,9 +6,9 @@ import { TicketStatus, TicketType } from 'generated/prisma/enums'
 
 import { CACHE_WILDCARD } from '~/constants/commonConstant'
 
-import { deserializeTicket } from '~/utils/ticketUtil'
+import { TicketHelper } from '~/helpers/TicketHelper'
 
-import { MemberRepository } from '~/repositories/memberRepository'
+import { GuildRepository } from '~/repositories/guildRepository'
 
 const TICKET_PREFIX: Record<TicketType, string> = {
   REPORT: 'RP',
@@ -17,6 +17,22 @@ const TICKET_PREFIX: Record<TicketType, string> = {
 }
 
 export class TicketRepository {
+  public static async getConfig(guildId: string) {
+    return GuildRepository.getTicketConfig(guildId)
+  }
+
+  public static async updateConfig(
+    guildId: string,
+    data: {
+      ticketCategoryId?: string
+      ticketTutorialThreadId?: string
+      ticketNotificationThreadId?: string
+      notificationChannelId?: string
+    }
+  ) {
+    return GuildRepository.updateTicketConfig(guildId, data)
+  }
+
   public static async countTicketByType(guildId: string, type: TicketType) {
     return container.prisma.ticket.count({
       where: { guildId, type }
@@ -28,37 +44,24 @@ export class TicketRepository {
     return `${TICKET_PREFIX[type]}${String(count + 1).padStart(3, '0')}`
   }
 
-  public static async getTicketChannelId(guildId: string) {
-    if (guildId) return null
-    return (
-      (
-        await container.prisma.ticketConfig.findUnique({
-          where: { guildId },
-          select: { ticketChannelId: true }
-        })
-      )?.ticketChannelId || null
-    )
-  }
-
   public static async createTicket({
     guildId,
     requesterId,
     type,
-    threadId,
+    channelId,
     createdAt,
     updatedAt
   }: {
     guildId: string
     requesterId: string
     type: TicketType
-    threadId: string
+    channelId: string
     createdAt?: Date
     updatedAt?: Date
   }) {
     const code = await this.generateTicketCode(guildId, type)
 
-    // Ensure requester member exists
-    await MemberRepository.getOrCreate({ guildId, userId: requesterId })
+    // Ensure requester member exists (handled by join sync)
 
     const ticket = await container.prisma.ticket.create({
       data: {
@@ -66,7 +69,7 @@ export class TicketRepository {
         requesterId,
         type,
         code,
-        threadId,
+        channelId,
         createdAt,
         updatedAt
       }
@@ -110,7 +113,7 @@ export class TicketRepository {
 
     if (cached) {
       const result = JSON.parse(cached)
-      result.items = (result.items as Ticket[]).map(deserializeTicket)
+      result.items = (result.items as Ticket[]).map(TicketHelper.deserializeTicket)
       return result
     }
 
@@ -157,9 +160,9 @@ export class TicketRepository {
     return result
   }
 
-  public static async findByThreadId({ threadId }: { threadId: string }) {
+  public static async findByChannelId({ channelId }: { channelId: string }) {
     return container.prisma.ticket.findUnique({
-      where: { threadId }
+      where: { channelId }
     })
   }
 
@@ -184,17 +187,17 @@ export class TicketRepository {
 
   public static async closeTicket({
     ticketId,
-    guildId,
     closedBy,
-    reason
+    reason,
+    transcriptUrl
   }: {
     ticketId: string
     guildId: string
     closedBy: string
     reason?: string | null
+    transcriptUrl?: string | null
   }) {
     // Ensure closer member exists
-    await MemberRepository.getOrCreate({ guildId, userId: closedBy })
 
     return container.prisma.ticket.update({
       where: { id: ticketId },
@@ -202,7 +205,8 @@ export class TicketRepository {
         status: 'CLOSED',
         closedAt: new Date(),
         closedBy,
-        reason
+        reason,
+        transcriptUrl
       }
     })
   }

@@ -1,20 +1,28 @@
+/// Donation Status
 enum DonationStatus {
   PENDING
-  CONFIRMED
+  PENDING_VERIFICATION
+  TRANSFERRED
+  CANCELED
 }
 
+/// Financial Donation
 model Donation {
   id      String @id @default(cuid())
+  
+  /// Unique Transaction Code
   code    String @unique 
+  
   guildId String
   guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
 
-  donorId     String
-  donor       Member  @relation("Donor", fields: [guildId, donorId], references: [guildId, userId])
   amount      Int
   message     String? 
-
   status      DonationStatus @default(PENDING)
+
+  donorId     String
+  donor       Member  @relation("Donor", fields: [guildId, donorId], references: [guildId, userId])
+
   confirmedAt DateTime?
   confirmedBy String?
   confirmer   Member? @relation("Confirmer", fields: [guildId, confirmedBy], references: [guildId, userId])

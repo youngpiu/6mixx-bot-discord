@@ -27,18 +27,18 @@ export class ButtonDonationConfirmHandler extends InteractionHandler {
 
     const embed = new EmbedBuilder()
       .setColor('Blue')
-      .setTitle('Xác nhận quyên góp')
-      .setDescription(`Bạn đã nhận được khoản tiền quyên góp với mã **#${code}** chưa?`)
+      .setTitle('Xác nhận khoản quyên góp')
+      .setDescription(`Bạn đã nhận được khoản tiền quyên góp với mã giao dịch **#${code}** chưa?`)
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setCustomId(`btn-donation-confirm-no:${code}`)
-        .setLabel('Chưa')
-        .setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder()
         .setCustomId(`btn-donation-confirm-yes:${code}`)
-        .setLabel('Rồi')
-        .setStyle(ButtonStyle.Success)
+        .setLabel('Đã nhận được')
+        .setStyle(ButtonStyle.Danger),
+      new ButtonBuilder()
+        .setCustomId(`btn-donation-confirm-no:${code}`)
+        .setLabel('Chưa nhận được')
+        .setStyle(ButtonStyle.Secondary)
     )
 
     await interaction.update({ embeds: [embed], components: [row] })

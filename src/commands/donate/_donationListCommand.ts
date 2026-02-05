@@ -12,10 +12,12 @@ import { Donation, Member } from 'generated/prisma/client'
 import { DonationStatus } from 'generated/prisma/enums'
 
 import { DEFAULT_PAGINATION_LIMIT } from '~/constants/commonConstant'
+import { EMOIJ } from '~/constants/emoijConstant'
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { BadRequestError } from '~/core/errorResponse'
 
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { lines } from '~/utils/textUtil'
 
 import { DonateRepository } from '~/repositories/donateRepository'
 
@@ -127,18 +129,15 @@ export class DonationListCommand {
       donations.forEach((donation, index) => {
         const createdTimestamp = Math.floor(donation.createdAt.getTime() / 1000)
         const indexNumber = (meta.page - 1) * meta.limit + index + 1
-        const statusIcon =
-          donation.status === DonationStatus.CONFIRMED
-            ? '<:close:1463597271496003708>'
-            : '<:open:1463597269889712128>'
+        const statusIcon = donation.status === DonationStatus.CONFIRMED ? EMOIJ.OK : EMOIJ.WAIT
 
         embed.addFields({
           name: `${indexNumber}. #${donation.code} ${statusIcon}`,
-          value: [
+          value: lines(
             `**Mã người chuyển:** \`${(donation as DonationWithDonor).donor?.donorCode || 'N/A'}\``,
             `**Số tiền:** ${donation.amount.toLocaleString('vi-VN')}đ`,
             `**Thời gian tạo:** <t:${createdTimestamp}:R>`
-          ].join('\n'),
+          ),
           inline: false
         })
       })

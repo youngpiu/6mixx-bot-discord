@@ -4,12 +4,12 @@ import { type ButtonInteraction } from 'discord.js'
 import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
 
 import {
-  TicketListCommand,
-  TicketListState,
+  DonationListCommand,
+  DonationListState,
   decodeState
-} from '~/commands/ticket/_ticketListCommand'
+} from '~/commands/donate/_donationListCommand'
 
-export class ButtonTicketListHandler extends InteractionHandler {
+export class ButtonDonationListHandler extends InteractionHandler {
   public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
     super(ctx, {
       ...options,
@@ -18,8 +18,8 @@ export class ButtonTicketListHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    // Match all ticket-list buttons: ticket-list:<action>:<encoded_state>
-    if (!interaction.customId.startsWith('ticket-list:')) return this.none()
+    // Match all donation-list buttons: donation-list:<action>:<encoded_state>
+    if (!interaction.customId.startsWith('donation-list:')) return this.none()
 
     const parts = interaction.customId.split(':')
     if (parts.length < 3) return this.none()
@@ -33,9 +33,10 @@ export class ButtonTicketListHandler extends InteractionHandler {
 
   public run = asyncInteractionHandler<
     ButtonInteraction,
-    { action: string; state: TicketListState }
+    { action: string; state: DonationListState }
   >(async (interaction, result) => {
     if (!result) return
-    await TicketListCommand.handleButton(interaction, result.state)
+    await interaction.deferReply({ flags: ['Ephemeral'] })
+    await DonationListCommand.handleButton(interaction, result.state)
   })
 }

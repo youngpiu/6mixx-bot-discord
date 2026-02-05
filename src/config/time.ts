@@ -15,5 +15,5 @@ export const DELETE_REPLY_TIMEOUT = {
   MEDIUM: 60, // 1m
   LONG: 300, // 5m
   VERY_LONG: 600, // 10m
-  EXTREME: 1800 // 30m
+  EXTREME: 900 // 15m
 } as const

@@ -6,8 +6,8 @@ import { TicketStatus } from 'generated/prisma/enums'
 import { ERROR_MESSAGE } from '~/constants/messageConstant'
 import { BadRequestError, NotFoundError } from '~/core/errorResponse'
 
+import { TicketHelper } from '~/helpers/TicketHelper'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
-import { getTicketTypeLabel } from '~/utils/ticketUtil'
 
 import { TicketRepository } from '~/repositories/ticketRepository'
 
@@ -41,7 +41,7 @@ export class TicketDetailCommand {
       })
     }
 
-    const typeLabel = getTicketTypeLabel(ticket.type)
+    const typeLabel = TicketHelper.getTicketTypeLabel(ticket.type)
 
     const fields = [
       { name: 'Mã phiếu', value: `**_#${ticket.code}_**`, inline: false },
@@ -51,7 +51,7 @@ export class TicketDetailCommand {
         value: ticket.status === TicketStatus.CLOSED ? 'Đóng' : 'Mở',
         inline: false
       },
-      { name: 'Kênh', value: `<#${ticket.threadId}>`, inline: false },
+      { name: 'Thread', value: `<#${ticket.threadId}>`, inline: false },
       { name: 'Người tạo', value: `<@${ticket.requesterId}>`, inline: false },
       {
         name: 'Thời gian tạo',

@@ -1,19 +1,10 @@
-import {
-  ButtonInteraction,
-  ChatInputCommandInteraction,
-  ModalSubmitInteraction,
-  StringSelectMenuInteraction
-} from 'discord.js'
+import { ButtonInteraction, ChatInputCommandInteraction, RepliableInteraction } from 'discord.js'
 import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
 const deleteTimers = new Map<string, NodeJS.Timeout>()
 
 export const deleteReplyInteraction = async (
-  interaction:
-    | ButtonInteraction
-    | ChatInputCommandInteraction
-    | ModalSubmitInteraction
-    | StringSelectMenuInteraction,
+  interaction: RepliableInteraction,
   seconds: number = DELETE_REPLY_TIMEOUT.VERY_SHORT
 ): Promise<void> => {
   const messageId =
@@ -43,4 +34,22 @@ export const deleteReplyInteraction = async (
   }, seconds * 1000)
 
   deleteTimers.set(id, timeout)
+}
+
+export const checkDmPermission = async (
+  interaction: ButtonInteraction | ChatInputCommandInteraction
+): Promise<boolean> => {
+  try {
+    const dmChannel = await interaction.user.createDM()
+    // Try to send a silent test message
+    const msg = await dmChannel.send({
+      content: 'Bot kiểm tra quyền gửi tin nhắn riêng...',
+      flags: ['SuppressNotifications']
+    })
+    // Delete it immediately
+    await msg.delete().catch(() => {})
+    return true
+  } catch {
+    return false
+  }
 }
