@@ -13,8 +13,7 @@ import { DonationStatus } from 'generated/prisma/enums'
 
 import { DEFAULT_PAGINATION_LIMIT } from '~/constants/commonConstant'
 import { EMOIJ } from '~/constants/emoijConstant'
-import { ERROR_MESSAGE } from '~/constants/messageConstant'
-import { BadRequestError } from '~/core/errorResponse'
+import { GuildOnlyError } from '~/core/errorResponse'
 
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
 import { lines } from '~/utils/textUtil'
@@ -27,7 +26,7 @@ type DonationWithDonor = Donation & { donor: Member }
 // Types
 export interface DonationListState {
   page: number
-  status?: DonationStatus
+  status?: 'PENDING' | 'TRANSFERRED'
 }
 
 export interface DonationListMeta extends DonationListState {
@@ -52,7 +51,7 @@ export const decodeState = (encoded: string): DonationListState => {
   for (const part of parts) {
     const [key, value] = part.split('=')
     if (key === 'p') state.page = parseInt(value, 10) || 1
-    if (key === 's') state.status = value as DonationStatus
+    if (key === 's') state.status = value as 'PENDING' | 'TRANSFERRED'
   }
 
   return state
@@ -79,9 +78,7 @@ export class DonationListCommand {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
     if (!interaction.guildId) {
-      throw new BadRequestError({
-        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
-      })
+      throw new GuildOnlyError()
     }
 
     const { items, meta } = await DonateRepository.getDonations({
@@ -97,9 +94,7 @@ export class DonationListCommand {
 
   public static async handleButton(interaction: ButtonInteraction, state: DonationListState) {
     if (!interaction.guildId) {
-      throw new BadRequestError({
-        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
-      })
+      throw new GuildOnlyError()
     }
 
     const { items, meta } = await DonateRepository.getDonations({
@@ -110,7 +105,7 @@ export class DonationListCommand {
     })
 
     await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)
-    return interaction.update(this.createListResponse(items, meta))
+    return interaction.editReply(this.createListResponse(items, meta))
   }
 
   public static createListResponse(donations: Donation[], meta: DonationListMeta) {
@@ -129,14 +124,14 @@ export class DonationListCommand {
       donations.forEach((donation, index) => {
         const createdTimestamp = Math.floor(donation.createdAt.getTime() / 1000)
         const indexNumber = (meta.page - 1) * meta.limit + index + 1
-        const statusIcon = donation.status === DonationStatus.CONFIRMED ? EMOIJ.OK : EMOIJ.WAIT
+        const statusIcon = donation.status === DonationStatus.TRANSFERRED ? EMOIJ.OK : EMOIJ.WAIT
 
         embed.addFields({
           name: `${indexNumber}. #${donation.code} ${statusIcon}`,
           value: lines(
-            `**Mã người chuyển:** \`${(donation as DonationWithDonor).donor?.donorCode || 'N/A'}\``,
-            `**Số tiền:** ${donation.amount.toLocaleString('vi-VN')}đ`,
-            `**Thời gian tạo:** <t:${createdTimestamp}:R>`
+            `- **Mã người chuyển:** \`${(donation as DonationWithDonor).donor?.donorCode || 'N/A'}\``,
+            `- **Số tiền:** ${donation.amount.toLocaleString('vi-VN')}đ`,
+            `- **Thời gian tạo:** <t:${createdTimestamp}:R>`
           ),
           inline: false
         })
@@ -203,9 +198,9 @@ export class DonationListCommand {
         state: { ...baseState, status: DonationStatus.PENDING }
       },
       {
-        action: 'status-confirmed',
+        action: 'status-transferred',
         label: '✅ Đã nhận',
-        state: { ...baseState, status: DonationStatus.CONFIRMED }
+        state: { ...baseState, status: DonationStatus.TRANSFERRED }
       }
     ]
 

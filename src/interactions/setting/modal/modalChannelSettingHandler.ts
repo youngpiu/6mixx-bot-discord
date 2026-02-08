@@ -31,7 +31,7 @@ export class ModalChannelSettingHandler extends InteractionHandler {
       .getSelectedChannels('select-notification-channel')
       ?.first()
 
-    const updateData: { serviceForumChannelId?: string; notificationChannelId?: string } = {}
+    const updateData: { serviceForumChannelId?: string; notificationForumChannelId?: string } = {}
     const messages: string[] = []
 
     if (serviceChannel) {
@@ -40,7 +40,7 @@ export class ModalChannelSettingHandler extends InteractionHandler {
     }
 
     if (notificationChannel) {
-      updateData.notificationChannelId = notificationChannel.id
+      updateData.notificationForumChannelId = notificationChannel.id
       messages.push(`Kênh thông báo đã được tạo: <#${notificationChannel.id}>`)
     }
 

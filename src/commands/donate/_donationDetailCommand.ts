@@ -9,8 +9,7 @@ import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
 import { DonationStatus } from 'generated/prisma/enums'
 
-import { ERROR_MESSAGE } from '~/constants/messageConstant'
-import { BadRequestError, NotFoundError } from '~/core/errorResponse'
+import { BadRequestError, GuildOnlyError, NotFoundError } from '~/core/errorResponse'
 
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
 
@@ -23,9 +22,7 @@ export class DonationDetailCommand {
     })
 
     if (!interaction.guildId) {
-      throw new BadRequestError({
-        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
-      })
+      throw new GuildOnlyError()
     }
 
     const code = interaction.options.getString('code', true)
@@ -45,7 +42,7 @@ export class DonationDetailCommand {
     }
 
     const embed = new EmbedBuilder()
-      .setColor(donation.status === DonationStatus.CONFIRMED ? 'Green' : 'Yellow')
+      .setColor(donation.status === DonationStatus.TRANSFERRED ? 'Green' : 'Yellow')
       .setTitle(`Thông tin giao dịch quyên góp #${donation.code}`)
       .addFields(
         { name: 'Mã giao dịch', value: `*#${donation.code}*`, inline: false },
@@ -53,7 +50,8 @@ export class DonationDetailCommand {
         { name: 'Số tiền', value: `${donation.amount.toLocaleString('vi-VN')}đ`, inline: true },
         {
           name: 'Trạng thái',
-          value: donation.status === DonationStatus.CONFIRMED ? 'Đã xác nhận' : 'Chờ xác nhận',
+          value:
+            donation.status === DonationStatus.TRANSFERRED ? 'Đã chuyển khoản' : 'Chờ xác nhận',
           inline: false
         },
         {

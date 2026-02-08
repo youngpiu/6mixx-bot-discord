@@ -1,21 +1,19 @@
 import { container } from '@sapphire/pieces'
 import { createTranscript } from 'discord-html-transcripts'
 import {
-  ButtonBuilder,
-  ButtonInteraction,
-  ButtonStyle,
-  ChannelType,
+  AttachmentBuilder,
   ContainerBuilder,
+  FileBuilder,
+  ForumChannel,
   MessageFlags,
-  TextChannel
+  TextChannel,
+  TextDisplayBuilder
 } from 'discord.js'
 
 import { Ticket, TicketType } from 'generated/prisma/client'
 
-import { BadRequestError, GuildOnlyError, NotFoundError } from '~/core/errorResponse'
+import { BadRequestError, NotFoundError } from '~/core/errorResponse'
 
-import { createSuccessEmbed } from '~/utils/embedUtil'
-import { deleteReplyInteraction } from '~/utils/interactionUtil'
 import { lines } from '~/utils/textUtil'
 
 import { GuildRepository } from '~/repositories/guildRepository'
@@ -28,10 +26,14 @@ interface CloseTicketOptions {
   reason?: string | null
 }
 
-interface CreateTicketOptions {
-  interaction: ButtonInteraction
-  type: TicketType
-  description: string
+interface TicketLogOptions {
+  guildId: string
+  ticket: Ticket
+  event: 'CREATED' | 'CLOSED'
+  executorId: string
+  channelId?: string
+  reason?: string | null
+  attachment?: unknown // Transcript attachment
 }
 
 export class TicketHelper {
@@ -56,154 +58,64 @@ export class TicketHelper {
     }
   }
 
-  /**
-   * Creates a new ticket with text channel in category and initial message
-   * @param options - Create ticket options
-   */
-  public static async createTicket(options: CreateTicketOptions): Promise<void> {
-    const { interaction, type, description } = options
-
-    await interaction.deferReply({ flags: 'Ephemeral' })
-
-    if (!interaction.guild || !interaction.guildId) throw new GuildOnlyError()
-
-    const ticketConfig = await GuildRepository.getTicketConfig(interaction.guildId)
-    const ticketCategoryId = ticketConfig?.ticketCategoryId
-
-    if (!ticketCategoryId) {
-      throw new BadRequestError({
-        description:
-          'Hệ thống hỗ trợ thành viên chưa được thiết lập, vui lòng liên hệ **Ban quản lý**.'
-      })
-    }
-
-    const category = interaction.guild.channels.cache.get(ticketCategoryId)
-    if (!category || category.type !== ChannelType.GuildCategory) {
-      throw new NotFoundError({
-        description: 'Danh mục chứa kênh hỗ trợ không tồn tại hoặc không hợp lệ.'
-      })
-    }
-
-    const now = new Date()
-    const code = await TicketRepository.generateTicketCode(interaction.guildId, type)
-
-    // Create text channel in category with permissions
-    const ticketChannel = await interaction.guild.channels.create({
-      name: `ticket-${code}`,
-      type: ChannelType.GuildText,
-      parent: ticketCategoryId,
-      permissionOverwrites: [
-        {
-          id: interaction.guild.roles.everyone.id,
-          deny: ['ViewChannel']
-        },
-        {
-          id: interaction.user.id,
-          allow: ['ViewChannel', 'SendMessages', 'ReadMessageHistory', 'AttachFiles']
-        }
-      ]
-    })
-
-    const containerMessage = new ContainerBuilder()
-      .addTextDisplayComponents((text) => text.setContent(lines('## Bắt đầu hỗ trợ', description)))
-      .addSeparatorComponents((separator) => separator)
-      .addTextDisplayComponents((text) =>
-        text.setContent(
-          lines(
-            `**- Mã phiếu:** _#${code}_`,
-            `**- Người tạo:** <@${interaction.user.id}>`,
-            `**- Thời gian tạo:** <t:${Math.floor(now.getTime() / 1000)}:R>`
-          )
-        )
-      )
-      .addSeparatorComponents((separator) => separator)
-      .addActionRowComponents((row) =>
-        row
-          .addComponents(
-            new ButtonBuilder()
-              .setCustomId('btn-ticket-close')
-              .setLabel('Đóng')
-              .setStyle(ButtonStyle.Secondary)
-          )
-          .addComponents(
-            new ButtonBuilder()
-              .setCustomId('btn-ticket-close-reason')
-              .setLabel('Đóng với lý do')
-              .setStyle(ButtonStyle.Danger)
-          )
-      )
-
-    const message = await ticketChannel.send({
-      components: [containerMessage],
-      flags: MessageFlags.IsComponentsV2
-    })
-
-    await Promise.all([
-      message.pin(),
-      TicketRepository.createTicket({
-        guildId: interaction.guildId,
-        requesterId: interaction.user.id,
-        type,
-        channelId: ticketChannel.id,
-        createdAt: now,
-        updatedAt: now
-      }),
-      interaction.editReply({
-        embeds: [
-          createSuccessEmbed({
-            title: 'Tạo thành công',
-            description: `Kênh yêu cầu hỗ trợ của bạn đã được tạo thành công. Vui lòng truy cập vào <#${ticketChannel.id}> để thảo luận.`
-          })
-        ]
-      })
-    ])
-
-    await deleteReplyInteraction(interaction)
-  }
-
   public static async closeTicket(options: CloseTicketOptions): Promise<void> {
     const { channel, closedById, guildId, reason } = options
 
-    const ticket = await TicketRepository.findByChannelId({ channelId: channel.id })
+    const [ticket, ticketConfig] = await Promise.all([
+      TicketRepository.findByChannelId({ channelId: channel.id }),
+      GuildRepository.getTicketConfig(guildId)
+    ])
 
     if (!ticket) {
       throw new NotFoundError({
-        description: 'Không tìm thấy phiếu hỗ trợ nào được liên kết với kênh này.'
+        description:
+          'Không tìm thấy phiếu hỗ trợ nào được liên kết với kênh này, vui lòng kiểm tra lại cơ sở dữ liệu.'
       })
     }
 
-    // Generate transcript
-    let transcriptUrl: string | null = null
+    if (ticket.status === 'CLOSED') {
+      throw new BadRequestError({
+        description: 'Không thể đóng phiếu hỗ trợ đã đóng trước đó, vui lòng bỏ qua nút này.'
+      })
+    }
+
+    let transcriptAttachment: AttachmentBuilder | null = null
+
     try {
-      const ticketConfig = await GuildRepository.getTicketConfig(guildId)
-      if (ticketConfig?.ticketNotificationThreadId && ticketConfig.notificationChannelId) {
+      if (ticketConfig?.ticketNotificationThreadId && ticketConfig.notificationForumChannelId) {
         const notificationChannel = channel.guild.channels.cache.get(
-          ticketConfig.notificationChannelId
-        ) as TextChannel
+          ticketConfig.notificationForumChannelId
+        ) as TextChannel | ForumChannel
 
         if (notificationChannel) {
-          const thread = await notificationChannel.threads.fetch(
-            ticketConfig.ticketNotificationThreadId
-          )
-          if (thread) {
-            const attachment = await createTranscript(channel, {
+          const [thread, attachment] = await Promise.all([
+            notificationChannel.threads.fetch(ticketConfig.ticketNotificationThreadId),
+            createTranscript(channel, {
               limit: -1,
               filename: `ticket-${ticket.code}.html`,
               poweredBy: false,
               saveImages: true
             })
+          ])
 
-            const message = await thread.send({
-              content: `Transcript cho phiếu hỗ trợ **#${ticket.code}**`,
-              files: [attachment]
-            })
-            transcriptUrl = message.attachments.first()?.url ?? null
+          if (thread) {
+            transcriptAttachment = attachment
           }
         }
       }
     } catch (error) {
-      container.logger.error('Failed to generate/send transcript:', error)
+      container.logger.error('Failed to generate transcript:', error)
     }
+
+    // Send log and get transcript URL
+    const transcriptUrl = await this.sendTicketLog({
+      guildId,
+      ticket,
+      event: 'CLOSED',
+      executorId: closedById,
+      reason,
+      attachment: transcriptAttachment
+    })
 
     const updatedTicket = await TicketRepository.closeTicket({
       ticketId: ticket.id,
@@ -213,42 +125,126 @@ export class TicketHelper {
       transcriptUrl
     })
 
-    await channel.send({
-      components: [
-        new ContainerBuilder()
-          .addTextDisplayComponents((text) =>
-            text.setContent(
-              lines(
-                '## Kết thúc hỗ trợ',
-                'Chúng mình xin chân thành cảm ơn sự hợp tác của bạn trong thời gian vừa qua.'
-              )
+    const closingContainer = new ContainerBuilder()
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(
+          lines(
+            '## Kết thúc hỗ trợ',
+            'Chúng mình xin chân thành cảm ơn sự hợp tác của bạn trong thời gian vừa qua.'
+          )
+        )
+      )
+      .addSeparatorComponents((sep) => sep)
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(lines(`**_Kênh này sẽ tự động xóa sau 30 giây._**`))
+      )
+      .addSeparatorComponents((sep) => sep)
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(
+          lines(
+            `- **Mã phiếu:** #${updatedTicket.code}`,
+            `- **Người tạo:** <@${updatedTicket.requesterId}>`,
+            `- **Thời gian tạo:** <t:${Math.floor(updatedTicket.createdAt.getTime() / 1000)}:R>`,
+            `- **Người đóng:** <@${updatedTicket.closedBy}>`,
+            updatedTicket.closedAt &&
+              `- **Thời gian đóng:** <t:${Math.floor(updatedTicket.closedAt.getTime() / 1000)}:R>`,
+            reason && `- **Lý do đóng:** ${reason}`
+          )
+        )
+      )
+
+    // Parallelize the final response and task scheduling for better performance
+    await Promise.all([
+      channel.send({
+        components: [closingContainer],
+        allowedMentions: { users: [updatedTicket.requesterId] },
+        flags: ['IsComponentsV2']
+      }),
+      container.tasks.create(
+        { name: 'deleteTicketChannel', payload: { channelId: channel.id } },
+        30000
+      )
+    ])
+  }
+
+  public static async sendTicketLog(options: TicketLogOptions): Promise<string | null> {
+    const { guildId, ticket, event, executorId, reason, attachment, channelId } = options
+
+    try {
+      const ticketConfig = await GuildRepository.getTicketConfig(guildId)
+      if (!ticketConfig?.ticketNotificationThreadId || !ticketConfig.notificationForumChannelId)
+        return null
+
+      const notificationChannel = (await container.client.channels.fetch(
+        ticketConfig.notificationForumChannelId
+      )) as TextChannel | ForumChannel
+      if (!notificationChannel) return null
+
+      const thread = await notificationChannel.threads.fetch(
+        ticketConfig.ticketNotificationThreadId
+      )
+      if (!thread) return null
+
+      const logContainer = new ContainerBuilder()
+
+      if (event === 'CREATED') {
+        logContainer
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(
+              `## <:iconbadge10:1467803700524355624> PHIẾU HỖ TRỢ MỚI - #${ticket.code}`
             )
           )
           .addSeparatorComponents((sep) => sep)
-          .addTextDisplayComponents((text) =>
-            text.setContent(
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(
               lines(
-                `**Mã phiếu:** #${updatedTicket.code}`,
-                `**Người tạo:** <@${updatedTicket.requesterId}>`,
-                `**Thời gian tạo:** <t:${Math.floor(updatedTicket.createdAt.getTime() / 1000)}:R>`,
-                `**Người đóng:** <@${updatedTicket.closedBy}>`,
-                updatedTicket.closedAt &&
-                  `**Thời gian đóng:** <t:${Math.floor(updatedTicket.closedAt.getTime() / 1000)}:R>`,
-                reason && `**Lý do đóng:** ${reason}`
+                `- **Loại phiếu:** ${this.getTicketTypeLabel(ticket.type)}`,
+                `- **Người tạo:** <@${ticket.requesterId}>`,
+                `- **Thời gian tạo:** <t:${Math.floor(ticket.createdAt.getTime() / 1000)}:R>`,
+                `- **Kênh hỗ trợ:** <#${channelId || ticket.channelId}>`
               )
             )
           )
-      ],
-      flags: ['IsComponentsV2']
-    })
+      } else if (event === 'CLOSED') {
+        logContainer
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(
+              `## <:iconbadge11:1467803698863276105> ĐÓNG PHIẾU HỖ TRỢ - #${ticket.code}`
+            )
+          )
+          .addSeparatorComponents((sep) => sep)
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(
+              lines(
+                `- **Loại phiếu:** ${this.getTicketTypeLabel(ticket.type)}`,
+                `- **Người tạo:** <@${ticket.requesterId}>`,
+                `- **Thời gian tạo:** <t:${Math.floor(ticket.createdAt.getTime() / 1000)}:R>`,
+                `- **Người đóng:** <@${executorId}>`,
+                `- **Thời gian đóng:** <t:${Math.floor(new Date().getTime() / 1000)}:R>`,
+                reason && `- **Lý do:** ${reason}`
+              )
+            )
+          )
 
-    // Delete the ticket channel after 10 seconds
-    setTimeout(async () => {
-      try {
-        await channel.delete()
-      } catch (error) {
-        container.logger.error(`Failed to delete ticket channel ${channel.id}:`, error)
+        if (attachment && typeof attachment === 'object' && 'name' in attachment) {
+          logContainer
+            .addSeparatorComponents((sep) => sep)
+            .addFileComponents(
+              new FileBuilder().setURL(`attachment://${(attachment as { name: string }).name}`)
+            )
+        }
       }
-    }, 10000)
+
+      const message = await thread.send({
+        components: [logContainer],
+        files: attachment ? [attachment as AttachmentBuilder] : [],
+        flags: [MessageFlags.IsComponentsV2]
+      })
+
+      return message.attachments.first()?.url ?? null
+    } catch (error) {
+      container.logger.error('Failed to send ticket log:', error)
+      return null
+    }
   }
 }

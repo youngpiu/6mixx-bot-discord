@@ -12,17 +12,16 @@ export class GuildMemberAddListener extends Listener {
   }
 
   async run(member: GuildMember) {
-    // Ignore bots
     if (member.user.bot) return
 
     try {
-      await MemberRepository.getOrCreate({
+      await MemberRepository.createMember({
         guildId: member.guild.id,
         userId: member.user.id
       })
 
-      this.container.logger.debug(
-        `Created/verified Member record for ${member.user.tag} in ${member.guild.name}`
+      this.container.logger.info(
+        `Created Member record for ${member.user.tag} in ${member.guild.name}`
       )
     } catch (error) {
       this.container.logger.error(`Failed to create Member record:`, error)
