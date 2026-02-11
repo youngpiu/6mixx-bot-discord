@@ -42,7 +42,7 @@ export class ModalConfessionSettingHandler extends InteractionHandler {
         createSuccessEmbed({
           title: 'Thiết lập thành công',
           description: forumChannelId
-            ? `Kênh đăng confession đã được cập nhật: <#${forumChannelId}>`
+            ? `Kênh chứa bài đăng confession đã được cập nhật: <#${forumChannelId}>`
             : 'Không có thay đổi nào được lưu.'
         })
       ]

@@ -13,9 +13,14 @@ export const ICON = {
   LIGHTBULB_ON: '<:svgviewerpngoutput46:1467525417660453069>',
   LAYER_GROUP: '<:layer_group:1466617891020472512>',
   PAPER_PLANE: '<:svgviewerpngoutput35:1467524029555671072>',
-  GEAR: '<:svgviewerpngoutput34:1467523872504025181>',
   HASHTAG: '<:svgviewerpngoutput33:1467523682891993098>',
-  FOLDER_TREE: '<:folder_tree:1467168419932803113>',
-  FILE_LINES: '<:file_lines:1467173474442154150>',
-  PLUS: '<:svgviewerpngoutput36:1467524199152357641>'
+  PLUS: '<:svgviewerpngoutput36:1467524199152357641>',
+
+  // ok
+  GEAR: '<:svgviewerpngoutput34:1467523872504025181>',
+  ARROW_LEFT: '<:arrow_left:1470702144071012413>'
+} as const
+
+export const ANIMATED_EMOJI = {
+  ARROW_RIGHT: '<a:animated_arrow_right:1471255058082562178>'
 } as const
