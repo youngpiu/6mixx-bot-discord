@@ -12,8 +12,12 @@ export class MemberRepository {
   }
 
   public static async createMember({ guildId, userId }: { guildId: string; userId: string }) {
-    return container.prisma.member.create({
-      data: { guildId, userId }
+    return container.prisma.member.upsert({
+      where: {
+        guildId_userId: { guildId, userId }
+      },
+      update: {}, // No updates needed, just ensure the record exists
+      create: { guildId, userId }
     })
   }
 
