@@ -36,7 +36,7 @@ export class GuildRepository {
     guildId: string,
     data: {
       serviceForumChannelId?: string
-      notificationChannelId?: string
+      notificationForumChannelId?: string
       ticketCategoryId?: string
       ticketTutorialThreadId?: string
       ticketNotificationThreadId?: string
@@ -64,7 +64,7 @@ export class GuildRepository {
           ticketCategoryId: guild.ticketCategoryId,
           ticketTutorialThreadId: guild.ticketTutorialThreadId,
           ticketNotificationThreadId: guild.ticketNotificationThreadId,
-          notificationChannelId: guild.notificationChannelId
+          notificationForumChannelId: guild.notificationForumChannelId
         }
       : null
   }
@@ -73,7 +73,7 @@ export class GuildRepository {
     const guild = await this.getGuildCached(guildId)
     if (!guild) return null
     return {
-      notificationChannelId: guild.notificationChannelId,
+      notificationForumChannelId: guild.notificationForumChannelId,
       forumChannelId: guild.confessionForumChannelId,
       confessionTutorialThreadId: guild.confessionTutorialThreadId,
       confessionNotificationThreadId: guild.confessionNotificationThreadId
@@ -96,7 +96,7 @@ export class GuildRepository {
       ticketCategoryId?: string
       ticketTutorialThreadId?: string
       ticketNotificationThreadId?: string
-      notificationChannelId?: string
+      notificationForumChannelId?: string
     }
   ) {
     return this.updateConfig(guildId, data)
@@ -105,7 +105,7 @@ export class GuildRepository {
   public static async updateConfessionConfig(
     guildId: string,
     data: {
-      notificationChannelId?: string
+      notificationForumChannelId?: string
       confessionForumChannelId?: string
       confessionTutorialThreadId?: string
       confessionNotificationThreadId?: string

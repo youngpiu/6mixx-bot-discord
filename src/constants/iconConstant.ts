@@ -24,3 +24,16 @@ export const ICON = {
 export const ANIMATED_EMOJI = {
   ARROW_RIGHT: '<a:animated_arrow_right:1471255058082562178>'
 } as const
+
+export const EMOJI = {
+  RED_LOCK: '<:red_lock:1471427452600455243>',
+  GREEN_LOCK_OPEN: '<:green_lock_open:1471427451006484593>',
+  BG: {
+    LOCK: '<:bg_red_lock:1471442595187003557>',
+    LOCK_OPEN: '<:bg_green_lock_open:1471442592964018329>'
+  },
+  COLOR: {
+    LOCK: '<:red_lock:1471442601348567145>',
+    LOCK_OPEN: '<:green_lock_open:1471442596680175720>'
+  }
+}

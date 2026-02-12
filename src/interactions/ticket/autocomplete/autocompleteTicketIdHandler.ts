@@ -3,7 +3,7 @@ import type { AutocompleteInteraction } from 'discord.js'
 
 import { TicketRepository } from '~/repositories/ticketRepository'
 
-export class AutocompleTicketHandler extends InteractionHandler {
+export class AutocompleteTicketHandler extends InteractionHandler {
   public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
     super(ctx, {
       ...options,

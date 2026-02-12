@@ -3,8 +3,8 @@ import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
 import { TicketStatus } from 'generated/prisma/enums'
 
-import { ERROR_MESSAGE } from '~/constants/messageConstant'
-import { BadRequestError, NotFoundError } from '~/core/errorResponse'
+import { EMOJI } from '~/constants/iconConstant'
+import { GuildOnlyError, NotFoundError } from '~/core/errorResponse'
 
 import { TicketHelper } from '~/helpers/TicketHelper'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
@@ -18,18 +18,10 @@ export class TicketDetailCommand {
     })
 
     if (!interaction.guildId) {
-      throw new BadRequestError({
-        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
-      })
+      throw new GuildOnlyError()
     }
 
     const id = interaction.options.getString('ticket-id', true)
-
-    if (!id) {
-      throw new BadRequestError({
-        description: 'Vui lòng lựa chọn một phiếu hỗ trợ mà bạn muốn xem thông tin chi tiết.'
-      })
-    }
 
     const ticket = await TicketRepository.findById({
       id: id
@@ -44,14 +36,12 @@ export class TicketDetailCommand {
     const typeLabel = TicketHelper.getTicketTypeLabel(ticket.type)
 
     const fields = [
-      { name: 'Mã phiếu', value: `**_#${ticket.code}_**`, inline: false },
-      { name: 'Loại phiếu', value: typeLabel, inline: false },
       {
-        name: 'Trạng thái',
-        value: ticket.status === TicketStatus.CLOSED ? 'Đóng' : 'Mở',
+        name: 'Mã phiếu',
+        value: `${ticket.status === TicketStatus.CLOSED ? EMOJI.COLOR.LOCK : EMOJI.COLOR.LOCK_OPEN} **#${ticket.code}**`,
         inline: false
       },
-      { name: 'Thread', value: `<#${ticket.threadId}>`, inline: false },
+      { name: 'Loại phiếu', value: typeLabel, inline: false },
       { name: 'Người tạo', value: `<@${ticket.requesterId}>`, inline: false },
       {
         name: 'Thời gian tạo',
@@ -59,6 +49,11 @@ export class TicketDetailCommand {
         inline: false
       }
     ]
+
+    // Show channel for OPEN tickets
+    if (ticket.status === TicketStatus.OPEN) {
+      fields.push({ name: 'Kênh hỗ trợ', value: `<#${ticket.channelId}>`, inline: false })
+    }
 
     if (ticket.closedBy) {
       fields.push({ name: 'Người đóng', value: `<@${ticket.closedBy}>`, inline: false })

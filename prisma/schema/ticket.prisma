@@ -28,7 +28,6 @@ model Ticket {
   status TicketStatus @default(OPEN)
   
   reason        String?
-  transcriptUrl String?
   closedAt      DateTime?
 
   requesterId String

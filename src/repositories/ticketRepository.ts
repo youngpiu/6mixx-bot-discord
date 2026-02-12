@@ -27,27 +27,43 @@ export class TicketRepository {
       ticketCategoryId?: string
       ticketTutorialThreadId?: string
       ticketNotificationThreadId?: string
-      notificationChannelId?: string
+      notificationForumChannelId?: string
     }
   ) {
     return GuildRepository.updateTicketConfig(guildId, data)
   }
 
-  public static async countTicketByType(guildId: string, type: TicketType) {
-    return container.prisma.ticket.count({
-      where: { guildId, type }
-    })
-  }
-
   public static async generateTicketCode(guildId: string, type: TicketType) {
-    const count = await this.countTicketByType(guildId, type)
-    return `${TICKET_PREFIX[type]}${String(count + 1).padStart(3, '0')}`
+    // Use atomic increment on TicketCounter to prevent race conditions
+    // This ensures that even if multiple users create tickets simultaneously,
+    // each will get a unique sequential code
+    const counter = await container.prisma.ticketCounter.upsert({
+      where: {
+        guildId_type: {
+          guildId,
+          type
+        }
+      },
+      create: {
+        guildId,
+        type,
+        counter: 1
+      },
+      update: {
+        counter: {
+          increment: 1
+        }
+      }
+    })
+
+    return `${TICKET_PREFIX[type]}${String(counter.counter).padStart(3, '0')}`
   }
 
   public static async createTicket({
     guildId,
     requesterId,
     type,
+    code,
     channelId,
     createdAt,
     updatedAt
@@ -55,20 +71,19 @@ export class TicketRepository {
     guildId: string
     requesterId: string
     type: TicketType
+    code?: string
     channelId: string
     createdAt?: Date
     updatedAt?: Date
   }) {
-    const code = await this.generateTicketCode(guildId, type)
-
-    // Ensure requester member exists (handled by join sync)
+    const ticketCode = code || (await this.generateTicketCode(guildId, type))
 
     const ticket = await container.prisma.ticket.create({
       data: {
         guildId,
         requesterId,
         type,
-        code,
+        code: ticketCode,
         channelId,
         createdAt,
         updatedAt
@@ -188,14 +203,11 @@ export class TicketRepository {
   public static async closeTicket({
     ticketId,
     closedBy,
-    reason,
-    transcriptUrl
+    reason
   }: {
     ticketId: string
-    guildId: string
     closedBy: string
     reason?: string | null
-    transcriptUrl?: string | null
   }) {
     // Ensure closer member exists
 
@@ -205,8 +217,7 @@ export class TicketRepository {
         status: 'CLOSED',
         closedAt: new Date(),
         closedBy,
-        reason,
-        transcriptUrl
+        reason
       }
     })
   }
