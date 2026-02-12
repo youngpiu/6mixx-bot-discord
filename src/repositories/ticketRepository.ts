@@ -90,7 +90,22 @@ export class TicketRepository {
       }
     })
 
+    // Invalidate cache for this guild
+    await this.invalidateTicketCache(guildId)
+
     return ticket
+  }
+
+  /**
+   * Invalidate all cached tickets for a guild
+   */
+  private static async invalidateTicketCache(guildId: string) {
+    const pattern = `tickets:${guildId}:*`
+    const keys = await container.redis.keys(pattern)
+
+    if (keys.length > 0) {
+      await container.redis.del(...keys)
+    }
   }
 
   public static async findByCode({ guildId, code }: { guildId: string; code: string }) {
@@ -144,6 +159,14 @@ export class TicketRepository {
     const [items, total] = await Promise.all([
       container.prisma.ticket.findMany({
         where: whereClause,
+        include: {
+          requester: {
+            select: { userId: true, guildId: true }
+          },
+          closer: {
+            select: { userId: true, guildId: true }
+          }
+        },
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit
@@ -211,7 +234,7 @@ export class TicketRepository {
   }) {
     // Ensure closer member exists
 
-    return container.prisma.ticket.update({
+    const result = await container.prisma.ticket.update({
       where: { id: ticketId },
       data: {
         status: 'CLOSED',
@@ -220,5 +243,10 @@ export class TicketRepository {
         reason
       }
     })
+
+    // Invalidate cache for this guild
+    await this.invalidateTicketCache(result.guildId)
+
+    return result
   }
 }

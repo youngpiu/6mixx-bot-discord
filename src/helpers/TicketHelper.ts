@@ -79,21 +79,22 @@ export class TicketHelper {
       })
     }
 
-    // Send log
-    await this.sendTicketLog({
-      guildId,
-      ticket,
-      event: 'CLOSED',
-      executorId: closedById,
-      reason,
-      ticketConfig // Pass config to avoid duplicate fetch
-    })
-
-    const updatedTicket = await TicketRepository.closeTicket({
-      ticketId: ticket.id,
-      closedBy: closedById,
-      reason
-    })
+    // Run log sending and DB update in parallel for better performance
+    const [, updatedTicket] = await Promise.all([
+      this.sendTicketLog({
+        guildId,
+        ticket,
+        event: 'CLOSED',
+        executorId: closedById,
+        reason,
+        ticketConfig // Pass config to avoid duplicate fetch
+      }),
+      TicketRepository.closeTicket({
+        ticketId: ticket.id,
+        closedBy: closedById,
+        reason
+      })
+    ])
 
     const closingContainer = new ContainerBuilder()
       .addTextDisplayComponents(
