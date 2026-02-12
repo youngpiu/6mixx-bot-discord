@@ -2,7 +2,7 @@ import { Command } from '@sapphire/framework'
 import { ButtonStyle, ChatInputCommandInteraction, ContainerBuilder } from 'discord.js'
 import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
-import { ICON } from '~/constants/iconConstant'
+import { EMOJI } from '~/constants/iconConstant'
 
 import { asyncChatInputHandler } from '~/utils/asyncHandleUtil'
 import { parseEmoji } from '~/utils/emojiUtil'
@@ -55,7 +55,7 @@ export class SettingCommand extends Command {
           .setButtonAccessory((button) =>
             button
               .setCustomId('btn-setting-nav-general')
-              .setEmoji(parseEmoji(ICON.GEAR))
+              .setEmoji(parseEmoji(EMOJI.NORMAL.GEAR))
               .setStyle(ButtonStyle.Primary)
           )
       )
@@ -66,7 +66,7 @@ export class SettingCommand extends Command {
           .setButtonAccessory((button) =>
             button
               .setCustomId('btn-setting-nav-ticket')
-              .setEmoji(parseEmoji(ICON.GEAR))
+              .setEmoji(parseEmoji(EMOJI.NORMAL.GEAR))
               .setStyle(ButtonStyle.Primary)
           )
       )
@@ -77,7 +77,7 @@ export class SettingCommand extends Command {
           .setButtonAccessory((button) =>
             button
               .setCustomId('btn-setting-nav-donation')
-              .setEmoji(parseEmoji(ICON.GEAR))
+              .setEmoji(parseEmoji(EMOJI.NORMAL.GEAR))
               .setStyle(ButtonStyle.Primary)
           )
       )
@@ -88,7 +88,7 @@ export class SettingCommand extends Command {
           .setButtonAccessory((button) =>
             button
               .setCustomId('btn-setting-nav-confession')
-              .setEmoji(parseEmoji(ICON.GEAR))
+              .setEmoji(parseEmoji(EMOJI.NORMAL.GEAR))
               .setStyle(ButtonStyle.Primary)
           )
       )

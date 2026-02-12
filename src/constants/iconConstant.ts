@@ -11,14 +11,9 @@ export const ICON = {
   FLAG: '<:svgviewerpngoutput44:1467525419086385244>',
   BUG: '<:svgviewerpngoutput45:1467525462224797954>',
   LIGHTBULB_ON: '<:svgviewerpngoutput46:1467525417660453069>',
-  LAYER_GROUP: '<:layer_group:1466617891020472512>',
-  PAPER_PLANE: '<:svgviewerpngoutput35:1467524029555671072>',
-  HASHTAG: '<:svgviewerpngoutput33:1467523682891993098>',
-  PLUS: '<:svgviewerpngoutput36:1467524199152357641>',
+  LAYER_GROUP: '<:layer_group:1466617891020472512>'
 
   // ok
-  GEAR: '<:svgviewerpngoutput34:1467523872504025181>',
-  ARROW_LEFT: '<:arrow_left:1470702144071012413>'
 } as const
 
 export const ANIMATED_EMOJI = {
@@ -35,5 +30,12 @@ export const EMOJI = {
   COLOR: {
     LOCK: '<:red_lock:1471442601348567145>',
     LOCK_OPEN: '<:green_lock_open:1471442596680175720>'
+  },
+  NORMAL: {
+    GEAR: '<:svgviewerpngoutput34:1467523872504025181>',
+    ARROW_LEFT: '<:arrow_left:1470702144071012413>',
+    HASHTAG: '<:svgviewerpngoutput33:1467523682891993098>',
+    PLUS: '<:svgviewerpngoutput36:1467524199152357641>',
+    PAPER_PLANE: '<:svgviewerpngoutput35:1467524029555671072>'
   }
 }

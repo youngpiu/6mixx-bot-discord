@@ -2,7 +2,7 @@ import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework
 import { ButtonBuilder, ButtonInteraction, ButtonStyle, ContainerBuilder } from 'discord.js'
 import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
-import { ICON } from '~/constants/iconConstant'
+import { EMOJI } from '~/constants/iconConstant'
 
 import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
 import { parseEmoji } from '~/utils/emojiUtil'
@@ -73,7 +73,7 @@ export class ButtonSettingNavHandler extends InteractionHandler {
   private static createBackButton(): ButtonBuilder {
     return new ButtonBuilder()
       .setCustomId('btn-setting-nav-back')
-      .setEmoji(parseEmoji(ICON.ARROW_LEFT))
+      .setEmoji(parseEmoji(EMOJI.NORMAL.ARROW_LEFT))
       .setStyle(ButtonStyle.Primary)
   }
 
@@ -90,7 +90,7 @@ export class ButtonSettingNavHandler extends InteractionHandler {
           .setButtonAccessory((button) =>
             button
               .setCustomId('btn-channel-setting')
-              .setEmoji(parseEmoji(ICON.HASHTAG))
+              .setEmoji(parseEmoji(EMOJI.NORMAL.HASHTAG))
               .setStyle(ButtonStyle.Primary)
           )
       )
@@ -101,7 +101,7 @@ export class ButtonSettingNavHandler extends InteractionHandler {
           .setButtonAccessory((button) =>
             button
               .setCustomId('btn-general-create-error-notification-thread')
-              .setEmoji(parseEmoji(ICON.PLUS))
+              .setEmoji(parseEmoji(EMOJI.NORMAL.PLUS))
               .setStyle(ButtonStyle.Primary)
           )
       )
@@ -126,7 +126,7 @@ export class ButtonSettingNavHandler extends InteractionHandler {
           .setButtonAccessory((button) =>
             button
               .setCustomId('btn-ticket-general-setting')
-              .setEmoji(parseEmoji(ICON.GEAR))
+              .setEmoji(parseEmoji(EMOJI.NORMAL.GEAR))
               .setStyle(ButtonStyle.Primary)
           )
       )
@@ -137,7 +137,7 @@ export class ButtonSettingNavHandler extends InteractionHandler {
           .setButtonAccessory((button) =>
             button
               .setCustomId('btn-ticket-send')
-              .setEmoji(parseEmoji(ICON.PAPER_PLANE))
+              .setEmoji(parseEmoji(EMOJI.NORMAL.PAPER_PLANE))
               .setStyle(ButtonStyle.Primary)
           )
       )
@@ -148,7 +148,7 @@ export class ButtonSettingNavHandler extends InteractionHandler {
           .setButtonAccessory((button) =>
             button
               .setCustomId('btn-ticket-create-notification-thread')
-              .setEmoji(parseEmoji(ICON.PLUS))
+              .setEmoji(parseEmoji(EMOJI.NORMAL.PLUS))
               .setStyle(ButtonStyle.Primary)
           )
       )
@@ -171,7 +171,7 @@ export class ButtonSettingNavHandler extends InteractionHandler {
           .setButtonAccessory((button) =>
             button
               .setCustomId('btn-donation-send')
-              .setEmoji(parseEmoji(ICON.PAPER_PLANE))
+              .setEmoji(parseEmoji(EMOJI.NORMAL.PAPER_PLANE))
               .setStyle(ButtonStyle.Primary)
           )
       )
@@ -182,7 +182,7 @@ export class ButtonSettingNavHandler extends InteractionHandler {
           .setButtonAccessory((button) =>
             button
               .setCustomId('btn-donation-create-notification-thread')
-              .setEmoji(parseEmoji(ICON.PLUS))
+              .setEmoji(parseEmoji(EMOJI.NORMAL.PLUS))
               .setStyle(ButtonStyle.Primary)
           )
       )
@@ -205,7 +205,7 @@ export class ButtonSettingNavHandler extends InteractionHandler {
           .setButtonAccessory((button) =>
             button
               .setCustomId('btn-confession-general-setting')
-              .setEmoji(parseEmoji(ICON.GEAR))
+              .setEmoji(parseEmoji(EMOJI.NORMAL.GEAR))
               .setStyle(ButtonStyle.Primary)
           )
       )
@@ -216,7 +216,7 @@ export class ButtonSettingNavHandler extends InteractionHandler {
           .setButtonAccessory((button) =>
             button
               .setCustomId('btn-confession-send')
-              .setEmoji(parseEmoji(ICON.PAPER_PLANE))
+              .setEmoji(parseEmoji(EMOJI.NORMAL.PAPER_PLANE))
               .setStyle(ButtonStyle.Primary)
           )
       )
@@ -227,7 +227,7 @@ export class ButtonSettingNavHandler extends InteractionHandler {
           .setButtonAccessory((button) =>
             button
               .setCustomId('btn-confession-create-notification-thread')
-              .setEmoji(parseEmoji(ICON.PLUS))
+              .setEmoji(parseEmoji(EMOJI.NORMAL.PLUS))
               .setStyle(ButtonStyle.Primary)
           )
       )
