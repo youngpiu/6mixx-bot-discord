@@ -22,6 +22,7 @@ import { GuildRepository } from '~/repositories/guildRepository'
 import { TicketRepository } from '~/repositories/ticketRepository'
 
 // Configuration for each ticket type button
+// Maps ticket types to their custom IDs and initial descriptions
 const TICKET_BUTTON_CONFIG: Record<
   TicketType,
   {
@@ -52,7 +53,7 @@ export class ButtonTicketCreateHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    // Check if customId matches any ticket button
+    // Check if customId matches any ticket creation button configuration
     for (const [type, config] of Object.entries(TICKET_BUTTON_CONFIG)) {
       if (interaction.customId === config.customId) {
         return this.some({ type: type as TicketType, config })
@@ -61,6 +62,7 @@ export class ButtonTicketCreateHandler extends InteractionHandler {
     return this.none()
   }
 
+  // Handles ticket creation logic
   public run = asyncInteractionHandler<
     ButtonInteraction,
     { type: TicketType; config: { customId: string; description: string } }
@@ -71,6 +73,7 @@ export class ButtonTicketCreateHandler extends InteractionHandler {
 
     if (!interaction.guild || !interaction.guildId) throw new GuildOnlyError()
 
+    // Fetch config and generate code in parallel
     const [ticketConfig, code] = await Promise.all([
       GuildRepository.getTicketConfig(interaction.guildId),
       TicketRepository.generateTicketCode(interaction.guildId, result.type)
@@ -78,6 +81,7 @@ export class ButtonTicketCreateHandler extends InteractionHandler {
 
     const ticketCategoryId = ticketConfig?.ticketCategoryId
 
+    // Ensure ticket system is configured
     if (!ticketCategoryId) {
       throw new NotConfiguredError({
         featureName: 'Hệ thống hỗ trợ thành viên'
@@ -93,7 +97,8 @@ export class ButtonTicketCreateHandler extends InteractionHandler {
 
     const now = new Date()
 
-    // Create text channel in category with permissions
+    // Create text channel in the configured category
+    // Set permissions: Everyone (deny view), User (allow view/send)
     const ticketChannel = await interaction.guild.channels.create({
       name: `${code}-${TicketHelper.getTicketTypeLabel(result.type).toLowerCase()}`,
       type: ChannelType.GuildText,
@@ -110,6 +115,7 @@ export class ButtonTicketCreateHandler extends InteractionHandler {
       ]
     })
 
+    // Construct valid initial message
     const containerMessage = new ContainerBuilder()
       .addTextDisplayComponents((text) =>
         text.setContent(lines('## Bắt đầu hỗ trợ', result.config.description))
@@ -141,11 +147,13 @@ export class ButtonTicketCreateHandler extends InteractionHandler {
           )
       )
 
+    // Send structure message to the new channel
     const message = await ticketChannel.send({
       components: [containerMessage],
       flags: MessageFlags.IsComponentsV2
     })
 
+    // Pin message, Create DB record, Send Log, and Reply to user concurrently
     await Promise.all([
       message.pin(),
       TicketRepository.createTicket({

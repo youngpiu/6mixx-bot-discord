@@ -18,16 +18,19 @@ export class ButtonTicketCloseHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
+    // Only handle 'btn-ticket-close' and ensure user has Admin permissions
     if (interaction.customId !== 'btn-ticket-close' || !hasAdministratorPermission(interaction))
       return this.none()
     return this.some()
   }
 
+  // Handles the close button click (without reason)
   public run = asyncInteractionHandler<ButtonInteraction>(async (interaction) => {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
     if (!interaction.guildId) throw new GuildOnlyError()
 
+    // Execute ticket closure
     await TicketHelper.closeTicket({
       channel: interaction.channel as TextChannel,
       closedById: interaction.user.id,

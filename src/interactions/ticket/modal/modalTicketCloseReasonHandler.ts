@@ -21,6 +21,7 @@ export class ModalTicketCloseReasonHandler extends InteractionHandler {
     return this.some()
   }
 
+  // Processes the closure reason submitted via modal
   public run = asyncInteractionHandler<ModalSubmitInteraction>(async (interaction) => {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
@@ -29,6 +30,7 @@ export class ModalTicketCloseReasonHandler extends InteractionHandler {
     }
 
     const channel = interaction.channel
+    // Ensure command is run within a text channel (the ticket channel)
     if (!channel || channel.type !== ChannelType.GuildText) {
       throw new BadRequestError({
         description: 'Lệnh này chỉ có thể sử dụng trong kênh phiếu hỗ trợ.'
@@ -37,6 +39,7 @@ export class ModalTicketCloseReasonHandler extends InteractionHandler {
 
     const reason = interaction.fields.getTextInputValue('reason')
 
+    // Close the ticket with the provided reason
     await TicketHelper.closeTicket({
       channel: channel as TextChannel,
       closedById: interaction.user.id,

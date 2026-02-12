@@ -22,10 +22,13 @@ export class ModalChannelSettingHandler extends InteractionHandler {
     return this.some()
   }
 
+  // Handles the submission of the channel setting modal
+  // Updates the guild configuration with selected channels (Service, Notification)
   public run = asyncInteractionHandler<ModalSubmitInteraction>(async (interaction) => {
     if (!interaction.guildId || !interaction.guild) throw new GuildOnlyError()
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
+    // Retrieve selected channels from the modal fields
     const serviceChannel = interaction.fields.getSelectedChannels('select-service-channel')?.first()
     const notificationChannel = interaction.fields
       .getSelectedChannels('select-notification-channel')
@@ -44,6 +47,7 @@ export class ModalChannelSettingHandler extends InteractionHandler {
       messages.push(`Kênh thông báo đã được cập nhật: <#${notificationChannel.id}>`)
     }
 
+    // Only update database if there are changes
     if (Object.keys(updateData).length > 0) {
       await GuildRepository.updateConfig(interaction.guildId, updateData)
     }

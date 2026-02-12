@@ -22,6 +22,8 @@ export class ModalTicketSettingHandler extends InteractionHandler {
     return this.some()
   }
 
+  // Handles the submission of the ticket setting modal
+  // Updates the ticket category configuration
   public run = asyncInteractionHandler<ModalSubmitInteraction>(async (interaction) => {
     if (!interaction.guildId || !interaction.guild) throw new GuildOnlyError()
     await interaction.deferReply({ flags: ['Ephemeral'] })

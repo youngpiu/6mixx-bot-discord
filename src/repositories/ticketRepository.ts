@@ -17,10 +17,12 @@ const TICKET_PREFIX: Record<TicketType, string> = {
 }
 
 export class TicketRepository {
+  // Retrieve ticket configuration for a guild via GuildRepository
   public static async getConfig(guildId: string) {
     return GuildRepository.getTicketConfig(guildId)
   }
 
+  // Update ticket configuration (category, threads, etc.)
   public static async updateConfig(
     guildId: string,
     data: {
@@ -33,10 +35,13 @@ export class TicketRepository {
     return GuildRepository.updateTicketConfig(guildId, data)
   }
 
+  /**
+   * Generates a unique, sequential ticket code (e.g., RP001, FB042).
+   * Uses atomic upsert on TicketCounter to prevent race conditions during concurrent requests.
+   * Format: PREFIX + 3-digit number (padded).
+   */
   public static async generateTicketCode(guildId: string, type: TicketType) {
-    // Use atomic increment on TicketCounter to prevent race conditions
-    // This ensures that even if multiple users create tickets simultaneously,
-    // each will get a unique sequential code
+    // Use atomic increment on TicketCounter
     const counter = await container.prisma.ticketCounter.upsert({
       where: {
         guildId_type: {
@@ -59,6 +64,11 @@ export class TicketRepository {
     return `${TICKET_PREFIX[type]}${String(counter.counter).padStart(3, '0')}`
   }
 
+  /**
+   * Creates a new ticket record in the database.
+   * - Generates code if not provided
+   * - Invalidates cache to ensure the new ticket appears in lists
+   */
   public static async createTicket({
     guildId,
     requesterId,
@@ -90,7 +100,7 @@ export class TicketRepository {
       }
     })
 
-    // Invalidate cache for this guild
+    // Invalidate cache for this guild to reflect the new ticket
     await this.invalidateTicketCache(guildId)
 
     return ticket
@@ -108,6 +118,7 @@ export class TicketRepository {
     }
   }
 
+  // Find a ticket by its code within a guild
   public static async findByCode({ guildId, code }: { guildId: string; code: string }) {
     return container.prisma.ticket.findFirst({
       where: { guildId, code }
@@ -125,6 +136,11 @@ export class TicketRepository {
     })
   }
 
+  /**
+   * Retrieve a paginated list of tickets with optional filtering.
+   * - Uses Redis caching to improve performance for frequent access.
+   * - Includes requester and closer relations to avoid N+1 queries.
+   */
   public static async getTickets({
     guildId,
     page = 1,
@@ -198,18 +214,21 @@ export class TicketRepository {
     return result
   }
 
+  // Find ticket associated with a specific text channel
   public static async findByChannelId({ channelId }: { channelId: string }) {
     return container.prisma.ticket.findUnique({
       where: { channelId }
     })
   }
 
+  // Retrieve ticket by its unique database ID
   public static async findById({ id }: { id: string }) {
     return container.prisma.ticket.findUnique({
       where: { id }
     })
   }
 
+  // General purpose ticket update method
   public static async updateTicket({
     ticketId,
     data
@@ -223,6 +242,12 @@ export class TicketRepository {
     })
   }
 
+  /**
+   * Updates database record to mark a ticket as closed.
+   * - Sets status to CLOSED
+   * - Records closure time and closer ID
+   * - Invalidates cache
+   */
   public static async closeTicket({
     ticketId,
     closedBy,
@@ -244,7 +269,7 @@ export class TicketRepository {
       }
     })
 
-    // Invalidate cache for this guild
+    // Invalidate cache for this guild after closure
     await this.invalidateTicketCache(result.guildId)
 
     return result

@@ -18,7 +18,8 @@ export class ButtonTicketListHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    // Match all ticket-list buttons: ticket-list:<action>:<encoded_state>
+    // Determine if this is a ticket list interaction based on custom ID prefix
+    // Format: ticket-list:<action>:<encoded_state>
     if (!interaction.customId.startsWith('ticket-list:')) return this.none()
 
     const parts = interaction.customId.split(':')
@@ -26,17 +27,19 @@ export class ButtonTicketListHandler extends InteractionHandler {
 
     const [, action, ...stateParts] = parts
     const encodedState = stateParts.join(':')
+    // Decode the state string back into a TicketListState object
     const state = decodeState(encodedState)
 
     return this.some({ action, state })
   }
 
+  // Delegates handling to the shared logic in TicketListCommand
   public run = asyncInteractionHandler<
     ButtonInteraction,
     { action: string; state: TicketListState }
   >(async (interaction, result) => {
     if (!result) return
-    await interaction.deferUpdate()
+    await interaction.deferUpdate() // Ack the interaction to prevent timeout
     await TicketListCommand.handleButton(interaction, result.state)
   })
 }

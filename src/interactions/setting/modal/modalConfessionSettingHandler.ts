@@ -22,6 +22,8 @@ export class ModalConfessionSettingHandler extends InteractionHandler {
     return this.some()
   }
 
+  // Handles the submission of the confession general setting modal
+  // Updates the forum channel used for confessions
   public run = asyncInteractionHandler<ModalSubmitInteraction>(async (interaction) => {
     if (!interaction.guildId || !interaction.guild) throw new GuildOnlyError()
     await interaction.deferReply({ flags: ['Ephemeral'] })

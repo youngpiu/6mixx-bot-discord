@@ -68,7 +68,7 @@ export class ButtonSettingNavHandler extends InteractionHandler {
   )
 
   /**
-   * Tạo nút "Quay lại" để quay về menu chính
+   * Creates a standardized "Back" button to return to the previous menu.
    */
   private static createBackButton(): ButtonBuilder {
     return new ButtonBuilder()
@@ -78,7 +78,8 @@ export class ButtonSettingNavHandler extends InteractionHandler {
   }
 
   /**
-   * Container General với nút Back
+   * Generates the General Settings menu container.
+   * Includes options for global channel configuration and error notifications.
    */
   public static createGeneralSettings(): ContainerBuilder {
     return new ContainerBuilder()
@@ -112,7 +113,8 @@ export class ButtonSettingNavHandler extends InteractionHandler {
   }
 
   /**
-   * Container Ticket với nút Back
+   * Generates the Ticket Settings menu container.
+   * Includes options for general setup, sending guides, and creating notification threads.
    */
   public static createTicketSettings(): ContainerBuilder {
     return new ContainerBuilder()
@@ -159,7 +161,7 @@ export class ButtonSettingNavHandler extends InteractionHandler {
   }
 
   /**
-   * Container Donation với nút Back
+   * Generates the Donation Settings menu container.
    */
   public static createDonationSettings(): ContainerBuilder {
     return new ContainerBuilder()
@@ -193,7 +195,7 @@ export class ButtonSettingNavHandler extends InteractionHandler {
   }
 
   /**
-   * Container Confession với nút Back
+   * Generates the Confession Settings menu container.
    */
   public static createConfessionSettings(): ContainerBuilder {
     return new ContainerBuilder()

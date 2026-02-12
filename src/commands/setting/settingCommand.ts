@@ -42,9 +42,8 @@ export class SettingCommand extends Command {
     }
   )
 
-  /**
-   * Trang chính - hiển thị danh sách các setting categories
-   */
+  // Creates the main settings dashboard container
+  // Displays sections for different configuration categories (General, Ticket, Donation, Confession)
   public static createMainSettings(): ContainerBuilder {
     return new ContainerBuilder()
       .addTextDisplayComponents((text) => text.setContent(lines('## Cài đặt máy chủ')))

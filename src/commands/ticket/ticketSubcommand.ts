@@ -7,6 +7,10 @@ import { TicketDetailCommand } from '~/commands/ticket/_ticketDetailCommand'
 import { TicketListCommand } from '~/commands/ticket/_ticketListCommand'
 
 export class TicketSubcommand extends Subcommand {
+  /**
+   * Main entry point for the /ticket command.
+   * Defines subcommands 'list' and 'detail' for ticket management.
+   */
   public constructor(context: Subcommand.LoaderContext, options: Subcommand.Options) {
     super(context, {
       ...options,
@@ -16,27 +20,30 @@ export class TicketSubcommand extends Subcommand {
         {
           name: 'list',
           chatInputRun: 'chatInputList',
-          preconditions: ['AdministratorOnly']
+          preconditions: ['AdministratorOnly'] // Restrict to admins
         },
         {
           name: 'detail',
           chatInputRun: 'chatInputDetail',
-          preconditions: ['AdministratorOnly']
+          preconditions: ['AdministratorOnly'] // Restrict to admins
         }
       ]
     })
   }
 
+  // Handles the /ticket list command
   public chatInputList = asyncChatInputHandler(async (interaction: ChatInputCommandInteraction) => {
     return TicketListCommand.run(interaction)
   })
 
+  // Handles the /ticket detail command
   public chatInputDetail = asyncChatInputHandler(
     async (interaction: ChatInputCommandInteraction) => {
       return TicketDetailCommand.run(interaction)
     }
   )
 
+  // Registers the slash command structure
   registerApplicationCommands(registry: Subcommand.Registry) {
     registry.registerChatInputCommand((builder) =>
       builder

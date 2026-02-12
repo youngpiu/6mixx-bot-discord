@@ -19,6 +19,7 @@ export class ButtonTicketCloseWithReasonHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
+    // Only handle 'btn-ticket-close-reason' and ensure user has Admin permissions
     if (
       interaction.customId !== 'btn-ticket-close-reason' ||
       !hasAdministratorPermission(interaction)
@@ -27,6 +28,8 @@ export class ButtonTicketCloseWithReasonHandler extends InteractionHandler {
     return this.some()
   }
 
+  // Handles the 'Close with Reason' button click
+  // Opens a modal for the user to input the closure reason
   public run = asyncInteractionHandler<ButtonInteraction>(async (interaction) => {
     if (!interaction.guildId) return
 

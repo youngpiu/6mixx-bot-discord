@@ -12,6 +12,10 @@ import { deleteReplyInteraction } from '~/utils/interactionUtil'
 import { TicketRepository } from '~/repositories/ticketRepository'
 
 export class TicketDetailCommand {
+  /**
+   * Helper command to display detailed information about a specific ticket.
+   * Can be used by admins to lookup ticket history or status, even for closed tickets.
+   */
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({
       flags: ['Ephemeral']
@@ -23,6 +27,7 @@ export class TicketDetailCommand {
 
     const id = interaction.options.getString('ticket-id', true)
 
+    // Lookup ticket by exact database ID
     const ticket = await TicketRepository.findById({
       id: id
     })
@@ -50,7 +55,8 @@ export class TicketDetailCommand {
       }
     ]
 
-    // Show channel for OPEN tickets
+    // Conditionally add fields based on ticket status and available data
+    // Show channel link only for OPEN tickets as closed tickets might have their channels deleted
     if (ticket.status === TicketStatus.OPEN) {
       fields.push({ name: 'Kênh hỗ trợ', value: `<#${ticket.channelId}>`, inline: false })
     }

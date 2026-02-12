@@ -18,6 +18,8 @@ type CreateChannelLabelOptions = {
 }
 
 export class SettingHelper {
+  // Helper to create a standardized Channel Select Menu with a Label
+  // Handles placeholder logic based on whether a channel is currently configured or exists
   public static createChannelLabel(options: CreateChannelLabelOptions): LabelBuilder {
     const { guild, channelId, customId, channelType, label, description, placeholders } = options
 

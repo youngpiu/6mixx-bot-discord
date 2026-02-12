@@ -8,12 +8,13 @@ import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
 
 import { GuildRepository } from '~/repositories/guildRepository'
 
+// Configuration structure for channel selection labels in setting modals
 type ChannelLabelConfig = {
-  configKey: string
-  selectCustomId: string
-  channelType: ChannelType
-  label: string
-  description: string
+  configKey: string // Key in GuildConfig to update/read
+  selectCustomId: string // Custom ID for the channel select menu
+  channelType: ChannelType // Required channel type (Forum, Category, etc.)
+  label: string // Label text above the select menu
+  description: string // Description text
   placeholders: {
     channelConfiguredAndExists: string
     channelConfiguredButDeleted: string
@@ -22,6 +23,8 @@ type ChannelLabelConfig = {
   }
 }
 
+// Main configuration mapping for feature setting buttons
+// Maps button IDs to their corresponding modal configuration and channel selectors
 const SETTING_CONFIG = {
   'btn-channel-setting': {
     modalCustomId: 'modal-channel-setting',
@@ -107,10 +110,12 @@ export class ButtonFeatureSettingHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
+    // Only handle known setting buttons from the config
     if (!(interaction.customId in SETTING_CONFIG)) return this.none()
     return this.some({ buttonId: interaction.customId as SettingButtonId })
   }
 
+  // Handles the button click to open the configuration modal
   public run = asyncInteractionHandler<ButtonInteraction, { buttonId: SettingButtonId }>(
     async (interaction, result) => {
       if (!result) return
@@ -121,7 +126,8 @@ export class ButtonFeatureSettingHandler extends InteractionHandler {
 
       const guildConfig = await GuildRepository.getGuild(interaction.guildId)
 
-      // Create all labels based on config
+      // Create all channel select labels dynamically based on config
+      // This populates default values if they are already set in the database
       const channelLabels: LabelBuilder[] = config.labels.map((labelConfig: ChannelLabelConfig) => {
         const channelId = guildConfig?.[labelConfig.configKey as keyof typeof guildConfig]
 

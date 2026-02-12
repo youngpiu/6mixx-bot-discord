@@ -23,10 +23,11 @@ import { lines } from '~/utils/textUtil'
 import { TicketRepository } from '~/repositories/ticketRepository'
 
 // Types
+// Represents the state of the ticket list view (filters and pagination)
 export interface TicketListState {
   page: number
-  type?: TicketType
-  status?: TicketStatus
+  type?: TicketType // Filter by ticket type
+  status?: TicketStatus // Filter by ticket status
 }
 
 export interface TicketListMeta extends TicketListState {
@@ -37,7 +38,8 @@ export interface TicketListMeta extends TicketListState {
   hasPrev: boolean
 }
 
-// State encoding/decoding helpers
+// Encodes the state object into a compact string for button customIds
+// Format: p=1:t=BUG:s=OPEN
 export const encodeState = (state: TicketListState): string => {
   const parts = [`p=${state.page}`]
   if (state.type) parts.push(`t=${state.type}`)
@@ -83,11 +85,13 @@ const createButton = (
 }
 
 export class TicketListCommand {
+  // Initial execution of the list command
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
     if (!interaction.guildId) throw new GuildOnlyError()
 
+    // Fetch initial data (page 1, default limits)
     const { items, meta } = await TicketRepository.getTickets({
       guildId: interaction.guildId,
       page: 1,
@@ -99,9 +103,11 @@ export class TicketListCommand {
     return response
   }
 
+  // Handles pagination and filter button interactions
   public static async handleButton(interaction: ButtonInteraction, state: TicketListState) {
     if (!interaction.guildId) throw new GuildOnlyError()
 
+    // Fetch data based on the state encoded in the button
     const { items, meta } = await TicketRepository.getTickets({
       guildId: interaction.guildId,
       page: state.page,
@@ -114,6 +120,7 @@ export class TicketListCommand {
     await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)
   }
 
+  // Assembles the complete interaction response (Embed + Action Rows)
   public static createListResponse(tickets: Ticket[], meta: TicketListMeta) {
     return {
       embeds: [this.createEmbed(tickets, meta)],
@@ -125,6 +132,7 @@ export class TicketListCommand {
     }
   }
 
+  // Builds the main list embed with ticket details and footer info
   private static createEmbed(tickets: Ticket[], meta: TicketListMeta) {
     const embed = new EmbedBuilder().setTitle('Danh sách phiếu hỗ trợ').setColor('Navy')
 
@@ -164,6 +172,7 @@ export class TicketListCommand {
     return embed
   }
 
+  // Creates pagination controls (First, Prev, Next, Last)
   private static createPagination(meta: TicketListMeta) {
     const currentState: TicketListState = { page: meta.page, type: meta.type, status: meta.status }
 
@@ -207,6 +216,7 @@ export class TicketListCommand {
     )
   }
 
+  // Creates a row of buttons to filter tickets by Type
   private static createTypeFilter(meta: TicketListMeta) {
     const baseState: TicketListState = { page: 1, status: meta.status } // Reset page when filtering
 
@@ -258,6 +268,7 @@ export class TicketListCommand {
     )
   }
 
+  // Creates a row of buttons to filter tickets by Status
   private static createStatusFilter(meta: TicketListMeta) {
     const baseState: TicketListState = { page: 1, type: meta.type } // Reset page when filtering
 
