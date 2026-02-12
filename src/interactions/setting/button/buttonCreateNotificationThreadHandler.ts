@@ -83,18 +83,16 @@ export class ButtonCreateNotificationThreadHandler extends InteractionHandler {
         try {
           const oldThread = await channel.threads.fetch(oldThreadId)
           if (oldThread) {
-            // Thread still exists - notify user and return early
-            await interaction.editReply({
-              embeds: [
-                createSuccessEmbed({
-                  description: `Kênh thông báo vẫn tồn tại: <#${oldThread.id}>`
-                })
-              ]
+            // Thread still exists - throw error instead of creating duplicate
+            throw new BadRequestError({
+              description: `Kênh thông báo vẫn tồn tại: <#${oldThread.id}>`
             })
-            await deleteReplyInteraction(interaction)
-            return
           }
         } catch (error) {
+          // Re-throw BadRequestError (thread exists)
+          if (error instanceof BadRequestError) {
+            throw error
+          }
           // Thread not found or error fetching - proceed to create new one
           container.logger.info(`Thread ${oldThreadId} not found, creating new one`)
         }
