@@ -17,24 +17,6 @@ const TICKET_PREFIX: Record<TicketType, string> = {
 }
 
 export class TicketRepository {
-  // Retrieve ticket configuration for a guild via GuildRepository
-  public static async getConfig(guildId: string) {
-    return GuildRepository.getTicketConfig(guildId)
-  }
-
-  // Update ticket configuration (category, threads, etc.)
-  public static async updateConfig(
-    guildId: string,
-    data: {
-      ticketCategoryId?: string
-      ticketTutorialThreadId?: string
-      ticketNotificationThreadId?: string
-      notificationForumChannelId?: string
-    }
-  ) {
-    return GuildRepository.updateTicketConfig(guildId, data)
-  }
-
   /**
    * Generates a unique, sequential ticket code (e.g., RP001, FB042).
    * Uses atomic upsert on TicketCounter to prevent race conditions during concurrent requests.
@@ -116,13 +98,6 @@ export class TicketRepository {
     if (keys.length > 0) {
       await container.redis.del(...keys)
     }
-  }
-
-  // Find a ticket by its code within a guild
-  public static async findByCode({ guildId, code }: { guildId: string; code: string }) {
-    return container.prisma.ticket.findFirst({
-      where: { guildId, code }
-    })
   }
 
   public static async searchByCode({ guildId, search }: { guildId: string; search: string }) {
@@ -225,20 +200,6 @@ export class TicketRepository {
   public static async findById({ id }: { id: string }) {
     return container.prisma.ticket.findUnique({
       where: { id }
-    })
-  }
-
-  // General purpose ticket update method
-  public static async updateTicket({
-    ticketId,
-    data
-  }: {
-    ticketId: string
-    data: Prisma.TicketUncheckedUpdateInput
-  }) {
-    return container.prisma.ticket.update({
-      where: { id: ticketId },
-      data
     })
   }
 

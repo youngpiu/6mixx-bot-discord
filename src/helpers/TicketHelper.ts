@@ -10,6 +10,7 @@ import {
 } from 'discord.js'
 
 import { Ticket, TicketType } from 'generated/prisma/client'
+import { TicketStatus } from 'generated/prisma/enums'
 
 import { EMOJI } from '~/constants/iconConstant'
 import { BadRequestError, NotFoundError } from '~/core/errorResponse'
@@ -50,6 +51,20 @@ export class TicketHelper {
    */
   public static getTicketTypeLabel(type: TicketType): string {
     return this.TICKET_TYPE_LABELS[type]
+  }
+
+  /**
+   * Converts TicketStatus enum to Vietnamese text
+   */
+  public static getStatusText(status: TicketStatus): string {
+    switch (status) {
+      case TicketStatus.OPEN:
+        return 'Mở'
+      case TicketStatus.CLOSED:
+        return 'Đóng'
+      default:
+        return status
+    }
   }
 
   /**

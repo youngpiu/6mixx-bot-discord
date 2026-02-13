@@ -1,6 +1,8 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
 import type { AutocompleteInteraction } from 'discord.js'
 
+import { TicketHelper } from '~/helpers/TicketHelper'
+
 import { TicketRepository } from '~/repositories/ticketRepository'
 
 export class AutocompleteTicketHandler extends InteractionHandler {
@@ -34,7 +36,7 @@ export class AutocompleteTicketHandler extends InteractionHandler {
 
     return this.some(
       searchedTickets.map((ticket) => ({
-        name: ticket.code,
+        name: `${ticket.code} - ${TicketHelper.getStatusText(ticket.status)}`,
         value: ticket.id
       }))
     )
