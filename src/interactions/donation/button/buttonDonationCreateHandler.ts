@@ -10,6 +10,10 @@ import {
 import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
 
 export class ButtonDonationCreateHandler extends InteractionHandler {
+  /**
+   * Handles the creation of a new donation via button interaction.
+   * Displays the donation modal.
+   */
   public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
     super(ctx, {
       ...options,

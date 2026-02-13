@@ -89,38 +89,4 @@ export class GuildRepository {
         }
       : null
   }
-
-  public static async updateTicketConfig(
-    guildId: string,
-    data: {
-      ticketCategoryId?: string
-      ticketTutorialThreadId?: string
-      ticketNotificationThreadId?: string
-      notificationForumChannelId?: string
-    }
-  ) {
-    return this.updateConfig(guildId, data)
-  }
-
-  public static async updateConfessionConfig(
-    guildId: string,
-    data: {
-      notificationForumChannelId?: string
-      confessionForumChannelId?: string
-      confessionTutorialThreadId?: string
-      confessionNotificationThreadId?: string
-    }
-  ) {
-    return this.updateConfig(guildId, data)
-  }
-
-  public static async updateDonationConfig(
-    guildId: string,
-    data: {
-      donationTutorialThreadId?: string
-      donationNotificationThreadId?: string
-    }
-  ) {
-    return this.updateConfig(guildId, data)
-  }
 }

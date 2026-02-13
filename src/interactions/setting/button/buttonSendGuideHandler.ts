@@ -151,7 +151,7 @@ export class ButtonSendGuideHandler extends InteractionHandler {
         .addTextDisplayComponents((text) =>
           text.setContent(
             lines(
-              '## NƠI GỬI CONFESSION',
+              `## ${ANIMATED_EMOJI.WING_LEFT} NƠI GỬI CONFESSION ${ANIMATED_EMOJI.WING_RIGHT}`,
               '-# Tại đây, bạn có thể chia sẻ những câu chuyện cá nhân liên quan đến **NMIXX* hoặc đời thường.'
             )
           )
@@ -211,7 +211,7 @@ export class ButtonSendGuideHandler extends InteractionHandler {
         .addTextDisplayComponents((text) =>
           text.setContent(
             lines(
-              '## NƠI GỬI YÊU CẦU HỖ TRỢ',
+              `## ${ANIMATED_EMOJI.WING_LEFT} NƠI GỬI YÊU CẦU HỖ TRỢ ${ANIMATED_EMOJI.WING_RIGHT}`,
               '-# Tại đây, bạn có thể gửi báo cáo vi phạm luật, góp ý cải thiện máy chủ và báo lỗi nếu có trong máy chủ **VNMIXX**.'
             )
           )
@@ -224,7 +224,7 @@ export class ButtonSendGuideHandler extends InteractionHandler {
             .addTextDisplayComponents((text) =>
               text.setContent(
                 lines(
-                  `### ${ANIMATED_EMOJI.ARROW_RIGHT}BÁO CÁO VI PHẠM`,
+                  `### ${ANIMATED_EMOJI.CYAN_DOT} Báo cáo vi phạm`,
                   '-# Dùng khi bạn thấy một hành vi vi phạm luật trong máy chủ **VNMIXX**.',
                   '- **Yêu cầu bắt buộc**',
                   '  - Đính kèm bằng chứng rõ ràng, chính xác, không qua chỉnh sửa.',
@@ -250,7 +250,7 @@ export class ButtonSendGuideHandler extends InteractionHandler {
             .addTextDisplayComponents((text) =>
               text.setContent(
                 lines(
-                  `### ${ANIMATED_EMOJI.ARROW_RIGHT}GÓP Ý CẢI THIỆN`,
+                  `### ${ANIMATED_EMOJI.CYAN_DOT} Góp ý cải thiện`,
                   '-# Dùng khi bạn có một ý tưởng đề xuất hoặc góp ý cải thiện máy chủ **VNMIXX**.',
                   '- **Yêu cầu bắt buộc**',
                   '  - Mô tả rõ ràng những góp ý, ý tưởng của bạn.',
@@ -275,7 +275,7 @@ export class ButtonSendGuideHandler extends InteractionHandler {
             .addTextDisplayComponents((text) =>
               text.setContent(
                 lines(
-                  `### ${ANIMATED_EMOJI.ARROW_RIGHT}BÁO LỖI BOT`,
+                  `### ${ANIMATED_EMOJI.CYAN_DOT} Báo lỗi bot`,
                   '-# Dùng khi bạn gặp lỗi trong quá trình sử dụng BOT.',
                   '- **Yêu cầu bắt buộc**',
                   '  - Mô tả rõ ràng lỗi mà bạn gặp phải.',
@@ -301,7 +301,7 @@ export class ButtonSendGuideHandler extends InteractionHandler {
       .addTextDisplayComponents((text) =>
         text.setContent(
           lines(
-            '## NƠI GÓP GẠCH NUÔI BOT',
+            `## ${ANIMATED_EMOJI.WING_LEFT} NƠI GÓP GẠCH NUÔI BOT ${ANIMATED_EMOJI.WING_RIGHT}`,
             '-# Tại đây, bạn có thể thực hiện quyên góp ủng hộ để duy trì hoạt động của **BOT 6MIXX**.'
           )
         )
@@ -313,7 +313,7 @@ export class ButtonSendGuideHandler extends InteractionHandler {
             '- **Cam kết:**',
             '  - Khoản quyên góp được sử dụng cho chi phí thuê máy chủ và các chi phí phát sinh cho hoạt động của BOT.',
             '  - Không sử dụng khoản tiền này cho mục đích cá nhân hoặc các dịch vụ không liên quan đến BOT.',
-            '  - Thông tin chuyển khoản được tiếp nhận theo hình thức ẩn danh và không hiển thị công khai trong máy chủ.'
+            '  - Thông tin chuyển khoản được tiếp nhận theo hình thức ẩn danh và không hiển thị ở bất cứ đâu.'
           )
         )
       )
@@ -322,7 +322,7 @@ export class ButtonSendGuideHandler extends InteractionHandler {
         text.setContent(
           lines(
             '- **Lưu ý:**',
-            '  - Không một ai kể cả **Ban quản lý** có thể biết được danh tính người quyên góp.',
+            '  - Không một ai kể cả **Ban quản lý** có thể biết được danh tính người quyên góp để đảm bảo không xảy ra thiên vị khi xử lý vi phạm.',
             '  - Việc quyên góp không tạo ra bất kỳ hình thức ưu tiên, đặc quyền hoặc miễn trừ nào khi xử lý vi phạm nội quy máy chủ **VNMIXX**.',
             `  - <@${env.BOT_OWNER_DISCORD_ID}> chịu **trách nhiệm cá nhân** hoàn toàn về mọi cam kết đối với người quyên góp.`
           )
@@ -351,7 +351,7 @@ export class ButtonSendGuideHandler extends InteractionHandler {
             .setLabel('Thống kê')
             .setStyle(ButtonStyle.Secondary),
           new ButtonBuilder()
-            .setCustomId('btn-donation-expense')
+            .setCustomId('btn-disbursement-list')
             .setLabel('Các khoản chi')
             .setStyle(ButtonStyle.Secondary)
         )

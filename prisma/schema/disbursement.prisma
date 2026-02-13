@@ -1,0 +1,17 @@
+/// Disbursement (Giải ngân)
+model Disbursement {
+  id      String @id @default(cuid())
+  
+  guildId String
+  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+
+  amount      Int
+  description String
+
+  createdBy   String
+  creator     Member @relation(fields: [guildId, createdBy], references: [guildId, userId])
+
+  createdAt DateTime @default(now())
+
+  @@index([guildId, createdAt(sort: Desc)])
+}

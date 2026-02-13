@@ -9,23 +9,28 @@ import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
 import { DonationStatus } from 'generated/prisma/enums'
 
-import { ERROR_MESSAGE } from '~/constants/messageConstant'
-import { BadRequestError, NotFoundError } from '~/core/errorResponse'
+import { EMOJI } from '~/constants/iconConstant'
+import { BadRequestError, GuildOnlyError, NotFoundError } from '~/core/errorResponse'
 
+import { DonationHelper } from '~/helpers/DonationHelper'
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
 
 import { DonateRepository } from '~/repositories/donateRepository'
 
 export class DonationDetailCommand {
+  /**
+   * Main entry point for the donation detail command.
+   * Fetches and displays detailed information about a specific donation.
+   *
+   * @param interaction - The chat input command interaction
+   */
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({
       flags: ['Ephemeral']
     })
 
     if (!interaction.guildId) {
-      throw new BadRequestError({
-        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
-      })
+      throw new GuildOnlyError()
     }
 
     const code = interaction.options.getString('code', true)
@@ -44,18 +49,18 @@ export class DonationDetailCommand {
       })
     }
 
+    const statusEmoji = DonationHelper.getStatusEmoji(donation.status)
+
     const embed = new EmbedBuilder()
-      .setColor(donation.status === DonationStatus.CONFIRMED ? 'Green' : 'Yellow')
-      .setTitle(`Thông tin giao dịch quyên góp #${donation.code}`)
+      .setColor(donation.status === DonationStatus.TRANSFERRED ? 'Green' : 'Yellow')
+      .setTitle(`Thông tin quyên góp #${donation.code}`)
       .addFields(
-        { name: 'Mã giao dịch', value: `*#${donation.code}*`, inline: false },
-        { name: 'Mã người chuyển', value: `*#${donation.donor?.donorCode}*`, inline: true },
-        { name: 'Số tiền', value: `${donation.amount.toLocaleString('vi-VN')}đ`, inline: true },
         {
-          name: 'Trạng thái',
-          value: donation.status === DonationStatus.CONFIRMED ? 'Đã xác nhận' : 'Chờ xác nhận',
+          name: 'Mã giao dịch',
+          value: `${statusEmoji} **#${donation.code}**`,
           inline: false
         },
+        { name: 'Số tiền', value: `${donation.amount.toLocaleString('vi-VN')}đ`, inline: false },
         {
           name: 'Thời gian tạo',
           value: `<t:${Math.floor(donation.createdAt.getTime() / 1000)}:R>`,
@@ -67,27 +72,40 @@ export class DonationDetailCommand {
       embed.addFields({ name: 'Lời nhắn', value: donation.message })
     }
 
-    if (donation.confirmedAt && donation.confirmedBy) {
-      embed.addFields(
-        {
-          name: 'Người xác nhận',
-          value: `<@${donation.confirmedBy}>`,
-          inline: true
-        },
-        {
-          name: 'Thời gian xác nhận',
-          value: `<t:${Math.floor(donation.confirmedAt.getTime() / 1000)}:R>`,
-          inline: true
-        }
-      )
-    }
-
     const components = []
 
-    if (donation.status === DonationStatus.PENDING) {
+    // Check donation status to determine available actions
+    if (
+      donation.status === DonationStatus.PENDING ||
+      donation.status === DonationStatus.PENDING_VERIFICATION
+    ) {
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
-          .setCustomId(`btn-donation-confirm:${donation.code}`)
+          .setCustomId(`btn-donation-change-status:TRANSFERRED:${donation.id}`)
+          .setLabel('Xác nhận')
+          .setStyle(ButtonStyle.Success),
+        new ButtonBuilder()
+          .setCustomId(`btn-donation-change-status:CANCELED:${donation.id}`)
+          .setLabel('Hủy')
+          .setStyle(ButtonStyle.Danger)
+      )
+      components.push(row)
+    }
+    // For transferred donations, show Cancel button
+    else if (donation.status === DonationStatus.TRANSFERRED) {
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder()
+          .setCustomId(`btn-donation-change-status:CANCELED:${donation.id}`)
+          .setLabel('Hủy')
+          .setStyle(ButtonStyle.Danger)
+      )
+      components.push(row)
+    }
+    // For canceled donations, show Confirm button to revert
+    else if (donation.status === DonationStatus.CANCELED) {
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder()
+          .setCustomId(`btn-donation-change-status:TRANSFERRED:${donation.id}`)
           .setLabel('Xác nhận')
           .setStyle(ButtonStyle.Success)
       )

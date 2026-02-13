@@ -1,68 +1,46 @@
 import { container } from '@sapphire/pieces'
 import { customAlphabet } from 'nanoid'
 
-import { GuildRepository } from '~/repositories/guildRepository'
-import { MemberRepository } from '~/repositories/memberRepository'
+import { DonationStatus } from 'generated/prisma/enums'
 
-const generateNanoId = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 6)
+const generateNanoId = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 3)
 
 export class DonateRepository {
-  public static async getConfig(guildId: string) {
-    return GuildRepository.getDonationConfig(guildId)
-  }
-
-  public static async updateConfig(
-    guildId: string,
-    data: {
-      donationTutorialThreadId?: string
-      donationNotificationThreadId?: string
-    }
-  ) {
-    return GuildRepository.updateDonationConfig(guildId, data)
-  }
-
-  private static async generateDonationCode(): Promise<string> {
-    let code: string
-    let exists = true
-
-    while (exists) {
-      code = `DNT${generateNanoId()}`
-      const existing = await container.prisma.donation.findUnique({
-        where: { code },
-        select: { id: true }
-      })
-      exists = !!existing
-    }
-
-    return code!
-  }
-
   public static async createDonation(data: {
     guildId: string
     donorId: string
     amount: number
     message?: string
   }) {
-    const code = await this.generateDonationCode()
+    let retries = 3
 
-    // Ensure member exists and has donorCode
-    await MemberRepository.getOrCreateDonorCode({
-      guildId: data.guildId,
-      userId: data.donorId
-    })
+    while (retries > 0) {
+      try {
+        const code = `DNT_${generateNanoId()}`
 
-    return container.prisma.donation.create({
-      data: {
-        code,
-        guildId: data.guildId,
-        donorId: data.donorId,
-        amount: data.amount,
-        message: data.message
-      },
-      include: {
-        donor: true
+        return await container.prisma.donation.create({
+          data: {
+            code,
+            guildId: data.guildId,
+            donorId: data.donorId,
+            amount: data.amount,
+            message: data.message
+          },
+          include: {
+            donor: true
+          }
+        })
+      } catch (error: any) {
+        // P2002: Unique constraint failed on the fields: (`code`)
+        if (error.code === 'P2002') {
+          retries--
+          continue
+        }
+        throw error
       }
-    })
+    }
+
+    throw new Error('Failed to generate unique donation code after 3 retries')
   }
 
   public static async findByCode(code: string) {
@@ -92,6 +70,23 @@ export class DonateRepository {
     })
   }
 
+  public static async markAsTransferred({
+    donationId,
+    confirmedBy
+  }: {
+    donationId: string
+    confirmedBy: string
+  }) {
+    return container.prisma.donation.update({
+      where: { id: donationId },
+      data: {
+        status: 'TRANSFERRED',
+        confirmedAt: new Date(),
+        confirmedBy
+      }
+    })
+  }
+
   public static async confirmDonation({
     code,
     confirmedBy
@@ -99,8 +94,8 @@ export class DonateRepository {
     code: string
     confirmedBy: string
   }) {
-    // Ensure confirmer member exists
-    // Member should exist from join sync
+    // Ensure confirmer member exists in database
+    // Member record is expected to exist via join release
 
     return container.prisma.donation.update({
       where: { code },
@@ -117,7 +112,7 @@ export class DonateRepository {
 
   public static async cancelDonation(id: string) {
     return container.prisma.donation.update({
-      where: { id, status: 'PENDING' },
+      where: { id },
       data: {
         status: 'CANCELED'
       }
@@ -128,8 +123,7 @@ export class DonateRepository {
     return container.prisma.donation.findMany({
       where: {
         guildId,
-        code: { contains: search.toUpperCase() },
-        status: 'PENDING'
+        code: { contains: search.toUpperCase() }
       },
       include: {
         donor: true
@@ -148,7 +142,7 @@ export class DonateRepository {
     guildId: string
     page: number
     limit: number
-    status?: 'PENDING' | 'TRANSFERRED'
+    status?: DonationStatus
   }) {
     const skip = (page - 1) * limit
 
@@ -214,5 +208,29 @@ export class DonateRepository {
       totalTransactions: aggregate._count,
       uniqueDonors: uniqueDonors.length
     }
+  }
+
+  public static async getTopDonors(guildId: string, limit = 5) {
+    const donors = await container.prisma.donation.groupBy({
+      by: ['donorId'],
+      where: {
+        guildId,
+        status: 'TRANSFERRED'
+      },
+      _sum: {
+        amount: true
+      },
+      orderBy: {
+        _sum: {
+          amount: 'desc'
+        }
+      },
+      take: limit
+    })
+
+    return donors.map((d) => ({
+      donorId: d.donorId,
+      totalAmount: d._sum.amount || 0
+    }))
   }
 }

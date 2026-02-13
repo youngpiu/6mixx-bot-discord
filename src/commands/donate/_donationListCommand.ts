@@ -12,19 +12,22 @@ import { Donation, Member } from 'generated/prisma/client'
 import { DonationStatus } from 'generated/prisma/enums'
 
 import { DEFAULT_PAGINATION_LIMIT } from '~/constants/commonConstant'
-import { EMOIJ } from '~/constants/emoijConstant'
-import { ERROR_MESSAGE } from '~/constants/messageConstant'
-import { BadRequestError } from '~/core/errorResponse'
+import { EMOJI } from '~/constants/iconConstant'
+import { GuildOnlyError } from '~/core/errorResponse'
 
 import { deleteReplyInteraction } from '~/utils/interactionUtil'
 import { lines } from '~/utils/textUtil'
 
 import { DonateRepository } from '~/repositories/donateRepository'
 
-// Type for Donation with included donor relation
+/**
+ * Type definition for Donation including donor relation
+ */
 type DonationWithDonor = Donation & { donor: Member }
 
-// Types
+/**
+ * Interface for list state management
+ */
 export interface DonationListState {
   page: number
   status?: DonationStatus
@@ -38,7 +41,9 @@ export interface DonationListMeta extends DonationListState {
   hasPrev: boolean
 }
 
-// State encoding/decoding helpers
+/**
+ * Helper to encode state into customId string
+ */
 export const encodeState = (state: DonationListState): string => {
   const parts = [`p=${state.page}`]
   if (state.status) parts.push(`s=${state.status}`)
@@ -58,30 +63,43 @@ export const decodeState = (encoded: string): DonationListState => {
   return state
 }
 
-// Helper to create a button with encoded state
+/**
+ * Creates a navigation button with encoded state
+ */
 const createButton = (
   action: string,
   state: DonationListState,
-  label: string,
+  emoji: string | undefined,
   disabled: boolean,
-  style = ButtonStyle.Secondary
+  style = ButtonStyle.Secondary,
+  label?: string
 ) => {
   const customId = `donation-list:${action}:${encodeState(state)}`
-  return new ButtonBuilder()
-    .setCustomId(customId)
-    .setLabel(label)
-    .setStyle(style)
-    .setDisabled(disabled)
+  const button = new ButtonBuilder().setCustomId(customId).setStyle(style).setDisabled(disabled)
+
+  if (emoji) {
+    button.setEmoji(emoji)
+  }
+
+  if (label) {
+    button.setLabel(label)
+  }
+
+  return button
 }
 
 export class DonationListCommand {
+  /**
+   * Main entry point for the donation list command.
+   * Displays a paginated list of donations.
+   *
+   * @param interaction - The chat input command interaction
+   */
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
     if (!interaction.guildId) {
-      throw new BadRequestError({
-        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
-      })
+      throw new GuildOnlyError()
     }
 
     const { items, meta } = await DonateRepository.getDonations({
@@ -95,22 +113,26 @@ export class DonationListCommand {
     return response
   }
 
+  /**
+   * Handles button interactions for pagination and filtering.
+   *
+   * @param interaction - The button interaction
+   * @param state - The decoded list state
+   */
   public static async handleButton(interaction: ButtonInteraction, state: DonationListState) {
     if (!interaction.guildId) {
-      throw new BadRequestError({
-        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
-      })
+      throw new GuildOnlyError()
     }
 
     const { items, meta } = await DonateRepository.getDonations({
       guildId: interaction.guildId,
       page: state.page,
-      limit: 5,
+      limit: DEFAULT_PAGINATION_LIMIT,
       status: state.status
     })
 
+    await interaction.editReply(this.createListResponse(items, meta))
     await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)
-    return interaction.update(this.createListResponse(items, meta))
   }
 
   public static createListResponse(donations: Donation[], meta: DonationListMeta) {
@@ -129,26 +151,38 @@ export class DonationListCommand {
       donations.forEach((donation, index) => {
         const createdTimestamp = Math.floor(donation.createdAt.getTime() / 1000)
         const indexNumber = (meta.page - 1) * meta.limit + index + 1
-        const statusIcon = donation.status === DonationStatus.CONFIRMED ? EMOIJ.OK : EMOIJ.WAIT
+
+        // Determine status icon based on donation status
+        let statusIcon = EMOJI.COLOR.WAITING
+        if (donation.status === DonationStatus.TRANSFERRED) {
+          statusIcon = EMOJI.COLOR.CHECK
+        } else if (donation.status === DonationStatus.PENDING_VERIFICATION) {
+          statusIcon = EMOJI.COLOR.WAITING
+        } else if (donation.status === DonationStatus.CANCELED) {
+          statusIcon = EMOJI.COLOR.CANCEL
+        }
 
         embed.addFields({
-          name: `${indexNumber}. #${donation.code} ${statusIcon}`,
+          name: `${statusIcon} ${indexNumber}. #${donation.code}`,
           value: lines(
-            `**Mã người chuyển:** \`${(donation as DonationWithDonor).donor?.donorCode || 'N/A'}\``,
-            `**Số tiền:** ${donation.amount.toLocaleString('vi-VN')}đ`,
-            `**Thời gian tạo:** <t:${createdTimestamp}:R>`
+            `- **Số tiền:** ${donation.amount.toLocaleString('vi-VN')}đ`,
+            `- **Thời gian tạo:** <t:${createdTimestamp}:R>`
           ),
           inline: false
         })
       })
     }
 
-    // Footer with filters info
+    // Generate status filter text for footer
     const statusText = !meta.status
       ? 'Tất cả'
       : meta.status === DonationStatus.PENDING
-        ? 'Chờ xác nhận'
-        : 'Đã xác nhận'
+        ? 'Đang chờ'
+        : meta.status === DonationStatus.PENDING_VERIFICATION
+          ? 'Chờ xác nhận'
+          : meta.status === DonationStatus.TRANSFERRED
+            ? 'Đã chuyển'
+            : 'Đã hủy'
 
     embed.setFooter({
       text: `Trang ${meta.page}/${meta.totalPages || 1} • Tổng: ${meta.total} khoản • Trạng thái: ${statusText}`
@@ -162,30 +196,38 @@ export class DonationListCommand {
 
     return new ActionRowBuilder<ButtonBuilder>().addComponents(
       createButton(
+        'pagination-indicator',
+        currentState,
+        undefined,
+        true,
+        ButtonStyle.Secondary,
+        'Trang'
+      ),
+      createButton(
         'first',
         { ...currentState, page: 1 },
-        '⏮️ Đầu',
+        EMOJI.NORMAL.NAV_FIRST,
         !meta.hasPrev,
         ButtonStyle.Primary
       ),
       createButton(
         'prev',
         { ...currentState, page: meta.page - 1 },
-        '◀️ Trước',
+        EMOJI.NORMAL.NAV_PREV,
         !meta.hasPrev,
         ButtonStyle.Primary
       ),
       createButton(
         'next',
         { ...currentState, page: meta.page + 1 },
-        'Sau ▶️',
+        EMOJI.NORMAL.NAV_NEXT,
         !meta.hasNext,
         ButtonStyle.Primary
       ),
       createButton(
         'last',
         { ...currentState, page: meta.totalPages },
-        'Cuối ⏭️',
+        EMOJI.NORMAL.NAV_LAST,
         !meta.hasNext,
         ButtonStyle.Primary
       )
@@ -195,23 +237,54 @@ export class DonationListCommand {
   private static createStatusFilter(meta: DonationListMeta) {
     const baseState: DonationListState = { page: 1 } // Reset page when filtering
 
-    const statuses: Array<{ action: string; label: string; state: DonationListState }> = [
-      { action: 'status-all', label: '🗂️ Tất cả', state: { ...baseState, status: undefined } },
+    const statuses: Array<{
+      action: string
+      emoji: string | undefined
+      state: DonationListState
+      label?: string
+      disabled?: boolean
+      style?: ButtonStyle
+    }> = [
       {
-        action: 'status-pending',
-        label: '⏳ Đang chờ',
-        state: { ...baseState, status: DonationStatus.PENDING }
+        action: 'status-filter-indicator',
+        emoji: undefined,
+        label: 'T.Thái',
+        state: { ...baseState, status: undefined },
+        disabled: true,
+        style: ButtonStyle.Secondary
       },
       {
-        action: 'status-confirmed',
-        label: '✅ Đã nhận',
-        state: { ...baseState, status: DonationStatus.CONFIRMED }
+        action: 'status-all',
+        emoji: EMOJI.NORMAL.ALL,
+        state: { ...baseState, status: undefined }
+      },
+      {
+        action: 'status-pending-verification',
+        emoji: EMOJI.NORMAL.WAITING,
+        state: { ...baseState, status: DonationStatus.PENDING_VERIFICATION }
+      },
+      {
+        action: 'status-transferred',
+        emoji: EMOJI.NORMAL.CHECK,
+        state: { ...baseState, status: DonationStatus.TRANSFERRED }
+      },
+      {
+        action: 'status-canceled',
+        emoji: EMOJI.NORMAL.CANCEL,
+        state: { ...baseState, status: DonationStatus.CANCELED }
       }
     ]
 
     return new ActionRowBuilder<ButtonBuilder>().addComponents(
-      statuses.map(({ action, label, state }) =>
-        createButton(action, state, label, meta.status === state.status, ButtonStyle.Success)
+      statuses.map(({ action, emoji, state, label, disabled, style }) =>
+        createButton(
+          action,
+          state,
+          emoji,
+          disabled ?? meta.status === state.status,
+          style ?? ButtonStyle.Primary,
+          label
+        )
       )
     )
   }

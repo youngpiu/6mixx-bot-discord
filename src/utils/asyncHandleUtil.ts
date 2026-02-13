@@ -216,3 +216,30 @@ export const asyncInteractionHandler = <T extends RepliableInteraction, R = unkn
     }
   }
 }
+
+/**
+ * Wraps a scheduled task handler with error handling and logging.
+ * Uses the same error handling as interactions (sends to error notification thread).
+ */
+export function asyncTaskHandler<T extends any[]>(
+  handler: (...args: T) => Promise<void>,
+  guildId?: string | null
+) {
+  return async (...args: T): Promise<void> => {
+    try {
+      await handler(...args)
+    } catch (error) {
+      // Log to console - error notification will be handled by handleError if needed
+      container.logger.error('Task execution failed:', error)
+
+      // Use the same error handling as interactions (sends to error notification thread)
+      await handleError(
+        error,
+        guildId ? { id: guildId, ownerId: '' } : null,
+        { id: 'SYSTEM', tag: 'Scheduled Task' },
+        undefined // No command name
+      )
+      // Don't rethrow - tasks should not crash the scheduler
+    }
+  }
+}

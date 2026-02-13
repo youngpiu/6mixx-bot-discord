@@ -18,7 +18,7 @@ export class ButtonDonationListHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    // Match all donation-list buttons: donation-list:<action>:<encoded_state>
+    // Parse customId for donation list pagination: donation-list:<action>:<encoded_state>
     if (!interaction.customId.startsWith('donation-list:')) return this.none()
 
     const parts = interaction.customId.split(':')
@@ -36,7 +36,7 @@ export class ButtonDonationListHandler extends InteractionHandler {
     { action: string; state: DonationListState }
   >(async (interaction, result) => {
     if (!result) return
-    await interaction.deferReply({ flags: ['Ephemeral'] })
+    await interaction.deferUpdate() // Acknowledge interaction to prevent timeout
     await DonationListCommand.handleButton(interaction, result.state)
   })
 }
