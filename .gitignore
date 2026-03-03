@@ -1,4 +1,7 @@
 node_modules/
 dist/
+/generated/
+/scripts/
+/sources/
+/docs/
 .env
-/generated/prisma

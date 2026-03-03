@@ -1,0 +1,58 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  # ── Run CI first ──────────────────────────
+  ci:
+    name: 🔍 CI Check
+    uses: ./.github/workflows/ci.yml
+
+  # ── Deploy ────────────────────────────────
+  deploy:
+    name: 🚀 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: ci
+    environment: production
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /opt/6mixx-bot
+            git pull origin main
+            docker compose --profile prod build --no-cache bot
+            echo "🔄 Running database migrations..."
+            docker compose --profile prod run --rm bot npx prisma migrate deploy --config ./prisma.config.ts
+            echo "✅ Migrations complete"
+            docker compose --profile prod up -d bot
+            docker image prune -f
+            echo "✅ Deployed at $(date)"
+
+      - name: Health Check
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            sleep 10
+            if docker compose -f /opt/6mixx-bot/docker-compose.yml --profile prod ps bot --format json | jq -e '.[0].State == "running"'; then
+              echo "✅ Bot is running"
+            else
+              echo "❌ Bot failed to start"
+              docker compose -f /opt/6mixx-bot/docker-compose.yml --profile prod logs bot --tail 50
+              exit 1
+            fi

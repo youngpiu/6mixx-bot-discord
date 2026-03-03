@@ -1,0 +1,15 @@
+node_modules
+dist
+generated
+.env
+.git
+.gitignore
+docs
+sources
+scripts
+*.md
+.prettierrc
+.prettierignore
+eslint.config.mts
+nodemon.json
+.agent

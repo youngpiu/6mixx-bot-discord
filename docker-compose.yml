@@ -1,22 +1,31 @@
+# ────────────────────────────────────────────
+# Dev:  docker compose up -d          (postgres + redis only)
+# Prod: docker compose --profile prod up -d  (all services)
+# ────────────────────────────────────────────
+
 services:
+  # ── Database ──────────────────────────────
   postgres:
     image: postgres:16-alpine
     container_name: 6mixx-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: mydb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U admin -d mydb']
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - bot-network
 
+  # ── Cache & Queue ─────────────────────────
   redis:
     image: redis:7-alpine
     container_name: 6mixx-redis
@@ -30,8 +39,46 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    command: redis-server --appendonly yes
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy noeviction
+    networks:
+      - bot-network
+
+  # ── Discord Bot (production only) ──────────
+  bot:
+    profiles: [prod]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: 6mixx-bot
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      REDIS_URL: redis://redis:6379
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      TEST_GUILDS_ID: ${TEST_GUILDS_ID}
+      OWNER_BOT_ID: ${OWNER_BOT_ID}
+      BANK_ACCOUNT_NUMBER: ${BANK_ACCOUNT_NUMBER}
+      BANK_NAME: ${BANK_NAME}
+      BANK_ACCOUNT_NAME: ${BANK_ACCOUNT_NAME}
+      DEFAULT_PREFIX: ${DEFAULT_PREFIX:-.}
+      NODE_ENV: production
+    networks:
+      - bot-network
 
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  bot-network:
+    driver: bridge
