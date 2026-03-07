@@ -1,61 +1,329 @@
-import type {
-  ChatInputCommandSuccessPayload,
-  ContextMenuCommandSuccessPayload,
-  MessageCommandSuccessPayload
-} from '@sapphire/framework'
-import { container } from '@sapphire/pieces'
-import { reply } from '@sapphire/plugin-editable-commands'
-import type {
-  ChatInputSubcommandSuccessPayload,
-  MessageSubcommandSuccessPayload
-} from '@sapphire/plugin-subcommands'
-import { cyan } from 'colorette'
-import { type APIUser, EmbedBuilder, type Guild, type Message, type User } from 'discord.js'
+import {
+  Channel,
+  ChatInputCommandInteraction,
+  ContainerBuilder,
+  InteractionDeferReplyOptions,
+  InteractionDeferUpdateOptions,
+  InteractionEditReplyOptions,
+  InteractionReplyOptions,
+  InteractionResponse,
+  type Message,
+  type MessageCreateOptions,
+  type MessageEditOptions,
+  ModalSubmitInteraction,
+  RepliableInteraction
+} from 'discord.js'
 
-import { RGB_COLOR_TEMPLATE } from '~/constants/colorConstant'
-import { RANDOM_LOADING_MESSAGES } from '~/constants/messageConstant'
+import { STATIC_EMOJI } from '~/constants/emojiConstant'
+import { TIME } from '~/constants/timeConstant'
+import type { ErrorType } from '~/core/errorResponse'
 
-export function sendLoadingMessage(message: Message): Promise<typeof message> {
-  const randomMessage =
-    RANDOM_LOADING_MESSAGES[Math.floor(Math.random() * RANDOM_LOADING_MESSAGES.length)]
+export type { RepliableInteraction } from 'discord.js'
+export type OptionalRepliableInteraction = RepliableInteraction | null | undefined
 
-  return reply(message, {
-    embeds: [new EmbedBuilder().setDescription(randomMessage).setColor(RGB_COLOR_TEMPLATE.SUCCESS)]
-  })
+type MessageInput = Message | null | undefined
+type ChannelInput = Channel | null | undefined
+
+// ─── Helpers ──────────────────────────────────────────────────────────────
+
+export function getEmojiForErrorType(type: ErrorType): string {
+  switch (type) {
+    case 'DATABASE':
+      return STATIC_EMOJI.DATABASE_ERROR
+    case 'SYSTEM':
+      return STATIC_EMOJI.SYSTEM_ERROR
+    case 'RATE_LIMIT':
+      return STATIC_EMOJI.RATE_LIMIT_ERROR
+    case 'PERMISSION':
+      return STATIC_EMOJI.PERMISSION_ERROR
+    case 'BANNED':
+      return STATIC_EMOJI.BANNED_ERROR
+    default:
+      return STATIC_EMOJI.ERROR
+  }
 }
 
-export function logSuccessCommand(
-  payload:
-    | ContextMenuCommandSuccessPayload
-    | ChatInputCommandSuccessPayload
-    | MessageCommandSuccessPayload
-    | ChatInputSubcommandSuccessPayload
-    | MessageSubcommandSuccessPayload
-): void {
-  let guild: Guild | null
-  let user: User | APIUser
-  let subcommandName: string | null = null
+// ─── MessageUtil ──────────────────────────────────────────────────────────────
 
-  if ('interaction' in payload && payload.interaction) {
-    guild = payload.interaction.guild
-    user = payload.interaction.user
+export class MessageUtil {
+  private static delay(ms: number): Promise<void> {
+    return new Promise<void>((res) => setTimeout(res, ms))
+  }
 
-    if (payload.interaction.isChatInputCommand()) {
-      subcommandName = payload.interaction.options.getSubcommand(false)
+  private static scheduleDelete(messages: Message[], timeout?: number): void {
+    if (!timeout || timeout <= 0) return
+    this.deleteAfter(messages, timeout)
+  }
+
+  static async sendToChannel(
+    channel: Channel | null | undefined,
+    messageOptions: MessageCreateOptions,
+    timeoutDeleteMessage?: number
+  ): Promise<Message | null> {
+    if (!channel?.isTextBased() || !channel.isSendable()) return null
+
+    try {
+      const sentMessage = await channel.send(messageOptions)
+      this.scheduleDelete([sentMessage], timeoutDeleteMessage)
+      return sentMessage
+    } catch {
+      return null
     }
-  } else if ('message' in payload && payload.message) {
-    guild = payload.message.guild
-    user = payload.message.author
-  } else {
+  }
+
+  static async reply(
+    message: MessageInput,
+    messageOptions: MessageCreateOptions,
+    timeoutDeleteMessage?: number
+  ): Promise<Message | null> {
+    if (!message || !message.channel.isTextBased() || !message.channel.isSendable()) return null
+
+    try {
+      const repliedMessage = await message.reply(messageOptions)
+      this.scheduleDelete([repliedMessage, message], timeoutDeleteMessage)
+      return repliedMessage
+    } catch {
+      return null
+    }
+  }
+
+  static async edit(
+    message: MessageInput,
+    messageOptions: MessageEditOptions,
+    timeoutDeleteMessage?: number
+  ): Promise<Message | null> {
+    if (!message || !message.editable) return null
+
+    try {
+      const editedMessage = await message.edit(messageOptions)
+      this.scheduleDelete([editedMessage], timeoutDeleteMessage)
+      return editedMessage
+    } catch {
+      return null
+    }
+  }
+
+  static async sendTyping(message: MessageInput): Promise<void> {
+    if (!message || !message.channel) return
+    if (message.channel.isTextBased() && message.channel.isSendable()) {
+      await message.channel.sendTyping().catch(() => null)
+    }
     return
   }
 
-  const shard = `[${cyan((guild?.shardId ?? 0).toString())}]`
-  const commandName = cyan(
-    subcommandName ? `${payload.command.name} ${subcommandName}` : payload.command.name
-  )
-  const author = `${user.username}[${cyan(user.id)}]`
-  const sentAt = guild ? `${guild.name}[${cyan(guild.id)}]` : 'Direct Messages'
+  static async deleteNow(messages: MessageInput | MessageInput[]): Promise<boolean> {
+    const msgArray = Array.isArray(messages) ? messages : [messages]
+    const valid = msgArray.filter((m): m is Message => m != null && m.deletable)
+    if (valid.length === 0) return false
 
-  container.logger.debug(`${shard} - ${commandName} ${author} ${sentAt}`)
+    const results = await Promise.allSettled(valid.map((m) => m.delete()))
+    return results.some((r) => r.status === 'fulfilled')
+  }
+
+  static async deleteAfter(
+    messages: MessageInput | MessageInput[],
+    timeoutDeleteMessage: number
+  ): Promise<boolean> {
+    const msgArray = Array.isArray(messages) ? messages : [messages]
+    const valid = msgArray.filter((m): m is Message => m != null && m.deletable)
+    if (valid.length === 0) return false
+
+    await this.delay(timeoutDeleteMessage)
+    return this.deleteNow(valid)
+  }
+
+  static async replyWithContainer(
+    message: Message,
+    containerOrText: ContainerBuilder | string,
+    timeoutDeleteMessage?: number
+  ): Promise<Message | null> {
+    const container =
+      typeof containerOrText === 'string'
+        ? new ContainerBuilder().addTextDisplayComponents((t) => t.setContent(containerOrText))
+        : containerOrText
+
+    return this.reply(
+      message,
+      {
+        components: [container],
+        flags: ['IsComponentsV2', 'SuppressNotifications']
+      },
+      timeoutDeleteMessage
+    )
+  }
+
+  static async replySuccess(
+    message: Message,
+    content: string,
+    timeoutDeleteMessage: number = TIME.S15
+  ): Promise<Message | null> {
+    return MessageUtil.replyWithContainer(
+      message,
+      new ContainerBuilder().addTextDisplayComponents((t) =>
+        t.setContent(`${STATIC_EMOJI.SUCCESS} ${content}`)
+      ),
+      timeoutDeleteMessage
+    )
+  }
+
+  static async replyError(
+    message: Message,
+    content: string,
+    timeoutDeleteMessage: number = TIME.S15,
+    type: ErrorType = 'NORMAL'
+  ): Promise<Message | null> {
+    const errorEmoji = getEmojiForErrorType(type)
+    return MessageUtil.replyWithContainer(
+      message,
+      new ContainerBuilder().addTextDisplayComponents((t) =>
+        t.setContent(`${errorEmoji} ${content}`)
+      ),
+      timeoutDeleteMessage
+    )
+  }
+
+  static async sendWithContainer(
+    channel: ChannelInput,
+    containerOrText: ContainerBuilder | string,
+    timeoutDeleteMessage?: number
+  ): Promise<Message | null> {
+    if (!channel) return null
+
+    const container =
+      typeof containerOrText === 'string'
+        ? new ContainerBuilder().addTextDisplayComponents((t) => t.setContent(containerOrText))
+        : containerOrText
+
+    return MessageUtil.sendToChannel(
+      channel,
+      {
+        components: [container],
+        flags: ['IsComponentsV2', 'SuppressNotifications']
+      },
+      timeoutDeleteMessage
+    )
+  }
+}
+
+// ─── InteractionUtil ──────────────────────────────────────────────────────────
+
+export class InteractionUtil {
+  static async reply(
+    interaction: RepliableInteraction,
+    options: InteractionReplyOptions
+  ): Promise<InteractionResponse | null> {
+    if (!interaction || interaction.replied || interaction.deferred) return null
+
+    try {
+      const response = await interaction.reply({ flags: ['Ephemeral'], ...options })
+      return response
+    } catch {
+      return null
+    }
+  }
+
+  static async editReply(
+    interaction: OptionalRepliableInteraction,
+    options: InteractionEditReplyOptions
+  ): Promise<Message | null> {
+    if (!interaction || (!interaction.replied && !interaction.deferred)) return null
+
+    try {
+      return await interaction.editReply(options)
+    } catch {
+      return null
+    }
+  }
+
+  static async followUp(
+    interaction: OptionalRepliableInteraction,
+    options: InteractionReplyOptions
+  ): Promise<Message | null> {
+    if (!interaction || (!interaction.replied && !interaction.deferred)) return null
+
+    try {
+      const followed = await interaction.followUp({ flags: 'Ephemeral', ...options })
+      return followed
+    } catch {
+      return null
+    }
+  }
+
+  static async deferReply(
+    interaction: OptionalRepliableInteraction,
+    options?: InteractionDeferReplyOptions
+  ): Promise<InteractionResponse | null> {
+    if (!interaction || interaction.replied || interaction.deferred) return null
+
+    try {
+      return await interaction.deferReply({ flags: ['Ephemeral'], ...options })
+    } catch {
+      return null
+    }
+  }
+
+  static async deferUpdate(
+    interaction: Exclude<
+      RepliableInteraction,
+      ChatInputCommandInteraction | ModalSubmitInteraction
+    >,
+    options?: InteractionDeferUpdateOptions
+  ): Promise<InteractionResponse | null> {
+    if (!interaction || interaction.replied || interaction.deferred) return null
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return await (interaction as any).deferUpdate(options)
+    } catch {
+      return null
+    }
+  }
+
+  static async replyError(
+    interaction: OptionalRepliableInteraction,
+    content: string,
+    type: ErrorType = 'NORMAL'
+  ): Promise<Message | InteractionResponse | null> {
+    if (!interaction) return null
+
+    const errorEmoji = getEmojiForErrorType(type)
+    const container = new ContainerBuilder().addTextDisplayComponents((t) =>
+      t.setContent(`${errorEmoji} ${content}`)
+    )
+
+    if (interaction.deferred || interaction.replied) {
+      return this.editReply(interaction, {
+        components: [container],
+        flags: ['IsComponentsV2']
+      })
+    }
+
+    return this.reply(interaction, {
+      components: [container],
+      flags: ['IsComponentsV2', 'Ephemeral']
+    })
+  }
+
+  static async replySuccess(
+    interaction: OptionalRepliableInteraction,
+    content: string
+  ): Promise<Message | InteractionResponse | null> {
+    if (!interaction) return null
+
+    const container = new ContainerBuilder().addTextDisplayComponents((t) =>
+      t.setContent(`${STATIC_EMOJI.SUCCESS} ${content}`)
+    )
+
+    if (interaction.deferred || interaction.replied) {
+      return this.editReply(interaction, {
+        components: [container],
+        flags: ['IsComponentsV2']
+      })
+    }
+
+    return this.reply(interaction, {
+      components: [container],
+      flags: ['IsComponentsV2', 'Ephemeral']
+    })
+  }
 }

@@ -2,7 +2,7 @@ import { Listener, LogLevel } from '@sapphire/framework'
 import type { Logger } from '@sapphire/plugin-logger'
 import type { MessageSubcommandSuccessPayload } from '@sapphire/plugin-subcommands'
 
-import { logSuccessCommand } from '~/utils/messageUtil'
+import { logSuccessCommand } from '~/utils/loggerUtil'
 
 export class UserEvent extends Listener {
   public override run(payload: MessageSubcommandSuccessPayload) {

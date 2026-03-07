@@ -9,11 +9,10 @@ export class DeleteTicketChannelTask extends ScheduledTask {
   public constructor(context: ScheduledTask.LoaderContext, options: ScheduledTask.Options) {
     super(context, {
       ...options,
-      name: 'deleteTicketChannel' // Unique identifier for the task
+      name: 'deleteTicketChannel'
     })
   }
 
-  // Executes the task: deletes the specified channel if it exists
   public async run(payload: DeleteTicketChannelPayload) {
     const { channelId } = payload
     try {

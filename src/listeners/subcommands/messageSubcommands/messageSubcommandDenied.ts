@@ -4,21 +4,17 @@ import {
   SubcommandPluginEvents
 } from '@sapphire/plugin-subcommands'
 
-import { createErrorEmbed } from '~/utils/embedUtil'
+import { handleError } from '~/utils/errorUtil'
+import { mapDeniedError } from '~/utils/preconditionErrorUtil'
 
 export class UserEvent extends Listener<typeof SubcommandPluginEvents.MessageSubcommandDenied> {
-  public override async run({ context }: UserError, { message }: MessageSubcommandDeniedPayload) {
-    if (Reflect.get(Object(context), 'silent')) return
+  public override async run(
+    error: UserError,
+    { message, command }: MessageSubcommandDeniedPayload
+  ) {
+    if (Reflect.get(Object(error.context), 'silent')) return
 
-    const ctx = context as ErrorContext
-    const errorEmbed = createErrorEmbed({
-      title: ctx.title,
-      description: ctx.description
-    })
-
-    return message.reply({
-      embeds: [errorEmbed],
-      allowedMentions: { users: [message.author.id], roles: [] }
-    })
+    const mappedError = mapDeniedError(error)
+    return handleError(message, mappedError, command.name)
   }
 }

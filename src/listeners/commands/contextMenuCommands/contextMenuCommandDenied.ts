@@ -1,32 +1,18 @@
 import type { ContextMenuCommandDeniedPayload, Events } from '@sapphire/framework'
-import { Listener, UserError } from '@sapphire/framework'
+import { Listener, type UserError } from '@sapphire/framework'
 
-import { createErrorEmbed } from '~/utils/embedUtil'
+import { handleError } from '~/utils/errorUtil'
+import type { RepliableInteraction } from '~/utils/messageUtil'
+import { mapDeniedError } from '~/utils/preconditionErrorUtil'
 
 export class UserEvent extends Listener<typeof Events.ContextMenuCommandDenied> {
   public override async run(
-    { context }: UserError,
-    { interaction }: ContextMenuCommandDeniedPayload
+    error: UserError,
+    { interaction, command }: ContextMenuCommandDeniedPayload
   ) {
-    if (Reflect.get(Object(context), 'silent')) return
+    if (Reflect.get(Object(error.context), 'silent')) return
 
-    const ctx = context as ErrorContext
-    const errorEmbed = createErrorEmbed({
-      title: ctx.title,
-      description: ctx.description
-    })
-
-    if (interaction.deferred || interaction.replied) {
-      return interaction.editReply({
-        embeds: [errorEmbed],
-        allowedMentions: { users: [interaction.user.id], roles: [] }
-      })
-    }
-
-    return interaction.reply({
-      embeds: [errorEmbed],
-      allowedMentions: { users: [interaction.user.id], roles: [] },
-      flags: ['Ephemeral']
-    })
+    const mappedError = mapDeniedError(error)
+    return handleError(interaction as RepliableInteraction, mappedError, command.name)
   }
 }

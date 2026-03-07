@@ -11,10 +11,3 @@ declare module '@sapphire/framework' {
     tasks: TaskStore
   }
 }
-
-declare global {
-  type ErrorContext = {
-    title: string
-    description: string
-  }
-}

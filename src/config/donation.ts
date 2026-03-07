@@ -1,4 +1,4 @@
-import { DELETE_REPLY_TIMEOUT } from '~/config/time'
+import { TIME } from '~/constants/timeConstant'
 
 export const DONATION_CONFIG = {
   AMOUNT: {
@@ -9,6 +9,6 @@ export const DONATION_CONFIG = {
     BASE_URL: 'https://qr.sepay.vn/img'
   },
   TIMEOUT: {
-    PAYMENT_WAIT: DELETE_REPLY_TIMEOUT.VERY_LONG // 10 minutes
+    PAYMENT_WAIT: TIME.M10
   }
 } as const

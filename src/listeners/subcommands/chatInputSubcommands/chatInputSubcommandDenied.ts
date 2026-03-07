@@ -4,32 +4,17 @@ import {
   SubcommandPluginEvents
 } from '@sapphire/plugin-subcommands'
 
-import { createErrorEmbed } from '~/utils/embedUtil'
+import { handleError } from '~/utils/errorUtil'
+import { mapDeniedError } from '~/utils/preconditionErrorUtil'
 
 export class UserEvent extends Listener<typeof SubcommandPluginEvents.ChatInputSubcommandDenied> {
   public override async run(
-    { context }: UserError,
-    { interaction }: ChatInputSubcommandDeniedPayload
+    error: UserError,
+    { interaction, command }: ChatInputSubcommandDeniedPayload
   ) {
-    if (Reflect.get(Object(context), 'silent')) return
+    if (Reflect.get(Object(error.context), 'silent')) return
 
-    const ctx = context as ErrorContext
-    const errorEmbed = createErrorEmbed({
-      title: ctx.title,
-      description: ctx.description
-    })
-
-    if (interaction.deferred || interaction.replied) {
-      return interaction.editReply({
-        embeds: [errorEmbed],
-        allowedMentions: { users: [interaction.user.id], roles: [] }
-      })
-    }
-
-    return interaction.reply({
-      embeds: [errorEmbed],
-      allowedMentions: { users: [interaction.user.id], roles: [] },
-      flags: ['Ephemeral']
-    })
+    const mappedError = mapDeniedError(error)
+    return handleError(interaction, mappedError, command.name)
   }
 }

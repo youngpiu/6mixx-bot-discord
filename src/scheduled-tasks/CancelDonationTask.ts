@@ -1,12 +1,12 @@
 import { ScheduledTask } from '@sapphire/plugin-scheduled-tasks'
 
 import { DonationHelper } from '~/helpers/DonationHelper'
-import { asyncTaskHandler } from '~/utils/asyncHandleUtil'
 
 import { DonateRepository } from '~/repositories/donateRepository'
 
 type CancelDonationPayload = {
   donationId: string
+  guildId: string
 }
 
 export class CancelDonationTask extends ScheduledTask {
@@ -26,25 +26,23 @@ export class CancelDonationTask extends ScheduledTask {
       return
     }
 
-    return asyncTaskHandler(async () => {
-      if (donation.status !== 'PENDING') {
-        this.container.logger.info(
-          `Donation ${payload.donationId} already ${donation.status}, skipping auto-cancel`
-        )
-        return
-      }
+    if (donation.status !== 'PENDING') {
+      this.container.logger.info(
+        `Donation ${payload.donationId} already ${donation.status}, skipping auto-cancel`
+      )
+      return
+    }
 
-      await DonateRepository.cancelDonation(payload.donationId)
+    await DonateRepository.cancelDonation(payload.donationId)
 
-      // Send auto-cancellation notification
-      await DonationHelper.sendDonationNotification({
-        guildId: donation.guildId,
-        donation,
-        event: 'AUTO_CANCELED'
-      })
+    // Send auto-cancellation notification
+    await DonationHelper.sendDonationNotification({
+      guildId: donation.guildId,
+      donation,
+      event: 'AUTO_CANCELED'
+    })
 
-      this.container.logger.info(`Auto-canceled donation ${payload.donationId}`)
-    }, donation.guildId)()
+    this.container.logger.info(`Auto-canceled donation ${payload.donationId}`)
   }
 }
 
