@@ -14,10 +14,6 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface CooldownContext {
-  remaining: number
-}
-
 interface PermissionContext {
   missing: string[]
 }
@@ -27,11 +23,6 @@ interface RunInContext {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const formatRemainingTime = (ms: number): string => {
-  const expiresAt = Math.floor((Date.now() + ms) / 1000)
-  return `<t:${expiresAt}:R>`
-}
 
 const formatMissingPermissions = (missing: string[]): string =>
   missing.map((p) => PERMISSION_NAMES[p as PermissionsString] ?? p).join(', ')
@@ -62,16 +53,18 @@ export function mapDeniedError(error: UserError): ErrorResponseCore {
   const id = error.identifier
   const ctx = error.context as Record<string, unknown> | null
 
+  const isCustomMessage = ctx?.isCustomMessage
+
   // ── Cooldown ──────────────────────────────────────────────────────────────
   if (id === Identifiers.PreconditionCooldown) {
-    const remaining = (ctx as unknown as CooldownContext)?.remaining ?? 0
-    const time = formatRemainingTime(remaining)
-    return new RateLimitError(`Bạn đang thao tác quá nhanh, vui lòng chờ **${time}**.`)
+    if (isCustomMessage) return new RateLimitError(error.message)
+    return new RateLimitError(`Bạn đang thao tác quá nhanh, vui lòng sống chậm lại.`)
   }
 
   // ── User Permissions ──────────────────────────────────────────────────────
   if (USER_PERMISSION_IDENTIFIERS.has(id)) {
     const missing = (ctx as unknown as PermissionContext)?.missing
+    if (isCustomMessage) return new PermissionError(error.message)
     if (missing && missing.length > 0) {
       return new PermissionError(
         `Bạn không có đủ quyền để thực hiện hành động này, do thiếu các quyền sau: \`${formatMissingPermissions(missing)}\`.`
@@ -83,6 +76,7 @@ export function mapDeniedError(error: UserError): ErrorResponseCore {
   // ── Client Permissions ────────────────────────────────────────────────────
   if (CLIENT_PERMISSION_IDENTIFIERS.has(id)) {
     const missing = (ctx as unknown as PermissionContext)?.missing
+    if (isCustomMessage) return new PermissionError(error.message)
     if (missing && missing.length > 0) {
       return new PermissionError(
         `Mình không có đủ quyền để thực hiện hành động này, do thiếu các quyền sau: \`${formatMissingPermissions(missing)}\`.`
@@ -93,17 +87,20 @@ export function mapDeniedError(error: UserError): ErrorResponseCore {
 
   // ── Command Disabled ──────────────────────────────────────────────────────
   if (id === Identifiers.CommandDisabled) {
+    if (isCustomMessage) return new BannedError(error.message)
     return new BannedError('Lệnh này hiện đang bị vô hiệu hoá, không thể sử dụng được.')
   }
 
   // ── NSFW ──────────────────────────────────────────────────────────────────
   if (id === Identifiers.PreconditionNSFW) {
+    if (isCustomMessage) return new BannedError(error.message)
     return new BannedError('Lệnh này chỉ khả dụng trong kênh NSFW (18+).')
   }
 
   // ── RunIn / Channel Type ──────────────────────────────────────────────────
   if (id === Identifiers.PreconditionRunIn) {
     const types = (ctx as unknown as RunInContext)?.types
+    if (isCustomMessage) return new BannedError(error.message)
     if (types && types.length > 0) {
       return new BannedError(
         `Lệnh này chỉ hoạt động trong các kênh: \`${formatAllowedChannels(types)}\`.`

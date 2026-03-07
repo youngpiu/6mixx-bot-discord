@@ -1,11 +1,10 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
 import { ModalSubmitInteraction } from 'discord.js'
 
-import { GuildOnlyError } from '~/core/errorResponse'
+import { CUSTOM_ID } from '~/constants/idConstant'
 
-import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
-import { createSuccessEmbed } from '~/utils/embedUtil'
-import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { InteractionUtil } from '~/utils/messageUtil'
+import { lines } from '~/utils/textUtil'
 
 import { GuildRepository } from '~/repositories/guildRepository'
 
@@ -18,49 +17,33 @@ export class ModalChannelSettingHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ModalSubmitInteraction) {
-    if (interaction.customId !== 'modal-channel-setting') return this.none()
+    if (interaction.customId !== CUSTOM_ID.MODAL_CHANNEL_SETTING) return this.none()
     return this.some()
   }
 
-  // Handles the submission of the channel setting modal
-  // Updates the guild configuration with selected channels (Service, Notification)
-  public run = asyncInteractionHandler<ModalSubmitInteraction>(async (interaction) => {
-    if (!interaction.guildId || !interaction.guild) throw new GuildOnlyError()
+  public async run(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
+    if (!interaction.guildId) return
 
-    // Retrieve selected channels from the modal fields
-    const serviceChannel = interaction.fields.getSelectedChannels('select-service-channel')?.first()
-    const notificationChannel = interaction.fields
+    const serviceForumChannelId = interaction.fields
+      .getSelectedChannels('select-service-channel')
+      ?.first()?.id
+    const notificationForumChannelId = interaction.fields
       .getSelectedChannels('select-notification-channel')
-      ?.first()
+      ?.first()?.id
 
-    const updateData: { serviceForumChannelId?: string; notificationForumChannelId?: string } = {}
-    const messages: string[] = []
-
-    if (serviceChannel) {
-      updateData.serviceForumChannelId = serviceChannel.id
-      messages.push(`Kênh dịch vụ đã được cập nhật: <#${serviceChannel.id}>`)
-    }
-
-    if (notificationChannel) {
-      updateData.notificationForumChannelId = notificationChannel.id
-      messages.push(`Kênh thông báo đã được cập nhật: <#${notificationChannel.id}>`)
-    }
-
-    // Only update database if there are changes
-    if (Object.keys(updateData).length > 0) {
-      await GuildRepository.updateConfig(interaction.guildId, updateData)
-    }
-
-    await interaction.editReply({
-      embeds: [
-        createSuccessEmbed({
-          title: 'Thiết lập thành công',
-          description: messages.length > 0 ? messages.join('\n') : 'Không có thay đổi nào được lưu.'
-        })
-      ]
+    await GuildRepository.updateConfig(interaction.guildId, {
+      serviceForumChannelId,
+      notificationForumChannelId
     })
 
-    await deleteReplyInteraction(interaction)
-  })
+    await InteractionUtil.replySuccess(
+      interaction,
+      'Bạn đã cập nhật thành công các kênh trong **Cài đặt chung**.',
+      lines(
+        `- **Kênh dịch vụ:** ${serviceForumChannelId ? `<#${serviceForumChannelId}>` : '*Chưa thiết lập*'}`,
+        `- **Kênh thông báo:** ${notificationForumChannelId ? `<#${notificationForumChannelId}>` : '*Chưa thiết lập*'}`
+      )
+    )
+  }
 }

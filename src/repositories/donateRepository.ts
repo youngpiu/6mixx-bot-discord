@@ -30,9 +30,10 @@ export class DonateRepository {
             donor: true
           }
         })
-      } catch (error: any) {
+      } catch (error: unknown) {
         // P2002: Unique constraint failed on the fields: (`code`)
-        if (error.code === 'P2002') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((error as any).code === 'P2002') {
           retries--
           continue
         }

@@ -1,8 +1,6 @@
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChatInputCommandInteraction } from 'discord.js'
 
-import { asyncChatInputHandler } from '~/utils/asyncHandleUtil'
-
 import { ExpenseAddCommand } from '~/commands/expense/_expenseAddCommand'
 import { ExpenseListCommand } from '~/commands/expense/_expenseListCommand'
 
@@ -15,25 +13,23 @@ export class ExpenseSubcommand extends Subcommand {
       subcommands: [
         {
           name: 'add',
-          chatInputRun: 'chatInputAdd',
-          preconditions: ['OwnerOnly']
+          chatInputRun: 'chatInputAdd'
         },
         {
           name: 'list',
-          chatInputRun: 'chatInputList',
-          preconditions: ['OwnerOnly']
+          chatInputRun: 'chatInputList'
         }
       ]
     })
   }
 
-  public chatInputAdd = asyncChatInputHandler(async (interaction: ChatInputCommandInteraction) => {
+  public async chatInputAdd(interaction: ChatInputCommandInteraction) {
     return ExpenseAddCommand.run(interaction)
-  })
+  }
 
-  public chatInputList = asyncChatInputHandler(async (interaction: ChatInputCommandInteraction) => {
+  public async chatInputList(interaction: ChatInputCommandInteraction) {
     return ExpenseListCommand.run(interaction)
-  })
+  }
 
   registerApplicationCommands(registry: Subcommand.Registry) {
     registry.registerChatInputCommand((builder) =>

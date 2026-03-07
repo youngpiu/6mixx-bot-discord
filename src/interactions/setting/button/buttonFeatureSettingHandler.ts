@@ -1,20 +1,20 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
 import { ButtonInteraction, ChannelType, LabelBuilder, ModalBuilder } from 'discord.js'
 
-import { GuildOnlyError } from '~/core/errorResponse'
+import { CUSTOM_ID } from '~/constants/idConstant'
+import { NormalError } from '~/core/errorResponse'
 
 import { SettingHelper } from '~/helpers/SettingHelper'
-import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
 
 import { GuildRepository } from '~/repositories/guildRepository'
 
 // Configuration structure for channel selection labels in setting modals
 type ChannelLabelConfig = {
-  configKey: string // Key in GuildConfig to update/read
-  selectCustomId: string // Custom ID for the channel select menu
-  channelType: ChannelType // Required channel type (Forum, Category, etc.)
-  label: string // Label text above the select menu
-  description: string // Description text
+  configKey: string
+  selectCustomId: string
+  channelType: ChannelType
+  label: string
+  description: string
   placeholders: {
     channelConfiguredAndExists: string
     channelConfiguredButDeleted: string
@@ -24,19 +24,18 @@ type ChannelLabelConfig = {
 }
 
 // Main configuration mapping for feature setting buttons
-// Maps button IDs to their corresponding modal configuration and channel selectors
 const SETTING_CONFIG = {
-  'btn-channel-setting': {
-    modalCustomId: 'modal-channel-setting',
-    modalTitle: 'Cài đặt kênh hệ thống',
+  [CUSTOM_ID.BTN_CHANNEL_SETTING]: {
+    modalCustomId: CUSTOM_ID.MODAL_CHANNEL_SETTING,
+    modalTitle: 'Cài đặt chung - Kênh',
     labels: [
       {
         configKey: 'serviceForumChannelId',
         selectCustomId: 'select-service-channel',
         channelType: ChannelType.GuildForum,
-        label: 'Kênh dịch vụ',
+        label: 'Kênh diễn đàn dịch vụ',
         description:
-          'Các bài hướng dẫn về các gửi yêu cầu hỗ trợ, quyên góp,... sẽ được tạo ở kênh này.',
+          'Các bài đăng chứa hướng dẫn gửi yêu cầu hỗ trợ, confession,... sẽ được tạo ở kênh này.',
         placeholders: {
           channelConfiguredAndExists: 'Chọn kênh dịch vụ',
           channelConfiguredButDeleted: 'Kênh dịch vụ đã thiết lập không còn tồn tại',
@@ -48,8 +47,8 @@ const SETTING_CONFIG = {
         configKey: 'notificationForumChannelId',
         selectCustomId: 'select-notification-channel',
         channelType: ChannelType.GuildForum,
-        label: 'Kênh thông báo',
-        description: 'Các kênh thông báo riêng cho từng loại sẽ được tạo ở kênh này.',
+        label: 'Kênh diễn đàn thông báo',
+        description: 'Các bài đăng chứa thông báo riêng cho từng loại sẽ được tạo ở kênh này.',
         placeholders: {
           channelConfiguredAndExists: 'Chọn kênh thông báo',
           channelConfiguredButDeleted: 'Kênh thông báo đã thiết lập không còn tồn tại',
@@ -59,15 +58,15 @@ const SETTING_CONFIG = {
       }
     ]
   },
-  'btn-confession-general-setting': {
-    modalCustomId: 'modal-confession-general-setting',
-    modalTitle: 'Cài đặt tính năng confession',
+  [CUSTOM_ID.BTN_CONFESSION_GENERAL_SETTING]: {
+    modalCustomId: CUSTOM_ID.MODAL_CONFESSION_GENERAL_SETTING,
+    modalTitle: 'Cài đặt hệ thống confession',
     labels: [
       {
         configKey: 'confessionForumChannelId',
         selectCustomId: 'select-confession-forum-channel',
         channelType: ChannelType.GuildForum,
-        label: 'Kênh chứa confession',
+        label: 'Kênh đăng confession',
         description: 'Các bài đăng confession sẽ được tạo ở kênh này.',
         placeholders: {
           channelConfiguredAndExists: 'Chọn kênh confession',
@@ -78,9 +77,9 @@ const SETTING_CONFIG = {
       }
     ]
   },
-  'btn-ticket-general-setting': {
-    modalCustomId: 'modal-ticket-general-setting',
-    modalTitle: 'Cài đặt tính năng hỗ trợ thành viên',
+  [CUSTOM_ID.BTN_TICKET_GENERAL_SETTING]: {
+    modalCustomId: CUSTOM_ID.MODAL_TICKET_GENERAL_SETTING,
+    modalTitle: 'Cài đặt hệ thống hỗ trợ thành viên',
     labels: [
       {
         configKey: 'ticketCategoryId',
@@ -110,44 +109,40 @@ export class ButtonFeatureSettingHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    // Only handle known setting buttons from the config
     if (!(interaction.customId in SETTING_CONFIG)) return this.none()
     return this.some({ buttonId: interaction.customId as SettingButtonId })
   }
 
-  // Handles the button click to open the configuration modal
-  public run = asyncInteractionHandler<ButtonInteraction, { buttonId: SettingButtonId }>(
-    async (interaction, result) => {
-      if (!result) return
+  public async run(interaction: ButtonInteraction, result: InteractionHandler.ParseResult<this>) {
+    if (!result) return
 
-      const config = SETTING_CONFIG[result.buttonId]
+    const { buttonId } = result as { buttonId: SettingButtonId }
+    const config = SETTING_CONFIG[buttonId]
 
-      if (!interaction.guildId || !interaction.guild) throw new GuildOnlyError()
+    if (!interaction.guildId || !interaction.guild)
+      throw new NormalError('Lệnh này chỉ dùng trong máy chủ.')
 
-      const guildConfig = await GuildRepository.getGuild(interaction.guildId)
+    const guildConfig = await GuildRepository.getGuild(interaction.guildId)
 
-      // Create all channel select labels dynamically based on config
-      // This populates default values if they are already set in the database
-      const channelLabels: LabelBuilder[] = config.labels.map((labelConfig: ChannelLabelConfig) => {
-        const channelId = guildConfig?.[labelConfig.configKey as keyof typeof guildConfig]
+    const channelLabels: LabelBuilder[] = config.labels.map((labelConfig: ChannelLabelConfig) => {
+      const channelId = guildConfig?.[labelConfig.configKey as keyof typeof guildConfig]
 
-        return SettingHelper.createChannelLabel({
-          guild: interaction.guild!,
-          channelId: channelId as string | null | undefined,
-          customId: labelConfig.selectCustomId,
-          channelType: labelConfig.channelType,
-          label: labelConfig.label,
-          description: labelConfig.description,
-          placeholders: labelConfig.placeholders
-        })
+      return SettingHelper.createChannelLabel({
+        guild: interaction.guild!,
+        channelId: channelId as string | null | undefined,
+        customId: labelConfig.selectCustomId,
+        channelType: labelConfig.channelType,
+        label: labelConfig.label,
+        description: labelConfig.description,
+        placeholders: labelConfig.placeholders
       })
+    })
 
-      const modal = new ModalBuilder()
-        .setCustomId(config.modalCustomId)
-        .setTitle(config.modalTitle)
-        .addLabelComponents(...channelLabels)
+    const modal = new ModalBuilder()
+      .setCustomId(config.modalCustomId)
+      .setTitle(config.modalTitle)
+      .addLabelComponents(...channelLabels)
 
-      await interaction.showModal(modal)
-    }
-  )
+    await interaction.showModal(modal)
+  }
 }

@@ -1,8 +1,6 @@
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChatInputCommandInteraction } from 'discord.js'
 
-import { asyncChatInputHandler } from '~/utils/asyncHandleUtil'
-
 import { TicketDetailCommand } from '~/commands/ticket/_ticketDetailCommand'
 import { TicketListCommand } from '~/commands/ticket/_ticketListCommand'
 
@@ -19,29 +17,25 @@ export class TicketSubcommand extends Subcommand {
       subcommands: [
         {
           name: 'list',
-          chatInputRun: 'chatInputList',
-          preconditions: ['AdministratorOnly'] // Restrict to admins
+          chatInputRun: 'chatInputList'
         },
         {
           name: 'detail',
-          chatInputRun: 'chatInputDetail',
-          preconditions: ['AdministratorOnly'] // Restrict to admins
+          chatInputRun: 'chatInputDetail'
         }
       ]
     })
   }
 
   // Handles the /ticket list command
-  public chatInputList = asyncChatInputHandler(async (interaction: ChatInputCommandInteraction) => {
+  public async chatInputList(interaction: ChatInputCommandInteraction) {
     return TicketListCommand.run(interaction)
-  })
+  }
 
   // Handles the /ticket detail command
-  public chatInputDetail = asyncChatInputHandler(
-    async (interaction: ChatInputCommandInteraction) => {
-      return TicketDetailCommand.run(interaction)
-    }
-  )
+  public async chatInputDetail(interaction: ChatInputCommandInteraction) {
+    return TicketDetailCommand.run(interaction)
+  }
 
   // Registers the slash command structure
   registerApplicationCommands(registry: Subcommand.Registry) {

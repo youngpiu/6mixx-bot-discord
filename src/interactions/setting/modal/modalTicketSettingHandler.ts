@@ -1,11 +1,10 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
 import { ModalSubmitInteraction } from 'discord.js'
 
-import { GuildOnlyError } from '~/core/errorResponse'
+import { CUSTOM_ID } from '~/constants/idConstant'
 
-import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
-import { createSuccessEmbed } from '~/utils/embedUtil'
-import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { InteractionUtil } from '~/utils/messageUtil'
+import { lines } from '~/utils/textUtil'
 
 import { GuildRepository } from '~/repositories/guildRepository'
 
@@ -18,37 +17,28 @@ export class ModalTicketSettingHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ModalSubmitInteraction) {
-    if (interaction.customId !== 'modal-ticket-general-setting') return this.none()
+    if (interaction.customId !== CUSTOM_ID.MODAL_TICKET_GENERAL_SETTING) return this.none()
     return this.some()
   }
 
-  // Handles the submission of the ticket setting modal
-  // Updates the ticket category configuration
-  public run = asyncInteractionHandler<ModalSubmitInteraction>(async (interaction) => {
-    if (!interaction.guildId || !interaction.guild) throw new GuildOnlyError()
+  public async run(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
+    if (!interaction.guildId) return
 
-    const channels = interaction.fields.getSelectedChannels('select-ticket-category')
-    const categoryChannel = channels?.first()
-    const categoryId = categoryChannel?.id
+    const ticketCategoryId = interaction.fields
+      .getSelectedChannels('select-ticket-category')
+      ?.first()?.id
 
-    if (categoryId) {
-      await GuildRepository.updateConfig(interaction.guildId, {
-        ticketCategoryId: categoryId
-      })
-    }
-
-    await interaction.editReply({
-      embeds: [
-        createSuccessEmbed({
-          title: 'Thiết lập thành công',
-          description: categoryId
-            ? `Danh mục chứa các kênh hỗ trợ đã được tạo: <#${categoryId}>`
-            : 'Không có thay đổi nào được lưu.'
-        })
-      ]
+    await GuildRepository.updateConfig(interaction.guildId, {
+      ticketCategoryId
     })
 
-    await deleteReplyInteraction(interaction)
-  })
+    await InteractionUtil.replySuccess(
+      interaction,
+      'Bạn đã cập nhật thành công danh mục trong **Cài đặt hỗ trợ**.',
+      lines(
+        `- **Danh mục kênh hỗ trợ:** ${ticketCategoryId ? `<#${ticketCategoryId}>` : '*Chưa thiết lập*'}`
+      )
+    )
+  }
 }

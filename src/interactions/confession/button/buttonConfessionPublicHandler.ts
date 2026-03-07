@@ -8,9 +8,9 @@ import {
   TextInputStyle
 } from 'discord.js'
 
-import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
-import { createErrorEmbed } from '~/utils/embedUtil'
-import { checkDmPermission, deleteReplyInteraction } from '~/utils/interactionUtil'
+import { CUSTOM_ID } from '~/constants/idConstant'
+import { NormalError } from '~/core/errorResponse'
+
 import { lines } from '~/utils/textUtil'
 
 export class ButtonConfessionPublicHandler extends InteractionHandler {
@@ -22,41 +22,39 @@ export class ButtonConfessionPublicHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    if (interaction.customId !== 'btn-confession-named') return this.none()
+    if (interaction.customId !== CUSTOM_ID.BTN_CONFESSION_SEND_PUBLIC) return this.none()
     return this.some()
   }
 
-  public run = asyncInteractionHandler<ButtonInteraction>(async (interaction) => {
+  public async run(interaction: ButtonInteraction) {
     // Check DM permission first
-    const canDm = await checkDmPermission(interaction)
+    let canDm = true
+    try {
+      await interaction.user.send({ content: ' ' })
+    } catch (error: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((error as any).code === 50007) canDm = false
+    }
 
     if (!canDm) {
-      await interaction.deferReply({ flags: ['Ephemeral'] })
-      await interaction.editReply({
-        embeds: [
-          createErrorEmbed({
-            title: 'Không thể gửi tin nhắn riêng',
-            description: lines(
-              'Bot không thể gửi tin nhắn riêng cho bạn.',
-              'Vui lòng mở khóa tin nhắn riêng (Allow Direct Messages) trong cài đặt máy chủ để tiếp tục.',
-              '- **Bước 1:** Chuột phải vào biểu tượng server > Privacy Settings',
-              '- **Bước 2:** Bật "Direct Messages"'
-            )
-          })
-        ]
-      })
-      await deleteReplyInteraction(interaction)
-      return
+      throw new NormalError(
+        lines(
+          'Bot không thể gửi tin nhắn riêng cho bạn.',
+          'Vui lòng mở khóa tin nhắn riêng (Allow Direct Messages) trong cài đặt máy chủ để tiếp tục.',
+          '- **Bước 1:** Chuột phải vào biểu tượng server > Privacy Settings',
+          '- **Bước 2:** Bật "Direct Messages"'
+        )
+      )
     }
 
     // Create modal with V2 Components
     const modal = new ModalBuilder()
-      .setCustomId('modal-confession-named')
+      .setCustomId(CUSTOM_ID.MODAL_CONFESSION_NAMED)
       .setTitle('Gửi Confession Công Khai')
 
     // Text input for content
     const contentInput = new TextInputBuilder()
-      .setCustomId('content')
+      .setCustomId(CUSTOM_ID.INPUT_CONTENT)
       .setStyle(TextInputStyle.Paragraph)
       .setPlaceholder('Nhập nội dung bạn muốn chia sẻ...')
       .setMaxLength(2000)
@@ -78,5 +76,5 @@ export class ButtonConfessionPublicHandler extends InteractionHandler {
     modal.addLabelComponents(contentLabel, attachmentLabel)
 
     await interaction.showModal(modal)
-  })
+  }
 }

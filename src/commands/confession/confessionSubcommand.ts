@@ -1,8 +1,6 @@
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChannelType, ChatInputCommandInteraction } from 'discord.js'
 
-import { asyncChatInputHandler } from '~/utils/asyncHandleUtil'
-
 import { ConfessionSetupCommand } from '~/commands/confession/_confessionSetupCommand'
 
 export class ConfessionSubcommand extends Subcommand {
@@ -14,18 +12,15 @@ export class ConfessionSubcommand extends Subcommand {
       subcommands: [
         {
           name: 'setup',
-          chatInputRun: 'chatInputSetup',
-          preconditions: ['OwnerOnly']
+          chatInputRun: 'chatInputSetup'
         }
       ]
     })
   }
 
-  public chatInputSetup = asyncChatInputHandler(
-    async (interaction: ChatInputCommandInteraction) => {
-      return ConfessionSetupCommand.run(interaction)
-    }
-  )
+  public async chatInputSetup(interaction: ChatInputCommandInteraction) {
+    return ConfessionSetupCommand.run(interaction)
+  }
 
   registerApplicationCommands(registry: Subcommand.Registry) {
     registry.registerChatInputCommand((builder) =>

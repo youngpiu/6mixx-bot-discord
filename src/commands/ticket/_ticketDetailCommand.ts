@@ -1,13 +1,10 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js'
-import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
 import { TicketStatus } from 'generated/prisma/enums'
 
-import { EMOJI } from '~/constants/iconConstant'
-import { GuildOnlyError, NotFoundError } from '~/core/errorResponse'
+import { NormalError } from '~/core/errorResponse'
 
 import { TicketHelper } from '~/helpers/TicketHelper'
-import { deleteReplyInteraction } from '~/utils/interactionUtil'
 
 import { TicketRepository } from '~/repositories/ticketRepository'
 
@@ -22,7 +19,7 @@ export class TicketDetailCommand {
     })
 
     if (!interaction.guildId) {
-      throw new GuildOnlyError()
+      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }
 
     const id = interaction.options.getString('ticket-id', true)
@@ -33,9 +30,7 @@ export class TicketDetailCommand {
     })
 
     if (!ticket) {
-      throw new NotFoundError({
-        description: `Hệ thống không tìm thấy phiếu hỗ trợ này trong cơ sở dữ liệu.`
-      })
+      throw new NormalError('Hệ thống không tìm thấy phiếu hỗ trợ này trong cơ sở dữ liệu.')
     }
 
     const typeLabel = TicketHelper.getTicketTypeLabel(ticket.type)
@@ -43,7 +38,7 @@ export class TicketDetailCommand {
     const fields = [
       {
         name: 'Mã phiếu',
-        value: `${ticket.status === TicketStatus.CLOSED ? EMOJI.COLOR.LOCK : EMOJI.COLOR.LOCK_OPEN} **#${ticket.code}**`,
+        value: `${ticket.status === TicketStatus.CLOSED ? '🔒' : '🔓'} **#${ticket.code}**`,
         inline: false
       },
       { name: 'Loại phiếu', value: typeLabel, inline: false },
@@ -85,6 +80,5 @@ export class TicketDetailCommand {
           .setFields(fields)
       ]
     })
-    await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)
   }
 }

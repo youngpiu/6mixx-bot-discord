@@ -8,10 +8,10 @@ import {
   TextChannel
 } from 'discord.js'
 
-import { BadRequestError, GuildOnlyError } from '~/core/errorResponse'
+import { CUSTOM_ID } from '~/constants/idConstant'
+import { NormalError } from '~/core/errorResponse'
 
-import { createSuccessEmbed } from '~/utils/embedUtil'
-import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { InteractionUtil } from '~/utils/messageUtil'
 import { lines } from '~/utils/textUtil'
 
 import { ConfessionRepository } from '~/repositories/confessionRepository'
@@ -22,7 +22,7 @@ export class ConfessionSetupCommand {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
     if (!interaction.guildId) {
-      throw new GuildOnlyError()
+      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }
 
     const notificationChannel = interaction.options.getChannel(
@@ -32,9 +32,7 @@ export class ConfessionSetupCommand {
     const forumChannel = interaction.options.getChannel('forum-channel', true) as ForumChannel
 
     if (!notificationChannel || !forumChannel) {
-      throw new BadRequestError({
-        description: 'Vui lòng chọn đầy đủ kênh thông báo và kênh forum.'
-      })
+      throw new NormalError('Vui lòng chọn đầy đủ kênh thông báo và kênh forum.')
     }
 
     // Ensure guild exists
@@ -71,21 +69,15 @@ export class ConfessionSetupCommand {
       confessionTutorialThreadId: tutorialThread.id
     })
 
-    await interaction.editReply({
-      embeds: [
-        createSuccessEmbed({
-          title: 'Thiết lập thành công',
-          description: lines(
-            `Đã thiết lập hệ thống Confession.`,
-            `- **Kênh thông báo duyệt:** <#${notificationChannel.id}>`,
-            `- **Kênh Confession:** <#${forumChannel.id}>`,
-            `- **Thread hướng dẫn:** <#${tutorialThread.id}>`
-          )
-        })
-      ]
-    })
-
-    await deleteReplyInteraction(interaction)
+    await InteractionUtil.replySuccess(
+      interaction,
+      lines(
+        `Đã thiết lập hệ thống Confession.`,
+        `- **Kênh thông báo duyệt:** <#${notificationChannel.id}>`,
+        `- **Kênh Confession:** <#${forumChannel.id}>`,
+        `- **Thread hướng dẫn:** <#${tutorialThread.id}>`
+      )
+    )
   }
 
   private static createTutorialContainer() {
@@ -127,7 +119,7 @@ export class ConfessionSetupCommand {
             )
             .setButtonAccessory(
               new ButtonBuilder()
-                .setCustomId('btn-confession-anonymous')
+                .setCustomId(CUSTOM_ID.BTN_CONFESSION_SEND_ANONYMOUS)
                 .setLabel('Gửi ẩn danh')
                 .setStyle(ButtonStyle.Success)
             )
@@ -147,7 +139,7 @@ export class ConfessionSetupCommand {
             )
             .setButtonAccessory(
               new ButtonBuilder()
-                .setCustomId('btn-confession-named')
+                .setCustomId(CUSTOM_ID.BTN_CONFESSION_SEND_PUBLIC)
                 .setLabel('Gửi công khai')
                 .setStyle(ButtonStyle.Danger)
             )

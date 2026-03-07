@@ -10,7 +10,7 @@ import {
 
 import { DonationStatus } from 'generated/prisma/enums'
 
-import { ANIMATED_EMOJI, EMOJI } from '~/constants/iconConstant'
+import { ANIMATED_EMOJI } from '~/constants/emojiConstant'
 
 import { lines } from '~/utils/textUtil'
 
@@ -53,26 +53,6 @@ export class DonationHelper {
         return 'Đã hủy'
       default:
         return status
-    }
-  }
-
-  /**
-   * Returns the appropriate emoji for a donation status (for UI display)
-   */
-  public static getStatusEmoji(status: DonationStatus, type: 'COLOR' | 'BG' = 'COLOR'): string {
-    const collection = type === 'BG' ? EMOJI.BG : EMOJI.COLOR
-
-    switch (status) {
-      case DonationStatus.PENDING:
-        return collection.NEW
-      case DonationStatus.PENDING_VERIFICATION:
-        return collection.WAITING
-      case DonationStatus.TRANSFERRED:
-        return collection.CHECK
-      case DonationStatus.CANCELED:
-        return collection.CANCEL
-      default:
-        return collection.NEW
     }
   }
 
@@ -135,7 +115,7 @@ export class DonationHelper {
   ) {
     container
       .addTextDisplayComponents((textDisplay) =>
-        textDisplay.setContent(`## ${EMOJI.BG.NEW} QUYÊN GÓP MỚI - #${donation.code}`)
+        textDisplay.setContent(`## QUYÊN GÓP MỚI - #${donation.code}`)
       )
       .addSeparatorComponents((sep) => sep)
       .addTextDisplayComponents((textDisplay) =>
@@ -155,7 +135,7 @@ export class DonationHelper {
   ) {
     container
       .addTextDisplayComponents((textDisplay) =>
-        textDisplay.setContent(`## ${EMOJI.BG.WAITING} CHỜ XÁC NHẬN - #${donation.code}`)
+        textDisplay.setContent(`## CHỜ XÁC NHẬN - #${donation.code}`)
       )
       .addSeparatorComponents((sep) => sep)
       .addTextDisplayComponents((textDisplay) =>
@@ -176,7 +156,7 @@ export class DonationHelper {
   ) {
     container
       .addTextDisplayComponents((textDisplay) =>
-        textDisplay.setContent(`## ${EMOJI.BG.CANCEL} HỦY QUYÊN GÓP - #${donation.code}`)
+        textDisplay.setContent(`## HỦY QUYÊN GÓP - #${donation.code}`)
       )
       .addSeparatorComponents((sep) => sep)
       .addTextDisplayComponents((textDisplay) =>
@@ -197,7 +177,7 @@ export class DonationHelper {
   ) {
     container
       .addTextDisplayComponents((textDisplay) =>
-        textDisplay.setContent(`## ${EMOJI.BG.CANCEL} TỰ ĐỘNG HỦY QUYÊN GÓP - #${donation.code}`)
+        textDisplay.setContent(`## TỰ ĐỘNG HỦY QUYÊN GÓP - #${donation.code}`)
       )
       .addSeparatorComponents((sep) => sep)
       .addTextDisplayComponents((textDisplay) =>
@@ -217,12 +197,11 @@ export class DonationHelper {
     container: ContainerBuilder,
     donation: DonationNotificationOptions['donation']
   ) {
-    const statusEmoji = this.getStatusEmoji(donation.status as DonationStatus, 'BG')
     const statusText = this.getStatusText(donation.status as DonationStatus)
 
     container
       .addTextDisplayComponents((textDisplay) =>
-        textDisplay.setContent(`## ${statusEmoji} CHUYỂN TRẠNG THÁI - #${donation.code}`)
+        textDisplay.setContent(`## CHUYỂN TRẠNG THÁI - #${donation.code}`)
       )
       .addSeparatorComponents((sep) => sep)
       .addTextDisplayComponents((textDisplay) =>

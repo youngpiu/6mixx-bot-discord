@@ -3,14 +3,11 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalSubmitInteraction } 
 import { DONATION_CONFIG } from '~/config/donation'
 import { env } from '~/config/env'
 
-import { ANIMATED_EMOJI } from '~/constants/iconConstant'
-import { BadRequestError } from '~/core/errorResponse'
+import { CUSTOM_ID } from '~/constants/idConstant'
+import { NormalError } from '~/core/errorResponse'
 
 import { DonationHelper } from '~/helpers/DonationHelper'
-import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
-import { deleteReplyInteraction } from '~/utils/interactionUtil'
 import { lines } from '~/utils/textUtil'
-import { convertSecondToMs } from '~/utils/timeUtil'
 
 import { DonateRepository } from '~/repositories/donateRepository'
 
@@ -23,27 +20,28 @@ export class ModalDonationCreateHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ModalSubmitInteraction) {
-    if (interaction.customId !== 'modal-donation-create') return this.none()
+    if (interaction.customId !== CUSTOM_ID.MODAL_DONATION_CREATE) return this.none()
     return this.some()
   }
 
-  public run = asyncInteractionHandler<ModalSubmitInteraction>(async (interaction) => {
+  public async run(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: 'Ephemeral' })
 
     if (!interaction.guildId) return
 
-    const moneyStr = interaction.fields.getTextInputValue('input-donation-amount')
+    const moneyStr = interaction.fields.getTextInputValue(CUSTOM_ID.INPUT_DONATION_AMOUNT)
     const amount = this.parseAmount(moneyStr)
 
     const { MIN, MAX } = DONATION_CONFIG.AMOUNT
 
     if (isNaN(amount) || amount < MIN || amount > MAX) {
-      throw new BadRequestError({
-        description: `Bạn thông cảm nha, số tiền quyên góp phải từ **${MIN.toLocaleString('vi-VN')}đ** đến **${MAX.toLocaleString('vi-VN')}đ**.`
-      })
+      throw new NormalError(
+        `Bạn thông cảm nha, số tiền quyên góp phải từ **${MIN.toLocaleString('vi-VN')}đ** đến **${MAX.toLocaleString('vi-VN')}đ**.`
+      )
     }
 
-    const message = interaction.fields.getTextInputValue('input-donation-message') || undefined
+    const message =
+      interaction.fields.getTextInputValue(CUSTOM_ID.INPUT_DONATION_MESSAGE) || undefined
 
     const donation = await DonateRepository.createDonation({
       guildId: interaction.guildId,
@@ -56,34 +54,32 @@ export class ModalDonationCreateHandler extends InteractionHandler {
     const imageAvailable = await this.isImageAvailable(qrUrl)
 
     if (!imageAvailable) {
-      throw new BadRequestError({
-        description: 'Hệ thống hiện tại không thể tạo mã QR, vui lòng thử lại sau.'
-      })
+      throw new NormalError('Hệ thống hiện tại không thể tạo mã QR, vui lòng thử lại sau.')
     }
 
-    const expiryTime = Math.floor(Date.now() / 1000 + DONATION_CONFIG.TIMEOUT.PAYMENT_WAIT)
+    const expiryTime = Math.floor(Date.now() / 1000 + DONATION_CONFIG.TIMEOUT.PAYMENT_WAIT / 1000)
 
     const embed = {
-      title: `${ANIMATED_EMOJI.WING_LEFT} CHUYỂN KHOẢN QUYÊN GÓP ${ANIMATED_EMOJI.WING_RIGHT}`,
+      title: `CHUYỂN KHOẢN QUYÊN GÓP`,
       description: '-# Mã QR bên dưới đã định sẵn số tiền mà bạn vừa nhập.',
       fields: [
         {
-          name: `${ANIMATED_EMOJI.HEART_RIGHT} Lưu ý`,
+          name: `Lưu ý`,
           value: lines(
-            `${ANIMATED_EMOJI.ARROW_RIGHT} Trước khi chuyển khoản, vui lòng xác nhận đã đọc kỹ các cam kết và lưu ý.`,
-            `${ANIMATED_EMOJI.ARROW_RIGHT} Sau khi chuyển khoản, bấm nút **Đã chuyển khoản** để xác nhận.`,
-            `${ANIMATED_EMOJI.ARROW_RIGHT} Nếu không chuyển khoản, vui lòng bấm nút **Hủy** để hủy giao dịch.`
+            `▶️ Trước khi chuyển khoản, vui lòng xác nhận đã đọc kỹ các cam kết và lưu ý.`,
+            `▶️ Sau khi chuyển khoản, bấm nút **Đã chuyển khoản** để xác nhận.`,
+            `▶️ Nếu không chuyển khoản, vui lòng bấm nút **Hủy** để hủy giao dịch.`
           ),
           inline: false
         },
         {
-          name: `${ANIMATED_EMOJI.HEART_RIGHT} Thông tin giao dịch`,
+          name: `Thông tin giao dịch`,
           value: lines(
-            `${ANIMATED_EMOJI.ARROW_RIGHT} **Mã giao dịch:** \`#${donation.code}\``,
-            `${ANIMATED_EMOJI.ARROW_RIGHT} **Số tiền:** ${amount.toLocaleString('vi-VN')}đ`,
-            `${ANIMATED_EMOJI.ARROW_RIGHT} **Người nhận:** ${env.BANK_ACCOUNT_NAME}`,
-            `${ANIMATED_EMOJI.ARROW_RIGHT} **Số tài khoản:** \`${env.BANK_ACCOUNT_NUMBER}\``,
-            `${ANIMATED_EMOJI.ARROW_RIGHT} **Ngân hàng:** ${env.BANK_NAME}`
+            `▶️ **Mã giao dịch:** \`#${donation.code}\``,
+            `▶️ **Số tiền:** ${amount.toLocaleString('vi-VN')}đ`,
+            `▶️ **Người nhận:** ${env.BANK_ACCOUNT_NAME}`,
+            `▶️ **Số tài khoản:** \`${env.BANK_ACCOUNT_NUMBER}\``,
+            `▶️ **Ngân hàng:** ${env.BANK_NAME}`
           ),
           inline: false
         }
@@ -96,23 +92,14 @@ export class ModalDonationCreateHandler extends InteractionHandler {
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setCustomId(`btn-donation-donor-confirmed:${donation.id}`)
+        .setCustomId(`${CUSTOM_ID.BTN_DONATION_DONOR_CONFIRMED_PREFIX}${donation.id}`)
         .setLabel('Đã chuyển khoản')
         .setStyle(ButtonStyle.Success),
       new ButtonBuilder()
-        .setCustomId(`btn-donation-donor-canceled:${donation.id}`)
+        .setCustomId(`${CUSTOM_ID.BTN_DONATION_DONOR_CANCELED_PREFIX}${donation.id}`)
         .setLabel('Hủy')
         .setStyle(ButtonStyle.Danger)
     )
-
-    // Send donation creation notification
-    const sendNotification = async () => {
-      await DonationHelper.sendDonationNotification({
-        guildId: interaction.guildId!,
-        donation,
-        event: 'CREATED'
-      })
-    }
 
     await Promise.all([
       interaction.editReply({
@@ -122,14 +109,17 @@ export class ModalDonationCreateHandler extends InteractionHandler {
       this.container.tasks.create(
         {
           name: 'cancelDonation',
-          payload: { donationId: donation.id }
+          payload: { donationId: donation.id, guildId: interaction.guildId }
         },
-        convertSecondToMs(DONATION_CONFIG.TIMEOUT.PAYMENT_WAIT)
+        DONATION_CONFIG.TIMEOUT.PAYMENT_WAIT
       ),
-      deleteReplyInteraction(interaction, DONATION_CONFIG.TIMEOUT.PAYMENT_WAIT),
-      sendNotification()
+      DonationHelper.sendDonationNotification({
+        guildId: interaction.guildId!,
+        donation,
+        event: 'CREATED'
+      })
     ])
-  })
+  }
 
   private parseAmount(input: string): number {
     const cleaned = input

@@ -9,9 +9,10 @@ import {
   TextChannel
 } from 'discord.js'
 
-import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
-import { createSuccessEmbed } from '~/utils/embedUtil'
-import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { CUSTOM_ID } from '~/constants/idConstant'
+import { NormalError } from '~/core/errorResponse'
+
+import { InteractionUtil } from '~/utils/messageUtil'
 import { lines } from '~/utils/textUtil'
 
 import { ConfessionRepository } from '~/repositories/confessionRepository'
@@ -26,26 +27,25 @@ export class ModalConfessionHandler extends InteractionHandler {
 
   public override parse(interaction: ModalSubmitInteraction) {
     if (
-      interaction.customId !== 'modal-confession-anonymous' &&
-      interaction.customId !== 'modal-confession-named'
+      interaction.customId !== CUSTOM_ID.MODAL_CONFESSION_ANONYMOUS &&
+      interaction.customId !== CUSTOM_ID.MODAL_CONFESSION_NAMED
     ) {
       return this.none()
     }
     return this.some()
   }
 
-  public run = asyncInteractionHandler<ModalSubmitInteraction>(async (interaction) => {
+  public async run(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
     if (!interaction.guildId) {
-      await interaction.editReply({ content: 'Lỗi: Không tìm thấy máy chủ.' })
-      return
+      throw new NormalError('Không thể tìm thấy máy chủ.')
     }
 
-    const isAnonymous = interaction.customId === 'modal-confession-anonymous'
+    const isAnonymous = interaction.customId === CUSTOM_ID.MODAL_CONFESSION_ANONYMOUS
 
     // Extract data using V2 API
-    const content = interaction.fields.getTextInputValue('content')
+    const content = interaction.fields.getTextInputValue(CUSTOM_ID.INPUT_CONTENT)
     const uploadedFiles = interaction.fields.getUploadedFiles('attachment')
 
     // Filter only image files (Collection methods)
@@ -55,16 +55,7 @@ export class ModalConfessionHandler extends InteractionHandler {
     // Check if non-image files were uploaded
     if (nonImageFiles && nonImageFiles.size > 0) {
       const nonImageNames = nonImageFiles.map((f) => f.name).join(', ')
-      await interaction.editReply({
-        embeds: [
-          {
-            title: '❌ Chỉ cho phép upload ảnh',
-            description: `Các file sau không phải ảnh và bị từ chối: ${nonImageNames}`,
-            color: 0xed4245
-          }
-        ]
-      })
-      return
+      throw new NormalError(`Chỉ cho phép upload ảnh. Các file sau bị từ chối: ${nonImageNames}`)
     }
 
     // Get attachment URLs
@@ -84,9 +75,9 @@ export class ModalConfessionHandler extends InteractionHandler {
     // Get config to find notification channel
     const config = await ConfessionRepository.getConfig(interaction.guildId)
 
-    if (config?.notificationChannelId) {
+    if (config?.notificationForumChannelId) {
       const notificationChannel = (await container.client.channels.fetch(
-        config.notificationChannelId
+        config.notificationForumChannelId
       )) as TextChannel
 
       if (notificationChannel) {
@@ -105,7 +96,7 @@ export class ModalConfessionHandler extends InteractionHandler {
 
         // Create View Details button
         const viewButton = new ButtonBuilder()
-          .setCustomId(`btn-confession-view:${confession.code}`)
+          .setCustomId(`${CUSTOM_ID.BTN_CONFESSION_VIEW_PREFIX}${confession.code}`)
           .setLabel('Xem chi tiết')
           .setStyle(ButtonStyle.Primary)
 
@@ -119,18 +110,12 @@ export class ModalConfessionHandler extends InteractionHandler {
     }
 
     // Reply to user
-    await interaction.editReply({
-      embeds: [
-        createSuccessEmbed({
-          title: 'Gửi Confession thành công',
-          description: lines(
-            `Confession **#${confession.code}** đã được gửi.`,
-            'Nội dung đang chờ được duyệt bởi Ban quản lý.'
-          )
-        })
-      ]
-    })
-
-    await deleteReplyInteraction(interaction)
-  })
+    await InteractionUtil.replySuccess(
+      interaction,
+      lines(
+        `Confession **#${confession.code}** đã được gửi.`,
+        'Nội dung đang chờ được duyệt bởi Ban quản lý.'
+      )
+    )
+  }
 }

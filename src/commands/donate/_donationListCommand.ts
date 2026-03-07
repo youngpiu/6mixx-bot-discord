@@ -6,24 +6,17 @@ import {
   type ChatInputCommandInteraction,
   EmbedBuilder
 } from 'discord.js'
-import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
-import { Donation, Member } from 'generated/prisma/client'
+import { Donation } from 'generated/prisma/client'
 import { DonationStatus } from 'generated/prisma/enums'
 
-import { DEFAULT_PAGINATION_LIMIT } from '~/constants/commonConstant'
-import { EMOJI } from '~/constants/iconConstant'
-import { GuildOnlyError } from '~/core/errorResponse'
+import { STATIC_EMOJI } from '~/constants/emojiConstant'
+import { CUSTOM_ID } from '~/constants/idConstant'
+import { NormalError } from '~/core/errorResponse'
 
-import { deleteReplyInteraction } from '~/utils/interactionUtil'
 import { lines } from '~/utils/textUtil'
 
 import { DonateRepository } from '~/repositories/donateRepository'
-
-/**
- * Type definition for Donation including donor relation
- */
-type DonationWithDonor = Donation & { donor: Member }
 
 /**
  * Interface for list state management
@@ -74,7 +67,7 @@ const createButton = (
   style = ButtonStyle.Secondary,
   label?: string
 ) => {
-  const customId = `donation-list:${action}:${encodeState(state)}`
+  const customId = `${CUSTOM_ID.DONATION_LIST_PREFIX}${action}:${encodeState(state)}`
   const button = new ButtonBuilder().setCustomId(customId).setStyle(style).setDisabled(disabled)
 
   if (emoji) {
@@ -99,18 +92,16 @@ export class DonationListCommand {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
     if (!interaction.guildId) {
-      throw new GuildOnlyError()
+      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }
 
     const { items, meta } = await DonateRepository.getDonations({
       guildId: interaction.guildId,
       page: 1,
-      limit: DEFAULT_PAGINATION_LIMIT
+      limit: 10
     })
 
-    const response = await interaction.editReply(this.createListResponse(items, meta))
-    await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)
-    return response
+    return await interaction.editReply(this.createListResponse(items, meta))
   }
 
   /**
@@ -121,18 +112,17 @@ export class DonationListCommand {
    */
   public static async handleButton(interaction: ButtonInteraction, state: DonationListState) {
     if (!interaction.guildId) {
-      throw new GuildOnlyError()
+      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }
 
     const { items, meta } = await DonateRepository.getDonations({
       guildId: interaction.guildId,
       page: state.page,
-      limit: DEFAULT_PAGINATION_LIMIT,
+      limit: 10,
       status: state.status
     })
 
     await interaction.editReply(this.createListResponse(items, meta))
-    await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)
   }
 
   public static createListResponse(donations: Donation[], meta: DonationListMeta) {
@@ -153,13 +143,13 @@ export class DonationListCommand {
         const indexNumber = (meta.page - 1) * meta.limit + index + 1
 
         // Determine status icon based on donation status
-        let statusIcon = EMOJI.COLOR.WAITING
+        let statusIcon = '⏳'
         if (donation.status === DonationStatus.TRANSFERRED) {
-          statusIcon = EMOJI.COLOR.CHECK
+          statusIcon = '✅'
         } else if (donation.status === DonationStatus.PENDING_VERIFICATION) {
-          statusIcon = EMOJI.COLOR.WAITING
+          statusIcon = '⏳'
         } else if (donation.status === DonationStatus.CANCELED) {
-          statusIcon = EMOJI.COLOR.CANCEL
+          statusIcon = '❌'
         }
 
         embed.addFields({
@@ -206,28 +196,28 @@ export class DonationListCommand {
       createButton(
         'first',
         { ...currentState, page: 1 },
-        EMOJI.NORMAL.NAV_FIRST,
+        STATIC_EMOJI.FIRST,
         !meta.hasPrev,
         ButtonStyle.Primary
       ),
       createButton(
         'prev',
         { ...currentState, page: meta.page - 1 },
-        EMOJI.NORMAL.NAV_PREV,
+        STATIC_EMOJI.PREVIOUS,
         !meta.hasPrev,
         ButtonStyle.Primary
       ),
       createButton(
         'next',
         { ...currentState, page: meta.page + 1 },
-        EMOJI.NORMAL.NAV_NEXT,
+        STATIC_EMOJI.NEXT,
         !meta.hasNext,
         ButtonStyle.Primary
       ),
       createButton(
         'last',
         { ...currentState, page: meta.totalPages },
-        EMOJI.NORMAL.NAV_LAST,
+        STATIC_EMOJI.LAST,
         !meta.hasNext,
         ButtonStyle.Primary
       )
@@ -255,22 +245,22 @@ export class DonationListCommand {
       },
       {
         action: 'status-all',
-        emoji: EMOJI.NORMAL.ALL,
+        emoji: '📋',
         state: { ...baseState, status: undefined }
       },
       {
         action: 'status-pending-verification',
-        emoji: EMOJI.NORMAL.WAITING,
+        emoji: '⏳',
         state: { ...baseState, status: DonationStatus.PENDING_VERIFICATION }
       },
       {
         action: 'status-transferred',
-        emoji: EMOJI.NORMAL.CHECK,
+        emoji: '✅',
         state: { ...baseState, status: DonationStatus.TRANSFERRED }
       },
       {
         action: 'status-canceled',
-        emoji: EMOJI.NORMAL.CANCEL,
+        emoji: '❌',
         state: { ...baseState, status: DonationStatus.CANCELED }
       }
     ]

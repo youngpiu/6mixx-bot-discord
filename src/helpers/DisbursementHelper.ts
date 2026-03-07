@@ -1,7 +1,5 @@
 import { container } from '@sapphire/pieces'
-import { ChannelType, ContainerBuilder, ForumChannel, MessageFlags, TextChannel } from 'discord.js'
-
-import { EMOJI } from '~/constants/iconConstant'
+import { ChannelType, ContainerBuilder, ForumChannel, TextChannel } from 'discord.js'
 
 import { lines } from '~/utils/textUtil'
 
@@ -44,9 +42,7 @@ export class DisbursementHelper {
       if (!thread) return
 
       const logContainer = new ContainerBuilder()
-        .addTextDisplayComponents((textDisplay) =>
-          textDisplay.setContent(`## ${EMOJI.BG.MONEY_OUT} GIẢI NGÂN`)
-        )
+        .addTextDisplayComponents((textDisplay) => textDisplay.setContent(`## GIẢI NGÂN`))
         .addSeparatorComponents((sep) => sep)
         .addTextDisplayComponents((textDisplay) =>
           textDisplay.setContent(

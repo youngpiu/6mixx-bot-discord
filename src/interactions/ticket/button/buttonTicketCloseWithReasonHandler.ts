@@ -7,8 +7,7 @@ import {
   TextInputStyle
 } from 'discord.js'
 
-import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
-import { hasAdministratorPermission } from '~/utils/permissionUtil'
+import { CUSTOM_ID } from '~/constants/idConstant'
 
 export class ButtonTicketCloseWithReasonHandler extends InteractionHandler {
   public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
@@ -19,26 +18,23 @@ export class ButtonTicketCloseWithReasonHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    // Only handle 'btn-ticket-close-reason' and ensure user has Admin permissions
     if (
-      interaction.customId !== 'btn-ticket-close-reason' ||
-      !hasAdministratorPermission(interaction)
+      interaction.customId !== CUSTOM_ID.BTN_TICKET_CLOSE_REASON ||
+      !interaction.memberPermissions?.has('Administrator')
     )
       return this.none()
     return this.some()
   }
 
-  // Handles the 'Close with Reason' button click
-  // Opens a modal for the user to input the closure reason
-  public run = asyncInteractionHandler<ButtonInteraction>(async (interaction) => {
+  public async run(interaction: ButtonInteraction) {
     if (!interaction.guildId) return
 
     const modal = new ModalBuilder()
-      .setCustomId('modal-ticket-close-reason')
+      .setCustomId(CUSTOM_ID.MODAL_TICKET_CLOSE_REASON)
       .setTitle('Đóng phiếu hỗ trợ')
 
     const reasonInput = new TextInputBuilder()
-      .setCustomId('reason')
+      .setCustomId(CUSTOM_ID.INPUT_REASON)
       .setStyle(TextInputStyle.Paragraph)
       .setPlaceholder('Nhập lý do đóng phiếu hỗ trợ...')
       .setMaxLength(500)
@@ -52,5 +48,5 @@ export class ButtonTicketCloseWithReasonHandler extends InteractionHandler {
     modal.addLabelComponents(reasonLabel)
 
     await interaction.showModal(modal)
-  })
+  }
 }

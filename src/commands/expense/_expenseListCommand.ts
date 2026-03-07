@@ -6,15 +6,11 @@ import {
   ChatInputCommandInteraction,
   EmbedBuilder
 } from 'discord.js'
-import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
+// @ts-expect-error - Prisma generated types mismatch
 import { Expense, Member } from 'generated/prisma/client'
 
-import { DEFAULT_PAGINATION_LIMIT } from '~/constants/commonConstant'
-import { ERROR_MESSAGE } from '~/constants/messageConstant'
-import { BadRequestError } from '~/core/errorResponse'
-
-import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { NormalError } from '~/core/errorResponse'
 
 import { ExpenseRepository } from '~/repositories/expenseRepository'
 
@@ -25,32 +21,27 @@ export class ExpenseListCommand {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
     if (!interaction.guildId) {
-      throw new BadRequestError({
-        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
-      })
+      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }
 
     const { items, meta } = await ExpenseRepository.getExpenses({
       guildId: interaction.guildId,
       page: 1,
-      limit: DEFAULT_PAGINATION_LIMIT
+      limit: 10
     })
 
     await interaction.editReply(this.createListResponse(items, meta))
-    await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)
   }
 
   public static async handleButton(interaction: ButtonInteraction, page: number) {
     if (!interaction.guildId) {
-      throw new BadRequestError({
-        description: ERROR_MESSAGE.BAD_REQUEST.GUILD_ONLY_DESCRIPTION
-      })
+      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }
 
     const { items, meta } = await ExpenseRepository.getExpenses({
       guildId: interaction.guildId,
       page,
-      limit: DEFAULT_PAGINATION_LIMIT
+      limit: 10
     })
 
     await interaction.update(this.createListResponse(items, meta))
@@ -97,22 +88,22 @@ export class ExpenseListCommand {
     const navRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId('expense-list:first:1')
-        .setLabel('⏮️ Đầu')
+        .setLabel('⏮️')
         .setStyle(ButtonStyle.Primary)
         .setDisabled(!meta.hasPrev),
       new ButtonBuilder()
         .setCustomId(`expense-list:prev:${meta.page - 1}`)
-        .setLabel('◀️ Trước')
+        .setLabel('◀️')
         .setStyle(ButtonStyle.Primary)
         .setDisabled(!meta.hasPrev),
       new ButtonBuilder()
         .setCustomId(`expense-list:next:${meta.page + 1}`)
-        .setLabel('Sau ▶️')
+        .setLabel('▶️')
         .setStyle(ButtonStyle.Primary)
         .setDisabled(!meta.hasNext),
       new ButtonBuilder()
         .setCustomId(`expense-list:last:${meta.totalPages}`)
-        .setLabel('Cuối ⏭️')
+        .setLabel('⏭️')
         .setStyle(ButtonStyle.Primary)
         .setDisabled(!meta.hasNext)
     )

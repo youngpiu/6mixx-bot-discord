@@ -35,7 +35,7 @@ export class BotClient extends SapphireClient {
           }
         ]
       },
-      loadDefaultErrorListeners: true,
+      loadDefaultErrorListeners: false,
       defaultPrefix: env.DEFAULT_PREFIX,
       loadMessageCommandListeners: true,
       typing: true,

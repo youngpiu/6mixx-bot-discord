@@ -1,14 +1,11 @@
 import { container } from '@sapphire/pieces'
-import { CACHE_TTL } from '~/config/time'
 
-import { Prisma, Ticket } from 'generated/prisma/client'
+import { Ticket } from 'generated/prisma/client'
 import { TicketStatus, TicketType } from 'generated/prisma/enums'
 
-import { CACHE_WILDCARD } from '~/constants/commonConstant'
+import { TIME } from '~/constants/timeConstant'
 
 import { TicketHelper } from '~/helpers/TicketHelper'
-
-import { GuildRepository } from '~/repositories/guildRepository'
 
 const TICKET_PREFIX: Record<TicketType, string> = {
   REPORT: 'RP',
@@ -129,7 +126,7 @@ export class TicketRepository {
     type?: TicketType
     status?: TicketStatus
   }) {
-    const cacheKey = `tickets:${guildId}:${page}:${limit}:${type || CACHE_WILDCARD}:${status || CACHE_WILDCARD}`
+    const cacheKey = `tickets:${guildId}:${page}:${limit}:${type || '*'}:${status || '*'}`
     const cached = await container.redis.get(cacheKey)
 
     if (cached) {
@@ -184,7 +181,7 @@ export class TicketRepository {
       }
     }
 
-    await container.redis.set(cacheKey, JSON.stringify(result), 'EX', CACHE_TTL.VERY_SHORT)
+    await container.redis.set(cacheKey, JSON.stringify(result), 'EX', TIME.S30 / 1000)
 
     return result
   }

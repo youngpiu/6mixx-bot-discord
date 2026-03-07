@@ -1,11 +1,10 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
 import { ModalSubmitInteraction } from 'discord.js'
 
-import { GuildOnlyError } from '~/core/errorResponse'
+import { CUSTOM_ID } from '~/constants/idConstant'
 
-import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
-import { createSuccessEmbed } from '~/utils/embedUtil'
-import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { InteractionUtil } from '~/utils/messageUtil'
+import { lines } from '~/utils/textUtil'
 
 import { GuildRepository } from '~/repositories/guildRepository'
 
@@ -18,38 +17,28 @@ export class ModalConfessionSettingHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ModalSubmitInteraction) {
-    if (interaction.customId !== 'modal-confession-general-setting') return this.none()
+    if (interaction.customId !== CUSTOM_ID.MODAL_CONFESSION_GENERAL_SETTING) return this.none()
     return this.some()
   }
 
-  // Handles the submission of the confession general setting modal
-  // Updates the forum channel used for confessions
-  public run = asyncInteractionHandler<ModalSubmitInteraction>(async (interaction) => {
-    if (!interaction.guildId || !interaction.guild) throw new GuildOnlyError()
+  public async run(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
+    if (!interaction.guildId) return
 
-    // Get forum channel selection
-    const channels = interaction.fields.getSelectedChannels('select-confession-forum-channel')
-    const forumChannel = channels?.first()
-    const forumChannelId = forumChannel?.id
+    const confessionForumChannelId = interaction.fields
+      .getSelectedChannels('select-confession-forum-channel')
+      ?.first()?.id
 
-    if (forumChannelId) {
-      await GuildRepository.updateConfig(interaction.guildId, {
-        confessionForumChannelId: forumChannelId
-      })
-    }
-
-    await interaction.editReply({
-      embeds: [
-        createSuccessEmbed({
-          title: 'Thiết lập thành công',
-          description: forumChannelId
-            ? `Kênh chứa bài đăng confession đã được cập nhật: <#${forumChannelId}>`
-            : 'Không có thay đổi nào được lưu.'
-        })
-      ]
+    await GuildRepository.updateConfig(interaction.guildId, {
+      confessionForumChannelId
     })
 
-    await deleteReplyInteraction(interaction)
-  })
+    await InteractionUtil.replySuccess(
+      interaction,
+      'Bạn đã cập nhật thành công kênh trong **Cài đặt confession**.',
+      lines(
+        `- **Kênh đăng confession:** ${confessionForumChannelId ? `<#${confessionForumChannelId}>` : '*Chưa thiết lập*'}`
+      )
+    )
+  }
 }

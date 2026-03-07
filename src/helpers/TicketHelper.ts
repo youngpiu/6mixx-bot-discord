@@ -1,8 +1,6 @@
 import { container } from '@sapphire/pieces'
 import {
-  AttachmentBuilder,
   ContainerBuilder,
-  FileBuilder,
   ForumChannel,
   MessageFlags,
   TextChannel,
@@ -12,8 +10,7 @@ import {
 import { Ticket, TicketType } from 'generated/prisma/client'
 import { TicketStatus } from 'generated/prisma/enums'
 
-import { EMOJI } from '~/constants/iconConstant'
-import { BadRequestError, NotFoundError } from '~/core/errorResponse'
+import { NormalError } from '~/core/errorResponse'
 
 import { lines } from '~/utils/textUtil'
 
@@ -100,16 +97,15 @@ export class TicketHelper {
     ])
 
     if (!ticket) {
-      throw new NotFoundError({
-        description:
-          'Không tìm thấy phiếu hỗ trợ nào được liên kết với kênh này, vui lòng kiểm tra lại cơ sở dữ liệu.'
-      })
+      throw new NormalError(
+        'Không tìm thấy phiếu hỗ trợ nào được liên kết với kênh này, vui lòng kiểm tra lại cơ sở dữ liệu.'
+      )
     }
 
     if (ticket.status === 'CLOSED') {
-      throw new BadRequestError({
-        description: 'Không thể đóng phiếu hỗ trợ đã đóng trước đó, vui lòng bỏ qua nút này.'
-      })
+      throw new NormalError(
+        'Không thể đóng phiếu hỗ trợ đã đóng trước đó, vui lòng bỏ qua nút này.'
+      )
     }
 
     // Run log sending and DB update in parallel for better performance
@@ -199,9 +195,7 @@ export class TicketHelper {
       if (event === 'CREATED') {
         logContainer
           .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(
-              `## ${EMOJI.BG.LOCK_OPEN} PHIẾU HỖ TRỢ MỚI - #${ticket.code}`
-            )
+            new TextDisplayBuilder().setContent(`## PHIẾU HỖ TRỢ MỚI - #${ticket.code}`)
           )
           .addSeparatorComponents((sep) => sep)
           .addTextDisplayComponents(
@@ -217,9 +211,7 @@ export class TicketHelper {
       } else if (event === 'CLOSED') {
         logContainer
           .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(
-              `## ${EMOJI.BG.LOCK} ĐÓNG PHIẾU HỖ TRỢ - #${ticket.code}`
-            )
+            new TextDisplayBuilder().setContent(`## ĐÓNG PHIẾU HỖ TRỢ - #${ticket.code}`)
           )
           .addSeparatorComponents((sep) => sep)
           .addTextDisplayComponents(

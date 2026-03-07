@@ -1,6 +1,5 @@
 import {
   Channel,
-  ChatInputCommandInteraction,
   ContainerBuilder,
   InteractionDeferReplyOptions,
   InteractionDeferUpdateOptions,
@@ -8,9 +7,9 @@ import {
   InteractionReplyOptions,
   InteractionResponse,
   type Message,
+  MessageComponentInteraction,
   type MessageCreateOptions,
   type MessageEditOptions,
-  ModalSubmitInteraction,
   RepliableInteraction
 } from 'discord.js'
 
@@ -263,17 +262,13 @@ export class InteractionUtil {
   }
 
   static async deferUpdate(
-    interaction: Exclude<
-      RepliableInteraction,
-      ChatInputCommandInteraction | ModalSubmitInteraction
-    >,
+    interaction: MessageComponentInteraction,
     options?: InteractionDeferUpdateOptions
   ): Promise<InteractionResponse | null> {
     if (!interaction || interaction.replied || interaction.deferred) return null
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return await (interaction as any).deferUpdate(options)
+      return await interaction.deferUpdate(options)
     } catch {
       return null
     }
@@ -284,35 +279,39 @@ export class InteractionUtil {
     content: string,
     type: ErrorType = 'NORMAL'
   ): Promise<Message | InteractionResponse | null> {
-    if (!interaction) return null
-
     const errorEmoji = getEmojiForErrorType(type)
-    const container = new ContainerBuilder().addTextDisplayComponents((t) =>
-      t.setContent(`${errorEmoji} ${content}`)
-    )
-
-    if (interaction.deferred || interaction.replied) {
-      return this.editReply(interaction, {
-        components: [container],
-        flags: ['IsComponentsV2']
-      })
-    }
-
-    return this.reply(interaction, {
-      components: [container],
-      flags: ['IsComponentsV2', 'Ephemeral']
-    })
+    return this.replyWithContainer(interaction, `${errorEmoji} ${content}`)
   }
 
   static async replySuccess(
     interaction: OptionalRepliableInteraction,
-    content: string
+    content: string,
+    description?: string,
+    ephemeral?: boolean
+  ): Promise<Message | InteractionResponse | null> {
+    const successContainerr = new ContainerBuilder().addTextDisplayComponents((t) =>
+      t.setContent(`${STATIC_EMOJI.SUCCESS} ${content}`)
+    )
+
+    if (description)
+      successContainerr
+        .addSeparatorComponents((s) => s)
+        .addTextDisplayComponents((t) => t.setContent(description))
+
+    return this.replyWithContainer(interaction, successContainerr, ephemeral)
+  }
+
+  static async replyWithContainer(
+    interaction: OptionalRepliableInteraction,
+    containerOrText: ContainerBuilder | string,
+    ephemeral: boolean = true
   ): Promise<Message | InteractionResponse | null> {
     if (!interaction) return null
 
-    const container = new ContainerBuilder().addTextDisplayComponents((t) =>
-      t.setContent(`${STATIC_EMOJI.SUCCESS} ${content}`)
-    )
+    const container =
+      typeof containerOrText === 'string'
+        ? new ContainerBuilder().addTextDisplayComponents((t) => t.setContent(containerOrText))
+        : containerOrText
 
     if (interaction.deferred || interaction.replied) {
       return this.editReply(interaction, {
@@ -323,7 +322,7 @@ export class InteractionUtil {
 
     return this.reply(interaction, {
       components: [container],
-      flags: ['IsComponentsV2', 'Ephemeral']
+      flags: ephemeral ? ['IsComponentsV2', 'Ephemeral'] : ['IsComponentsV2']
     })
   }
 }

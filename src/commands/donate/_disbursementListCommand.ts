@@ -6,13 +6,10 @@ import {
   ChatInputCommandInteraction,
   EmbedBuilder
 } from 'discord.js'
-import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
-import { DEFAULT_PAGINATION_LIMIT } from '~/constants/commonConstant'
-import { EMOJI } from '~/constants/iconConstant'
-import { GuildOnlyError } from '~/core/errorResponse'
+import { STATIC_EMOJI } from '~/constants/emojiConstant'
+import { NormalError } from '~/core/errorResponse'
 
-import { deleteReplyInteraction } from '~/utils/interactionUtil'
 import { lines } from '~/utils/textUtil'
 
 import { DisbursementRepository } from '~/repositories/disbursementRepository'
@@ -48,13 +45,13 @@ export class DonationDisbursementListCommand {
     })
 
     if (!interaction.guildId) {
-      throw new GuildOnlyError()
+      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }
 
     const { items, meta } = await DisbursementRepository.getDisbursements({
       guildId: interaction.guildId,
       page: 1,
-      limit: DEFAULT_PAGINATION_LIMIT
+      limit: 10
     })
 
     const response = {
@@ -67,7 +64,6 @@ export class DonationDisbursementListCommand {
     }
 
     await interaction.editReply(this.createListResponse(items, response))
-    await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)
   }
 
   /**
@@ -77,12 +73,14 @@ export class DonationDisbursementListCommand {
    * @param page - The page number to display
    */
   public static async handleButton(interaction: ButtonInteraction, page: number) {
-    if (!interaction.guildId) throw new GuildOnlyError()
+    if (!interaction.guildId) {
+      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
+    }
 
     const { items, meta } = await DisbursementRepository.getDisbursements({
       guildId: interaction.guildId,
       page,
-      limit: DEFAULT_PAGINATION_LIMIT
+      limit: 10
     })
 
     const response = {
@@ -95,7 +93,6 @@ export class DonationDisbursementListCommand {
     }
 
     await interaction.editReply(this.createListResponse(items, response))
-    await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)
   }
 
   public static createListResponse(
@@ -142,28 +139,23 @@ export class DonationDisbursementListCommand {
   private static createPagination(meta: DisbursementListMeta) {
     return new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setCustomId('disbursement-list:pagination-indicator')
-        .setLabel('Trang')
-        .setStyle(ButtonStyle.Secondary)
-        .setDisabled(true),
-      new ButtonBuilder()
         .setCustomId(`disbursement-list:first:1`)
-        .setEmoji(EMOJI.NORMAL.NAV_FIRST)
+        .setEmoji(STATIC_EMOJI.FIRST)
         .setStyle(ButtonStyle.Primary)
         .setDisabled(!meta.hasPrev),
       new ButtonBuilder()
         .setCustomId(`disbursement-list:prev:${meta.page - 1}`)
-        .setEmoji(EMOJI.NORMAL.NAV_PREV)
+        .setEmoji(STATIC_EMOJI.PREVIOUS)
         .setStyle(ButtonStyle.Primary)
         .setDisabled(!meta.hasPrev),
       new ButtonBuilder()
         .setCustomId(`disbursement-list:next:${meta.page + 1}`)
-        .setEmoji(EMOJI.NORMAL.NAV_NEXT)
+        .setEmoji(STATIC_EMOJI.NEXT)
         .setStyle(ButtonStyle.Primary)
         .setDisabled(!meta.hasNext),
       new ButtonBuilder()
         .setCustomId(`disbursement-list:last:${meta.totalPages}`)
-        .setEmoji(EMOJI.NORMAL.NAV_LAST)
+        .setEmoji(STATIC_EMOJI.LAST)
         .setStyle(ButtonStyle.Primary)
         .setDisabled(!meta.hasNext)
     )

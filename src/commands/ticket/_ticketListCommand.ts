@@ -6,18 +6,15 @@ import {
   type ChatInputCommandInteraction,
   EmbedBuilder
 } from 'discord.js'
-import { DELETE_REPLY_TIMEOUT } from '~/config/time'
 
 import { Ticket, TicketType } from 'generated/prisma/client'
 import { TicketStatus } from 'generated/prisma/enums'
 
-import { DEFAULT_PAGINATION_LIMIT } from '~/constants/commonConstant'
-import { EMOJI } from '~/constants/iconConstant'
-import { ICON } from '~/constants/iconConstant'
-import { GuildOnlyError } from '~/core/errorResponse'
+import { STATIC_EMOJI } from '~/constants/emojiConstant'
+import { CUSTOM_ID } from '~/constants/idConstant'
+import { NormalError } from '~/core/errorResponse'
 
 import { TicketHelper } from '~/helpers/TicketHelper'
-import { deleteReplyInteraction } from '~/utils/interactionUtil'
 import { lines } from '~/utils/textUtil'
 
 import { TicketRepository } from '~/repositories/ticketRepository'
@@ -70,7 +67,7 @@ const createButton = (
   style = ButtonStyle.Secondary,
   label?: string
 ) => {
-  const customId = `ticket-list:${action}:${encodeState(state)}`
+  const customId = `${CUSTOM_ID.TICKET_LIST_PREFIX}${action}:${encodeState(state)}`
   const button = new ButtonBuilder().setCustomId(customId).setStyle(style).setDisabled(disabled)
 
   if (emoji) {
@@ -89,35 +86,32 @@ export class TicketListCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction.guildId) throw new GuildOnlyError()
+    if (!interaction.guildId) throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
 
     // Fetch initial data (page 1, default limits)
     const { items, meta } = await TicketRepository.getTickets({
       guildId: interaction.guildId,
       page: 1,
-      limit: DEFAULT_PAGINATION_LIMIT
+      limit: 10
     })
 
-    const response = await interaction.editReply(this.createListResponse(items, meta))
-    await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)
-    return response
+    return await interaction.editReply(this.createListResponse(items, meta))
   }
 
   // Handles pagination and filter button interactions
   public static async handleButton(interaction: ButtonInteraction, state: TicketListState) {
-    if (!interaction.guildId) throw new GuildOnlyError()
+    if (!interaction.guildId) throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
 
     // Fetch data based on the state encoded in the button
     const { items, meta } = await TicketRepository.getTickets({
       guildId: interaction.guildId,
       page: state.page,
-      limit: DEFAULT_PAGINATION_LIMIT,
+      limit: 10,
       type: state.type,
       status: state.status
     })
 
     await interaction.editReply(this.createListResponse(items, meta))
-    await deleteReplyInteraction(interaction, DELETE_REPLY_TIMEOUT.MEDIUM)
   }
 
   // Assembles the complete interaction response (Embed + Action Rows)
@@ -145,7 +139,7 @@ export class TicketListCommand {
         const indexNumber = (meta.page - 1) * meta.limit + index + 1
 
         embed.addFields({
-          name: `${ticket.status === TicketStatus.CLOSED ? EMOJI.COLOR.LOCK : EMOJI.COLOR.LOCK_OPEN} **${indexNumber}. #${ticket.code}**`,
+          name: `${ticket.status === TicketStatus.CLOSED ? '🔒' : '🔓'} **${indexNumber}. #${ticket.code}**`,
           value: lines(
             `- **Loại:** ${typeLabel}`,
             `- **Người tạo:** <@${ticket.requesterId}>`,
@@ -188,28 +182,28 @@ export class TicketListCommand {
       createButton(
         'first',
         { ...currentState, page: 1 },
-        ICON.CHEVRONS_LEFT,
+        STATIC_EMOJI.FIRST,
         !meta.hasPrev,
         ButtonStyle.Primary
       ),
       createButton(
         'prev',
         { ...currentState, page: meta.page - 1 },
-        ICON.CHEVRON_LEFT,
+        STATIC_EMOJI.PREVIOUS,
         !meta.hasPrev,
         ButtonStyle.Primary
       ),
       createButton(
         'next',
         { ...currentState, page: meta.page + 1 },
-        ICON.CHEVRON_RIGHT,
+        STATIC_EMOJI.NEXT,
         !meta.hasNext,
         ButtonStyle.Primary
       ),
       createButton(
         'last',
         { ...currentState, page: meta.totalPages },
-        ICON.CHEVRONS_RIGHT,
+        STATIC_EMOJI.LAST,
         !meta.hasNext,
         ButtonStyle.Primary
       )
@@ -238,20 +232,20 @@ export class TicketListCommand {
       },
       {
         action: 'type-all',
-        emoji: ICON.LAYER_GROUP,
+        emoji: '📁',
         state: { ...baseState, type: undefined }
       },
       {
         action: 'type-report',
-        emoji: ICON.FLAG,
+        emoji: '🚩',
         state: { ...baseState, type: 'REPORT' }
       },
       {
         action: 'type-feedback',
-        emoji: ICON.LIGHTBULB_ON,
+        emoji: '💡',
         state: { ...baseState, type: 'FEEDBACK' }
       },
-      { action: 'type-bug', emoji: ICON.BUG, state: { ...baseState, type: 'BUG' } }
+      { action: 'type-bug', emoji: '🐛', state: { ...baseState, type: 'BUG' } }
     ]
 
     return new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -290,17 +284,17 @@ export class TicketListCommand {
       },
       {
         action: 'status-all',
-        emoji: ICON.LAYER_GROUP,
+        emoji: '📂',
         state: { ...baseState, status: undefined }
       },
       {
         action: 'status-open',
-        emoji: ICON.LOCK_OPEN,
+        emoji: '🔓',
         state: { ...baseState, status: TicketStatus.OPEN }
       },
       {
         action: 'status-closed',
-        emoji: ICON.LOCK,
+        emoji: '🔒',
         state: { ...baseState, status: TicketStatus.CLOSED }
       }
     ]

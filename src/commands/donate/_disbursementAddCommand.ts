@@ -6,7 +6,8 @@ import {
   TextInputStyle
 } from 'discord.js'
 
-import { GuildOnlyError } from '~/core/errorResponse'
+import { CUSTOM_ID } from '~/constants/idConstant'
+import { NormalError } from '~/core/errorResponse'
 
 export class DonationDisbursementAddCommand {
   /**
@@ -17,17 +18,17 @@ export class DonationDisbursementAddCommand {
    */
   public static async run(interaction: ChatInputCommandInteraction) {
     if (!interaction.guildId) {
-      throw new GuildOnlyError()
+      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }
 
     const amountInput = new TextInputBuilder()
-      .setCustomId('amount')
+      .setCustomId(CUSTOM_ID.INPUT_AMOUNT)
       .setPlaceholder('VD: 100000, 100k, 100,000đ')
       .setStyle(TextInputStyle.Short)
       .setRequired(true)
 
     const descriptionInput = new TextInputBuilder()
-      .setCustomId('description')
+      .setCustomId(CUSTOM_ID.INPUT_DESCRIPTION)
       .setPlaceholder('Mô tả chi tiết về khoản giải ngân này')
       .setStyle(TextInputStyle.Paragraph)
       .setRequired(true)
@@ -39,7 +40,7 @@ export class DonationDisbursementAddCommand {
       .setTextInputComponent(descriptionInput)
 
     const modal = new ModalBuilder()
-      .setCustomId('modal-disbursement-create')
+      .setCustomId(CUSTOM_ID.MODAL_DISBURSEMENT_CREATE)
       .setTitle('Tạo giải ngân mới')
       .addLabelComponents(amountLabel, descriptionLabel)
 

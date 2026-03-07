@@ -2,8 +2,6 @@ import { container } from '@sapphire/pieces'
 
 import { DonationStatus } from 'generated/prisma/enums'
 
-import { DEFAULT_PAGINATION_LIMIT } from '~/constants/commonConstant'
-
 export class DisbursementRepository {
   /**
    * Get available budget (total TRANSFERRED donations - total disbursements)
@@ -68,7 +66,7 @@ export class DisbursementRepository {
   public static async getDisbursements({
     guildId,
     page = 1,
-    limit = DEFAULT_PAGINATION_LIMIT
+    limit = 10
   }: {
     guildId: string
     page: number

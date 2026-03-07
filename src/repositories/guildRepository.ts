@@ -1,5 +1,6 @@
 import { container } from '@sapphire/pieces'
-import { CACHE_TTL } from '~/config/time'
+
+import { TIME } from '~/constants/timeConstant'
 
 export class GuildRepository {
   public static async invalidateCache(guildId: string) {
@@ -27,7 +28,7 @@ export class GuildRepository {
 
     const guild = await this.getGuild(guildId)
     if (guild) {
-      await container.redis.set(cacheKey, JSON.stringify(guild), 'EX', CACHE_TTL.MEDIUM)
+      await container.redis.set(cacheKey, JSON.stringify(guild), 'EX', TIME.M5 / 1000)
     }
     return guild
   }

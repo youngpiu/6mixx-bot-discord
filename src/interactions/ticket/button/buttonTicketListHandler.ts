@@ -1,7 +1,7 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
 import { type ButtonInteraction } from 'discord.js'
 
-import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
+import { CUSTOM_ID } from '~/constants/idConstant'
 
 import {
   TicketListCommand,
@@ -18,28 +18,22 @@ export class ButtonTicketListHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    // Determine if this is a ticket list interaction based on custom ID prefix
-    // Format: ticket-list:<action>:<encoded_state>
-    if (!interaction.customId.startsWith('ticket-list:')) return this.none()
+    if (!interaction.customId.startsWith(CUSTOM_ID.TICKET_LIST_PREFIX)) return this.none()
 
     const parts = interaction.customId.split(':')
     if (parts.length < 3) return this.none()
 
     const [, action, ...stateParts] = parts
     const encodedState = stateParts.join(':')
-    // Decode the state string back into a TicketListState object
     const state = decodeState(encodedState)
 
     return this.some({ action, state })
   }
 
-  // Delegates handling to the shared logic in TicketListCommand
-  public run = asyncInteractionHandler<
-    ButtonInteraction,
-    { action: string; state: TicketListState }
-  >(async (interaction, result) => {
+  public async run(interaction: ButtonInteraction, result: InteractionHandler.ParseResult<this>) {
     if (!result) return
-    await interaction.deferUpdate() // Ack the interaction to prevent timeout
-    await TicketListCommand.handleButton(interaction, result.state)
-  })
+    await interaction.deferUpdate()
+    const { state } = result as { action: string; state: TicketListState }
+    await TicketListCommand.handleButton(interaction, state)
+  }
 }

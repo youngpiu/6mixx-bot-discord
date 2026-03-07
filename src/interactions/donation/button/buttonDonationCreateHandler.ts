@@ -7,7 +7,7 @@ import {
   TextInputStyle
 } from 'discord.js'
 
-import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
+import { CUSTOM_ID } from '~/constants/idConstant'
 
 export class ButtonDonationCreateHandler extends InteractionHandler {
   /**
@@ -22,19 +22,19 @@ export class ButtonDonationCreateHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    if (interaction.customId !== 'btn-donation-create') return this.none()
+    if (interaction.customId !== CUSTOM_ID.BTN_DONATION_CREATE) return this.none()
     return this.some()
   }
 
-  public run = asyncInteractionHandler<ButtonInteraction>(async (interaction) => {
+  public async run(interaction: ButtonInteraction) {
     const amountInput = new TextInputBuilder()
-      .setCustomId('input-donation-amount')
+      .setCustomId(CUSTOM_ID.INPUT_DONATION_AMOUNT)
       .setPlaceholder('Ví dụ: 1000, 5000, 10000,...')
       .setStyle(TextInputStyle.Short)
       .setRequired(true)
 
     const messageInput = new TextInputBuilder()
-      .setCustomId('input-donation-message')
+      .setCustomId(CUSTOM_ID.INPUT_DONATION_MESSAGE)
       .setPlaceholder('Nhập lời nhắn gửi kèm nếu có...')
       .setStyle(TextInputStyle.Paragraph)
       .setRequired(false)
@@ -49,10 +49,10 @@ export class ButtonDonationCreateHandler extends InteractionHandler {
       .setTextInputComponent(messageInput)
 
     const modal = new ModalBuilder()
-      .setCustomId('modal-donation-create')
+      .setCustomId(CUSTOM_ID.MODAL_DONATION_CREATE)
       .setTitle('Quyên góp ủng hộ')
       .addLabelComponents(amountLabel, messageLabel)
 
     await interaction.showModal(modal)
-  })
+  }
 }

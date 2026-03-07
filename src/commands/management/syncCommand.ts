@@ -1,11 +1,9 @@
 import { Command } from '@sapphire/framework'
 import { ChatInputCommandInteraction } from 'discord.js'
 
-import { GuildOnlyError } from '~/core/errorResponse'
+import { NormalError } from '~/core/errorResponse'
 
-import { asyncChatInputHandler } from '~/utils/asyncHandleUtil'
-import { createSuccessEmbed } from '~/utils/embedUtil'
-import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { InteractionUtil } from '~/utils/messageUtil'
 
 import { GuildRepository } from '~/repositories/guildRepository'
 import { MemberRepository } from '~/repositories/memberRepository'
@@ -16,14 +14,15 @@ export class SyncCommand extends Command {
       ...options,
       name: 'sync',
       description: 'Đồng bộ tất cả thành viên trong máy chủ vào cơ sở dữ liệu',
-      preconditions: ['GuildOnly', 'OwnerOnly']
+      preconditions: ['OwnerOnly']
     })
   }
 
-  public chatInputRun = asyncChatInputHandler(async (interaction: ChatInputCommandInteraction) => {
+  public override async chatInputRun(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: 'Ephemeral' })
 
-    if (!interaction.guild || !interaction.guildId) throw new GuildOnlyError()
+    if (!interaction.guild || !interaction.guildId)
+      throw new NormalError('Lệnh này chỉ dùng trong máy chủ.')
 
     await GuildRepository.getOrCreate(interaction.guildId)
 
@@ -32,15 +31,10 @@ export class SyncCommand extends Command {
     const userMembers = members.filter((m) => !m.user.bot)
 
     if (userMembers.size === 0) {
-      await interaction.editReply({
-        embeds: [
-          createSuccessEmbed({
-            title: 'Đồng bộ hoàn tất',
-            description: 'Không có thành viên nào cần đồng bộ.'
-          })
-        ]
-      })
-      await deleteReplyInteraction(interaction)
+      await InteractionUtil.replySuccess(
+        interaction,
+        'Đồng bộ hoàn tất — không có thành viên nào cần đồng bộ.'
+      )
       return
     }
 
@@ -54,17 +48,11 @@ export class SyncCommand extends Command {
       `[Sync Command] Synced ${result.count} members for guild ${interaction.guild.name}`
     )
 
-    await interaction.editReply({
-      embeds: [
-        createSuccessEmbed({
-          title: 'Đồng bộ hoàn tất',
-          description: `Đã đồng bộ **${result.count}** thành viên vào cơ sở dữ liệu.`
-        })
-      ]
-    })
-
-    await deleteReplyInteraction(interaction)
-  })
+    await InteractionUtil.replySuccess(
+      interaction,
+      `Đồng bộ hoàn tất — đã đồng bộ **${result.count}** thành viên vào cơ sở dữ liệu.`
+    )
+  }
 
   public override registerApplicationCommands(registry: Command.Registry) {
     registry.registerChatInputCommand((builder) =>

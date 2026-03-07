@@ -1,7 +1,7 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
 import { type ButtonInteraction } from 'discord.js'
 
-import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
+import { CUSTOM_ID } from '~/constants/idConstant'
 
 import {
   DonationListCommand,
@@ -18,8 +18,7 @@ export class ButtonDonationListHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    // Parse customId for donation list pagination: donation-list:<action>:<encoded_state>
-    if (!interaction.customId.startsWith('donation-list:')) return this.none()
+    if (!interaction.customId.startsWith(CUSTOM_ID.DONATION_LIST_PREFIX)) return this.none()
 
     const parts = interaction.customId.split(':')
     if (parts.length < 3) return this.none()
@@ -31,12 +30,10 @@ export class ButtonDonationListHandler extends InteractionHandler {
     return this.some({ action, state })
   }
 
-  public run = asyncInteractionHandler<
-    ButtonInteraction,
-    { action: string; state: DonationListState }
-  >(async (interaction, result) => {
+  public async run(interaction: ButtonInteraction, result: InteractionHandler.ParseResult<this>) {
     if (!result) return
-    await interaction.deferUpdate() // Acknowledge interaction to prevent timeout
-    await DonationListCommand.handleButton(interaction, result.state)
-  })
+    await interaction.deferUpdate()
+    const { state } = result as { action: string; state: DonationListState }
+    await DonationListCommand.handleButton(interaction, state)
+  }
 }

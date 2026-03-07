@@ -1,8 +1,6 @@
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChatInputCommandInteraction } from 'discord.js'
 
-import { asyncChatInputHandler } from '~/utils/asyncHandleUtil'
-
 import { DonationDisbursementAddCommand } from '~/commands/donate/_disbursementAddCommand'
 import { DonationDisbursementListCommand } from '~/commands/donate/_disbursementListCommand'
 import { DonationDetailCommand } from '~/commands/donate/_donationDetailCommand'
@@ -21,23 +19,20 @@ export class DonationSubcommand extends Subcommand {
       subcommands: [
         {
           name: 'list',
-          chatInputRun: 'chatInputList',
-          preconditions: ['OwnerOnly']
+          chatInputRun: 'chatInputList'
         },
         {
           name: 'detail',
-          chatInputRun: 'chatInputDetail',
-          preconditions: ['OwnerOnly']
+          chatInputRun: 'chatInputDetail'
         },
         {
           name: 'disbursement',
           type: 'group',
           entries: [
-            { name: 'add', chatInputRun: 'chatInputAddDisbursement', preconditions: ['OwnerOnly'] },
+            { name: 'add', chatInputRun: 'chatInputAddDisbursement' },
             {
               name: 'list',
-              chatInputRun: 'chatInputListDisbursement',
-              preconditions: ['OwnerOnly']
+              chatInputRun: 'chatInputListDisbursement'
             }
           ]
         }
@@ -45,32 +40,24 @@ export class DonationSubcommand extends Subcommand {
     })
   }
 
-  public chatInputList = asyncChatInputHandler(async (interaction: ChatInputCommandInteraction) => {
+  public async chatInputList(interaction: ChatInputCommandInteraction) {
     return DonationListCommand.run(interaction)
-  })
+  }
 
-  public chatInputDetail = asyncChatInputHandler(
-    async (interaction: ChatInputCommandInteraction) => {
-      return DonationDetailCommand.run(interaction)
-    }
-  )
+  public async chatInputDetail(interaction: ChatInputCommandInteraction) {
+    return DonationDetailCommand.run(interaction)
+  }
 
-  public chatInputAddDisbursement = asyncChatInputHandler(
-    async (interaction: ChatInputCommandInteraction) => {
-      return DonationDisbursementAddCommand.run(interaction)
-    }
-  )
+  public async chatInputAddDisbursement(interaction: ChatInputCommandInteraction) {
+    return DonationDisbursementAddCommand.run(interaction)
+  }
 
-  public chatInputListDisbursement = asyncChatInputHandler(
-    async (interaction: ChatInputCommandInteraction) => {
-      return DonationDisbursementListCommand.run(interaction)
-    }
-  )
+  public async chatInputListDisbursement(interaction: ChatInputCommandInteraction) {
+    return DonationDisbursementListCommand.run(interaction)
+  }
 
   /**
    * Registers the slash command structure
-   *
-   * @param registry - The subcommand registry
    */
   registerApplicationCommands(registry: Subcommand.Registry) {
     registry.registerChatInputCommand((builder) =>

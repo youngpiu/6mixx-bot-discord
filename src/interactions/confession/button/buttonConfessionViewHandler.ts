@@ -1,8 +1,9 @@
 import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
 import { ButtonInteraction, ContainerBuilder, MediaGalleryBuilder, MessageFlags } from 'discord.js'
 
-import { asyncInteractionHandler } from '~/utils/asyncHandleUtil'
-import { deleteReplyInteraction } from '~/utils/interactionUtil'
+import { CUSTOM_ID } from '~/constants/idConstant'
+import { NormalError } from '~/core/errorResponse'
+
 import { lines } from '~/utils/textUtil'
 
 import { ConfessionRepository } from '~/repositories/confessionRepository'
@@ -16,23 +17,19 @@ export class ButtonConfessionViewHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    if (!interaction.customId.startsWith('btn-confession-view:')) return this.none()
+    if (!interaction.customId.startsWith(CUSTOM_ID.BTN_CONFESSION_VIEW_PREFIX)) return this.none()
     const code = interaction.customId.split(':')[1]
     return this.some({ code })
   }
 
-  public run = asyncInteractionHandler<ButtonInteraction>(async (interaction) => {
+  public async run(interaction: ButtonInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
     const code = interaction.customId.split(':')[1]
     const confession = await ConfessionRepository.getConfessionByCode(code)
 
     if (!confession) {
-      await interaction.editReply({
-        content: 'Không tìm thấy confession.'
-      })
-      await deleteReplyInteraction(interaction)
-      return
+      throw new NormalError('Hệ thống không tìm thấy confession này.')
     }
 
     // Build container with V2 components
@@ -51,9 +48,11 @@ export class ButtonConfessionViewHandler extends InteractionHandler {
       )
 
     // Add Media Gallery if there are attachments
+    // @ts-expect-error - attachmentUrls is not in the generated type but exists in DB
     if (confession.attachmentUrls.length > 0) {
       const gallery = new MediaGalleryBuilder()
 
+      // @ts-expect-error - attachmentUrls is not in the generated type but exists in DB
       for (const url of confession.attachmentUrls) {
         gallery.addItems((item) => item.setURL(url))
       }
@@ -65,5 +64,5 @@ export class ButtonConfessionViewHandler extends InteractionHandler {
       components: [container],
       flags: [MessageFlags.IsComponentsV2]
     })
-  })
+  }
 }
