@@ -1,4 +1,10 @@
-export type ErrorType = 'DATABASE' | 'SYSTEM' | 'RATE_LIMIT' | 'PERMISSION' | 'BANNED' | 'NORMAL'
+export type ErrorType =
+  | 'DATABASE'
+  | 'SYSTEM'
+  | 'RATE_LIMIT'
+  | 'PERMISSION'
+  | 'BANNED'
+  | 'NORMAL'
 
 export class ErrorResponseCore extends Error {
   public readonly type: ErrorType
@@ -28,13 +34,17 @@ export class SystemError extends ErrorResponseCore {
 }
 
 export class RateLimitError extends ErrorResponseCore {
-  constructor(content: string = 'Bạn đang thao tác quá nhanh, vui lòng chờ một chút.') {
+  constructor(
+    content: string = 'Bạn đang thao tác quá nhanh, vui lòng chờ một chút.'
+  ) {
     super('RATE_LIMIT', content)
   }
 }
 
 export class PermissionError extends ErrorResponseCore {
-  constructor(content: string = 'Bạn không có đủ quyền để thực hiện hành động này.') {
+  constructor(
+    content: string = 'Bạn không có đủ quyền để thực hiện hành động này.'
+  ) {
     super('PERMISSION', content)
   }
 }
@@ -46,7 +56,9 @@ export class BannedError extends ErrorResponseCore {
 }
 
 export class NormalError extends ErrorResponseCore {
-  constructor(content: string = 'Không thể thực hiện yêu cầu của bạn, vui lòng thử lại sau.') {
+  constructor(
+    content: string = 'Không thể thực hiện yêu cầu của bạn, vui lòng thử lại sau.'
+  ) {
     super('NORMAL', content)
   }
 }

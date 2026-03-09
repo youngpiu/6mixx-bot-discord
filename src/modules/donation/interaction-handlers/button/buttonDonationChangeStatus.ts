@@ -1,4 +1,7 @@
-import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
 import { ButtonInteraction } from 'discord.js'
 import { DonationHelper } from '~/modules/donation/helpers/DonationHelper'
 import { DonateRepository } from '~/modules/donation/repositories/donateRepository'
@@ -11,7 +14,10 @@ import { DonationStatus } from 'generated/prisma/enums'
 import { NormalError } from '~/core/errorResponse'
 
 export class ButtonDonationChangeStatusHandler extends InteractionHandler {
-  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
+  public constructor(
+    ctx: InteractionHandler.LoaderContext,
+    options: InteractionHandler.Options
+  ) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.Button
@@ -19,7 +25,11 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    if (!interaction.customId.startsWith(CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX))
+    if (
+      !interaction.customId.startsWith(
+        CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX
+      )
+    )
       return this.none()
     const parts = interaction.customId.split(':')
     if (parts.length < 3) return this.none()
@@ -30,7 +40,10 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
     return this.some({ targetStatus, donationId })
   }
 
-  public async run(interaction: ButtonInteraction, result: InteractionHandler.ParseResult<this>) {
+  public async run(
+    interaction: ButtonInteraction,
+    result: InteractionHandler.ParseResult<this>
+  ) {
     await interaction.deferUpdate()
 
     if (!interaction || !interaction.guild) return
@@ -45,7 +58,9 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
     const donation = await DonateRepository.findById(donationId)
 
     if (!donation) {
-      throw new NormalError('Không tìm thấy giao dịch quyên góp này trong hệ thống.')
+      throw new NormalError(
+        'Không tìm thấy giao dịch quyên góp này trong hệ thống.'
+      )
     }
 
     if (targetStatus === DonationStatus.TRANSFERRED) {
@@ -53,7 +68,10 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
         throw new NormalError('Giao dịch này đã được xác nhận rồi.')
       }
 
-      await DonateRepository.markAsTransferred(donation.id)
+      await DonateRepository.updateStatus(
+        donation.id,
+        DonationStatus.TRANSFERRED
+      )
 
       const updatedDonation = await DonateRepository.findById(donation.id)
       if (!updatedDonation) return
@@ -65,7 +83,9 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
       })
 
       try {
-        const guildConfig = await GuildRepository.findCached(interaction.guild.id)
+        const guildConfig = await GuildRepository.findCached(
+          interaction.guild.id
+        )
         await DonationHelper.sendThankYouMessage(guildConfig, updatedDonation)
       } catch (error) {
         this.container.logger.error(error)
@@ -83,7 +103,7 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
         throw new NormalError('Giao dịch này đã bị hủy trước đó.')
       }
 
-      await DonateRepository.cancel(donation.id)
+      await DonateRepository.updateStatus(donation.id, DonationStatus.CANCELED)
 
       const updatedDonation = await DonateRepository.findById(donation.id)
       if (!updatedDonation) return

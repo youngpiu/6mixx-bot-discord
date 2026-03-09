@@ -1,15 +1,20 @@
-import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
 import { type ButtonInteraction } from 'discord.js'
 import {
   DonationListCommand,
   DonationListState,
   decodeState
 } from '~/modules/donation/commands/_donationListCommand'
-
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 
 export class ButtonDonationList extends InteractionHandler {
-  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
+  public constructor(
+    ctx: InteractionHandler.LoaderContext,
+    options: InteractionHandler.Options
+  ) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.Button
@@ -17,7 +22,8 @@ export class ButtonDonationList extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    if (!interaction.customId.startsWith(CUSTOM_ID.DONATION_LIST_PREFIX)) return this.none()
+    if (!interaction.customId.startsWith(CUSTOM_ID.DONATION_LIST_PREFIX))
+      return this.none()
 
     const parts = interaction.customId.split(':')
     if (parts.length < 3) return this.none()
@@ -29,7 +35,10 @@ export class ButtonDonationList extends InteractionHandler {
     return this.some({ action, state })
   }
 
-  public async run(interaction: ButtonInteraction, result: InteractionHandler.ParseResult<this>) {
+  public async run(
+    interaction: ButtonInteraction,
+    result: InteractionHandler.ParseResult<this>
+  ) {
     if (!result) return
     await interaction.deferUpdate()
     const { state } = result as { action: string; state: DonationListState }

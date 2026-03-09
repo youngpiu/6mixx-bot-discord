@@ -6,7 +6,10 @@ interface DeleteTicketChannelPayload {
 }
 
 export class DeleteTicketChannelTask extends ScheduledTask {
-  public constructor(context: ScheduledTask.LoaderContext, options: ScheduledTask.Options) {
+  public constructor(
+    context: ScheduledTask.LoaderContext,
+    options: ScheduledTask.Options
+  ) {
     super(context, {
       ...options,
       name: 'deleteTicketChannel'
@@ -21,7 +24,10 @@ export class DeleteTicketChannelTask extends ScheduledTask {
         await channel.delete()
       }
     } catch (error) {
-      this.container.logger.error(`Failed to delete ticket channel ${channelId}:`, error)
+      this.container.logger.error(
+        `Failed to delete ticket channel ${channelId}:`,
+        error
+      )
     }
   }
 }

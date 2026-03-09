@@ -10,13 +10,16 @@ import {
   RepliableInteraction,
   SendableChannels
 } from 'discord.js'
-
 import { STATIC_EMOJI } from '~/shared/constants/emojiConstant'
 import { TIME } from '~/shared/constants/timeConstant'
+
 import type { ErrorType } from '~/core/errorResponse'
 
 export type { RepliableInteraction } from 'discord.js'
-export type OptionalRepliableInteraction = RepliableInteraction | null | undefined
+export type OptionalRepliableInteraction =
+  | RepliableInteraction
+  | null
+  | undefined
 
 type MessageInput = Message | null | undefined
 type ChannelInput = SendableChannels | null | undefined
@@ -73,7 +76,12 @@ export class MessageUtil {
     messageOptions: MessageCreateOptions,
     timeoutDeleteMessage?: number
   ): Promise<Message | null> {
-    if (!message || !message.channel.isTextBased() || !message.channel.isSendable()) return null
+    if (
+      !message ||
+      !message.channel.isTextBased() ||
+      !message.channel.isSendable()
+    )
+      return null
 
     try {
       const repliedMessage = await message.reply(messageOptions)
@@ -108,7 +116,9 @@ export class MessageUtil {
     return
   }
 
-  static async deleteNow(messages: MessageInput | MessageInput[]): Promise<boolean> {
+  static async deleteNow(
+    messages: MessageInput | MessageInput[]
+  ): Promise<boolean> {
     const msgArray = Array.isArray(messages) ? messages : [messages]
     const valid = msgArray.filter((m): m is Message => m != null && m.deletable)
     if (valid.length === 0) return false
@@ -136,7 +146,9 @@ export class MessageUtil {
   ): Promise<Message | null> {
     const container =
       typeof containerOrText === 'string'
-        ? new ContainerBuilder().addTextDisplayComponents((t) => t.setContent(containerOrText))
+        ? new ContainerBuilder().addTextDisplayComponents((t) =>
+            t.setContent(containerOrText)
+          )
         : containerOrText
 
     return this.reply(
@@ -188,7 +200,9 @@ export class MessageUtil {
 
     const container =
       typeof containerOrText === 'string'
-        ? new ContainerBuilder().addTextDisplayComponents((t) => t.setContent(containerOrText))
+        ? new ContainerBuilder().addTextDisplayComponents((t) =>
+            t.setContent(containerOrText)
+          )
         : containerOrText
 
     return MessageUtil.sendToChannel(
@@ -212,7 +226,10 @@ export class InteractionUtil {
     if (!interaction || interaction.replied || interaction.deferred) return null
 
     try {
-      const response = await interaction.reply({ flags: ['Ephemeral'], ...options })
+      const response = await interaction.reply({
+        flags: ['Ephemeral'],
+        ...options
+      })
       return response
     } catch {
       return null
@@ -223,7 +240,8 @@ export class InteractionUtil {
     interaction: OptionalRepliableInteraction,
     options: InteractionEditReplyOptions
   ): Promise<Message | null> {
-    if (!interaction || (!interaction.replied && !interaction.deferred)) return null
+    if (!interaction || (!interaction.replied && !interaction.deferred))
+      return null
 
     try {
       return await interaction.editReply(options)
@@ -236,10 +254,14 @@ export class InteractionUtil {
     interaction: OptionalRepliableInteraction,
     options: InteractionReplyOptions
   ): Promise<Message | null> {
-    if (!interaction || (!interaction.replied && !interaction.deferred)) return null
+    if (!interaction || (!interaction.replied && !interaction.deferred))
+      return null
 
     try {
-      const followed = await interaction.followUp({ flags: 'Ephemeral', ...options })
+      const followed = await interaction.followUp({
+        flags: 'Ephemeral',
+        ...options
+      })
       return followed
     } catch {
       return null
@@ -261,8 +283,8 @@ export class InteractionUtil {
     description?: string,
     ephemeral?: boolean
   ): Promise<Message | InteractionResponse | null> {
-    const successContainerr = new ContainerBuilder().addTextDisplayComponents((t) =>
-      t.setContent(`${STATIC_EMOJI.SUCCESS} ${content}`)
+    const successContainerr = new ContainerBuilder().addTextDisplayComponents(
+      (t) => t.setContent(`${STATIC_EMOJI.SUCCESS} ${content}`)
     )
 
     if (description)
@@ -282,7 +304,9 @@ export class InteractionUtil {
 
     const container =
       typeof containerOrText === 'string'
-        ? new ContainerBuilder().addTextDisplayComponents((t) => t.setContent(containerOrText))
+        ? new ContainerBuilder().addTextDisplayComponents((t) =>
+            t.setContent(containerOrText)
+          )
         : containerOrText
 
     if (interaction.deferred || interaction.replied) {

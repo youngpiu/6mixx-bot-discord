@@ -11,7 +11,9 @@ export class ConfessionRepository {
     return `CFS${String(nextNumber).padStart(3, '0')}`
   }
 
-  public static async create(data: Omit<ConfessionUncheckedCreateInput, 'code'>) {
+  public static async create(
+    data: Omit<ConfessionUncheckedCreateInput, 'code'>
+  ) {
     const code = await this.generateCode(data.guildId as string)
     return container.prisma.confession.create({
       data: {

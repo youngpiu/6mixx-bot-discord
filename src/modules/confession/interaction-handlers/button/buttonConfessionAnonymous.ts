@@ -1,4 +1,7 @@
-import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
 import {
   ButtonInteraction,
   FileUploadBuilder,
@@ -7,14 +10,16 @@ import {
   TextInputBuilder,
   TextInputStyle
 } from 'discord.js'
-
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
-import { NormalError } from '~/core/errorResponse'
-
 import { lines } from '~/shared/utils/textUtil'
 
+import { NormalError } from '~/core/errorResponse'
+
 export class ButtonConfessionAnonymous extends InteractionHandler {
-  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
+  public constructor(
+    ctx: InteractionHandler.LoaderContext,
+    options: InteractionHandler.Options
+  ) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.Button
@@ -22,7 +27,8 @@ export class ButtonConfessionAnonymous extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    if (interaction.customId !== CUSTOM_ID.BTN_CONFESSION_SEND_ANONYMOUS) return this.none()
+    if (interaction.customId !== CUSTOM_ID.BTN_CONFESSION_SEND_ANONYMOUS)
+      return this.none()
     return this.some()
   }
 

@@ -1,7 +1,13 @@
-import { Events, Listener, type ListenerErrorPayload } from '@sapphire/framework'
+import {
+  Events,
+  Listener,
+  type ListenerErrorPayload
+} from '@sapphire/framework'
 import { handleError } from '~/shared/utils/errorUtil'
 
-export class ListenerErrorListener extends Listener<typeof Events.ListenerError> {
+export class ListenerErrorListener extends Listener<
+  typeof Events.ListenerError
+> {
   public override async run(error: unknown, { piece }: ListenerErrorPayload) {
     await handleError(null, error, piece.name)
   }

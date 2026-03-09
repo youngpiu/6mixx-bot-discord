@@ -1,9 +1,9 @@
 import { DecoratorIdentifiers } from '@sapphire/decorators'
 import { Identifiers, type UserError } from '@sapphire/framework'
 import { ChannelType, type PermissionsString } from 'discord.js'
-
 import { CHANNEL_TYPE_NAMES } from '~/shared/constants/channelTypeConstant'
 import { PERMISSION_NAMES } from '~/shared/constants/permissionConstant'
+
 import {
   BannedError,
   ErrorResponseCore,
@@ -58,7 +58,9 @@ export function mapDeniedError(error: UserError): ErrorResponseCore {
   // ── Cooldown ──────────────────────────────────────────────────────────────
   if (id === Identifiers.PreconditionCooldown) {
     if (isCustomMessage) return new RateLimitError(error.message)
-    return new RateLimitError(`Bạn đang thao tác quá nhanh, vui lòng sống chậm lại.`)
+    return new RateLimitError(
+      `Bạn đang thao tác quá nhanh, vui lòng sống chậm lại.`
+    )
   }
 
   // ── User Permissions ──────────────────────────────────────────────────────
@@ -70,7 +72,9 @@ export function mapDeniedError(error: UserError): ErrorResponseCore {
         `Bạn không có đủ quyền để thực hiện hành động này, do thiếu các quyền sau: \`${formatMissingPermissions(missing)}\`.`
       )
     }
-    return new PermissionError('Bạn không có đủ quyền để thực hiện hành động này.')
+    return new PermissionError(
+      'Bạn không có đủ quyền để thực hiện hành động này.'
+    )
   }
 
   // ── Client Permissions ────────────────────────────────────────────────────
@@ -82,13 +86,17 @@ export function mapDeniedError(error: UserError): ErrorResponseCore {
         `Mình không có đủ quyền để thực hiện hành động này, do thiếu các quyền sau: \`${formatMissingPermissions(missing)}\`.`
       )
     }
-    return new PermissionError('Mình không có đủ quyền để thực hiện hành động này.')
+    return new PermissionError(
+      'Mình không có đủ quyền để thực hiện hành động này.'
+    )
   }
 
   // ── Command Disabled ──────────────────────────────────────────────────────
   if (id === Identifiers.CommandDisabled) {
     if (isCustomMessage) return new BannedError(error.message)
-    return new BannedError('Lệnh này hiện đang bị vô hiệu hoá, không thể sử dụng được.')
+    return new BannedError(
+      'Lệnh này hiện đang bị vô hiệu hoá, không thể sử dụng được.'
+    )
   }
 
   // ── NSFW ──────────────────────────────────────────────────────────────────
@@ -106,7 +114,9 @@ export function mapDeniedError(error: UserError): ErrorResponseCore {
         `Lệnh này chỉ hoạt động trong các kênh: \`${formatAllowedChannels(types)}\`.`
       )
     }
-    return new BannedError('Lệnh này không được phép sử dụng trong loại kênh hiện tại.')
+    return new BannedError(
+      'Lệnh này không được phép sử dụng trong loại kênh hiện tại.'
+    )
   }
 
   // ── Fallback ──────────────────────────────────────────────────────────────

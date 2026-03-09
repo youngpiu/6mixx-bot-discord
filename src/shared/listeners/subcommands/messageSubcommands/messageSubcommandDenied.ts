@@ -3,11 +3,12 @@ import {
   type MessageSubcommandDeniedPayload,
   SubcommandPluginEvents
 } from '@sapphire/plugin-subcommands'
-
 import { handleError } from '~/shared/utils/errorUtil'
 import { mapDeniedError } from '~/shared/utils/preconditionErrorUtil'
 
-export class UserEvent extends Listener<typeof SubcommandPluginEvents.MessageSubcommandDenied> {
+export class UserEvent extends Listener<
+  typeof SubcommandPluginEvents.MessageSubcommandDenied
+> {
   public override async run(
     error: UserError,
     { message, command }: MessageSubcommandDeniedPayload

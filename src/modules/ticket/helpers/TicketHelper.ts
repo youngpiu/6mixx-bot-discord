@@ -134,7 +134,9 @@ export class TicketHelper {
       )
       .addSeparatorComponents((sep) => sep)
       .addTextDisplayComponents(
-        new TextDisplayBuilder().setContent(lines(`**_Kênh này sẽ tự động xóa sau 30 giây._**`))
+        new TextDisplayBuilder().setContent(
+          lines(`**_Kênh này sẽ tự động xóa sau 30 giây._**`)
+        )
       )
       .addSeparatorComponents((sep) => sep)
       .addTextDisplayComponents(
@@ -170,12 +172,18 @@ export class TicketHelper {
    * Handles both 'CREATED' and 'CLOSED' events with different formatting.
    * Returns null if logging fails or is not configured (fail-safe).
    */
-  public static async sendTicketLog(options: TicketLogOptions): Promise<string | null> {
+  public static async sendTicketLog(
+    options: TicketLogOptions
+  ): Promise<string | null> {
     const { guildId, ticket, event, executorId, reason, channelId } = options
 
     try {
-      const ticketConfig = options.ticketConfig ?? (await GuildRepository.getConfig(guildId))
-      if (!ticketConfig?.ticketNotificationThreadId || !ticketConfig.notificationForumChannelId)
+      const ticketConfig =
+        options.ticketConfig ?? (await GuildRepository.getConfig(guildId))
+      if (
+        !ticketConfig?.ticketNotificationThreadId ||
+        !ticketConfig.notificationForumChannelId
+      )
         return null
 
       const notificationChannel = (await container.client.channels.fetch(
@@ -193,7 +201,9 @@ export class TicketHelper {
       if (event === 'CREATED') {
         logContainer
           .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(`### PHIẾU HỖ TRỢ MỚI - #${ticket.code}`)
+            new TextDisplayBuilder().setContent(
+              `### PHIẾU HỖ TRỢ MỚI - #${ticket.code}`
+            )
           )
           .addSeparatorComponents((sep) => sep)
           .addTextDisplayComponents(
@@ -209,7 +219,9 @@ export class TicketHelper {
       } else if (event === 'CLOSED') {
         logContainer
           .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(`### ĐÓNG PHIẾU HỖ TRỢ - #${ticket.code}`)
+            new TextDisplayBuilder().setContent(
+              `### ĐÓNG PHIẾU HỖ TRỢ - #${ticket.code}`
+            )
           )
           .addSeparatorComponents((sep) => sep)
           .addTextDisplayComponents(

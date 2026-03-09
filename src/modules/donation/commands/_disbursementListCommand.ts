@@ -52,7 +52,10 @@ const createButton = (
   label?: string
 ) => {
   const customId = `${CUSTOM_ID.DISBURSEMENT_LIST_PREFIX}${action}:${encodeState(state)}`
-  const button = new ButtonBuilder().setCustomId(customId).setStyle(style).setDisabled(disabled)
+  const button = new ButtonBuilder()
+    .setCustomId(customId)
+    .setStyle(style)
+    .setDisabled(disabled)
 
   if (emoji) button.setEmoji(emoji)
   if (label) button.setLabel(label)
@@ -82,7 +85,10 @@ export class DisbursementListCommand {
     await interaction.editReply(response)
   }
 
-  public static async handleButton(interaction: ButtonInteraction, state: DisbursementListState) {
+  public static async handleButton(
+    interaction: ButtonInteraction,
+    state: DisbursementListState
+  ) {
     if (!interaction || !interaction.guild) {
       throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }

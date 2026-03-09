@@ -13,7 +13,8 @@ export const CUSTOM_ID = {
   BTN_CONFESSION_CHECK_DM: 'btn-confession-check-dm',
   BTN_CONFESSION_GENERAL_SETTING: 'btn-confession-general-setting',
   BTN_CONFESSION_SEND: 'btn-confession-send',
-  BTN_CONFESSION_CREATE_NOTIFICATION_THREAD: 'btn-confession-create-notification-thread',
+  BTN_CONFESSION_CREATE_NOTIFICATION_THREAD:
+    'btn-confession-create-notification-thread',
 
   // Confession Dynamic Prefixes
   BTN_CONFESSION_APPROVE_PREFIX: 'btn-confession-approve:',
@@ -38,7 +39,8 @@ export const CUSTOM_ID = {
   BTN_DONATION_CREATE: 'btn-donation-create',
   BTN_DONATION_STATS: 'btn-donation-stats',
   BTN_DONATION_SEND: 'btn-donation-send',
-  BTN_DONATION_CREATE_NOTIFICATION_THREAD: 'btn-donation-create-notification-thread',
+  BTN_DONATION_CREATE_NOTIFICATION_THREAD:
+    'btn-donation-create-notification-thread',
 
   // Donation Dynamic Prefixes
   DONATION_LIST_PREFIX: 'donation-list:',
@@ -51,7 +53,8 @@ export const CUSTOM_ID = {
 
   // General Settings
   BTN_CHANNEL_SETTING: 'btn-channel-setting',
-  BTN_GENERAL_CREATE_ERROR_NOTIFICATION_THREAD: 'btn-general-create-error-notification-thread',
+  BTN_GENERAL_CREATE_ERROR_NOTIFICATION_THREAD:
+    'btn-general-create-error-notification-thread',
   MODAL_CHANNEL_SETTING: 'modal-channel-setting',
 
   // Ticket Buttons
@@ -62,7 +65,8 @@ export const CUSTOM_ID = {
   BTN_TICKET_REPORT: 'btn-ticket-report',
   BTN_TICKET_GENERAL_SETTING: 'btn-ticket-general-setting',
   BTN_TICKET_SEND: 'btn-ticket-send',
-  BTN_TICKET_CREATE_NOTIFICATION_THREAD: 'btn-ticket-create-notification-thread',
+  BTN_TICKET_CREATE_NOTIFICATION_THREAD:
+    'btn-ticket-create-notification-thread',
 
   // Ticket Modals / Dynamic
   MODAL_TICKET_CLOSE_REASON: 'modal-ticket-close-reason',

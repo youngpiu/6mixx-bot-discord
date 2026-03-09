@@ -5,14 +5,12 @@ import {
   type InteractionEditReplyOptions,
   MessageFlags
 } from 'discord.js'
-import { DetailBuilder } from '~/shared/components/DetailBuilder'
-
-import { CUSTOM_ID } from '~/shared/constants/idConstant'
-import { NormalError } from '~/core/errorResponse'
-
 import { DonationHelper } from '~/modules/donation/helpers/DonationHelper'
-
 import { DonateRepository } from '~/modules/donation/repositories/donateRepository'
+import { DetailBuilder } from '~/shared/components/DetailBuilder'
+import { CUSTOM_ID } from '~/shared/constants/idConstant'
+
+import { NormalError } from '~/core/errorResponse'
 
 export class DonationDetailCommand {
   /**
@@ -33,13 +31,17 @@ export class DonationDetailCommand {
     const code = interaction.options.getString('code', true)
 
     if (!code) {
-      throw new NormalError('Vui lòng lựa chọn một mã quyên góp mà bạn muốn xem chi tiết.')
+      throw new NormalError(
+        'Vui lòng lựa chọn một mã quyên góp mà bạn muốn xem chi tiết.'
+      )
     }
 
     const donation = await DonateRepository.findByCode(code)
 
     if (!donation) {
-      throw new NormalError(`Hệ thống không tìm thấy mã quyên góp này trong cơ sở dữ liệu.`)
+      throw new NormalError(
+        `Hệ thống không tìm thấy mã quyên góp này trong cơ sở dữ liệu.`
+      )
     }
 
     const statusText = DonationHelper.getStatusText(donation.status)
@@ -50,7 +52,10 @@ export class DonationDetailCommand {
       ['Trạng thái', `**${statusText}**`],
       ['Mã giao dịch', `**#${donation.code}**`],
       ['Số tiền', `**${donation.amount.toLocaleString('vi-VN')}đ**`],
-      ['Thời gian tạo', `<t:${Math.floor(donation.createdAt.getTime() / 1000)}:F>`]
+      [
+        'Thời gian tạo',
+        `<t:${Math.floor(donation.createdAt.getTime() / 1000)}:F>`
+      ]
     ])
 
     if (donation.message) {
@@ -60,14 +65,21 @@ export class DonationDetailCommand {
     const actionRows: ButtonBuilder[][] = []
 
     // Check donation status to determine available actions
-    if (donation.status === 'PENDING' || donation.status === 'PENDING_VERIFICATION') {
+    if (
+      donation.status === 'PENDING' ||
+      donation.status === 'PENDING_VERIFICATION'
+    ) {
       actionRows.push([
         new ButtonBuilder()
-          .setCustomId(`${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}TRANSFERRED:${donation.id}`)
+          .setCustomId(
+            `${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}TRANSFERRED:${donation.id}`
+          )
           .setLabel('Xác nhận')
           .setStyle(ButtonStyle.Success),
         new ButtonBuilder()
-          .setCustomId(`${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}CANCELED:${donation.id}`)
+          .setCustomId(
+            `${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}CANCELED:${donation.id}`
+          )
           .setLabel('Hủy')
           .setStyle(ButtonStyle.Danger)
       ])
@@ -76,7 +88,9 @@ export class DonationDetailCommand {
     else if (donation.status === 'TRANSFERRED') {
       actionRows.push([
         new ButtonBuilder()
-          .setCustomId(`${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}CANCELED:${donation.id}`)
+          .setCustomId(
+            `${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}CANCELED:${donation.id}`
+          )
           .setLabel('Hủy')
           .setStyle(ButtonStyle.Danger)
       ])
@@ -85,7 +99,9 @@ export class DonationDetailCommand {
     else if (donation.status === 'CANCELED') {
       actionRows.push([
         new ButtonBuilder()
-          .setCustomId(`${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}TRANSFERRED:${donation.id}`)
+          .setCustomId(
+            `${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}TRANSFERRED:${donation.id}`
+          )
           .setLabel('Xác nhận')
           .setStyle(ButtonStyle.Success)
       ])

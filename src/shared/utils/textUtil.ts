@@ -13,7 +13,8 @@ export function formatFields(fields: Field[], prefix = '- '): string[] {
   const maxKeyLength = Math.max(...valid.map(([k]) => k.length), 0)
 
   return valid.map(
-    ([key, value]) => `${prefix}${inlineCode(key.padEnd(maxKeyLength, ' ') + ':')} ${value}`
+    ([key, value]) =>
+      `${prefix}${inlineCode(key.padEnd(maxKeyLength, ' ') + ':')} ${value}`
   )
 }
 

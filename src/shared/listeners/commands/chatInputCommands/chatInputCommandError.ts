@@ -1,9 +1,10 @@
 import type { ChatInputCommandErrorPayload, Events } from '@sapphire/framework'
 import { Listener } from '@sapphire/framework'
-
 import { handleError } from '~/shared/utils/errorUtil'
 
-export class ChatInputCommandErrorListener extends Listener<typeof Events.ChatInputCommandError> {
+export class ChatInputCommandErrorListener extends Listener<
+  typeof Events.ChatInputCommandError
+> {
   public override async run(
     error: unknown,
     { interaction, command }: ChatInputCommandErrorPayload

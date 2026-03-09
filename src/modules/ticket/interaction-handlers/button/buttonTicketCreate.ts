@@ -1,4 +1,7 @@
-import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
 import {
   ButtonBuilder,
   ButtonInteraction,
@@ -41,7 +44,10 @@ const TICKET_BUTTON_CONFIG: Record<
 }
 
 export class ButtonTicketCreate extends InteractionHandler {
-  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
+  public constructor(
+    ctx: InteractionHandler.LoaderContext,
+    options: InteractionHandler.Options
+  ) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.Button
@@ -57,7 +63,10 @@ export class ButtonTicketCreate extends InteractionHandler {
     return this.none()
   }
 
-  public async run(interaction: ButtonInteraction, result: InteractionHandler.ParseResult<this>) {
+  public async run(
+    interaction: ButtonInteraction,
+    result: InteractionHandler.ParseResult<this>
+  ) {
     if (!result) return
 
     const { type, config } = result as {
@@ -82,7 +91,9 @@ export class ButtonTicketCreate extends InteractionHandler {
 
     const category = interaction.guild.channels.cache.get(ticketCategoryId)
     if (!category || category.type !== ChannelType.GuildCategory) {
-      throw new NormalError('Danh mục chứa kênh hỗ trợ không tồn tại hoặc không hợp lệ.')
+      throw new NormalError(
+        'Danh mục chứa kênh hỗ trợ không tồn tại hoặc không hợp lệ.'
+      )
     }
 
     const now = new Date()
@@ -99,7 +110,12 @@ export class ButtonTicketCreate extends InteractionHandler {
         },
         {
           id: interaction.user.id,
-          allow: ['ViewChannel', 'SendMessages', 'ReadMessageHistory', 'AttachFiles']
+          allow: [
+            'ViewChannel',
+            'SendMessages',
+            'ReadMessageHistory',
+            'AttachFiles'
+          ]
         }
       ]
     })

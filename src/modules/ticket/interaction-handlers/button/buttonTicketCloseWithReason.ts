@@ -1,4 +1,7 @@
-import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
 import {
   ButtonInteraction,
   LabelBuilder,
@@ -6,11 +9,13 @@ import {
   TextInputBuilder,
   TextInputStyle
 } from 'discord.js'
-
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 
 export class ButtonTicketCloseWithReason extends InteractionHandler {
-  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
+  public constructor(
+    ctx: InteractionHandler.LoaderContext,
+    options: InteractionHandler.Options
+  ) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.Button

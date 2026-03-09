@@ -65,13 +65,20 @@ export class DonationHelper {
 
     try {
       const guildConfig = await GuildRepository.findCached(guildId)
-      if (!guildConfig?.donationNotificationThreadId || !guildConfig.notificationForumChannelId)
+      if (
+        !guildConfig?.donationNotificationThreadId ||
+        !guildConfig.notificationForumChannelId
+      )
         return
 
       const notificationChannel = (await container.client.channels.fetch(
         guildConfig.notificationForumChannelId
       )) as TextChannel | ForumChannel
-      if (!notificationChannel || notificationChannel.type !== ChannelType.GuildForum) return
+      if (
+        !notificationChannel ||
+        notificationChannel.type !== ChannelType.GuildForum
+      )
+        return
 
       const thread = await notificationChannel.threads.fetch(
         guildConfig.donationNotificationThreadId
@@ -104,7 +111,9 @@ export class DonationHelper {
     }
   }
 
-  private static buildCreatedLog(donation: DonationNotificationOptions['donation']) {
+  private static buildCreatedLog(
+    donation: DonationNotificationOptions['donation']
+  ) {
     return this.buildBaseLog(donation, {
       title: 'QUYÊN GÓP MỚI',
       timeLabel: 'Thời gian tạo',
@@ -112,7 +121,9 @@ export class DonationHelper {
     })
   }
 
-  private static buildPendingVerificationLog(donation: DonationNotificationOptions['donation']) {
+  private static buildPendingVerificationLog(
+    donation: DonationNotificationOptions['donation']
+  ) {
     return this.buildBaseLog(donation, {
       title: 'CHỜ XÁC NHẬN',
       timeLabel: 'Ngày tạo',
@@ -120,7 +131,9 @@ export class DonationHelper {
     })
   }
 
-  private static buildCanceledLog(donation: DonationNotificationOptions['donation']) {
+  private static buildCanceledLog(
+    donation: DonationNotificationOptions['donation']
+  ) {
     return this.buildBaseLog(donation, {
       title: 'HỦY QUYÊN GÓP',
       timeLabel: 'Ngày tạo',
@@ -128,7 +141,9 @@ export class DonationHelper {
     })
   }
 
-  private static buildStatusChangeLog(donation: DonationNotificationOptions['donation']) {
+  private static buildStatusChangeLog(
+    donation: DonationNotificationOptions['donation']
+  ) {
     const statusText = this.getStatusText(donation.status as DonationStatus)
 
     return this.buildBaseLog(donation, {
@@ -150,7 +165,13 @@ export class DonationHelper {
       color?: number
     }
   ): LoggerBuilder {
-    const { title, timeLabel, timeValue = donation.createdAt, extraFields = [], color } = options
+    const {
+      title,
+      timeLabel,
+      timeValue = donation.createdAt,
+      extraFields = [],
+      color
+    } = options
 
     const builder = new LoggerBuilder({ title, color })
 

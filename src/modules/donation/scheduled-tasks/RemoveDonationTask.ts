@@ -2,7 +2,10 @@ import { ScheduledTask } from '@sapphire/plugin-scheduled-tasks'
 import { DonateRepository } from '~/modules/donation/repositories/donateRepository'
 
 export class RemoveDonationTask extends ScheduledTask {
-  public constructor(context: ScheduledTask.LoaderContext, options: ScheduledTask.Options) {
+  public constructor(
+    context: ScheduledTask.LoaderContext,
+    options: ScheduledTask.Options
+  ) {
     super(context, {
       ...options,
       name: 'removeDonation',
@@ -16,7 +19,9 @@ export class RemoveDonationTask extends ScheduledTask {
   }
 
   public async run() {
-    this.container.logger.info('Running daily cleanup of old pending/canceled donations...')
+    this.container.logger.info(
+      'Running daily cleanup of old pending/canceled donations...'
+    )
     try {
       const result = await DonateRepository.deleteOld(3)
 
@@ -24,7 +29,10 @@ export class RemoveDonationTask extends ScheduledTask {
         `Successfully deleted ${result.count} old pending/canceled donations.`
       )
     } catch (error) {
-      this.container.logger.error('Failed to clean up expired donations:', error)
+      this.container.logger.error(
+        'Failed to clean up expired donations:',
+        error
+      )
     }
   }
 }

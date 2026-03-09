@@ -1,5 +1,4 @@
 import { ContainerBuilder } from 'discord.js'
-
 import { formatFields, lines } from '~/shared/utils/textUtil'
 
 export interface LoggerBuilderOptions {
@@ -16,7 +15,9 @@ export class LoggerBuilder {
     if (options.color) {
       this.container.setAccentColor(options.color)
     }
-    this.container.addTextDisplayComponents((t) => t.setContent(`### ${options.title}`))
+    this.container.addTextDisplayComponents((t) =>
+      t.setContent(`### ${options.title}`)
+    )
     this.container.addSeparatorComponents((s) => s)
   }
 

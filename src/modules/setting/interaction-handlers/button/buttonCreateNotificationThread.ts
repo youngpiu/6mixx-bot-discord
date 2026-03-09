@@ -1,4 +1,7 @@
-import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
 import { ButtonInteraction, ChannelType } from 'discord.js'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
@@ -30,10 +33,14 @@ const NOTIFICATION_THREAD_CONFIG = {
 } as const
 
 type NotificationButtonId = keyof typeof NOTIFICATION_THREAD_CONFIG
-type ThreadIdKey = (typeof NOTIFICATION_THREAD_CONFIG)[NotificationButtonId]['threadIdKey']
+type ThreadIdKey =
+  (typeof NOTIFICATION_THREAD_CONFIG)[NotificationButtonId]['threadIdKey']
 
 export class ButtonCreateNotificationThread extends InteractionHandler {
-  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
+  public constructor(
+    ctx: InteractionHandler.LoaderContext,
+    options: InteractionHandler.Options
+  ) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.Button
@@ -41,16 +48,21 @@ export class ButtonCreateNotificationThread extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    if (!(interaction.customId in NOTIFICATION_THREAD_CONFIG)) return this.none()
+    if (!(interaction.customId in NOTIFICATION_THREAD_CONFIG))
+      return this.none()
     return this.some({ buttonId: interaction.customId as NotificationButtonId })
   }
 
-  public async run(interaction: ButtonInteraction, result: InteractionHandler.ParseResult<this>) {
+  public async run(
+    interaction: ButtonInteraction,
+    result: InteractionHandler.ParseResult<this>
+  ) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
     if (!interaction || !interaction.guild) return
 
     const { buttonId } = result as { buttonId: NotificationButtonId }
-    const { threadName, threadIdKey, successMessage } = NOTIFICATION_THREAD_CONFIG[buttonId]
+    const { threadName, threadIdKey, successMessage } =
+      NOTIFICATION_THREAD_CONFIG[buttonId]
 
     const config = await GuildRepository.findUnique(interaction.guild.id)
     const forumChannelId = config?.notificationForumChannelId
@@ -61,15 +73,21 @@ export class ButtonCreateNotificationThread extends InteractionHandler {
       : null
 
     if (!forumChannel || forumChannel.type !== ChannelType.GuildForum) {
-      throw new NormalError('Kênh diễn đàn thông báo chưa được thiết lập hoặc không hợp lệ.')
+      throw new NormalError(
+        'Kênh diễn đàn thông báo chưa được thiết lập hoặc không hợp lệ.'
+      )
     }
 
     // 2. Kiểm tra xem thread cũ còn tồn tại không
     const oldThreadId = config?.[threadIdKey as ThreadIdKey]
     if (oldThreadId) {
-      const oldThread = await forumChannel.threads.fetch(oldThreadId).catch(() => null)
+      const oldThread = await forumChannel.threads
+        .fetch(oldThreadId)
+        .catch(() => null)
       if (oldThread) {
-        throw new NormalError(`Kênh thông báo này đã tồn tại: <#${oldThread.id}>.`)
+        throw new NormalError(
+          `Kênh thông báo này đã tồn tại: <#${oldThread.id}>.`
+        )
       }
     }
 
@@ -83,6 +101,9 @@ export class ButtonCreateNotificationThread extends InteractionHandler {
       [threadIdKey]: thread.id
     })
 
-    return InteractionUtil.replySuccess(interaction, `${successMessage}: <#${thread.id}>.`)
+    return InteractionUtil.replySuccess(
+      interaction,
+      `${successMessage}: <#${thread.id}>.`
+    )
   }
 }

@@ -26,7 +26,9 @@ export class TicketDetailCommand {
     const ticket = await TicketRepository.findById(id)
 
     if (!ticket) {
-      throw new NormalError('Hệ thống không tìm thấy phiếu hỗ trợ này trong cơ sở dữ liệu.')
+      throw new NormalError(
+        'Hệ thống không tìm thấy phiếu hỗ trợ này trong cơ sở dữ liệu.'
+      )
     }
 
     const typeLabel = TicketHelper.getTicketTypeLabel(ticket.type)
@@ -49,11 +51,19 @@ export class TicketDetailCommand {
     // Conditionally add fields based on ticket status and available data
     // Show channel link only for OPEN tickets as closed tickets might have their channels deleted
     if (ticket.status === TicketStatus.OPEN) {
-      fields.push({ name: 'Kênh hỗ trợ', value: `<#${ticket.channelId}>`, inline: false })
+      fields.push({
+        name: 'Kênh hỗ trợ',
+        value: `<#${ticket.channelId}>`,
+        inline: false
+      })
     }
 
     if (ticket.closedBy) {
-      fields.push({ name: 'Người đóng', value: `<@${ticket.closedBy}>`, inline: false })
+      fields.push({
+        name: 'Người đóng',
+        value: `<@${ticket.closedBy}>`,
+        inline: false
+      })
     }
 
     if (ticket.closedAt) {

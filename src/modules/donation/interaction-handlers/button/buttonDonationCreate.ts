@@ -1,4 +1,7 @@
-import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
 import {
   ButtonInteraction,
   LabelBuilder,
@@ -6,7 +9,6 @@ import {
   TextInputBuilder,
   TextInputStyle
 } from 'discord.js'
-
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 
 export class ButtonDonationCreate extends InteractionHandler {
@@ -14,7 +16,10 @@ export class ButtonDonationCreate extends InteractionHandler {
    * Handles the creation of a new donation via button interaction.
    * Displays the donation modal.
    */
-  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
+  public constructor(
+    ctx: InteractionHandler.LoaderContext,
+    options: InteractionHandler.Options
+  ) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.Button
@@ -22,7 +27,8 @@ export class ButtonDonationCreate extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    if (interaction.customId !== CUSTOM_ID.BTN_DONATION_CREATE) return this.none()
+    if (interaction.customId !== CUSTOM_ID.BTN_DONATION_CREATE)
+      return this.none()
     return this.some()
   }
 

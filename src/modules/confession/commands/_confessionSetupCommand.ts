@@ -27,10 +27,15 @@ export class ConfessionSetupCommand {
       'notification-channel',
       true
     ) as TextChannel
-    const forumChannel = interaction.options.getChannel('forum-channel', true) as ForumChannel
+    const forumChannel = interaction.options.getChannel(
+      'forum-channel',
+      true
+    ) as ForumChannel
 
     if (!notificationChannel || !forumChannel) {
-      throw new NormalError('Vui lòng chọn đầy đủ kênh thông báo và kênh forum.')
+      throw new NormalError(
+        'Vui lòng chọn đầy đủ kênh thông báo và kênh forum.'
+      )
     }
 
     // Ensure guild exists

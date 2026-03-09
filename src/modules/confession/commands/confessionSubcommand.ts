@@ -3,7 +3,10 @@ import { ChannelType, ChatInputCommandInteraction } from 'discord.js'
 import { ConfessionSetupCommand } from '~/modules/confession/commands/_confessionSetupCommand'
 
 export class ConfessionSubcommand extends Subcommand {
-  public constructor(context: Subcommand.LoaderContext, options: Subcommand.Options) {
+  public constructor(
+    context: Subcommand.LoaderContext,
+    options: Subcommand.Options
+  ) {
     super(context, {
       ...options,
       name: 'confession',

@@ -7,15 +7,21 @@ import type {
 
 export class OwnerOnlyPrecondition extends Precondition {
   public override messageRun(message: Message) {
-    return message.guild?.ownerId === message.author.id ? this.ok() : this.makeSharedError()
+    return message.guild?.ownerId === message.author.id
+      ? this.ok()
+      : this.makeSharedError()
   }
 
   public override chatInputRun(interaction: ChatInputCommandInteraction) {
-    return interaction.guild?.ownerId === interaction.user.id ? this.ok() : this.makeSharedError()
+    return interaction.guild?.ownerId === interaction.user.id
+      ? this.ok()
+      : this.makeSharedError()
   }
 
   public override contextMenuRun(interaction: ContextMenuCommandInteraction) {
-    return interaction.guild?.ownerId === interaction.user.id ? this.ok() : this.makeSharedError()
+    return interaction.guild?.ownerId === interaction.user.id
+      ? this.ok()
+      : this.makeSharedError()
   }
 
   private makeSharedError() {

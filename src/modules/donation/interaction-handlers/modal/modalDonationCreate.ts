@@ -1,4 +1,7 @@
-import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
 import {
   ButtonBuilder,
   ButtonStyle,
@@ -18,7 +21,10 @@ import { lines } from '~/shared/utils/textUtil'
 import { NormalError } from '~/core/errorResponse'
 
 export class ModalDonationCreate extends InteractionHandler {
-  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
+  public constructor(
+    ctx: InteractionHandler.LoaderContext,
+    options: InteractionHandler.Options
+  ) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.ModalSubmit
@@ -26,7 +32,8 @@ export class ModalDonationCreate extends InteractionHandler {
   }
 
   public override parse(interaction: ModalSubmitInteraction) {
-    if (interaction.customId !== CUSTOM_ID.MODAL_DONATION_CREATE) return this.none()
+    if (interaction.customId !== CUSTOM_ID.MODAL_DONATION_CREATE)
+      return this.none()
     return this.some()
   }
 
@@ -35,7 +42,9 @@ export class ModalDonationCreate extends InteractionHandler {
 
     if (!interaction || !interaction.guild) return
 
-    const moneyStr = interaction.fields.getTextInputValue(CUSTOM_ID.INPUT_DONATION_AMOUNT)
+    const moneyStr = interaction.fields.getTextInputValue(
+      CUSTOM_ID.INPUT_DONATION_AMOUNT
+    )
     const amount = this.parseAmount(moneyStr)
 
     const MIN = 1000
@@ -48,7 +57,8 @@ export class ModalDonationCreate extends InteractionHandler {
     }
 
     const message =
-      interaction.fields.getTextInputValue(CUSTOM_ID.INPUT_DONATION_MESSAGE) || undefined
+      interaction.fields.getTextInputValue(CUSTOM_ID.INPUT_DONATION_MESSAGE) ||
+      undefined
 
     const donation = await DonateRepository.create({
       guildId: interaction.guild.id,
@@ -58,14 +68,18 @@ export class ModalDonationCreate extends InteractionHandler {
     })
 
     if (!donation) {
-      throw new NormalError('Không thể tạo giao dịch quyên góp, vui lòng thử lại.')
+      throw new NormalError(
+        'Không thể tạo giao dịch quyên góp, vui lòng thử lại.'
+      )
     }
 
     const qrUrl = this.buildQrUrl(amount, donation.code)
     const imageAvailable = await this.isImageAvailable(qrUrl)
 
     if (!imageAvailable) {
-      throw new NormalError('Hệ thống hiện tại không thể tạo mã QR, vui lòng thử lại sau.')
+      throw new NormalError(
+        'Hệ thống hiện tại không thể tạo mã QR, vui lòng thử lại sau.'
+      )
     }
 
     const expiryTime = Math.floor(Date.now() / 1000 + 600000 / 1000)
@@ -98,7 +112,9 @@ export class ModalDonationCreate extends InteractionHandler {
         )
       )
       .addSeparatorComponents((s) => s.setSpacing(2))
-      .addMediaGalleryComponents(new MediaGalleryBuilder().addItems((item) => item.setURL(qrUrl)))
+      .addMediaGalleryComponents(
+        new MediaGalleryBuilder().addItems((item) => item.setURL(qrUrl))
+      )
       .addSeparatorComponents((s) => s.setSpacing(2))
       .addTextDisplayComponents((text) =>
         text.setContent(
@@ -108,11 +124,15 @@ export class ModalDonationCreate extends InteractionHandler {
       .addActionRowComponents((row) =>
         row.addComponents(
           new ButtonBuilder()
-            .setCustomId(`${CUSTOM_ID.BTN_DONATION_DONOR_CONFIRMED_PREFIX}${donation.id}`)
+            .setCustomId(
+              `${CUSTOM_ID.BTN_DONATION_DONOR_CONFIRMED_PREFIX}${donation.id}`
+            )
             .setLabel('Đã chuyển khoản')
             .setStyle(ButtonStyle.Success),
           new ButtonBuilder()
-            .setCustomId(`${CUSTOM_ID.BTN_DONATION_DONOR_CANCELED_PREFIX}${donation.id}`)
+            .setCustomId(
+              `${CUSTOM_ID.BTN_DONATION_DONOR_CANCELED_PREFIX}${donation.id}`
+            )
             .setLabel('Hủy')
             .setStyle(ButtonStyle.Danger)
         )
@@ -169,14 +189,19 @@ export class ModalDonationCreate extends InteractionHandler {
     return `https://api.vietqr.io/image/${env.BANK_NAME}-${env.BANK_ACCOUNT_NUMBER}-1dDDBJn.jpg?${params.toString()}`
   }
 
-  private async isImageAvailable(url: string, timeoutMs = 5000): Promise<boolean> {
+  private async isImageAvailable(
+    url: string,
+    timeoutMs = 5000
+  ): Promise<boolean> {
     try {
       const res = await fetch(url, {
         method: 'HEAD',
         signal: AbortSignal.timeout(timeoutMs)
       })
 
-      return res.ok && res.headers.get('content-type')?.startsWith('image/') === true
+      return (
+        res.ok && res.headers.get('content-type')?.startsWith('image/') === true
+      )
     } catch {
       return false
     }

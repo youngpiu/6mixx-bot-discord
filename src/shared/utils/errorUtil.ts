@@ -5,11 +5,19 @@ import { LoggerBuilder } from '~/shared/components/LoggerBuilder'
 import { env } from '~/shared/config/env'
 import { TIME } from '~/shared/constants/timeConstant'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
-import { InteractionUtil, MessageUtil, type RepliableInteraction } from '~/shared/utils/messageUtil'
+import {
+  InteractionUtil,
+  MessageUtil,
+  type RepliableInteraction
+} from '~/shared/utils/messageUtil'
 
 import { Prisma } from 'generated/prisma/client'
 
-import { DatabaseError, ErrorResponseCore, SystemError } from '~/core/errorResponse'
+import {
+  DatabaseError,
+  ErrorResponseCore,
+  SystemError
+} from '~/core/errorResponse'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -35,7 +43,10 @@ const resolveUserTag = (user: {
   tag?: string
 }): { id: string; tag: string } => ({
   id: user.id,
-  tag: 'username' in user && user.username ? user.username : (user.tag ?? 'Unknown')
+  tag:
+    'username' in user && user.username
+      ? user.username
+      : (user.tag ?? 'Unknown')
 })
 
 const buildErrorEmbed = (
@@ -45,14 +56,20 @@ const buildErrorEmbed = (
 ): ContainerBuilder => {
   const nowSec = Math.floor(Date.now() / 1000)
   const timestamp = `<t:${nowSec}:F> - <t:${nowSec}:R>`
-  const title = errorType === 'database' ? '🔴 DATABASE ERROR 🔴' : '🔴 INTERNAL SERVER ERROR 🔴'
-  const errorDetails = error instanceof Error ? (error.stack ?? error.message) : String(error)
+  const title =
+    errorType === 'database'
+      ? '🔴 DATABASE ERROR 🔴'
+      : '🔴 INTERNAL SERVER ERROR 🔴'
+  const errorDetails =
+    error instanceof Error ? (error.stack ?? error.message) : String(error)
   const { user } = context
 
   const logger = new LoggerBuilder({ title }).addFields([
     ['Thời gian', timestamp],
     ...(user?.tag ? [['Người dùng', `<@${user.id}>`] as [string, string]] : []),
-    ...(context.commandName ? [['Lệnh', `\`${context.commandName}\``] as [string, string]] : [])
+    ...(context.commandName
+      ? [['Lệnh', `\`${context.commandName}\``] as [string, string]]
+      : [])
   ])
 
   const container = logger.getContainer()
@@ -96,7 +113,9 @@ export async function handleError(
 ): Promise<void> {
   const guildId = target?.guild?.id ?? null
   const rawUser =
-    target instanceof Message ? target.author : (target?.user ?? { id: 'SYSTEM', tag: 'Unknown' })
+    target instanceof Message
+      ? target.author
+      : (target?.user ?? { id: 'SYSTEM', tag: 'Unknown' })
 
   const user = resolveUserTag(rawUser)
 
@@ -106,19 +125,38 @@ export async function handleError(
     errorResponse = error
   } else if (isPrismaError(error)) {
     container.logger.error(error)
-    await sendErrorToNotificationThread(guildId, error, { user, commandName }, 'database')
+    await sendErrorToNotificationThread(
+      guildId,
+      error,
+      { user, commandName },
+      'database'
+    )
     errorResponse = new DatabaseError()
   } else {
     container.logger.error(error)
-    await sendErrorToNotificationThread(guildId, error, { user, commandName }, 'internal')
+    await sendErrorToNotificationThread(
+      guildId,
+      error,
+      { user, commandName },
+      'internal'
+    )
     errorResponse = new SystemError()
   }
 
   if (!target) return
 
   if (target instanceof Message) {
-    await MessageUtil.replyError(target, errorResponse.content, TIME.S15, errorResponse.type)
+    await MessageUtil.replyError(
+      target,
+      errorResponse.content,
+      TIME.S15,
+      errorResponse.type
+    )
   } else {
-    await InteractionUtil.replyError(target, errorResponse.content, errorResponse.type)
+    await InteractionUtil.replyError(
+      target,
+      errorResponse.content,
+      errorResponse.type
+    )
   }
 }

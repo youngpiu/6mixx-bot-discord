@@ -15,7 +15,12 @@ export class GuildRepository {
 
     const guild = await this.findUnique(guildId)
     if (guild) {
-      await container.redis.set(cacheKey, JSON.stringify(guild), 'EX', TIME.M5 / 1000)
+      await container.redis.set(
+        cacheKey,
+        JSON.stringify(guild),
+        'EX',
+        TIME.M5 / 1000
+      )
     }
     return guild
   }

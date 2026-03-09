@@ -1,4 +1,7 @@
-import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
 import {
   ButtonInteraction,
   FileUploadBuilder,
@@ -7,14 +10,16 @@ import {
   TextInputBuilder,
   TextInputStyle
 } from 'discord.js'
-
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
-import { NormalError } from '~/core/errorResponse'
-
 import { lines } from '~/shared/utils/textUtil'
 
+import { NormalError } from '~/core/errorResponse'
+
 export class ButtonConfessionPublic extends InteractionHandler {
-  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
+  public constructor(
+    ctx: InteractionHandler.LoaderContext,
+    options: InteractionHandler.Options
+  ) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.Button
@@ -22,7 +27,8 @@ export class ButtonConfessionPublic extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    if (interaction.customId !== CUSTOM_ID.BTN_CONFESSION_SEND_PUBLIC) return this.none()
+    if (interaction.customId !== CUSTOM_ID.BTN_CONFESSION_SEND_PUBLIC)
+      return this.none()
     return this.some()
   }
 
@@ -60,7 +66,9 @@ export class ButtonConfessionPublic extends InteractionHandler {
       .setMaxLength(2000)
       .setRequired(true)
 
-    const contentLabel = new LabelBuilder().setLabel('Nội dung').setTextInputComponent(contentInput)
+    const contentLabel = new LabelBuilder()
+      .setLabel('Nội dung')
+      .setTextInputComponent(contentInput)
 
     // File upload for attachment
     const attachmentUpload = new FileUploadBuilder()

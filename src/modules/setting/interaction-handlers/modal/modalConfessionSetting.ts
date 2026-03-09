@@ -1,4 +1,7 @@
-import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
 import { ModalSubmitInteraction } from 'discord.js'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
@@ -6,7 +9,10 @@ import { InteractionUtil } from '~/shared/utils/messageUtil'
 import { lines } from '~/shared/utils/textUtil'
 
 export class ModalConfessionSetting extends InteractionHandler {
-  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
+  public constructor(
+    ctx: InteractionHandler.LoaderContext,
+    options: InteractionHandler.Options
+  ) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.ModalSubmit
@@ -14,7 +20,8 @@ export class ModalConfessionSetting extends InteractionHandler {
   }
 
   public override parse(interaction: ModalSubmitInteraction) {
-    if (interaction.customId !== CUSTOM_ID.MODAL_CONFESSION_GENERAL_SETTING) return this.none()
+    if (interaction.customId !== CUSTOM_ID.MODAL_CONFESSION_GENERAL_SETTING)
+      return this.none()
     return this.some()
   }
 

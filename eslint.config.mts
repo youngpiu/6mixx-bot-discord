@@ -5,7 +5,13 @@ import tseslint from 'typescript-eslint'
 
 export default defineConfig([
   {
-    ignores: ['node_modules/**', 'dist/**', 'sources/**', 'scripts/**', 'docs/**']
+    ignores: [
+      'node_modules/**',
+      'dist/**',
+      'sources/**',
+      'scripts/**',
+      'docs/**'
+    ]
   },
 
   {

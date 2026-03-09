@@ -4,7 +4,10 @@ import { GuildRepository } from '~/shared/repositories/guildRepository'
 import { MemberRepository } from '~/shared/repositories/memberRepository'
 
 export class GuildCreateListener extends Listener {
-  public constructor(context: Listener.LoaderContext, options: Listener.Options) {
+  public constructor(
+    context: Listener.LoaderContext,
+    options: Listener.Options
+  ) {
     super(context, {
       ...options,
       event: 'guildCreate'
@@ -29,6 +32,8 @@ export class GuildCreateListener extends Listener {
 
     const count = await MemberRepository.createMany(membersData)
 
-    this.container.logger.info(`Synced ${count.count} members for guild ${guild.name}`)
+    this.container.logger.info(
+      `Synced ${count.count} members for guild ${guild.name}`
+    )
   }
 }

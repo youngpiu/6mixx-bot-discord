@@ -65,7 +65,10 @@ const createButton = (
   label?: string
 ) => {
   const customId = `${CUSTOM_ID.DONATION_LIST_PREFIX}${action}:${encodeState(state)}`
-  const button = new ButtonBuilder().setCustomId(customId).setStyle(style).setDisabled(disabled)
+  const button = new ButtonBuilder()
+    .setCustomId(customId)
+    .setStyle(style)
+    .setDisabled(disabled)
 
   if (emoji) {
     button.setEmoji(emoji)
@@ -107,7 +110,10 @@ export class DonationListCommand {
    * @param interaction - The button interaction
    * @param state - The decoded list state
    */
-  public static async handleButton(interaction: ButtonInteraction, state: DonationListState) {
+  public static async handleButton(
+    interaction: ButtonInteraction,
+    state: DonationListState
+  ) {
     if (!interaction || !interaction.guild) return
 
     const { items, meta } = await DonateRepository.findMany({
@@ -161,7 +167,10 @@ export class DonationListCommand {
           ['Trạng thái', `**${itemStatusText}**`],
           ['Số tiền', `**${formattedAmount}**`],
           ['Lời nhắn', donation.message ? `**${donation.message}**` : null],
-          ['Thời gian tạo', `<t:${Math.floor(donation.createdAt.getTime() / 1000)}:F>`]
+          [
+            'Thời gian tạo',
+            `<t:${Math.floor(donation.createdAt.getTime() / 1000)}:F>`
+          ]
         ])
       )
 

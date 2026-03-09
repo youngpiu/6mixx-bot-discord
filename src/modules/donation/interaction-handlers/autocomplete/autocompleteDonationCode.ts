@@ -1,8 +1,9 @@
-import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
 import type { AutocompleteInteraction } from 'discord.js'
-
 import { DonationHelper } from '~/modules/donation/helpers/DonationHelper'
-
 import { DonateRepository } from '~/modules/donation/repositories/donateRepository'
 
 export class AutocompleteDonationCode extends InteractionHandler {
@@ -10,7 +11,10 @@ export class AutocompleteDonationCode extends InteractionHandler {
    * Handles autocomplete for donation codes.
    * Filters donations based on user input.
    */
-  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
+  public constructor(
+    ctx: InteractionHandler.LoaderContext,
+    options: InteractionHandler.Options
+  ) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.Autocomplete

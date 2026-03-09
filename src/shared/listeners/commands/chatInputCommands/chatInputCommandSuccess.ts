@@ -1,6 +1,9 @@
-import { type ChatInputCommandSuccessPayload, Listener, LogLevel } from '@sapphire/framework'
+import {
+  type ChatInputCommandSuccessPayload,
+  Listener,
+  LogLevel
+} from '@sapphire/framework'
 import type { Logger } from '@sapphire/plugin-logger'
-
 import { logSuccessCommand } from '~/shared/utils/loggerUtil'
 
 export class UserListener extends Listener {

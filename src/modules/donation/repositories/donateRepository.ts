@@ -55,30 +55,13 @@ export class DonateRepository {
     })
   }
 
-  public static async markAsPendingVerification(id: string) {
-    return container.prisma.donation.update({
-      where: { id, status: 'PENDING' },
-      data: {
-        status: 'PENDING_VERIFICATION'
-      }
-    })
-  }
-
-  public static async markAsTransferred(id: string) {
+  public static async updateStatus(id: string, status: DonationStatus) {
     return container.prisma.donation.update({
       where: { id },
       data: {
-        status: 'TRANSFERRED',
-        confirmedAt: new Date()
-      }
-    })
-  }
-
-  public static async cancel(id: string) {
-    return container.prisma.donation.update({
-      where: { id },
-      data: {
-        status: 'CANCELED'
+        status,
+        confirmedAt:
+          status === DonationStatus.TRANSFERRED ? new Date() : undefined
       }
     })
   }
@@ -98,7 +81,13 @@ export class DonateRepository {
     })
   }
 
-  public static async searchByCode({ guildId, search }: { guildId: string; search: string }) {
+  public static async searchByCode({
+    guildId,
+    search
+  }: {
+    guildId: string
+    search: string
+  }) {
     return container.prisma.donation.findMany({
       where: {
         guildId,

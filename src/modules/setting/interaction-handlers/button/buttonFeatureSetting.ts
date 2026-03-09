@@ -1,5 +1,13 @@
-import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
-import { ButtonInteraction, ChannelType, LabelBuilder, ModalBuilder } from 'discord.js'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
+import {
+  ButtonInteraction,
+  ChannelType,
+  LabelBuilder,
+  ModalBuilder
+} from 'discord.js'
 import { SettingHelper } from '~/modules/setting/helpers/SettingHelper'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
@@ -36,7 +44,8 @@ const SETTING_CONFIG = {
           'Các bài đăng chứa hướng dẫn gửi yêu cầu hỗ trợ, confession,... sẽ được tạo ở kênh này.',
         placeholders: {
           channelConfiguredAndExists: 'Chọn kênh dịch vụ',
-          channelConfiguredButDeleted: 'Kênh dịch vụ đã thiết lập không còn tồn tại',
+          channelConfiguredButDeleted:
+            'Kênh dịch vụ đã thiết lập không còn tồn tại',
           channelNotConfigured: 'Chưa thiết lập kênh dịch vụ',
           noChannelsInServer: 'Không có kênh diễn đàn nào'
         }
@@ -46,10 +55,12 @@ const SETTING_CONFIG = {
         selectCustomId: 'select-notification-channel',
         channelType: ChannelType.GuildForum,
         label: 'Kênh diễn đàn thông báo',
-        description: 'Các bài đăng chứa thông báo riêng cho từng loại sẽ được tạo ở kênh này.',
+        description:
+          'Các bài đăng chứa thông báo riêng cho từng loại sẽ được tạo ở kênh này.',
         placeholders: {
           channelConfiguredAndExists: 'Chọn kênh thông báo',
-          channelConfiguredButDeleted: 'Kênh thông báo đã thiết lập không còn tồn tại',
+          channelConfiguredButDeleted:
+            'Kênh thông báo đã thiết lập không còn tồn tại',
           channelNotConfigured: 'Chưa thiết lập kênh thông báo',
           noChannelsInServer: 'Không có kênh diễn đàn nào'
         }
@@ -68,7 +79,8 @@ const SETTING_CONFIG = {
         description: 'Các bài đăng confession sẽ được tạo ở kênh này.',
         placeholders: {
           channelConfiguredAndExists: 'Chọn kênh confession',
-          channelConfiguredButDeleted: 'Kênh confession đã thiết lập không còn tồn tại',
+          channelConfiguredButDeleted:
+            'Kênh confession đã thiết lập không còn tồn tại',
           channelNotConfigured: 'Chưa thiết lập kênh confession',
           noChannelsInServer: 'Không có kênh diễn đàn nào'
         }
@@ -87,7 +99,8 @@ const SETTING_CONFIG = {
         description: 'Các kênh hỗ trợ sẽ được tạo trong danh mục này.',
         placeholders: {
           channelConfiguredAndExists: 'Chọn danh mục kênh',
-          channelConfiguredButDeleted: 'Danh mục kênh đã thiết lập không còn tồn tại',
+          channelConfiguredButDeleted:
+            'Danh mục kênh đã thiết lập không còn tồn tại',
           channelNotConfigured: 'Chưa thiết lập danh mục kênh',
           noChannelsInServer: 'Không có danh mục nào'
         }
@@ -99,7 +112,10 @@ const SETTING_CONFIG = {
 type SettingButtonId = keyof typeof SETTING_CONFIG
 
 export class ButtonFeatureSetting extends InteractionHandler {
-  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
+  public constructor(
+    ctx: InteractionHandler.LoaderContext,
+    options: InteractionHandler.Options
+  ) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.Button
@@ -111,7 +127,10 @@ export class ButtonFeatureSetting extends InteractionHandler {
     return this.some({ buttonId: interaction.customId as SettingButtonId })
   }
 
-  public async run(interaction: ButtonInteraction, result: InteractionHandler.ParseResult<this>) {
+  public async run(
+    interaction: ButtonInteraction,
+    result: InteractionHandler.ParseResult<this>
+  ) {
     if (!result) return
 
     const { buttonId } = result as { buttonId: SettingButtonId }
@@ -122,19 +141,22 @@ export class ButtonFeatureSetting extends InteractionHandler {
 
     const guildConfig = await GuildRepository.findUnique(interaction.guild.id)
 
-    const channelLabels: LabelBuilder[] = config.labels.map((labelConfig: ChannelLabelConfig) => {
-      const channelId = guildConfig?.[labelConfig.configKey as keyof typeof guildConfig]
+    const channelLabels: LabelBuilder[] = config.labels.map(
+      (labelConfig: ChannelLabelConfig) => {
+        const channelId =
+          guildConfig?.[labelConfig.configKey as keyof typeof guildConfig]
 
-      return SettingHelper.createChannelLabel({
-        guild: interaction.guild!,
-        channelId: channelId as string | null | undefined,
-        customId: labelConfig.selectCustomId,
-        channelType: labelConfig.channelType,
-        label: labelConfig.label,
-        description: labelConfig.description,
-        placeholders: labelConfig.placeholders
-      })
-    })
+        return SettingHelper.createChannelLabel({
+          guild: interaction.guild!,
+          channelId: channelId as string | null | undefined,
+          customId: labelConfig.selectCustomId,
+          channelType: labelConfig.channelType,
+          label: labelConfig.label,
+          description: labelConfig.description,
+          placeholders: labelConfig.placeholders
+        })
+      }
+    )
 
     const modal = new ModalBuilder()
       .setCustomId(config.modalCustomId)

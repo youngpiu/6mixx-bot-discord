@@ -1,13 +1,18 @@
-import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
 import { ChannelType, ModalSubmitInteraction, TextChannel } from 'discord.js'
-
+import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
+
 import { NormalError } from '~/core/errorResponse'
 
-import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
-
 export class ModalTicketCloseReason extends InteractionHandler {
-  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
+  public constructor(
+    ctx: InteractionHandler.LoaderContext,
+    options: InteractionHandler.Options
+  ) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.ModalSubmit
@@ -15,7 +20,8 @@ export class ModalTicketCloseReason extends InteractionHandler {
   }
 
   public override parse(interaction: ModalSubmitInteraction) {
-    if (interaction.customId !== CUSTOM_ID.MODAL_TICKET_CLOSE_REASON) return this.none()
+    if (interaction.customId !== CUSTOM_ID.MODAL_TICKET_CLOSE_REASON)
+      return this.none()
     return this.some()
   }
 
@@ -28,7 +34,9 @@ export class ModalTicketCloseReason extends InteractionHandler {
 
     const channel = interaction.channel
     if (!channel || channel.type !== ChannelType.GuildText) {
-      throw new NormalError('Lệnh này chỉ có thể sử dụng trong kênh phiếu hỗ trợ.')
+      throw new NormalError(
+        'Lệnh này chỉ có thể sử dụng trong kênh phiếu hỗ trợ.'
+      )
     }
 
     const reason = interaction.fields.getTextInputValue(CUSTOM_ID.INPUT_REASON)

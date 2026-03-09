@@ -3,11 +3,12 @@ import {
   type ChatInputSubcommandDeniedPayload,
   SubcommandPluginEvents
 } from '@sapphire/plugin-subcommands'
-
 import { handleError } from '~/shared/utils/errorUtil'
 import { mapDeniedError } from '~/shared/utils/preconditionErrorUtil'
 
-export class UserEvent extends Listener<typeof SubcommandPluginEvents.ChatInputSubcommandDenied> {
+export class UserEvent extends Listener<
+  typeof SubcommandPluginEvents.ChatInputSubcommandDenied
+> {
   public override async run(
     error: UserError,
     { interaction, command }: ChatInputSubcommandDeniedPayload

@@ -1,5 +1,4 @@
 import { ButtonBuilder, ContainerBuilder } from 'discord.js'
-
 import { formatFields, lines } from '~/shared/utils/textUtil'
 
 export interface DetailBuilderOptions {
@@ -18,7 +17,9 @@ export class DetailBuilder {
     if (options.color) {
       this.container.setAccentColor(options.color)
     }
-    this.container.addTextDisplayComponents((t) => t.setContent(`### ${options.title}`))
+    this.container.addTextDisplayComponents((t) =>
+      t.setContent(`### ${options.title}`)
+    )
     this.container.addSeparatorComponents((s) => s)
   }
 
@@ -63,7 +64,9 @@ export class DetailBuilder {
     })
 
     this.actionRows.forEach((rowButtons) => {
-      this.container.addActionRowComponents((row) => row.addComponents(...rowButtons))
+      this.container.addActionRowComponents((row) =>
+        row.addComponents(...rowButtons)
+      )
     })
 
     return [this.container]

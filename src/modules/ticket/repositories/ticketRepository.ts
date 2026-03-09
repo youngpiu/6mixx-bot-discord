@@ -95,7 +95,13 @@ export class TicketRepository {
     }
   }
 
-  public static async searchByCode({ guildId, search }: { guildId: string; search: string }) {
+  public static async searchByCode({
+    guildId,
+    search
+  }: {
+    guildId: string
+    search: string
+  }) {
     return container.prisma.ticket.findMany({
       where: {
         guildId,
@@ -129,7 +135,9 @@ export class TicketRepository {
 
     if (cached) {
       const result = JSON.parse(cached)
-      result.items = (result.items as Ticket[]).map(TicketHelper.deserializeTicket)
+      result.items = (result.items as Ticket[]).map(
+        TicketHelper.deserializeTicket
+      )
       return result
     }
 
@@ -179,7 +187,12 @@ export class TicketRepository {
       }
     }
 
-    await container.redis.set(cacheKey, JSON.stringify(result), 'EX', TIME.S30 / 1000)
+    await container.redis.set(
+      cacheKey,
+      JSON.stringify(result),
+      'EX',
+      TIME.S30 / 1000
+    )
 
     return result
   }

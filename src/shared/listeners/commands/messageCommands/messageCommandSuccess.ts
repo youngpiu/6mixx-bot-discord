@@ -1,7 +1,6 @@
 import type { MessageCommandSuccessPayload } from '@sapphire/framework'
 import { Listener, LogLevel } from '@sapphire/framework'
 import type { Logger } from '@sapphire/plugin-logger'
-
 import { logSuccessCommand } from '~/shared/utils/loggerUtil'
 
 export class UserEvent extends Listener {

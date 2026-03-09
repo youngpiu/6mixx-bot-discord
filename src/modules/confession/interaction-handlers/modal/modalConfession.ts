@@ -1,4 +1,7 @@
-import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
 import { container } from '@sapphire/pieces'
 import {
   ActionRowBuilder,
@@ -17,7 +20,10 @@ import { lines } from '~/shared/utils/textUtil'
 import { NormalError } from '~/core/errorResponse'
 
 export class ModalConfession extends InteractionHandler {
-  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
+  public constructor(
+    ctx: InteractionHandler.LoaderContext,
+    options: InteractionHandler.Options
+  ) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.ModalSubmit
@@ -41,20 +47,29 @@ export class ModalConfession extends InteractionHandler {
       throw new NormalError('Không thể tìm thấy máy chủ.')
     }
 
-    const isAnonymous = interaction.customId === CUSTOM_ID.MODAL_CONFESSION_ANONYMOUS
+    const isAnonymous =
+      interaction.customId === CUSTOM_ID.MODAL_CONFESSION_ANONYMOUS
 
     // Extract data using V2 API
-    const content = interaction.fields.getTextInputValue(CUSTOM_ID.INPUT_CONTENT)
+    const content = interaction.fields.getTextInputValue(
+      CUSTOM_ID.INPUT_CONTENT
+    )
     const uploadedFiles = interaction.fields.getUploadedFiles('attachment')
 
     // Filter only image files (Collection methods)
-    const imageFiles = uploadedFiles?.filter((file) => file.contentType?.startsWith('image/'))
-    const nonImageFiles = uploadedFiles?.filter((file) => !file.contentType?.startsWith('image/'))
+    const imageFiles = uploadedFiles?.filter((file) =>
+      file.contentType?.startsWith('image/')
+    )
+    const nonImageFiles = uploadedFiles?.filter(
+      (file) => !file.contentType?.startsWith('image/')
+    )
 
     // Check if non-image files were uploaded
     if (nonImageFiles && nonImageFiles.size > 0) {
       const nonImageNames = nonImageFiles.map((f) => f.name).join(', ')
-      throw new NormalError(`Chỉ cho phép upload ảnh. Các file sau bị từ chối: ${nonImageNames}`)
+      throw new NormalError(
+        `Chỉ cho phép upload ảnh. Các file sau bị từ chối: ${nonImageNames}`
+      )
     }
 
     // Get attachment URLs
@@ -95,11 +110,15 @@ export class ModalConfession extends InteractionHandler {
 
         // Create View Details button
         const viewButton = new ButtonBuilder()
-          .setCustomId(`${CUSTOM_ID.BTN_CONFESSION_VIEW_PREFIX}${confession.code}`)
+          .setCustomId(
+            `${CUSTOM_ID.BTN_CONFESSION_VIEW_PREFIX}${confession.code}`
+          )
           .setLabel('Xem chi tiết')
           .setStyle(ButtonStyle.Primary)
 
-        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(viewButton)
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+          viewButton
+        )
 
         await notificationChannel.send({
           embeds: [notificationEmbed],

@@ -26,7 +26,12 @@ export class BotClient extends SapphireClient {
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildMembers
       ],
-      partials: [Partials.Message, Partials.Channel, Partials.Reaction, Partials.User],
+      partials: [
+        Partials.Message,
+        Partials.Channel,
+        Partials.Reaction,
+        Partials.User
+      ],
       presence: {
         status: 'online',
         activities: [
@@ -91,7 +96,9 @@ export class BotClient extends SapphireClient {
   }
 
   async login(token: string): Promise<string> {
-    ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(RegisterBehavior.BulkOverwrite)
+    ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
+      RegisterBehavior.BulkOverwrite
+    )
     ApplicationCommandRegistries.setDefaultGuildIds(env.TEST_GUILDS_ID)
 
     container.prisma = prisma

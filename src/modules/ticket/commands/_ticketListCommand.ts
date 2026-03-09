@@ -66,7 +66,10 @@ const createButton = (
   label?: string
 ) => {
   const customId = `${CUSTOM_ID.TICKET_LIST_PREFIX}${action}:${encodeState(state)}`
-  const button = new ButtonBuilder().setCustomId(customId).setStyle(style).setDisabled(disabled)
+  const button = new ButtonBuilder()
+    .setCustomId(customId)
+    .setStyle(style)
+    .setDisabled(disabled)
 
   if (emoji) {
     button.setEmoji(emoji)
@@ -98,7 +101,10 @@ export class TicketListCommand {
   }
 
   // Handles pagination and filter button interactions
-  public static async handleButton(interaction: ButtonInteraction, state: TicketListState) {
+  public static async handleButton(
+    interaction: ButtonInteraction,
+    state: TicketListState
+  ) {
     if (!interaction || !interaction.guild)
       throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
 
@@ -128,7 +134,9 @@ export class TicketListCommand {
 
   // Builds the main list embed with ticket details and footer info
   private static createEmbed(tickets: Ticket[], meta: TicketListMeta) {
-    const embed = new EmbedBuilder().setTitle('Danh sách phiếu hỗ trợ').setColor('Navy')
+    const embed = new EmbedBuilder()
+      .setTitle('Danh sách phiếu hỗ trợ')
+      .setColor('Navy')
 
     if (tickets.length === 0) {
       embed.setDescription('Không có phiếu hỗ trợ nào.')
@@ -144,7 +152,8 @@ export class TicketListCommand {
             `- **Loại:** ${typeLabel}`,
             `- **Người tạo:** <@${ticket.requesterId}>`,
             `- **Thời gian tạo:** <t:${createdTimestamp}:R>`,
-            ticket.status === TicketStatus.OPEN && `- **Kênh hỗ trợ:** <#${ticket.channelId}>`
+            ticket.status === TicketStatus.OPEN &&
+              `- **Kênh hỗ trợ:** <#${ticket.channelId}>`
           ),
           inline: false
         })
@@ -152,7 +161,9 @@ export class TicketListCommand {
     }
 
     // Footer with filters info
-    const typeText = meta.type ? TicketHelper.TICKET_TYPE_LABELS[meta.type] : 'Tất cả'
+    const typeText = meta.type
+      ? TicketHelper.TICKET_TYPE_LABELS[meta.type]
+      : 'Tất cả'
     const statusText = !meta.status
       ? 'Tất cả'
       : meta.status === TicketStatus.OPEN
@@ -168,7 +179,11 @@ export class TicketListCommand {
 
   // Creates pagination controls (First, Prev, Next, Last)
   private static createPagination(meta: TicketListMeta) {
-    const currentState: TicketListState = { page: meta.page, type: meta.type, status: meta.status }
+    const currentState: TicketListState = {
+      page: meta.page,
+      type: meta.type,
+      status: meta.status
+    }
 
     return new ActionRowBuilder<ButtonBuilder>().addComponents(
       createButton(

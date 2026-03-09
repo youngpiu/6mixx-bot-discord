@@ -1,5 +1,4 @@
 import { ButtonBuilder, ButtonStyle, ContainerBuilder } from 'discord.js'
-
 import { STATIC_EMOJI } from '~/shared/constants/emojiConstant'
 
 export interface ListBuilderOptions {
@@ -17,7 +16,9 @@ export class ListBuilder {
   constructor(options: ListBuilderOptions) {
     this.options = options
     this.container = new ContainerBuilder()
-      .addTextDisplayComponents((text) => text.setContent(`### ${this.options.title}`))
+      .addTextDisplayComponents((text) =>
+        text.setContent(`### ${this.options.title}`)
+      )
       .addSeparatorComponents((sep) => sep)
   }
 
@@ -48,7 +49,12 @@ export class ListBuilder {
    * @param buttonFactory A callback to construct a ButtonBuilder given the action, new state, emoji, disable status, style, and label.
    */
   public addPaginationRow<
-    TState extends { page: number; totalPages: number; hasPrev: boolean; hasNext: boolean }
+    TState extends {
+      page: number
+      totalPages: number
+      hasPrev: boolean
+      hasNext: boolean
+    }
   >(
     state: TState,
     buttonFactory: (
@@ -101,7 +107,9 @@ export class ListBuilder {
   public build(): [ContainerBuilder] {
     if (this.items.length === 0) {
       const fallbackMessage = this.options.emptyMessage || '_Không có dữ liệu._'
-      this.container.addTextDisplayComponents((text) => text.setContent(fallbackMessage))
+      this.container.addTextDisplayComponents((text) =>
+        text.setContent(fallbackMessage)
+      )
     } else {
       this.items.forEach((item) => {
         this.container.addTextDisplayComponents((text) => text.setContent(item))
@@ -111,11 +119,15 @@ export class ListBuilder {
     if (this.options.footer) {
       this.container
         .addSeparatorComponents((sep) => sep)
-        .addTextDisplayComponents((text) => text.setContent(`-# ${this.options.footer}`))
+        .addTextDisplayComponents((text) =>
+          text.setContent(`-# ${this.options.footer}`)
+        )
     }
 
     this.actionRows.forEach((rowButtons) => {
-      this.container.addActionRowComponents((row) => row.addComponents(...rowButtons))
+      this.container.addActionRowComponents((row) =>
+        row.addComponents(...rowButtons)
+      )
     })
 
     return [this.container]

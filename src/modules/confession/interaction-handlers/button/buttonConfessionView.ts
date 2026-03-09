@@ -1,5 +1,12 @@
-import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
-import { ButtonInteraction, MediaGalleryBuilder, MessageFlags } from 'discord.js'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
+import {
+  ButtonInteraction,
+  MediaGalleryBuilder,
+  MessageFlags
+} from 'discord.js'
 import { ConfessionRepository } from '~/modules/confession/repositories/confessionRepository'
 import { DetailBuilder } from '~/shared/components/DetailBuilder'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
@@ -7,7 +14,10 @@ import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { NormalError } from '~/core/errorResponse'
 
 export class ButtonConfessionView extends InteractionHandler {
-  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
+  public constructor(
+    ctx: InteractionHandler.LoaderContext,
+    options: InteractionHandler.Options
+  ) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.Button
@@ -15,7 +25,8 @@ export class ButtonConfessionView extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    if (!interaction.customId.startsWith(CUSTOM_ID.BTN_CONFESSION_VIEW_PREFIX)) return this.none()
+    if (!interaction.customId.startsWith(CUSTOM_ID.BTN_CONFESSION_VIEW_PREFIX))
+      return this.none()
     const code = interaction.customId.split(':')[1]
     return this.some({ code })
   }
@@ -31,7 +42,9 @@ export class ButtonConfessionView extends InteractionHandler {
     }
 
     // Build container with V2 components
-    const builder = new DetailBuilder({ title: `Chi tiết Confession #${confession.code}` })
+    const builder = new DetailBuilder({
+      title: `Chi tiết Confession #${confession.code}`
+    })
       .addContent(confession.content)
       .addContent(
         `-# **Loại:** ${confession.isAnonymous ? 'Ẩn danh' : 'Công khai'} • **Trạng thái:** ${confession.status} • **Thời gian:** <t:${Math.floor(confession.createdAt.getTime() / 1000)}:R>${!confession.isAnonymous ? ` • **Người gửi:** <@${confession.authorId}>` : ''}`

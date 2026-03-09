@@ -1,4 +1,9 @@
-import { ChannelSelectMenuBuilder, ChannelType, Guild, LabelBuilder } from 'discord.js'
+import {
+  ChannelSelectMenuBuilder,
+  ChannelType,
+  Guild,
+  LabelBuilder
+} from 'discord.js'
 
 // ============================================================================
 // CHANNEL PLACEHOLDER
@@ -68,10 +73,25 @@ export class SettingHelper {
    * Tạo LabelBuilder chuẩn với ChannelSelectMenu.
    * Tự xử lý placeholder dựa trên trạng thái kênh hiện tại.
    */
-  public static createChannelLabel(options: CreateChannelLabelOptions): LabelBuilder {
-    const { guild, channelId, customId, channelType, label, description, placeholders } = options
+  public static createChannelLabel(
+    options: CreateChannelLabelOptions
+  ): LabelBuilder {
+    const {
+      guild,
+      channelId,
+      customId,
+      channelType,
+      label,
+      description,
+      placeholders
+    } = options
 
-    const result = this.getChannelPlaceholder(guild, channelId, channelType, placeholders)
+    const result = this.getChannelPlaceholder(
+      guild,
+      channelId,
+      channelType,
+      placeholders
+    )
 
     const selectMenu = new ChannelSelectMenuBuilder()
       .setCustomId(customId)

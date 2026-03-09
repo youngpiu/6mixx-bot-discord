@@ -39,7 +39,9 @@ export function logSuccessCommand(
 
   const shard = `[${cyan((guild?.shardId ?? 0).toString())}]`
   const commandName = cyan(
-    subcommandName ? `${payload.command.name} ${subcommandName}` : payload.command.name
+    subcommandName
+      ? `${payload.command.name} ${subcommandName}`
+      : payload.command.name
   )
   const author = `${user.username}[${cyan(user.id)}]`
   const sentAt = guild ? `${guild.name}[${cyan(guild.id)}]` : 'Direct Messages'

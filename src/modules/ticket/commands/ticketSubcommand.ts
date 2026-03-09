@@ -8,7 +8,10 @@ export class TicketSubcommand extends Subcommand {
    * Main entry point for the /ticket command.
    * Defines subcommands 'list' and 'detail' for ticket management.
    */
-  public constructor(context: Subcommand.LoaderContext, options: Subcommand.Options) {
+  public constructor(
+    context: Subcommand.LoaderContext,
+    options: Subcommand.Options
+  ) {
     super(context, {
       ...options,
       name: 'ticket',

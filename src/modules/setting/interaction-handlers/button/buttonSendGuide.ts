@@ -1,5 +1,14 @@
-import { InteractionHandler, InteractionHandlerTypes, container } from '@sapphire/framework'
-import { ButtonBuilder, ButtonInteraction, ButtonStyle, ContainerBuilder } from 'discord.js'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes,
+  container
+} from '@sapphire/framework'
+import {
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  ContainerBuilder
+} from 'discord.js'
 import { env } from '~/shared/config/env'
 import { ANIMATED_EMOJI } from '~/shared/constants/emojiConstant'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
@@ -16,7 +25,8 @@ const SEND_GUIDE_CONFIG = {
     threadName: '💌 NƠI GỬI CONFESSION 💌',
     successMessage: 'Bài đăng hướng dẫn gửi confession đã được tạo',
     successUpdateMessage: 'Bài đăng hướng dẫn gửi confession đã được chỉnh sửa',
-    errorChannelNotConfigured: 'Kênh dịch vụ chưa được thiết lập, không thể gửi hướng dẫn.',
+    errorChannelNotConfigured:
+      'Kênh dịch vụ chưa được thiết lập, không thể gửi hướng dẫn.',
     errorChannelInvalid:
       'Kênh dịch vụ không tồn tại hoặc không phải là kênh diễn đàn, không thể gửi hướng dẫn.'
   },
@@ -25,8 +35,10 @@ const SEND_GUIDE_CONFIG = {
     threadIdKey: 'ticketTutorialThreadId',
     threadName: '🎟️ NƠI GỬI HỖ TRỢ THÀNH VIÊN [ BÁO CÁO | GÓP Ý | BÁO LỖI ] 🎟️',
     successMessage: 'Bài đăng hướng dẫn gửi yêu cầu hỗ trợ đã được tạo',
-    successUpdateMessage: 'Bài đăng hướng dẫn gửi yêu cầu hỗ trợ đã được chỉnh sửa',
-    errorChannelNotConfigured: 'Kênh dịch vụ chưa được thiết lập, không thể gửi hướng dẫn.',
+    successUpdateMessage:
+      'Bài đăng hướng dẫn gửi yêu cầu hỗ trợ đã được chỉnh sửa',
+    errorChannelNotConfigured:
+      'Kênh dịch vụ chưa được thiết lập, không thể gửi hướng dẫn.',
     errorChannelInvalid:
       'Kênh dịch vụ không tồn tại hoặc không phải là kênh diễn đàn, không thể gửi hướng dẫn.'
   },
@@ -36,18 +48,23 @@ const SEND_GUIDE_CONFIG = {
     threadName: '💝 NƠI GÓP GẠCH NUÔI BOT 💝',
     successMessage: 'Bài đăng hướng dẫn quyên góp đã được tạo',
     successUpdateMessage: 'Bài đăng hướng dẫn quyên góp đã được chỉnh sửa',
-    errorChannelNotConfigured: 'Kênh dịch vụ chưa được thiết lập, không thể gửi hướng dẫn.',
+    errorChannelNotConfigured:
+      'Kênh dịch vụ chưa được thiết lập, không thể gửi hướng dẫn.',
     errorChannelInvalid:
       'Kênh dịch vụ không tồn tại hoặc không phải là kênh diễn đàn, không thể gửi hướng dẫn.'
   }
 } as const
 
 type SendGuideButtonId = keyof typeof SEND_GUIDE_CONFIG
-type ChannelIdKey = (typeof SEND_GUIDE_CONFIG)[SendGuideButtonId]['channelIdKey']
+type ChannelIdKey =
+  (typeof SEND_GUIDE_CONFIG)[SendGuideButtonId]['channelIdKey']
 type ThreadIdKey = (typeof SEND_GUIDE_CONFIG)[SendGuideButtonId]['threadIdKey']
 
 export class ButtonSendGuide extends InteractionHandler {
-  public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
+  public constructor(
+    ctx: InteractionHandler.LoaderContext,
+    options: InteractionHandler.Options
+  ) {
     super(ctx, {
       ...options,
       interactionHandlerType: InteractionHandlerTypes.Button
@@ -59,7 +76,10 @@ export class ButtonSendGuide extends InteractionHandler {
     return this.some({ buttonId: interaction.customId as SendGuideButtonId })
   }
 
-  public async run(interaction: ButtonInteraction, result: InteractionHandler.ParseResult<this>) {
+  public async run(
+    interaction: ButtonInteraction,
+    result: InteractionHandler.ParseResult<this>
+  ) {
     if (!result || !interaction.guild) return
 
     await interaction.deferReply()
