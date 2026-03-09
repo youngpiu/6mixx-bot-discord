@@ -1,3 +1,4 @@
+// Command to list and filter tickets with pagination
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -36,7 +37,6 @@ export interface TicketListMeta extends TicketListState {
 }
 
 // Encodes the state object into a compact string for button customIds
-// Format: p=1:t=BUG:s=OPEN
 export const encodeState = (state: TicketListState): string => {
   const parts = [`p=${state.page}`]
   if (state.type) parts.push(`t=${state.type}`)
@@ -85,7 +85,6 @@ const createButton = (
 }
 
 export class TicketListCommand {
-  // Initial execution of the list command
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
@@ -102,7 +101,6 @@ export class TicketListCommand {
     return await interaction.editReply(this.createListResponse(items, meta))
   }
 
-  // Handles pagination and filter button interactions
   public static async handleButton(
     interaction: ButtonInteraction,
     state: TicketListState
@@ -122,7 +120,6 @@ export class TicketListCommand {
     await interaction.editReply(this.createListResponse(items, meta))
   }
 
-  // Assembles the complete interaction response (Embed + Action Rows)
   public static createListResponse(tickets: Ticket[], meta: TicketListMeta) {
     return {
       embeds: [this.createEmbed(tickets, meta)],
@@ -134,7 +131,6 @@ export class TicketListCommand {
     }
   }
 
-  // Builds the main list embed with ticket details and footer info
   private static createEmbed(tickets: Ticket[], meta: TicketListMeta) {
     const embed = new EmbedBuilder()
       .setTitle('Danh sách phiếu hỗ trợ')
@@ -179,7 +175,6 @@ export class TicketListCommand {
     return embed
   }
 
-  // Creates pagination controls (First, Prev, Next, Last)
   private static createPagination(meta: TicketListMeta) {
     const currentState: TicketListState = {
       page: meta.page,
@@ -227,7 +222,6 @@ export class TicketListCommand {
     )
   }
 
-  // Creates a row of buttons to filter tickets by Type
   private static createTypeFilter(meta: TicketListMeta) {
     const baseState: TicketListState = { page: 1, status: meta.status } // Reset page when filtering
 
@@ -279,7 +273,6 @@ export class TicketListCommand {
     )
   }
 
-  // Creates a row of buttons to filter tickets by Status
   private static createStatusFilter(meta: TicketListMeta) {
     const baseState: TicketListState = { page: 1, type: meta.type } // Reset page when filtering
 

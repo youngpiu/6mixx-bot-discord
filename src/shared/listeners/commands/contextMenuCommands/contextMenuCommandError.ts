@@ -1,3 +1,4 @@
+// Listener executed when an error occurs during context menu command execution
 import type {
   ContextMenuCommandErrorPayload,
   Events

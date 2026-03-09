@@ -1,5 +1,6 @@
 import type { PermissionsString } from 'discord.js'
 
+// Mapping of Discord permissions to their human-readable Vietnamese labels
 export const PERMISSION_NAMES: Record<PermissionsString, string> = {
   CreateInstantInvite: 'Tạo lời mời',
   KickMembers: 'Đuổi thành viên',

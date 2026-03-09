@@ -1,10 +1,8 @@
 import { ChannelType } from 'discord.js'
 
-/**
- * Bảng dịch tên loại kênh Discord sang tiếng Việt.
- * Key: ChannelType (enum số từ discord.js)
- * Value: Tên loại kênh tiếng Việt hiển thị cho người dùng
- */
+// Mapping of Discord ChannelTypes to their human-readable Vietnamese labels
+// Key: ChannelType (numeric enum from discord.js)
+// Value: Vietnamese channel type name for UI display
 export const CHANNEL_TYPE_NAMES: Record<ChannelType, string> = {
   [ChannelType.GuildText]: 'Kênh chữ',
   [ChannelType.DM]: 'Tin nhắn riêng (DM)',

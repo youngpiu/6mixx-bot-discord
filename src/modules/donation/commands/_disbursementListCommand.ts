@@ -1,3 +1,4 @@
+// Command to display a paginated list of bot disbursements
 import {
   ButtonBuilder,
   ButtonInteraction,

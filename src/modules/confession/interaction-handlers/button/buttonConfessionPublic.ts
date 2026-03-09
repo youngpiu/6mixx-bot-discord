@@ -1,3 +1,5 @@
+// Handler for public confession button
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -16,17 +18,10 @@ import { NormalError } from '~/core/errorResponse'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { lines } from '~/shared/utils/textUtil'
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.Button
+})
 export class ButtonConfessionPublic extends InteractionHandler {
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.Button
-    })
-  }
-
   public override parse(interaction: ButtonInteraction) {
     if (interaction.customId !== CUSTOM_ID.BTN_CONFESSION_SEND_PUBLIC)
       return this.none()
@@ -54,12 +49,11 @@ export class ButtonConfessionPublic extends InteractionHandler {
       )
     }
 
-    // Create modal with V2 Components
+    // Create modal
     const modal = new ModalBuilder()
       .setCustomId(CUSTOM_ID.MODAL_CONFESSION_NAMED)
       .setTitle('Gửi Confession Công Khai')
 
-    // Text input for content
     const contentInput = new TextInputBuilder()
       .setCustomId(CUSTOM_ID.INPUT_CONTENT)
       .setStyle(TextInputStyle.Paragraph)
@@ -71,7 +65,6 @@ export class ButtonConfessionPublic extends InteractionHandler {
       .setLabel('Nội dung')
       .setTextInputComponent(contentInput)
 
-    // File upload for attachment
     const attachmentUpload = new FileUploadBuilder()
       .setCustomId('input-confession-attachment')
       .setRequired(false)
@@ -81,7 +74,6 @@ export class ButtonConfessionPublic extends InteractionHandler {
       .setLabel('Hình ảnh đính kèm (tùy chọn)')
       .setFileUploadComponent(attachmentUpload)
 
-    // Add labels to modal
     modal.addLabelComponents(contentLabel, attachmentLabel)
 
     await interaction.showModal(modal)

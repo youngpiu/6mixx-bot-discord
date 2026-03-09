@@ -1,3 +1,4 @@
+// Utility for standardized logging of command execution results
 import {
   ChatInputCommandSuccessPayload,
   ContextMenuCommandSuccessPayload,

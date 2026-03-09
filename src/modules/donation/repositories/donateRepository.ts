@@ -1,3 +1,4 @@
+// Repository for managing donation records and statistics in the database
 import { container } from '@sapphire/pieces'
 import { customAlphabet } from 'nanoid'
 
@@ -24,7 +25,7 @@ export class DonateRepository {
           }
         })
       } catch (error: unknown) {
-        // P2002: Unique constraint failed on the fields: (`code`)
+        // Unique constraint failed on the fields: (`code`) (Prisma error P2002)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((error as any).code === 'P2002') {
           retries--

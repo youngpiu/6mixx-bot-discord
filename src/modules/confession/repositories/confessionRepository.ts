@@ -1,3 +1,4 @@
+// Repository for confession data operations
 import { container } from '@sapphire/pieces'
 
 import type { ConfessionUncheckedCreateInput } from 'generated/prisma/models/Confession'

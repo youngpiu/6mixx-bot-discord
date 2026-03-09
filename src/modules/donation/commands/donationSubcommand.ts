@@ -1,3 +1,4 @@
+// Main donation command router for owners to manage donations and disbursements
 import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { container } from '@sapphire/pieces'
 import { Subcommand } from '@sapphire/plugin-subcommands'

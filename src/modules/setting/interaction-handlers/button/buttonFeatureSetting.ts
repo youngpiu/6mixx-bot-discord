@@ -1,3 +1,4 @@
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -113,17 +114,10 @@ const SETTING_CONFIG = {
 
 type SettingButtonId = keyof typeof SETTING_CONFIG
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.Button
+})
 export class ButtonFeatureSetting extends InteractionHandler {
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.Button
-    })
-  }
-
   public override parse(interaction: ButtonInteraction) {
     if (!(interaction.customId in SETTING_CONFIG)) return this.none()
     return this.some({ buttonId: interaction.customId as SettingButtonId })

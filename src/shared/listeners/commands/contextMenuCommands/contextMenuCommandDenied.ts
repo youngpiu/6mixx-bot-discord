@@ -1,3 +1,4 @@
+// Listener executed when a context menu command is denied due to precondition failures
 import type {
   ContextMenuCommandDeniedPayload,
   Events

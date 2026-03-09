@@ -1,3 +1,5 @@
+// Handler for ticket closure reason modal submissions
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -10,17 +12,10 @@ import { CUSTOM_ID } from '~/shared/constants/idConstant'
 
 import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.ModalSubmit
+})
 export class ModalTicketCloseReason extends InteractionHandler {
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.ModalSubmit
-    })
-  }
-
   public override parse(interaction: ModalSubmitInteraction) {
     if (interaction.customId !== CUSTOM_ID.MODAL_TICKET_CLOSE_REASON)
       return this.none()

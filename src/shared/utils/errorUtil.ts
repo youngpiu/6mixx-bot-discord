@@ -66,10 +66,10 @@ const buildErrorEmbed = (
   const { user } = context
 
   const logger = new LoggerBuilder({ title }).addFields([
-    ['Thời gian', timestamp],
-    ...(user?.tag ? [['Người dùng', `<@${user.id}>`] as [string, string]] : []),
+    ['Time', timestamp],
+    ...(user?.tag ? [['User', `<@${user.id}>`] as [string, string]] : []),
     ...(context.commandName
-      ? [['Lệnh', `\`${context.commandName}\``] as [string, string]]
+      ? [['Command', `\`${context.commandName}\``] as [string, string]]
       : [])
   ])
 

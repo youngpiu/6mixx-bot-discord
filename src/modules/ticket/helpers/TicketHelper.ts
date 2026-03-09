@@ -42,17 +42,13 @@ export class TicketHelper {
     BUG: 'Báo lỗi'
   }
 
-  /**
-   * Retrieves the Vietnamese display label for a given ticket type.
-   * Used for UI display in embeds and messages.
-   */
+  // Retrieves the Vietnamese display label for a given ticket type.
+  // Used for UI display in embeds and messages.
   public static getTicketTypeLabel(type: TicketType): string {
     return this.TICKET_TYPE_LABELS[type]
   }
 
-  /**
-   * Converts TicketStatus enum to Vietnamese text
-   */
+  // Converts TicketStatus enum to Vietnamese text
   public static getStatusText(status: TicketStatus): string {
     switch (status) {
       case TicketStatus.OPEN:
@@ -64,10 +60,8 @@ export class TicketHelper {
     }
   }
 
-  /**
-   * Deserializes ticket data from Redis cache or Prisma result.
-   * vital because Redis stores dates as strings, so they must be converted back to Date objects.
-   */
+  // Deserializes ticket data from Redis cache or Prisma result.
+  // Redis stores dates as strings, so they must be converted back to Date objects.
   public static deserializeTicket(data: string | Ticket): Ticket {
     const parsed = typeof data === 'string' ? JSON.parse(data) : data
 
@@ -79,15 +73,12 @@ export class TicketHelper {
     }
   }
 
-  /**
-   * Handles the complete ticket closing process.
-   * This includes:
-   * 1. Validating ticket existence and status
-   * 2. Sending a log to the notification thread
-   * 3. Updating the ticket status in the database
-   * 4. Sending a closure message in the ticket channel
-   * 5. Scheduling the channel for deletion
-   */
+  // Handles the complete ticket closing process.
+  // 1. Validating ticket existence and status
+  // 2. Sending a log to the notification thread
+  // 3. Updating the ticket status in the database
+  // 4. Sending a closure message in the ticket channel
+  // 5. Scheduling the channel for deletion
   public static async closeTicket(options: CloseTicketOptions): Promise<void> {
     const { channel, closedById, guildId, reason } = options
 
@@ -169,11 +160,9 @@ export class TicketHelper {
     ])
   }
 
-  /**
-   * Sends a structured log message to the configured notification thread.
-   * Handles both 'CREATED' and 'CLOSED' events with different formatting.
-   * Returns null if logging fails or is not configured (fail-safe).
-   */
+  // Sends a structured log message to the configured notification thread.
+  // Handles both 'CREATED' and 'CLOSED' events with different formatting.
+  // Returns null if logging fails or is not configured (fail-safe).
   public static async sendTicketLog(
     options: TicketLogOptions
   ): Promise<string | null> {

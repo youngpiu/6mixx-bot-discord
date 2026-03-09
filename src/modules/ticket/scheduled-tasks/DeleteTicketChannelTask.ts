@@ -1,3 +1,5 @@
+// Scheduled task to delete a ticket channel after a delay
+import { ApplyOptions } from '@sapphire/decorators'
 import { container } from '@sapphire/pieces'
 import { ScheduledTask } from '@sapphire/plugin-scheduled-tasks'
 
@@ -5,17 +7,10 @@ interface DeleteTicketChannelPayload {
   channelId: string
 }
 
+@ApplyOptions<ScheduledTask.Options>({
+  name: 'deleteTicketChannel'
+})
 export class DeleteTicketChannelTask extends ScheduledTask {
-  public constructor(
-    context: ScheduledTask.LoaderContext,
-    options: ScheduledTask.Options
-  ) {
-    super(context, {
-      ...options,
-      name: 'deleteTicketChannel'
-    })
-  }
-
   public async run(payload: DeleteTicketChannelPayload) {
     const { channelId } = payload
     try {

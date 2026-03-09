@@ -1,3 +1,4 @@
+// Listener that catches and handles errors occurring within other listeners
 import {
   Events,
   Listener,

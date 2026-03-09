@@ -1,3 +1,5 @@
+// Handler to generate and display donation and disbursement statistics
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -11,20 +13,11 @@ import { encryptId, formatFields, lines } from '~/shared/utils/textUtil'
 import { DisbursementRepository } from '~/modules/donation/repositories/disbursementRepository'
 import { DonateRepository } from '~/modules/donation/repositories/donateRepository'
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.Button
+})
 export class ButtonDonationStats extends InteractionHandler {
-  /**
-   * Handles the display of donation and disbursement statistics.
-   */
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.Button
-    })
-  }
-
+  // Displays aggregate statistics for donations and disbursements
   public override parse(interaction: ButtonInteraction) {
     if (interaction.customId !== CUSTOM_ID.BTN_DONATION_STATS)
       return this.none()

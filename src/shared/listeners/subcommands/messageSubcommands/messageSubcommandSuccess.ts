@@ -1,3 +1,4 @@
+// Listener that logs successful message subcommand executions
 import { Listener, LogLevel } from '@sapphire/framework'
 import type { Logger } from '@sapphire/plugin-logger'
 import type { MessageSubcommandSuccessPayload } from '@sapphire/plugin-subcommands'

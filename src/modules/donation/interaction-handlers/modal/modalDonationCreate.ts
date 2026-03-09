@@ -1,3 +1,5 @@
+// Handler for donation creation modal submissions, including QR code generation
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -22,17 +24,10 @@ import { lines } from '~/shared/utils/textUtil'
 import { DonationHelper } from '~/modules/donation/helpers/DonationHelper'
 import { DonateRepository } from '~/modules/donation/repositories/donateRepository'
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.ModalSubmit
+})
 export class ModalDonationCreate extends InteractionHandler {
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.ModalSubmit
-    })
-  }
-
   public override parse(interaction: ModalSubmitInteraction) {
     if (interaction.customId !== CUSTOM_ID.MODAL_DONATION_CREATE)
       return this.none()

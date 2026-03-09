@@ -1,3 +1,4 @@
+// Listener executed when a chat input subcommand is denied due to precondition failures
 import { Listener, type UserError } from '@sapphire/framework'
 import {
   type ChatInputSubcommandDeniedPayload,

@@ -1,3 +1,5 @@
+// Handler for confession-specific guild settings modal submissions
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -9,17 +11,10 @@ import { GuildRepository } from '~/shared/repositories/guildRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 import { lines } from '~/shared/utils/textUtil'
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.ModalSubmit
+})
 export class ModalConfessionSetting extends InteractionHandler {
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.ModalSubmit
-    })
-  }
-
   public override parse(interaction: ModalSubmitInteraction) {
     if (interaction.customId !== CUSTOM_ID.MODAL_CONFESSION_GENERAL_SETTING)
       return this.none()

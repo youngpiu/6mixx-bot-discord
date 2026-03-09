@@ -1,3 +1,5 @@
+// Handler to view confession details
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -15,17 +17,10 @@ import { CUSTOM_ID } from '~/shared/constants/idConstant'
 
 import { ConfessionRepository } from '~/modules/confession/repositories/confessionRepository'
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.Button
+})
 export class ButtonConfessionView extends InteractionHandler {
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.Button
-    })
-  }
-
   public override parse(interaction: ButtonInteraction) {
     if (!interaction.customId.startsWith(CUSTOM_ID.BTN_CONFESSION_VIEW_PREFIX))
       return this.none()

@@ -1,3 +1,5 @@
+// Handler that prompts for a closure reason before closing a ticket
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -12,17 +14,10 @@ import {
 
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.Button
+})
 export class ButtonTicketCloseWithReason extends InteractionHandler {
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.Button
-    })
-  }
-
   public override parse(interaction: ButtonInteraction) {
     if (
       interaction.customId !== CUSTOM_ID.BTN_TICKET_CLOSE_REASON ||

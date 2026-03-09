@@ -1,3 +1,4 @@
+// Shared repository for managing and caching guild-specific data
 import { container } from '@sapphire/pieces'
 
 import type { GuildUpdateInput } from 'generated/prisma/models/Guild'

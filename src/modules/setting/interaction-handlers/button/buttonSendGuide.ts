@@ -1,3 +1,4 @@
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -60,17 +61,10 @@ type ChannelIdKey =
   (typeof SEND_GUIDE_CONFIG)[SendGuideButtonId]['channelIdKey']
 type ThreadIdKey = (typeof SEND_GUIDE_CONFIG)[SendGuideButtonId]['threadIdKey']
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.Button
+})
 export class ButtonSendGuide extends InteractionHandler {
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.Button
-    })
-  }
-
   public override parse(interaction: ButtonInteraction) {
     if (!(interaction.customId in SEND_GUIDE_CONFIG)) return this.none()
     return this.some({ buttonId: interaction.customId as SendGuideButtonId })

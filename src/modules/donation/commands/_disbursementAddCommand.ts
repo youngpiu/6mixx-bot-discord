@@ -1,3 +1,4 @@
+// Command to add a new disbursement record for bot expenses
 import {
   ChatInputCommandInteraction,
   FileUploadBuilder,

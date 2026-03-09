@@ -1,3 +1,4 @@
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -37,17 +38,10 @@ type NotificationButtonId = keyof typeof NOTIFICATION_THREAD_CONFIG
 type ThreadIdKey =
   (typeof NOTIFICATION_THREAD_CONFIG)[NotificationButtonId]['threadIdKey']
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.Button
+})
 export class ButtonCreateNotificationThread extends InteractionHandler {
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.Button
-    })
-  }
-
   public override parse(interaction: ButtonInteraction) {
     if (!(interaction.customId in NOTIFICATION_THREAD_CONFIG))
       return this.none()
@@ -68,7 +62,6 @@ export class ButtonCreateNotificationThread extends InteractionHandler {
     const config = await GuildRepository.findUnique(interaction.guild.id)
     const forumChannelId = config?.notificationForumChannelId
 
-    // 1. Kiểm tra kênh diễn đàn thông báo
     const forumChannel = forumChannelId
       ? await interaction.guild.channels.fetch(forumChannelId).catch(() => null)
       : null
@@ -79,7 +72,7 @@ export class ButtonCreateNotificationThread extends InteractionHandler {
       )
     }
 
-    // 2. Kiểm tra xem thread cũ còn tồn tại không
+    // Check if the old thread still exists
     const oldThreadId = config?.[threadIdKey as ThreadIdKey]
     if (oldThreadId) {
       const oldThread = await forumChannel.threads
@@ -92,7 +85,7 @@ export class ButtonCreateNotificationThread extends InteractionHandler {
       }
     }
 
-    // 3. Tạo thread mới
+    // Create new thread
     const thread = await forumChannel.threads.create({
       name: threadName,
       message: { content: threadName }

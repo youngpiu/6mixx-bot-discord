@@ -1,3 +1,5 @@
+// Command to synchronize guild members with the database
+import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Command } from '@sapphire/framework'
 import { ChatInputCommandInteraction } from 'discord.js'
 
@@ -7,16 +9,17 @@ import { GuildRepository } from '~/shared/repositories/guildRepository'
 import { MemberRepository } from '~/shared/repositories/memberRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 
+@RegisterChatInputCommand((builder) =>
+  builder
+    .setName('sync')
+    .setDescription('Đồng bộ tất cả thành viên trong máy chủ vào cơ sở dữ liệu')
+)
+@ApplyOptions<Command.Options>({
+  name: 'sync',
+  description: 'Đồng bộ tất cả thành viên trong máy chủ vào cơ sở dữ liệu',
+  preconditions: ['OwnerOnly']
+})
 export class SyncCommand extends Command {
-  public constructor(context: Command.LoaderContext, options: Command.Options) {
-    super(context, {
-      ...options,
-      name: 'sync',
-      description: 'Đồng bộ tất cả thành viên trong máy chủ vào cơ sở dữ liệu',
-      preconditions: ['OwnerOnly']
-    })
-  }
-
   public override async chatInputRun(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: 'Ephemeral' })
 
@@ -50,12 +53,6 @@ export class SyncCommand extends Command {
     await InteractionUtil.replySuccess(
       interaction,
       `Đồng bộ hoàn tất — đã đồng bộ **${result.count}** thành viên vào cơ sở dữ liệu.`
-    )
-  }
-
-  public override registerApplicationCommands(registry: Command.Registry) {
-    registry.registerChatInputCommand((builder) =>
-      builder.setName(this.name).setDescription(this.description)
     )
   }
 }

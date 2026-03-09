@@ -1,3 +1,5 @@
+// Handler to show donation creation modal
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -12,21 +14,11 @@ import {
 
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.Button
+})
 export class ButtonDonationCreate extends InteractionHandler {
-  /**
-   * Handles the creation of a new donation via button interaction.
-   * Displays the donation modal.
-   */
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.Button
-    })
-  }
-
+  // Shows the donation creation modal when the button is clicked
   public override parse(interaction: ButtonInteraction) {
     if (interaction.customId !== CUSTOM_ID.BTN_DONATION_CREATE)
       return this.none()

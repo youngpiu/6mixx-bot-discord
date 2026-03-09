@@ -1,3 +1,4 @@
+// Command to view and manage specific donation details
 import {
   ButtonBuilder,
   ButtonStyle,
@@ -15,12 +16,6 @@ import { DonationHelper } from '~/modules/donation/helpers/DonationHelper'
 import { DonateRepository } from '~/modules/donation/repositories/donateRepository'
 
 export class DonationDetailCommand {
-  /**
-   * Main entry point for the donation detail command.
-   * Fetches and displays detailed information about a specific donation.
-   *
-   * @param interaction - The chat input command interaction
-   */
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({
       flags: ['Ephemeral']

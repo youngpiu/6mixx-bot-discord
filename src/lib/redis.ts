@@ -3,6 +3,7 @@ import Redis from 'ioredis'
 
 import { env } from '~/shared/config/env'
 
+// Initializes the Redis client for caching and task management
 const redis = new Redis(env.REDIS_URL, {
   maxRetriesPerRequest: null,
   enableReadyCheck: false

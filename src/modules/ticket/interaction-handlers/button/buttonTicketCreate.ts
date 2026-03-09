@@ -1,3 +1,5 @@
+// Handler for creating new ticket channels based on type (BUG, FEEDBACK, REPORT)
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -45,17 +47,10 @@ const TICKET_BUTTON_CONFIG: Record<
   }
 }
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.Button
+})
 export class ButtonTicketCreate extends InteractionHandler {
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.Button
-    })
-  }
-
   public override parse(interaction: ButtonInteraction) {
     for (const [type, config] of Object.entries(TICKET_BUTTON_CONFIG)) {
       if (interaction.customId === config.customId) {
@@ -78,7 +73,6 @@ export class ButtonTicketCreate extends InteractionHandler {
     if (!interaction || !interaction.guild)
       throw new NormalError('Lệnh này chỉ dùng trong máy chủ.')
 
-    // Fetch config and generate code in parallel
     const guildConfig = await GuildRepository.getConfig(interaction.guild.id)
     const code = await TicketRepository.generateCode(interaction.guild.id, type)
 
@@ -97,7 +91,6 @@ export class ButtonTicketCreate extends InteractionHandler {
 
     const now = new Date()
 
-    // Create text channel in the configured category
     const ticketChannel = await interaction.guild.channels.create({
       name: `${code}-${TicketHelper.getTicketTypeLabel(type).toLowerCase()}`,
       type: ChannelType.GuildText,

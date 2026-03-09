@@ -1,3 +1,4 @@
+// Repository for confession-related guild configuration
 import { GuildRepository as SharedGuildRepository } from '~/shared/repositories/guildRepository'
 
 export class GuildRepository {

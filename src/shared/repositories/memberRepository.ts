@@ -1,3 +1,4 @@
+// Shared repository for managing member-specific data
 import { container } from '@sapphire/pieces'
 
 import { Prisma } from 'generated/prisma/client'

@@ -1,3 +1,5 @@
+// Handler for navigating through the paginated donation list
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -11,17 +13,10 @@ import {
   decodeState
 } from '~/modules/donation/commands/_donationListCommand'
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.Button
+})
 export class ButtonDonationList extends InteractionHandler {
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.Button
-    })
-  }
-
   public override parse(interaction: ButtonInteraction) {
     if (!interaction.customId.startsWith(CUSTOM_ID.DONATION_LIST_PREFIX))
       return this.none()

@@ -1,3 +1,4 @@
+// Utilities for formatting and manipulating text content for Discord messages
 import { inlineCode } from 'discord.js'
 
 export const lines = (...text: (string | false | null | undefined)[]) =>

@@ -1,3 +1,4 @@
+// Listener executed when an error occurs during message subcommand execution
 import { Listener } from '@sapphire/framework'
 import {
   type MessageSubcommandErrorPayload,

@@ -1,3 +1,4 @@
+// Categorization of common bot error types
 export type ErrorType =
   | 'DATABASE'
   | 'SYSTEM'
@@ -6,6 +7,7 @@ export type ErrorType =
   | 'BANNED'
   | 'NORMAL'
 
+// Base class for custom bot error responses
 export class ErrorResponseCore extends Error {
   public readonly type: ErrorType
   public readonly content: string

@@ -1,3 +1,4 @@
+// Listener that catches and handles errors from interaction handlers (buttons, modals, etc.)
 import type { Events, InteractionHandlerError } from '@sapphire/framework'
 import { Listener } from '@sapphire/framework'
 

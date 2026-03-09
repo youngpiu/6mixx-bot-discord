@@ -67,9 +67,7 @@ export class SelectSettingNav extends InteractionHandler {
     })
   }
 
-  /**
-   * Helper to generate the unified select menu for navigating settings categories.
-   */
+  // Helper to generate the unified select menu for navigating settings categories.
   private static generateSelectMenu(currentSelection: SettingNavType) {
     return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       new StringSelectMenuBuilder()
@@ -96,10 +94,8 @@ export class SelectSettingNav extends InteractionHandler {
     )
   }
 
-  /**
-   * Generates the General Settings menu container.
-   * Includes options for global channel configuration and error notifications.
-   */
+  // Generates the General Settings menu container.
+  // Includes options for global channel configuration and error notifications.
   public static createGeneralSettings(): ContainerBuilder {
     return new ContainerBuilder()
       .addActionRowComponents(() => this.generateSelectMenu('general'))
@@ -137,10 +133,8 @@ export class SelectSettingNav extends InteractionHandler {
       )
   }
 
-  /**
-   * Generates the Ticket Settings menu container.
-   * Includes options for general setup, sending guides, and creating notification threads.
-   */
+  // Generates the Ticket Settings menu container.
+  // Includes options for general setup, sending guides, and creating notification threads.
   public static createTicketSettings(): ContainerBuilder {
     return new ContainerBuilder()
       .addActionRowComponents(() => this.generateSelectMenu('ticket'))
@@ -189,9 +183,7 @@ export class SelectSettingNav extends InteractionHandler {
       )
   }
 
-  /**
-   * Generates the Donation Settings menu container.
-   */
+  // Generates the Donation Settings menu container.
   public static createDonationSettings(): ContainerBuilder {
     return new ContainerBuilder()
       .addActionRowComponents(() => this.generateSelectMenu('donation'))
@@ -227,9 +219,7 @@ export class SelectSettingNav extends InteractionHandler {
       )
   }
 
-  /**
-   * Generates the Confession Settings menu container.
-   */
+  // Generates the Confession Settings menu container.
   public static createConfessionSettings(): ContainerBuilder {
     return new ContainerBuilder()
       .addActionRowComponents(() => this.generateSelectMenu('confession'))

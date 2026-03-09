@@ -1,3 +1,4 @@
+// Command to setup confession system for a guild
 import { container } from '@sapphire/pieces'
 import {
   ButtonBuilder,
@@ -113,7 +114,7 @@ export class ConfessionSetupCommand {
           )
         )
 
-        // ===== Gửi ẩn danh =====
+        // ===== Anonymous Submission =====
         .addSeparatorComponents((sep) => sep.setDivider(true))
         .addSectionComponents((section) =>
           section
@@ -133,7 +134,7 @@ export class ConfessionSetupCommand {
             )
         )
 
-        // ===== Gửi công khai =====
+        // ===== Public Submission =====
         .addSeparatorComponents((sep) => sep.setDivider(true))
         .addSectionComponents((section) =>
           section

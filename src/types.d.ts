@@ -4,6 +4,7 @@ import type Redis from 'ioredis'
 
 import prisma from '~/lib/prisma'
 
+// Augments the Sapphire container to include shared resources for global access
 declare module '@sapphire/framework' {
   interface Container {
     prisma: typeof prisma

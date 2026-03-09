@@ -14,11 +14,9 @@ const TICKET_PREFIX: Record<TicketType, string> = {
 }
 
 export class TicketRepository {
-  /**
-   * Generates a unique, sequential ticket code (e.g., RP001, FB042).
-   * Uses atomic upsert on TicketCounter to prevent race conditions during concurrent requests.
-   * Format: PREFIX + 3-digit number (padded).
-   */
+  // Generates a unique, sequential ticket code (e.g., RP001, FB042).
+  // Uses atomic upsert on TicketCounter to prevent race conditions during concurrent requests.
+  // Format: PREFIX + 3-digit number (padded).
   public static async generateCode(guildId: string, type: TicketType) {
     // Use atomic increment on TicketCounter
     const counter = await container.prisma.ticketCounter.upsert({
@@ -43,11 +41,9 @@ export class TicketRepository {
     return `${TICKET_PREFIX[type]}${String(counter.counter).padStart(3, '0')}`
   }
 
-  /**
-   * Creates a new ticket record in the database.
-   * - Generates code if not provided
-   * - Invalidates cache to ensure the new ticket appears in lists
-   */
+  // Creates a new ticket record in the database.
+  // - Generates code if not provided
+  // - Invalidates cache to ensure the new ticket appears in lists
   public static async create({
     guildId,
     requesterId,
@@ -85,9 +81,7 @@ export class TicketRepository {
     return ticket
   }
 
-  /**
-   * Invalidate all cached tickets for a guild
-   */
+  // Invalidate all cached tickets for a guild
   private static async invalidateTicketCache(guildId: string) {
     const pattern = `tickets:${guildId}:*`
     const keys = await container.redis.keys(pattern)
@@ -114,11 +108,9 @@ export class TicketRepository {
     })
   }
 
-  /**
-   * Retrieve a paginated list of tickets with optional filtering.
-   * - Uses Redis caching to improve performance for frequent access.
-   * - Includes requester and closer relations to avoid N+1 queries.
-   */
+  // Retrieve a paginated list of tickets with optional filtering.
+  // - Uses Redis caching to improve performance for frequent access.
+  // - Includes requester and closer relations to avoid N+1 queries.
   public static async findMany({
     guildId,
     page = 1,
@@ -213,12 +205,10 @@ export class TicketRepository {
     })
   }
 
-  /**
-   * Updates database record to mark a ticket as closed.
-   * - Sets status to CLOSED
-   * - Records closure time and closer ID
-   * - Invalidates cache
-   */
+  // Updates database record to mark a ticket as closed.
+  // - Sets status to CLOSED
+  // - Records closure time and closer ID
+  // - Invalidates cache
   public static async close({
     id,
     closedBy,

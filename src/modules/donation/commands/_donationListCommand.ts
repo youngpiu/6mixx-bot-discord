@@ -1,3 +1,4 @@
+// Command to display a paginated list of all guild donations
 import {
   ButtonBuilder,
   type ButtonInteraction,
@@ -17,9 +18,6 @@ import { formatFields, lines } from '~/shared/utils/textUtil'
 
 import { DonateRepository } from '~/modules/donation/repositories/donateRepository'
 
-/**
- * Interface for list state management
- */
 export interface DonationListState {
   page: number
   status?: DonationStatus
@@ -33,9 +31,6 @@ export interface DonationListMeta extends DonationListState {
   hasPrev: boolean
 }
 
-/**
- * Helper to encode state into customId string
- */
 export const encodeState = (state: DonationListState): string => {
   const parts = [`p=${state.page}`]
   if (state.status) parts.push(`s=${state.status}`)
@@ -55,9 +50,6 @@ export const decodeState = (encoded: string): DonationListState => {
   return state
 }
 
-/**
- * Creates a navigation button with encoded state
- */
 const createButton = (
   action: string,
   state: DonationListState,
@@ -84,12 +76,6 @@ const createButton = (
 }
 
 export class DonationListCommand {
-  /**
-   * Main entry point for the donation list command.
-   * Displays a paginated list of donations.
-   *
-   * @param interaction - The chat input command interaction
-   */
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
@@ -106,12 +92,6 @@ export class DonationListCommand {
     return await interaction.editReply(this.createListResponse(items, meta))
   }
 
-  /**
-   * Handles button interactions for pagination and filtering.
-   *
-   * @param interaction - The button interaction
-   * @param state - The decoded list state
-   */
   public static async handleButton(
     interaction: ButtonInteraction,
     state: DonationListState
@@ -151,7 +131,6 @@ export class DonationListCommand {
     donations.forEach((donation, index) => {
       const indexNumber = (meta.page - 1) * meta.limit + index + 1
 
-      // Determine status text
       let itemStatusText = 'Đang chờ'
       if (donation.status === DonationStatus.TRANSFERRED) {
         itemStatusText = 'Đã chuyển'

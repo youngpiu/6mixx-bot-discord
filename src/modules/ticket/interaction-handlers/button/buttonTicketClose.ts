@@ -1,3 +1,5 @@
+// Handler for closing a ticket without a reason
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -10,17 +12,10 @@ import { CUSTOM_ID } from '~/shared/constants/idConstant'
 
 import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.Button
+})
 export class ButtonTicketClose extends InteractionHandler {
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.Button
-    })
-  }
-
   public override parse(interaction: ButtonInteraction) {
     if (
       interaction.customId !== CUSTOM_ID.BTN_TICKET_CLOSE ||

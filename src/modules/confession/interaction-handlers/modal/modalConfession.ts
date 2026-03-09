@@ -1,3 +1,5 @@
+// Handler for confession modal submission
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -21,17 +23,10 @@ import { lines } from '~/shared/utils/textUtil'
 import { ConfessionRepository } from '~/modules/confession/repositories/confessionRepository'
 import { GuildRepository } from '~/modules/confession/repositories/guildRepository'
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.ModalSubmit
+})
 export class ModalConfession extends InteractionHandler {
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.ModalSubmit
-    })
-  }
-
   public override parse(interaction: ModalSubmitInteraction) {
     if (
       interaction.customId !== CUSTOM_ID.MODAL_CONFESSION_ANONYMOUS &&
@@ -74,12 +69,8 @@ export class ModalConfession extends InteractionHandler {
       )
     }
 
-    // Get attachment URLs
     const attachmentUrls = imageFiles?.map((file) => file.url) ?? []
 
-    // Ensure member exists (handled by join sync)
-
-    // Save confession to database
     const confession = await ConfessionRepository.create({
       guildId: interaction.guild.id,
       authorId: interaction.user.id,
@@ -88,7 +79,6 @@ export class ModalConfession extends InteractionHandler {
       attachmentUrls
     })
 
-    // Get config to find notification channel
     const existingConfig = await GuildRepository.getConfig(interaction.guild.id)
 
     if (existingConfig?.notificationForumChannelId) {
@@ -97,7 +87,6 @@ export class ModalConfession extends InteractionHandler {
       )) as TextChannel
 
       if (notificationChannel) {
-        // Create short notification embed
         const notificationEmbed = new EmbedBuilder()
           .setTitle(`Confession mới #${confession.code}`)
           .setDescription(
@@ -110,7 +99,6 @@ export class ModalConfession extends InteractionHandler {
           .setColor(isAnonymous ? 0x57f287 : 0xed4245)
           .setTimestamp()
 
-        // Create View Details button
         const viewButton = new ButtonBuilder()
           .setCustomId(
             `${CUSTOM_ID.BTN_CONFESSION_VIEW_PREFIX}${confession.code}`
@@ -129,7 +117,6 @@ export class ModalConfession extends InteractionHandler {
       }
     }
 
-    // Reply to user
     await InteractionUtil.replySuccess(
       interaction,
       lines(

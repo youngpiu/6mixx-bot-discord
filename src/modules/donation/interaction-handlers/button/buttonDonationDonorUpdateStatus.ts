@@ -1,3 +1,5 @@
+// Handler for donors to confirm or cancel their pending donations
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -16,17 +18,10 @@ import { DonateRepository } from '~/modules/donation/repositories/donateReposito
 
 type ActionType = 'CONFIRMED' | 'CANCELED'
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.Button
+})
 export class ButtonDonationDonorUpdateStatusHandler extends InteractionHandler {
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.Button
-    })
-  }
-
   public override parse(interaction: ButtonInteraction) {
     const { customId } = interaction
     let type: ActionType | undefined

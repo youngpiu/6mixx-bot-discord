@@ -5,10 +5,8 @@ import {
   LabelBuilder
 } from 'discord.js'
 
-// ============================================================================
-// CHANNEL PLACEHOLDER
-// Dùng cho ChannelSelectMenu (chọn kênh diễn đàn, kênh văn bản, danh mục...)
-// ============================================================================
+// Helper for managing channel selection placeholders in select menus
+// Used for ChannelSelectMenu (forums, text channels, categories, etc.)
 
 export interface ChannelPlaceholderResult {
   placeholder: string
@@ -31,23 +29,16 @@ type CreateChannelLabelOptions = {
 }
 
 export class SettingHelper {
-  /**
-   * Lấy placeholder cho channel select menu
-   *
-   * @param guild - Server hiện tại
-   * @param channelId - ID kênh đã được cài đặt (hoặc null/undefined nếu chưa cài)
-   * @param channelType - Loại kênh cần filter
-   * @param placeholders - Các placeholder text tùy chỉnh
-   */
+  // Determines the appropriate placeholder text based on guild state and channel configuration
   public static getChannelPlaceholder(
     guild: Guild,
     channelId: string | null | undefined,
     channelType: ChannelType,
     placeholders: {
-      channelConfiguredAndExists: string // Đã cài đặt và kênh vẫn tồn tại
-      channelConfiguredButDeleted: string // Đã cài đặt nhưng kênh đã bị xóa
-      channelNotConfigured: string // Chưa cài đặt kênh
-      noChannelsInServer: string // Server không có kênh nào thuộc loại này
+      channelConfiguredAndExists: string // Configured and still exists
+      channelConfiguredButDeleted: string // Configured but was deleted
+      channelNotConfigured: string // Not yet configured
+      noChannelsInServer: string // No channels of this type in the guild
     }
   ): ChannelPlaceholderResult {
     if (channelId) {
@@ -69,10 +60,8 @@ export class SettingHelper {
     }
   }
 
-  /**
-   * Tạo LabelBuilder chuẩn với ChannelSelectMenu.
-   * Tự xử lý placeholder dựa trên trạng thái kênh hiện tại.
-   */
+  // Creates a standardized LabelBuilder containing a ChannelSelectMenu
+  // Automatically handles placeholder state based on current channel status
   public static createChannelLabel(
     options: CreateChannelLabelOptions
   ): LabelBuilder {

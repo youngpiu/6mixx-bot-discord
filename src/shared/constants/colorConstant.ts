@@ -1,3 +1,4 @@
+// RGB color palette for consistency across the application
 export type RGB_COLOR = [number, number, number]
 
 export const RGB_COLOR_TEMPLATE: Record<string, RGB_COLOR> = {

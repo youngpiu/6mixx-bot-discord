@@ -22,17 +22,13 @@ export class LoggerBuilder {
     this.container.addSeparatorComponents((s) => s)
   }
 
-  /**
-   * Adds an array of key-value pairs that will be formatted and aligned
-   */
+  // Adds an array of key-value pairs that will be formatted and aligned
   public addFields(fields: [string, string | null | undefined][]): this {
     this.fields.push(...fields)
     return this
   }
 
-  /**
-   * Builds and returns the container
-   */
+  // Builds and returns the container
   public build(): [ContainerBuilder] {
     if (this.fields.length > 0) {
       this.container.addTextDisplayComponents((t) =>
@@ -43,9 +39,7 @@ export class LoggerBuilder {
     return [this.container]
   }
 
-  /**
-   * Returns the underlying ContainerBuilder for further manual manipulation if necessary
-   */
+  // Returns the underlying ContainerBuilder for further manual manipulation if necessary
   public getContainer(): ContainerBuilder {
     return this.container
   }

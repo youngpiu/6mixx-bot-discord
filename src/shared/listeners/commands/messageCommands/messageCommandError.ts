@@ -1,3 +1,4 @@
+// Listener executed when an error occurs during message command execution
 import type { Events, MessageCommandErrorPayload } from '@sapphire/framework'
 import { Listener } from '@sapphire/framework'
 

@@ -6,6 +6,7 @@ import { PrismaClient } from '../../generated/prisma/client'
 
 const connectionString = env.DATABASE_URL
 
+// Initializes the Prisma client with the PostgreSQL adapter
 const adapter = new PrismaPg({ connectionString })
 const prisma = new PrismaClient({ adapter })
 

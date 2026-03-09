@@ -1,3 +1,4 @@
+// Repository for managing disbursement records and expense statistics
 import { container } from '@sapphire/pieces'
 
 export class DisbursementRepository {

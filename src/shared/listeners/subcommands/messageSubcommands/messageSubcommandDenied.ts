@@ -1,3 +1,4 @@
+// Listener executed when a message subcommand is denied due to precondition failures
 import { Listener, type UserError } from '@sapphire/framework'
 import {
   type MessageSubcommandDeniedPayload,

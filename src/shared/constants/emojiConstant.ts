@@ -1,3 +1,4 @@
+// Static and animated custom emojis used in UI components
 export const STATIC_EMOJI = {
   CANDY: '<:candy:1479113734902255769>',
   DATABASE_ERROR: '<:database_error:1479113751411163318>',

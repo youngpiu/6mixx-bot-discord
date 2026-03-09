@@ -1,3 +1,4 @@
+// Utility classes for handling Discord messages and interaction replies in a standardized way
 import {
   Channel,
   ContainerBuilder,

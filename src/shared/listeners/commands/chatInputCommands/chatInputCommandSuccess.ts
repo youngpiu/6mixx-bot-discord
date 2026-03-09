@@ -1,3 +1,4 @@
+// Listener that logs successful chat input command executions
 import {
   type ChatInputCommandSuccessPayload,
   Listener,

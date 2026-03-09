@@ -1,3 +1,4 @@
+// Time constants in milliseconds for common durations (seconds, minutes, hours, days)
 const s = (v: number) => v * 1000
 const m = (v: number) => v * 60_000
 const h = (v: number) => v * 3_600_000

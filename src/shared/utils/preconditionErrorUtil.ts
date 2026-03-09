@@ -1,3 +1,4 @@
+// Utility to map Sapphire precondition user errors to human-readable error responses
 import { DecoratorIdentifiers } from '@sapphire/decorators'
 import { Identifiers, type UserError } from '@sapphire/framework'
 import { ChannelType, type PermissionsString } from 'discord.js'

@@ -1,3 +1,4 @@
+// Repository for ticket-specific guild configuration
 import { GuildRepository as SharedGuildRepository } from '~/shared/repositories/guildRepository'
 
 export class GuildRepository {

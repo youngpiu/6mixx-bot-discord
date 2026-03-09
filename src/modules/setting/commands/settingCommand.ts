@@ -1,3 +1,4 @@
+// Command for bot owners to manage guild settings via interactive UI
 import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Command } from '@sapphire/framework'
 import { ChatInputCommandInteraction } from 'discord.js'

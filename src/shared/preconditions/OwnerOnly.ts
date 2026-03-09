@@ -1,3 +1,4 @@
+// Precondition that restricts command execution to the guild owner
 import { Identifiers, Precondition } from '@sapphire/framework'
 import type {
   ChatInputCommandInteraction,

@@ -1,3 +1,4 @@
+// Listener that logs successful context menu command executions
 import {
   type ContextMenuCommandSuccessPayload,
   Listener,

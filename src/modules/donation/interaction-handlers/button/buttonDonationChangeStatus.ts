@@ -1,3 +1,5 @@
+// Handler to change donation status (Admin actions)
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -15,17 +17,10 @@ import { InteractionUtil } from '~/shared/utils/messageUtil'
 import { DonationHelper } from '~/modules/donation/helpers/DonationHelper'
 import { DonateRepository } from '~/modules/donation/repositories/donateRepository'
 
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.Button
+})
 export class ButtonDonationChangeStatusHandler extends InteractionHandler {
-  public constructor(
-    ctx: InteractionHandler.LoaderContext,
-    options: InteractionHandler.Options
-  ) {
-    super(ctx, {
-      ...options,
-      interactionHandlerType: InteractionHandlerTypes.Button
-    })
-  }
-
   public override parse(interaction: ButtonInteraction) {
     if (
       !interaction.customId.startsWith(

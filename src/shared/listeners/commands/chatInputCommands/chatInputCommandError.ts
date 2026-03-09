@@ -1,3 +1,4 @@
+// Listener executed when an error occurs during chat input command execution
 import type { ChatInputCommandErrorPayload, Events } from '@sapphire/framework'
 import { Listener } from '@sapphire/framework'
 

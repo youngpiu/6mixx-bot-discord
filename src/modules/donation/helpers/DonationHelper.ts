@@ -16,14 +16,14 @@ import { GuildRepository } from '~/shared/repositories/guildRepository'
 import { MessageUtil } from '~/shared/utils/messageUtil'
 import { encryptId } from '~/shared/utils/textUtil'
 
-/** Events that trigger donation notifications */
+// Events that trigger donation notifications
 type DonationNotificationEvent =
   | 'CREATED'
   | 'PENDING_VERIFICATION'
   | 'CANCELED'
   | 'ADMIN_STATUS_CHANGED'
 
-/** Options for sending donation notifications */
+// Options for sending donation notifications
 type DonationNotificationOptions = {
   guildId: string
   donation: {
@@ -36,10 +36,8 @@ type DonationNotificationOptions = {
   event: DonationNotificationEvent
 }
 
+// Helper class for donation-related logic and notifications
 export class DonationHelper {
-  /**
-   * Converts DonationStatus enum to Vietnamese text
-   */
   public static getStatusText(status: DonationStatus): string {
     switch (status) {
       case DonationStatus.PENDING:
@@ -55,10 +53,7 @@ export class DonationHelper {
     }
   }
 
-  /**
-   * Sends a notification to the donation notification thread for various donation events.
-   * Returns null if logging fails or is not configured (fail-safe).
-   */
+  // Sends a notification to the donation notification thread for various donation events
   public static async sendDonationNotification(
     options: DonationNotificationOptions
   ): Promise<void> {
