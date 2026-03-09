@@ -5,7 +5,7 @@ import '@sapphire/plugin-scheduled-tasks/register'
 import '@sapphire/plugin-subcommands/register'
 import 'dotenv/config'
 import { BotClient } from '~/client'
-import { env } from '~/config/env'
+import { env } from '~/shared/config/env'
 
 const client = new BotClient()
 

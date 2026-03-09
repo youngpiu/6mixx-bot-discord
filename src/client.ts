@@ -7,8 +7,9 @@ import {
 } from '@sapphire/framework'
 import { getRootData } from '@sapphire/pieces'
 import { ActivityType, GatewayIntentBits, Partials } from 'discord.js'
+import { existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { env } from '~/config/env'
+import { env } from '~/shared/config/env'
 
 import prisma from '~/lib/prisma'
 import redis from '~/lib/redis'
@@ -71,7 +72,22 @@ export class BotClient extends SapphireClient {
       }
     })
 
-    this.stores.get('interaction-handlers').registerPath(join(this.rootData.root, 'interactions'))
+    // Register all feature modules
+    const modulesDir = join(this.rootData.root, 'modules')
+    if (existsSync(modulesDir)) {
+      const modules = readdirSync(modulesDir, { withFileTypes: true })
+        .filter((dirent) => dirent.isDirectory())
+        .map((dirent) => dirent.name)
+
+      for (const module of modules) {
+        this.logger.info(`Registering module paths for: ${module}`)
+        this.stores.registerPath(join(modulesDir, module))
+      }
+    }
+
+    // Register shared pieces (listeners, preconditions)
+    this.logger.info('Registering shared pieces path')
+    this.stores.registerPath(join(this.rootData.root, 'shared'))
   }
 
   async login(token: string): Promise<string> {
