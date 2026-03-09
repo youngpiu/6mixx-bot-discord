@@ -83,7 +83,7 @@ export class ButtonSendGuide extends InteractionHandler {
 
     await interaction.deferReply()
 
-    const { buttonId } = result as { buttonId: SendGuideButtonId }
+    const { buttonId } = result
     const config = SEND_GUIDE_CONFIG[buttonId]
 
     const guildConfig = await GuildRepository.findUnique(interaction.guild.id)

@@ -48,26 +48,18 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
 
     if (!interaction.guild) return
 
-    const { targetStatus, donationId } = result as {
-      targetStatus: DonationStatus
-      donationId: string
-    }
+    const { targetStatus, donationId } = result
 
     const donation = await DonateRepository.findById(donationId)
 
-    if (!donation) {
-      throw new NormalError(
-        'Không tìm thấy giao dịch quyên góp này trong hệ thống.'
-      )
-    }
+    if (!donation) throw new NormalError('Không tìm thấy giao dịch này.')
 
-    if (donation.status === targetStatus) {
+    if (donation.status === targetStatus)
       throw new NormalError(
         targetStatus === DonationStatus.TRANSFERRED
           ? 'Giao dịch này đã được xác nhận rồi.'
           : 'Giao dịch này đã bị hủy trước đó.'
       )
-    }
 
     const updatedDonation = await DonateRepository.updateStatus(
       donation.id,

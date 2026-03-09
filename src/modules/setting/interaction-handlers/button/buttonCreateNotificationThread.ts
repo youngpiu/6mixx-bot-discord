@@ -60,7 +60,7 @@ export class ButtonCreateNotificationThread extends InteractionHandler {
     await interaction.deferReply({ flags: ['Ephemeral'] })
     if (!interaction || !interaction.guild) return
 
-    const { buttonId } = result as { buttonId: NotificationButtonId }
+    const { buttonId } = result
     const { threadName, threadIdKey, successMessage } =
       NOTIFICATION_THREAD_CONFIG[buttonId]
 

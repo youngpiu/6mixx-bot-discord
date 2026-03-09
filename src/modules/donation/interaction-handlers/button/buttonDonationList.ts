@@ -5,7 +5,6 @@ import {
 import { type ButtonInteraction } from 'discord.js'
 import {
   DonationListCommand,
-  DonationListState,
   decodeState
 } from '~/modules/donation/commands/_donationListCommand'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
@@ -41,7 +40,7 @@ export class ButtonDonationList extends InteractionHandler {
   ) {
     if (!result) return
     await interaction.deferUpdate()
-    const { state } = result as { action: string; state: DonationListState }
+    const { state } = result
     await DonationListCommand.handleButton(interaction, state)
   }
 }

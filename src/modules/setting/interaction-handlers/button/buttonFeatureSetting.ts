@@ -133,7 +133,7 @@ export class ButtonFeatureSetting extends InteractionHandler {
   ) {
     if (!result) return
 
-    const { buttonId } = result as { buttonId: SettingButtonId }
+    const { buttonId } = result
     const config = SETTING_CONFIG[buttonId]
 
     if (!interaction || !interaction.guild)

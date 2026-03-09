@@ -47,14 +47,11 @@ export class ButtonDonationDonorUpdateStatusHandler extends InteractionHandler {
     interaction: ButtonInteraction,
     result: InteractionHandler.ParseResult<this>
   ) {
-    await interaction.deferUpdate()
-
     if (!interaction.guild) return
 
-    const { donationId, type } = result as {
-      donationId: string
-      type: ActionType
-    }
+    await interaction.deferUpdate()
+
+    const { donationId, type } = result
     if (!donationId) return
 
     const donation = await DonateRepository.findById(donationId)

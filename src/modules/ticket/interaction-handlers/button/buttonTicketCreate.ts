@@ -69,10 +69,7 @@ export class ButtonTicketCreate extends InteractionHandler {
   ) {
     if (!result) return
 
-    const { type, config } = result as {
-      type: TicketType
-      config: { customId: string; description: string }
-    }
+    const { type, config } = result
 
     await interaction.deferReply({ flags: 'Ephemeral' })
 
