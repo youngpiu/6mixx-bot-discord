@@ -8,30 +8,27 @@ enum DonationStatus {
 
 /// Financial Donation
 model Donation {
-  id      String @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   /// Unique Transaction Code
-  code    String @unique 
-  
+  code String @unique
+
   guildId String
   guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
 
-  amount      Int
-  message     String? 
-  status      DonationStatus @default(PENDING)
+  amount  Int
+  message String?
+  status  DonationStatus @default(PENDING)
 
-  donorId     String
-  donor       Member  @relation("Donor", fields: [guildId, donorId], references: [guildId, userId])
+  donorId String
+  donor   Member @relation("Donor", fields: [guildId, donorId], references: [guildId, userId])
 
   confirmedAt DateTime?
-  confirmedBy String?
-  confirmer   Member? @relation("Confirmer", fields: [guildId, confirmedBy], references: [guildId, userId])
-
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([guildId, code])
   @@index([guildId, status])
   @@index([guildId, createdAt(sort: Desc)])
   @@index([guildId, donorId])
 }
-

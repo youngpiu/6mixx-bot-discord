@@ -1,6 +1,7 @@
 import { container } from '@sapphire/framework'
 import { ContainerBuilder } from 'discord.js'
 import { Message } from 'discord.js'
+import { LoggerBuilder } from '~/components/LoggerBuilder'
 import { env } from '~/config/env'
 
 import { Prisma } from 'generated/prisma/client'
@@ -9,7 +10,6 @@ import { TIME } from '~/constants/timeConstant'
 import { DatabaseError, ErrorResponseCore, SystemError } from '~/core/errorResponse'
 
 import { InteractionUtil, MessageUtil, type RepliableInteraction } from '~/utils/messageUtil'
-import { lines } from '~/utils/textUtil'
 
 import { GuildRepository } from '~/repositories/guildRepository'
 
@@ -51,23 +51,19 @@ const buildErrorEmbed = (
   const errorDetails = error instanceof Error ? (error.stack ?? error.message) : String(error)
   const { user } = context
 
-  return new ContainerBuilder()
-    .setAccentColor(0xff0000)
-    .addTextDisplayComponents((t) => t.setContent(`## ${title}`))
-    .addSeparatorComponents((sep) => sep)
-    .addTextDisplayComponents((t) =>
-      t.setContent(
-        lines(
-          `- **Thời gian**: ${timestamp}`,
-          user?.tag ? `- **Người dùng**: <@${user.id}>` : undefined,
-          context.commandName ? `- **Lệnh**: \`${context.commandName}\`` : undefined
-        )
-      )
-    )
-    .addSeparatorComponents((s) => s)
-    .addTextDisplayComponents((t) =>
-      t.setContent('```js\n' + errorDetails.slice(0, 3800) + '\n```')
-    )
+  const logger = new LoggerBuilder({ title }).addFields([
+    ['Thời gian', timestamp],
+    ...(user?.tag ? [['Người dùng', `<@${user.id}>`] as [string, string]] : []),
+    ...(context.commandName ? [['Lệnh', `\`${context.commandName}\``] as [string, string]] : [])
+  ])
+
+  const container = logger.getContainer()
+  container.addSeparatorComponents((s) => s)
+  container.addTextDisplayComponents((t) =>
+    t.setContent('```js\n' + errorDetails.slice(0, 3800) + '\n```')
+  )
+
+  return container
 }
 
 // ─── Notification ─────────────────────────────────────────────────────────────

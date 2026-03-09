@@ -12,7 +12,7 @@ export class GuildCreateListener extends Listener {
   }
 
   public async run(guild: Guild) {
-    await GuildRepository.createGuild({ guildId: guild.id })
+    await GuildRepository.getOrCreate(guild.id)
     this.container.logger.info(`Guild ${guild.name} (${guild.id}) has been created.`)
   }
 }

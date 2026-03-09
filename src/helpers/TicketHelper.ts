@@ -195,7 +195,7 @@ export class TicketHelper {
       if (event === 'CREATED') {
         logContainer
           .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(`## PHIẾU HỖ TRỢ MỚI - #${ticket.code}`)
+            new TextDisplayBuilder().setContent(`### PHIẾU HỖ TRỢ MỚI - #${ticket.code}`)
           )
           .addSeparatorComponents((sep) => sep)
           .addTextDisplayComponents(
@@ -211,7 +211,7 @@ export class TicketHelper {
       } else if (event === 'CLOSED') {
         logContainer
           .addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(`## ĐÓNG PHIẾU HỖ TRỢ - #${ticket.code}`)
+            new TextDisplayBuilder().setContent(`### ĐÓNG PHIẾU HỖ TRỢ - #${ticket.code}`)
           )
           .addSeparatorComponents((sep) => sep)
           .addTextDisplayComponents(

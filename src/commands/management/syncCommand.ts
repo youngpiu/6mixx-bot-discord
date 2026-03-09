@@ -21,10 +21,10 @@ export class SyncCommand extends Command {
   public override async chatInputRun(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: 'Ephemeral' })
 
-    if (!interaction.guild || !interaction.guildId)
+    if (!interaction || !interaction.guild)
       throw new NormalError('Lệnh này chỉ dùng trong máy chủ.')
 
-    await GuildRepository.getOrCreate(interaction.guildId)
+    await GuildRepository.getOrCreate(interaction.guild.id)
 
     const members = await interaction.guild.members.fetch()
 
@@ -39,7 +39,7 @@ export class SyncCommand extends Command {
     }
 
     const membersData = userMembers.map((m) => ({
-      guildId: interaction.guildId!,
+      guildId: interaction.guild!.id,
       userId: m.id
     }))
     const result = await MemberRepository.createMembers(membersData)

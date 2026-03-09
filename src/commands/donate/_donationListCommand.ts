@@ -1,20 +1,19 @@
 import {
-  ActionRowBuilder,
   ButtonBuilder,
   type ButtonInteraction,
   ButtonStyle,
   type ChatInputCommandInteraction,
-  EmbedBuilder
+  type InteractionEditReplyOptions
 } from 'discord.js'
+import { ListBuilder } from '~/components/ListBuilder'
 
 import { Donation } from 'generated/prisma/client'
 import { DonationStatus } from 'generated/prisma/enums'
 
-import { STATIC_EMOJI } from '~/constants/emojiConstant'
 import { CUSTOM_ID } from '~/constants/idConstant'
 import { NormalError } from '~/core/errorResponse'
 
-import { lines } from '~/utils/textUtil'
+import { formatFields, lines } from '~/utils/textUtil'
 
 import { DonateRepository } from '~/repositories/donateRepository'
 
@@ -91,14 +90,14 @@ export class DonationListCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction.guildId) {
+    if (!interaction || !interaction.guild) {
       throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }
 
     const { items, meta } = await DonateRepository.getDonations({
-      guildId: interaction.guildId,
+      guildId: interaction.guild.id,
       page: 1,
-      limit: 10
+      limit: 5
     })
 
     return await interaction.editReply(this.createListResponse(items, meta))
@@ -111,59 +110,22 @@ export class DonationListCommand {
    * @param state - The decoded list state
    */
   public static async handleButton(interaction: ButtonInteraction, state: DonationListState) {
-    if (!interaction.guildId) {
-      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
-    }
+    if (!interaction || !interaction.guild) return
 
     const { items, meta } = await DonateRepository.getDonations({
-      guildId: interaction.guildId,
+      guildId: interaction.guild.id,
       page: state.page,
-      limit: 10,
+      limit: 5,
       status: state.status
     })
 
     await interaction.editReply(this.createListResponse(items, meta))
   }
 
-  public static createListResponse(donations: Donation[], meta: DonationListMeta) {
-    return {
-      embeds: [this.createEmbed(donations, meta)],
-      components: [this.createPagination(meta), this.createStatusFilter(meta)]
-    }
-  }
-
-  private static createEmbed(donations: Donation[], meta: DonationListMeta) {
-    const embed = new EmbedBuilder().setTitle('Danh sách quyên góp').setColor(0x5865f2)
-
-    if (donations.length === 0) {
-      embed.setDescription('Không có khoản quyên góp nào.')
-    } else {
-      donations.forEach((donation, index) => {
-        const createdTimestamp = Math.floor(donation.createdAt.getTime() / 1000)
-        const indexNumber = (meta.page - 1) * meta.limit + index + 1
-
-        // Determine status icon based on donation status
-        let statusIcon = '⏳'
-        if (donation.status === DonationStatus.TRANSFERRED) {
-          statusIcon = '✅'
-        } else if (donation.status === DonationStatus.PENDING_VERIFICATION) {
-          statusIcon = '⏳'
-        } else if (donation.status === DonationStatus.CANCELED) {
-          statusIcon = '❌'
-        }
-
-        embed.addFields({
-          name: `${statusIcon} ${indexNumber}. #${donation.code}`,
-          value: lines(
-            `- **Số tiền:** ${donation.amount.toLocaleString('vi-VN')}đ`,
-            `- **Thời gian tạo:** <t:${createdTimestamp}:R>`
-          ),
-          inline: false
-        })
-      })
-    }
-
-    // Generate status filter text for footer
+  public static createListResponse(
+    donations: Donation[],
+    meta: DonationListMeta
+  ): InteractionEditReplyOptions {
     const statusText = !meta.status
       ? 'Tất cả'
       : meta.status === DonationStatus.PENDING
@@ -174,108 +136,93 @@ export class DonationListCommand {
             ? 'Đã chuyển'
             : 'Đã hủy'
 
-    embed.setFooter({
-      text: `Trang ${meta.page}/${meta.totalPages || 1} • Tổng: ${meta.total} khoản • Trạng thái: ${statusText}`
+    const listBuilder = new ListBuilder({
+      title: 'DANH SÁCH QUYÊN GÓP',
+      emptyMessage: '_Không có khoản quyên góp nào._',
+      footer: `Trang ${meta.page}/${meta.totalPages || 1} • Tổng: ${meta.total} khoản • Trạng thái: ${statusText}`
     })
 
-    return embed
-  }
+    donations.forEach((donation, index) => {
+      const indexNumber = (meta.page - 1) * meta.limit + index + 1
 
-  private static createPagination(meta: DonationListMeta) {
-    const currentState: DonationListState = { page: meta.page, status: meta.status }
+      // Determine status text
+      let itemStatusText = 'Đang chờ'
+      if (donation.status === DonationStatus.TRANSFERRED) {
+        itemStatusText = 'Đã chuyển'
+      } else if (donation.status === DonationStatus.PENDING_VERIFICATION) {
+        itemStatusText = 'Chờ xác nhận'
+      } else if (donation.status === DonationStatus.CANCELED) {
+        itemStatusText = 'Đã hủy'
+      }
 
-    return new ActionRowBuilder<ButtonBuilder>().addComponents(
-      createButton(
-        'pagination-indicator',
-        currentState,
-        undefined,
-        true,
-        ButtonStyle.Secondary,
-        'Trang'
-      ),
-      createButton(
-        'first',
-        { ...currentState, page: 1 },
-        STATIC_EMOJI.FIRST,
-        !meta.hasPrev,
-        ButtonStyle.Primary
-      ),
-      createButton(
-        'prev',
-        { ...currentState, page: meta.page - 1 },
-        STATIC_EMOJI.PREVIOUS,
-        !meta.hasPrev,
-        ButtonStyle.Primary
-      ),
-      createButton(
-        'next',
-        { ...currentState, page: meta.page + 1 },
-        STATIC_EMOJI.NEXT,
-        !meta.hasNext,
-        ButtonStyle.Primary
-      ),
-      createButton(
-        'last',
-        { ...currentState, page: meta.totalPages },
-        STATIC_EMOJI.LAST,
-        !meta.hasNext,
-        ButtonStyle.Primary
+      const formattedAmount = donation.amount.toLocaleString('vi-VN') + 'đ'
+
+      const itemContent = lines(
+        `### ${indexNumber}. #${donation.code}`,
+        ...formatFields([
+          ['Trạng thái', `**${itemStatusText}**`],
+          ['Số tiền', `**${formattedAmount}**`],
+          ['Lời nhắn', donation.message ? `**${donation.message}**` : null],
+          ['Thời gian tạo', `<t:${Math.floor(donation.createdAt.getTime() / 1000)}:F>`]
+        ])
       )
-    )
+
+      listBuilder.addItem(itemContent)
+    })
+
+    listBuilder.addPaginationRow(meta, createButton)
+    listBuilder.addActionRow(this.createFilterRow(meta))
+
+    return {
+      components: listBuilder.build(),
+      flags: ['IsComponentsV2']
+    }
   }
 
-  private static createStatusFilter(meta: DonationListMeta) {
+  private static createFilterRow(meta: DonationListMeta): ButtonBuilder[] {
     const baseState: DonationListState = { page: 1 } // Reset page when filtering
 
-    const statuses: Array<{
-      action: string
-      emoji: string | undefined
-      state: DonationListState
-      label?: string
-      disabled?: boolean
-      style?: ButtonStyle
-    }> = [
-      {
-        action: 'status-filter-indicator',
-        emoji: undefined,
-        label: 'T.Thái',
-        state: { ...baseState, status: undefined },
-        disabled: true,
-        style: ButtonStyle.Secondary
-      },
-      {
-        action: 'status-all',
-        emoji: '📋',
-        state: { ...baseState, status: undefined }
-      },
-      {
-        action: 'status-pending-verification',
-        emoji: '⏳',
-        state: { ...baseState, status: DonationStatus.PENDING_VERIFICATION }
-      },
-      {
-        action: 'status-transferred',
-        emoji: '✅',
-        state: { ...baseState, status: DonationStatus.TRANSFERRED }
-      },
-      {
-        action: 'status-canceled',
-        emoji: '❌',
-        state: { ...baseState, status: DonationStatus.CANCELED }
-      }
-    ]
-
-    return new ActionRowBuilder<ButtonBuilder>().addComponents(
-      statuses.map(({ action, emoji, state, label, disabled, style }) =>
-        createButton(
-          action,
-          state,
-          emoji,
-          disabled ?? meta.status === state.status,
-          style ?? ButtonStyle.Primary,
-          label
-        )
+    return [
+      createButton(
+        'status-all',
+        { ...baseState, status: undefined },
+        undefined,
+        meta.status === undefined,
+        ButtonStyle.Secondary,
+        'Tất cả'
+      ),
+      createButton(
+        'status-pending',
+        { ...baseState, status: DonationStatus.PENDING },
+        undefined,
+        meta.status === DonationStatus.PENDING,
+        ButtonStyle.Secondary,
+        'Chờ'
+      ),
+      createButton(
+        'status-pending-verification',
+        { ...baseState, status: DonationStatus.PENDING_VERIFICATION },
+        undefined,
+        meta.status === DonationStatus.PENDING_VERIFICATION,
+        ButtonStyle.Secondary,
+        'Chờ x.nhận'
+      ),
+      createButton(
+        'status-transferred',
+        { ...baseState, status: DonationStatus.TRANSFERRED },
+        undefined,
+        meta.status === DonationStatus.TRANSFERRED,
+        ButtonStyle.Secondary,
+        'Đã chuyển'
+      ),
+      createButton(
+        'status-canceled',
+        { ...baseState, status: DonationStatus.CANCELED },
+        undefined,
+        meta.status === DonationStatus.CANCELED,
+        ButtonStyle.Secondary,
+        'Đã hủy'
       )
-    )
+    ]
   }
 }

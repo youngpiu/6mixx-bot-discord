@@ -3,7 +3,7 @@ import { customAlphabet } from 'nanoid'
 
 import { DonationStatus } from 'generated/prisma/enums'
 
-const generateNanoId = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 3)
+const generateNanoId = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 9)
 
 export class DonateRepository {
   public static async createDonation(data: {
@@ -71,30 +71,17 @@ export class DonateRepository {
     })
   }
 
-  public static async markAsTransferred({
-    donationId,
-    confirmedBy
-  }: {
-    donationId: string
-    confirmedBy: string
-  }) {
+  public static async markAsTransferred({ donationId }: { donationId: string }) {
     return container.prisma.donation.update({
       where: { id: donationId },
       data: {
         status: 'TRANSFERRED',
-        confirmedAt: new Date(),
-        confirmedBy
+        confirmedAt: new Date()
       }
     })
   }
 
-  public static async confirmDonation({
-    code,
-    confirmedBy
-  }: {
-    code: string
-    confirmedBy: string
-  }) {
+  public static async confirmDonation({ code }: { code: string }) {
     // Ensure confirmer member exists in database
     // Member record is expected to exist via join release
 
@@ -102,8 +89,7 @@ export class DonateRepository {
       where: { code },
       data: {
         status: 'TRANSFERRED',
-        confirmedAt: new Date(),
-        confirmedBy
+        confirmedAt: new Date()
       },
       include: {
         donor: true
@@ -116,6 +102,21 @@ export class DonateRepository {
       where: { id },
       data: {
         status: 'CANCELED'
+      }
+    })
+  }
+
+  public static async deleteOldDonations(days = 3) {
+    const expiredTime = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+
+    return container.prisma.donation.deleteMany({
+      where: {
+        status: {
+          in: ['PENDING', 'CANCELED']
+        },
+        updatedAt: {
+          lt: expiredTime
+        }
       }
     })
   }
@@ -194,13 +195,12 @@ export class DonateRepository {
         _sum: { amount: true },
         _count: true
       }),
-      container.prisma.donation.findMany({
+      container.prisma.donation.groupBy({
+        by: ['donorId'],
         where: {
           guildId,
           status: 'TRANSFERRED'
-        },
-        distinct: ['donorId'],
-        select: { donorId: true }
+        }
       })
     ])
 

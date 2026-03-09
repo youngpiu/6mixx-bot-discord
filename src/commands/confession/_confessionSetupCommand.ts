@@ -21,7 +21,7 @@ export class ConfessionSetupCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction.guildId) {
+    if (!interaction || !interaction.guild) {
       throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }
 
@@ -36,10 +36,10 @@ export class ConfessionSetupCommand {
     }
 
     // Ensure guild exists
-    await GuildRepository.getOrCreate(interaction.guildId)
+    await GuildRepository.getOrCreate(interaction.guild.id)
 
     // Check if config exists and delete old thread
-    const existingConfig = await ConfessionRepository.getConfig(interaction.guildId)
+    const existingConfig = await ConfessionRepository.getConfig(interaction.guild.id)
 
     if (existingConfig?.confessionTutorialThreadId) {
       try {
@@ -64,7 +64,7 @@ export class ConfessionSetupCommand {
     })
 
     // Save config
-    await GuildRepository.updateConfig(interaction.guildId, {
+    await GuildRepository.updateConfig(interaction.guild.id, {
       confessionForumChannelId: forumChannel.id,
       confessionTutorialThreadId: tutorialThread.id
     })

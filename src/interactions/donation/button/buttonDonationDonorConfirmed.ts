@@ -27,6 +27,7 @@ export class ButtonDonationDonorConfirmedHandler extends InteractionHandler {
   public async run(interaction: ButtonInteraction, result: InteractionHandler.ParseResult<this>) {
     await interaction.deferUpdate()
 
+    if (!interaction || !interaction.guild) return
     if (!result) return
 
     const { donationId } = result as { donationId: string }
@@ -52,15 +53,14 @@ export class ButtonDonationDonorConfirmedHandler extends InteractionHandler {
     if (!updatedDonation) return
 
     await DonationHelper.sendDonationNotification({
-      guildId: interaction.guildId!,
+      guildId: interaction.guild.id,
       donation: updatedDonation,
       event: 'PENDING_VERIFICATION'
     })
 
     await InteractionUtil.replySuccess(
       interaction,
-      'Cảm ơn bạn rất nhiều vì đã chuyển khoản quyên góp ủng hộ dự án.',
-      { components: [] }
+      'Chân thành cảm ơn bạn đã chuyển khoản ủng hộ dự án, sự đóng góp của bạn vô cùng quý giá.'
     )
   }
 }

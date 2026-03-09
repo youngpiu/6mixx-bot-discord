@@ -16,7 +16,7 @@ export class GuildMemberAddListener extends Listener {
     if (member.user.bot) return
 
     try {
-      await MemberRepository.getOrCreate({
+      await MemberRepository.createMember({
         guildId: member.guild.id,
         userId: member.user.id
       })

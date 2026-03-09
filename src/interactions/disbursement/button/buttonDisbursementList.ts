@@ -3,9 +3,9 @@ import { ButtonInteraction } from 'discord.js'
 
 import { CUSTOM_ID } from '~/constants/idConstant'
 
-import { DonationDisbursementListCommand } from '~/commands/donate/_disbursementListCommand'
+import { DisbursementListCommand, decodeState } from '~/commands/donate/_disbursementListCommand'
 
-export class ButtonDisbursementListHandler extends InteractionHandler {
+export class ButtonDisbursementList extends InteractionHandler {
   public constructor(ctx: InteractionHandler.LoaderContext, options: InteractionHandler.Options) {
     super(ctx, {
       ...options,
@@ -14,32 +14,23 @@ export class ButtonDisbursementListHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    if (interaction.customId === CUSTOM_ID.BTN_DISBURSEMENT_LIST) {
-      return this.some({ action: 'init', page: 1 })
-    }
-
     if (!interaction.customId.startsWith(CUSTOM_ID.DISBURSEMENT_LIST_PREFIX)) return this.none()
 
-    const parts = interaction.customId.split(':')
-    if (parts.length < 3) return this.none()
+    const remainder = interaction.customId.slice(CUSTOM_ID.DISBURSEMENT_LIST_PREFIX.length)
+    const [action, encodedState] = remainder.split(':')
 
-    const action = parts[1]
-    if (action === 'pagination-indicator') return this.none()
+    if (!action || !encodedState) return this.none()
 
-    const page = parseInt(parts[2])
-    return this.some({ action: 'paginate', page })
+    return this.some({ action, state: decodeState(encodedState) })
   }
 
-  public async run(interaction: ButtonInteraction, result: InteractionHandler.ParseResult<this>) {
-    if (!result) return
+  public async run(
+    interaction: ButtonInteraction,
+    parsedData: InteractionHandler.ParseResult<this>
+  ) {
+    const { state } = parsedData
 
-    const { action, page } = result as { action: string; page: number }
-
-    if (action === 'init') {
-      await DonationDisbursementListCommand.showList(interaction)
-    } else {
-      await interaction.deferUpdate()
-      await DonationDisbursementListCommand.handleButton(interaction, page)
-    }
+    await interaction.deferUpdate()
+    await DisbursementListCommand.handleButton(interaction, state)
   }
 }

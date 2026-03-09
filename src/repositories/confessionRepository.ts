@@ -19,7 +19,7 @@ export class ConfessionRepository {
       confessionNotificationThreadId?: string
     }
   }) {
-    return GuildRepository.updateConfessionConfig(guildId, data)
+    return GuildRepository.updateConfig(guildId, data)
   }
 
   public static async generateConfessionCode(guildId: string): Promise<string> {

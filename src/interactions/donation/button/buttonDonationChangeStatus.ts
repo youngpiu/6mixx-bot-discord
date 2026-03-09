@@ -35,6 +35,7 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
   public async run(interaction: ButtonInteraction, result: InteractionHandler.ParseResult<this>) {
     await interaction.deferUpdate()
 
+    if (!interaction || !interaction.guild) return
     if (!result) return
 
     const { targetStatus, donationId } = result as {
@@ -55,39 +56,32 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
       }
 
       await DonateRepository.markAsTransferred({
-        donationId: donation.id,
-        confirmedBy: interaction.user.id
+        donationId: donation.id
       })
 
       const updatedDonation = await DonateRepository.findById(donation.id)
       if (!updatedDonation) return
 
       await DonationHelper.sendDonationNotification({
-        guildId: interaction.guildId!,
+        guildId: interaction.guild.id,
         donation: updatedDonation,
         event: 'ADMIN_STATUS_CHANGED'
       })
 
       try {
-        const guildConfig = await GuildRepository.getGuildCached(interaction.guildId!)
+        const guildConfig = await GuildRepository.getGuildCached(interaction.guild.id)
         await DonationHelper.sendThankYouMessage(guildConfig, updatedDonation)
       } catch (error) {
         this.container.logger.error(error)
       }
 
-      await interaction.editReply({
-        embeds: [
-          {
-            title: 'Xác nhận thành công',
-            description:
-              donation.status === DonationStatus.CANCELED
-                ? 'Giao dịch đã được khôi phục và xác nhận thành công.'
-                : 'Giao dịch đã được xác nhận thành công.',
-            color: 0x57f287
-          }
-        ],
-        components: []
-      })
+      await InteractionUtil.replySuccess(
+        interaction,
+        'Xác nhận thành công',
+        donation.status === DonationStatus.CANCELED
+          ? 'Giao dịch đã được khôi phục và xác nhận thành công.'
+          : 'Giao dịch đã được xác nhận thành công.'
+      )
     } else if (targetStatus === DonationStatus.CANCELED) {
       if (donation.status === DonationStatus.CANCELED) {
         throw new NormalError('Giao dịch này đã bị hủy trước đó.')
@@ -99,7 +93,7 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
       if (!updatedDonation) return
 
       await DonationHelper.sendDonationNotification({
-        guildId: interaction.guildId!,
+        guildId: interaction.guild.id,
         donation: updatedDonation,
         event: 'ADMIN_STATUS_CHANGED'
       })

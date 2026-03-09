@@ -1,76 +1,26 @@
 import { container } from '@sapphire/pieces'
 
-import { DonationStatus } from 'generated/prisma/enums'
-
 export class DisbursementRepository {
-  /**
-   * Get available budget (total TRANSFERRED donations - total disbursements)
-   */
-  public static async getAvailableBudget(guildId: string): Promise<number> {
-    const [totalDonations, totalDisbursements] = await Promise.all([
-      container.prisma.donation.aggregate({
-        where: {
-          guildId,
-          status: DonationStatus.TRANSFERRED
-        },
-        _sum: {
-          amount: true
-        }
-      }),
-      container.prisma.disbursement.aggregate({
-        where: {
-          guildId
-        },
-        _sum: {
-          amount: true
-        }
-      })
-    ])
-
-    const donationsTotal = totalDonations._sum.amount || 0
-    const disbursementsTotal = totalDisbursements._sum.amount || 0
-
-    return donationsTotal - disbursementsTotal
-  }
-
-  /**
-   * Create a new disbursement
-   */
-  public static async create({
-    guildId,
-    amount,
-    description,
-    createdBy
-  }: {
+  public static async createDisbursement(data: {
     guildId: string
     amount: number
     description: string
-    createdBy: string
+    attachmentUrls: string[]
+    messageUrl?: string
   }) {
     return container.prisma.disbursement.create({
-      data: {
-        guildId,
-        amount,
-        description,
-        createdBy
-      },
-      include: {
-        creator: true
-      }
+      data
     })
   }
 
-  /**
-   * Get disbursements with pagination
-   */
   public static async getDisbursements({
     guildId,
     page = 1,
     limit = 10
   }: {
     guildId: string
-    page: number
-    limit: number
+    page?: number
+    limit?: number
   }) {
     const skip = (page - 1) * limit
 
@@ -79,15 +29,16 @@ export class DisbursementRepository {
         where: { guildId },
         orderBy: { createdAt: 'desc' },
         skip,
-        take: limit,
-        include: {
-          creator: true
-        }
+        take: limit
       }),
       container.prisma.disbursement.count({
         where: { guildId }
       })
     ])
+
+    const totalPages = Math.ceil(total / limit)
+    const hasNext = page < totalPages
+    const hasPrev = page > 1
 
     return {
       items,
@@ -95,25 +46,49 @@ export class DisbursementRepository {
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit)
+        totalPages,
+        hasNext,
+        hasPrev
       }
     }
   }
 
   public static async getStats(guildId: string) {
-    const [count, totalAmount] = await Promise.all([
-      container.prisma.disbursement.count({
-        where: { guildId }
-      }),
-      container.prisma.disbursement.aggregate({
-        where: { guildId },
-        _sum: { amount: true }
-      })
-    ])
-
+    const stats = await container.prisma.disbursement.aggregate({
+      where: { guildId },
+      _sum: { amount: true },
+      _count: { id: true }
+    })
     return {
-      count,
-      totalAmount: totalAmount._sum.amount || 0
+      totalAmount: stats._sum.amount ?? 0,
+      count: stats._count.id ?? 0
     }
+  }
+
+  public static async deleteDisbursement(id: string) {
+    return container.prisma.disbursement.delete({
+      where: { id }
+    })
+  }
+
+  public static async searchDisbursements(guildId: string, query: string) {
+    const disbursements = await container.prisma.disbursement.findMany({
+      where: { guildId },
+      orderBy: { createdAt: 'desc' },
+      take: 100
+    })
+
+    if (!query) return disbursements.slice(0, 25)
+
+    const q = query.toLowerCase()
+    return disbursements
+      .filter((d) => {
+        const dateStr = new Date(d.createdAt).toLocaleDateString('vi-VN')
+        const amountStr = d.amount.toString()
+        const description = d.description.toLowerCase()
+
+        return dateStr.includes(q) || amountStr.includes(q) || description.includes(q)
+      })
+      .slice(0, 25)
   }
 }

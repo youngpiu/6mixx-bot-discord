@@ -13,7 +13,7 @@ export class ErrorResponseCore extends Error {
 
 export class DatabaseError extends ErrorResponseCore {
   constructor(
-    content: string = 'Cơ sở dữ liệu đã gặp sự cố, vui lòng gửi **Báo Lỗi** hoặc liên hệ với **Ban Quản Lý** để có thể khắc phục sớm nhất.'
+    content: string = 'Cơ sở dữ liệu đã gặp sự cố, vui lòng gửi **phiếu báo lỗi** hoặc liên hệ với **Ban Quản Lý** để có thể khắc phục sớm nhất.'
   ) {
     super('DATABASE', content)
   }
@@ -21,7 +21,7 @@ export class DatabaseError extends ErrorResponseCore {
 
 export class SystemError extends ErrorResponseCore {
   constructor(
-    content: string = 'Hệ thống đã gặp sự cố, vui lòng gửi **Báo Lỗi** hoặc liên hệ với **Ban Quản Lý** để có thể khắc phục sớm nhất.'
+    content: string = 'Hệ thống đã gặp sự cố, vui lòng gửi **phiếu báo lỗi** hoặc liên hệ với **Ban Quản Lý** để có thể khắc phục sớm nhất.'
   ) {
     super('SYSTEM', content)
   }

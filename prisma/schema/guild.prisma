@@ -27,9 +27,10 @@ model Guild {
   updatedAt DateTime @updatedAt
 
   /// --- Relations ---
-  members        Member[]
-  tickets        Ticket[]
-  ticketCounters TicketCounter[]
-  donations      Donation[]
-  confessions    Confession[]
+  members          Member[]
+  tickets          Ticket[]
+  ticketCounters   TicketCounter[]
+  donations        Donation[]
+  disbursements    Disbursement[]
+  confessions      Confession[]
 }

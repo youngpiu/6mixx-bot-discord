@@ -2,7 +2,7 @@ import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Command } from '@sapphire/framework'
 import { ChatInputCommandInteraction } from 'discord.js'
 
-import { SelectSettingNavHandler } from '~/interactions/setting/selectMenu/selectSettingNavHandler'
+import { SelectSettingNav } from '~/interactions/setting/selectMenu/selectSettingNav'
 import { InteractionUtil } from '~/utils/messageUtil'
 
 @RegisterChatInputCommand((builder) =>
@@ -20,7 +20,7 @@ export class SettingCommand extends Command {
       flags: ['Ephemeral']
     })
 
-    const container = SelectSettingNavHandler.createGeneralSettings()
+    const container = SelectSettingNav.createGeneralSettings()
 
     await InteractionUtil.editReply(interaction, {
       components: [container],

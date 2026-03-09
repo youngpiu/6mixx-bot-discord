@@ -1,16 +1,14 @@
 import {
   Channel,
   ContainerBuilder,
-  InteractionDeferReplyOptions,
-  InteractionDeferUpdateOptions,
   InteractionEditReplyOptions,
   InteractionReplyOptions,
   InteractionResponse,
   type Message,
-  MessageComponentInteraction,
   type MessageCreateOptions,
   type MessageEditOptions,
-  RepliableInteraction
+  RepliableInteraction,
+  SendableChannels
 } from 'discord.js'
 
 import { STATIC_EMOJI } from '~/constants/emojiConstant'
@@ -21,7 +19,7 @@ export type { RepliableInteraction } from 'discord.js'
 export type OptionalRepliableInteraction = RepliableInteraction | null | undefined
 
 type MessageInput = Message | null | undefined
-type ChannelInput = Channel | null | undefined
+type ChannelInput = SendableChannels | null | undefined
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
@@ -248,32 +246,6 @@ export class InteractionUtil {
     }
   }
 
-  static async deferReply(
-    interaction: OptionalRepliableInteraction,
-    options?: InteractionDeferReplyOptions
-  ): Promise<InteractionResponse | null> {
-    if (!interaction || interaction.replied || interaction.deferred) return null
-
-    try {
-      return await interaction.deferReply({ flags: ['Ephemeral'], ...options })
-    } catch {
-      return null
-    }
-  }
-
-  static async deferUpdate(
-    interaction: MessageComponentInteraction,
-    options?: InteractionDeferUpdateOptions
-  ): Promise<InteractionResponse | null> {
-    if (!interaction || interaction.replied || interaction.deferred) return null
-
-    try {
-      return await interaction.deferUpdate(options)
-    } catch {
-      return null
-    }
-  }
-
   static async replyError(
     interaction: OptionalRepliableInteraction,
     content: string,
@@ -326,3 +298,6 @@ export class InteractionUtil {
     })
   }
 }
+
+export const createTextContainer = (content: string) =>
+  new ContainerBuilder().addTextDisplayComponents((t) => t.setContent(content))

@@ -18,7 +18,7 @@ export class TicketDetailCommand {
       flags: ['Ephemeral']
     })
 
-    if (!interaction.guildId) {
+    if (!interaction || !interaction.guild) {
       throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }
 

@@ -7,7 +7,7 @@ enum ConfessionStatus {
 
 /// User Confession
 model Confession {
-  id   String @id @default(cuid())
+  id String @id @default(cuid())
 
   /// Unique Code (e.g. CFS-1)
   code String @unique
@@ -24,11 +24,11 @@ model Confession {
   rejectionReason String?
   forumPostId     String?
 
-  authorId       String
-  author         Member   @relation(fields: [guildId, authorId], references: [guildId, userId])
+  authorId String
+  author   Member @relation(fields: [guildId, authorId], references: [guildId, userId])
 
-  approvedBy      String?
-  approver        Member?          @relation("ConfessionApprover", fields: [guildId, approvedBy], references: [guildId, userId])
+  approvedBy String?
+  approver   Member? @relation("ConfessionApprover", fields: [guildId, approvedBy], references: [guildId, userId])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -1,12 +1,11 @@
 import {
-  ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  ChatInputCommandInteraction,
-  EmbedBuilder
+  type ChatInputCommandInteraction,
+  type InteractionEditReplyOptions,
+  MessageFlags
 } from 'discord.js'
-
-import { DonationStatus } from 'generated/prisma/enums'
+import { DetailBuilder } from '~/components/DetailBuilder'
 
 import { CUSTOM_ID } from '~/constants/idConstant'
 import { NormalError } from '~/core/errorResponse'
@@ -27,7 +26,7 @@ export class DonationDetailCommand {
       flags: ['Ephemeral']
     })
 
-    if (!interaction.guildId) {
+    if (!interaction || !interaction.guild) {
       throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }
 
@@ -43,39 +42,26 @@ export class DonationDetailCommand {
       throw new NormalError(`Hệ thống không tìm thấy mã quyên góp này trong cơ sở dữ liệu.`)
     }
 
-    const statusText = DonationHelper.getStatusText(donation.status as unknown as DonationStatus)
+    const statusText = DonationHelper.getStatusText(donation.status)
 
-    const embed = new EmbedBuilder()
-      .setColor(donation.status === 'TRANSFERRED' ? 'Green' : 'Yellow')
-      .setTitle(`Thông tin quyên góp #${donation.code}`)
-      .addFields(
-        {
-          name: 'Trạng thái',
-          value: `**${statusText}**`,
-          inline: false
-        },
-        {
-          name: 'Mã giao dịch',
-          value: `**#${donation.code}**`,
-          inline: false
-        },
-        { name: 'Số tiền', value: `${donation.amount.toLocaleString('vi-VN')}đ`, inline: false },
-        {
-          name: 'Thời gian tạo',
-          value: `<t:${Math.floor(donation.createdAt.getTime() / 1000)}:R>`,
-          inline: false
-        }
-      )
+    const builder = new DetailBuilder({
+      title: `Thông tin quyên góp #${donation.code}`
+    }).addFields([
+      ['Trạng thái', `**${statusText}**`],
+      ['Mã giao dịch', `**#${donation.code}**`],
+      ['Số tiền', `**${donation.amount.toLocaleString('vi-VN')}đ**`],
+      ['Thời gian tạo', `<t:${Math.floor(donation.createdAt.getTime() / 1000)}:F>`]
+    ])
 
     if (donation.message) {
-      embed.addFields({ name: 'Lời nhắn', value: donation.message })
+      builder.addFields([['Lời nhắn', `**${donation.message}**`]])
     }
 
-    const components = []
+    const actionRows: ButtonBuilder[][] = []
 
     // Check donation status to determine available actions
     if (donation.status === 'PENDING' || donation.status === 'PENDING_VERIFICATION') {
-      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      actionRows.push([
         new ButtonBuilder()
           .setCustomId(`${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}TRANSFERRED:${donation.id}`)
           .setLabel('Xác nhận')
@@ -84,30 +70,36 @@ export class DonationDetailCommand {
           .setCustomId(`${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}CANCELED:${donation.id}`)
           .setLabel('Hủy')
           .setStyle(ButtonStyle.Danger)
-      )
-      components.push(row)
+      ])
     }
     // For transferred donations, show Cancel button
     else if (donation.status === 'TRANSFERRED') {
-      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      actionRows.push([
         new ButtonBuilder()
           .setCustomId(`${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}CANCELED:${donation.id}`)
           .setLabel('Hủy')
           .setStyle(ButtonStyle.Danger)
-      )
-      components.push(row)
+      ])
     }
     // For canceled donations, show Confirm button to revert
     else if (donation.status === 'CANCELED') {
-      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      actionRows.push([
         new ButtonBuilder()
           .setCustomId(`${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}TRANSFERRED:${donation.id}`)
           .setLabel('Xác nhận')
           .setStyle(ButtonStyle.Success)
-      )
-      components.push(row)
+      ])
     }
 
-    await interaction.editReply({ embeds: [embed], components })
+    actionRows.forEach((rowButtons) => {
+      builder.addActionRow(rowButtons)
+    })
+
+    const response: InteractionEditReplyOptions = {
+      components: builder.build(),
+      flags: [MessageFlags.IsComponentsV2]
+    }
+
+    await interaction.editReply(response)
   }
 }

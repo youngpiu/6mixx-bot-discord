@@ -14,27 +14,27 @@ enum TicketStatus {
 /// Support Ticket System
 model Ticket {
   id String @id @default(cuid())
-  
-  /// Unique ticket code (e.g. T-123)
-  code   String       @unique
 
-  guildId     String
-  guild       Guild   @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  /// Unique ticket code (e.g. T-123)
+  code String @unique
+
+  guildId String
+  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
 
   /// Discord Channel ID
-  channelId   String  @unique
+  channelId String @unique
 
   type   TicketType   @default(FEEDBACK)
   status TicketStatus @default(OPEN)
-  
-  reason        String?
-  closedAt      DateTime?
+
+  reason   String?
+  closedAt DateTime?
 
   requesterId String
-  requester   Member  @relation("TicketRequester", fields: [guildId, requesterId], references: [guildId, userId])
+  requester   Member @relation("TicketRequester", fields: [guildId, requesterId], references: [guildId, userId])
 
-  closedBy    String?
-  closer      Member? @relation("TicketCloser", fields: [guildId, closedBy], references: [guildId, userId])
+  closedBy String?
+  closer   Member? @relation("TicketCloser", fields: [guildId, closedBy], references: [guildId, userId])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -47,10 +47,10 @@ model Ticket {
 
 /// Ticket Counter per Type
 model TicketCounter {
-  id      String     @id @default(cuid())
+  id String @id @default(cuid())
 
   guildId String
-  guild   Guild      @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
 
   type    TicketType
   counter Int        @default(0)

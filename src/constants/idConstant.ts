@@ -73,5 +73,7 @@ export const CUSTOM_ID = {
   MODAL_DISBURSEMENT_CREATE: 'modal-disbursement-create',
   BTN_DISBURSEMENT_LIST: 'btn-disbursement-list',
   DISBURSEMENT_LIST_PREFIX: 'disbursement-list:',
-  DISBURSEMENT_LIST_PAGINATION_INDICATOR: 'disbursement-list:pagination-indicator'
+  INPUT_DISBURSEMENT_AMOUNT: 'input-disbursement-amount',
+  INPUT_DISBURSEMENT_DESCRIPTION: 'input-disbursement-description',
+  UPLOAD_DISBURSEMENT_IMAGES: 'upload-disbursement-images'
 } as const

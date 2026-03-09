@@ -1,18 +1,20 @@
 import { container } from '@sapphire/pieces'
 import {
   ChannelType,
-  ContainerBuilder,
+  Colors,
   ForumChannel,
   MessageFlags,
   TextChannel,
-  ThreadChannel
+  TextThreadChannel
 } from 'discord.js'
+import { LoggerBuilder } from '~/components/LoggerBuilder'
 
 import { DonationStatus } from 'generated/prisma/enums'
 
 import { ANIMATED_EMOJI } from '~/constants/emojiConstant'
 
-import { lines } from '~/utils/textUtil'
+import { MessageUtil } from '~/utils/messageUtil'
+import { encryptId } from '~/utils/textUtil'
 
 import { GuildRepository } from '~/repositories/guildRepository'
 
@@ -21,7 +23,6 @@ type DonationNotificationEvent =
   | 'CREATED'
   | 'PENDING_VERIFICATION'
   | 'CANCELED'
-  | 'AUTO_CANCELED'
   | 'ADMIN_STATUS_CHANGED'
 
 /** Options for sending donation notifications */
@@ -80,28 +81,25 @@ export class DonationHelper {
       )
       if (!thread) return
 
-      const logContainer = new ContainerBuilder()
+      let logContainer: LoggerBuilder
 
       switch (event) {
         case 'CREATED':
-          this.buildCreatedLog(logContainer, donation)
+          logContainer = this.buildCreatedLog(donation)
           break
         case 'PENDING_VERIFICATION':
-          this.buildPendingVerificationLog(logContainer, donation)
+          logContainer = this.buildPendingVerificationLog(donation)
           break
         case 'CANCELED':
-          this.buildCanceledLog(logContainer, donation)
-          break
-        case 'AUTO_CANCELED':
-          this.buildAutoCanceledLog(logContainer, donation)
+          logContainer = this.buildCanceledLog(donation)
           break
         case 'ADMIN_STATUS_CHANGED':
-          this.buildStatusChangeLog(logContainer, donation)
+          logContainer = this.buildStatusChangeLog(donation)
           break
       }
 
       await thread.send({
-        components: [logContainer],
+        components: logContainer.build(),
         flags: [MessageFlags.IsComponentsV2]
       })
     } catch (error) {
@@ -109,111 +107,65 @@ export class DonationHelper {
     }
   }
 
-  private static buildCreatedLog(
-    container: ContainerBuilder,
-    donation: DonationNotificationOptions['donation']
-  ) {
-    container
-      .addTextDisplayComponents((textDisplay) =>
-        textDisplay.setContent(`## QUYÊN GÓP MỚI - #${donation.code}`)
-      )
-      .addSeparatorComponents((sep) => sep)
-      .addTextDisplayComponents((textDisplay) =>
-        textDisplay.setContent(
-          lines(
-            `- **Số tiền:** ${donation.amount.toLocaleString('vi-VN')}đ`,
-            `- **Thời gian tạo:** <t:${Math.floor(donation.createdAt.getTime() / 1000)}:R>`,
-            donation.message && `- **Lời nhắn:** ${donation.message}`
-          )
-        )
-      )
+  private static buildCreatedLog(donation: DonationNotificationOptions['donation']) {
+    return this.buildBaseLog(donation, {
+      title: 'QUYÊN GÓP MỚI',
+      timeLabel: 'Thời gian tạo',
+      color: Colors.Blue
+    })
   }
 
-  private static buildPendingVerificationLog(
-    container: ContainerBuilder,
-    donation: DonationNotificationOptions['donation']
-  ) {
-    container
-      .addTextDisplayComponents((textDisplay) =>
-        textDisplay.setContent(`## CHỜ XÁC NHẬN - #${donation.code}`)
-      )
-      .addSeparatorComponents((sep) => sep)
-      .addTextDisplayComponents((textDisplay) =>
-        textDisplay.setContent(
-          lines(
-            `- **Số tiền:** ${donation.amount.toLocaleString('vi-VN')}đ`,
-            `- **Thời gian tạo:** <t:${Math.floor(donation.createdAt.getTime() / 1000)}:R>`,
-            `- **Thời gian xác nhận:** <t:${Math.floor(new Date().getTime() / 1000)}:R>`,
-            donation.message && `- **Lời nhắn:** ${donation.message}`
-          )
-        )
-      )
+  private static buildPendingVerificationLog(donation: DonationNotificationOptions['donation']) {
+    return this.buildBaseLog(donation, {
+      title: 'CHỜ XÁC NHẬN',
+      timeLabel: 'Ngày tạo',
+      color: Colors.Yellow
+    })
   }
 
-  private static buildCanceledLog(
-    container: ContainerBuilder,
-    donation: DonationNotificationOptions['donation']
-  ) {
-    container
-      .addTextDisplayComponents((textDisplay) =>
-        textDisplay.setContent(`## HỦY QUYÊN GÓP - #${donation.code}`)
-      )
-      .addSeparatorComponents((sep) => sep)
-      .addTextDisplayComponents((textDisplay) =>
-        textDisplay.setContent(
-          lines(
-            `- **Số tiền:** ${donation.amount.toLocaleString('vi-VN')}đ`,
-            `- **Thời gian tạo:** <t:${Math.floor(donation.createdAt.getTime() / 1000)}:R>`,
-            `- **Thời gian hủy:** <t:${Math.floor(new Date().getTime() / 1000)}:R>`,
-            donation.message && `- **Lời nhắn:** ${donation.message}`
-          )
-        )
-      )
+  private static buildCanceledLog(donation: DonationNotificationOptions['donation']) {
+    return this.buildBaseLog(donation, {
+      title: 'HỦY QUYÊN GÓP',
+      timeLabel: 'Ngày tạo',
+      color: Colors.Red
+    })
   }
 
-  private static buildAutoCanceledLog(
-    container: ContainerBuilder,
-    donation: DonationNotificationOptions['donation']
-  ) {
-    container
-      .addTextDisplayComponents((textDisplay) =>
-        textDisplay.setContent(`## TỰ ĐỘNG HỦY QUYÊN GÓP - #${donation.code}`)
-      )
-      .addSeparatorComponents((sep) => sep)
-      .addTextDisplayComponents((textDisplay) =>
-        textDisplay.setContent(
-          lines(
-            `- **Số tiền:** ${donation.amount.toLocaleString('vi-VN')}đ`,
-            `- **Thời gian tạo:** <t:${Math.floor(donation.createdAt.getTime() / 1000)}:R>`,
-            `- **Thời gian hủy:** <t:${Math.floor(new Date().getTime() / 1000)}:R>`,
-            `- **Lý do:** Quá thời gian xác nhận (10 phút)`,
-            donation.message && `- **Lời nhắn:** ${donation.message}`
-          )
-        )
-      )
-  }
-
-  private static buildStatusChangeLog(
-    container: ContainerBuilder,
-    donation: DonationNotificationOptions['donation']
-  ) {
+  private static buildStatusChangeLog(donation: DonationNotificationOptions['donation']) {
     const statusText = this.getStatusText(donation.status as DonationStatus)
 
-    container
-      .addTextDisplayComponents((textDisplay) =>
-        textDisplay.setContent(`## CHUYỂN TRẠNG THÁI - #${donation.code}`)
-      )
-      .addSeparatorComponents((sep) => sep)
-      .addTextDisplayComponents((textDisplay) =>
-        textDisplay.setContent(
-          lines(
-            `- **Số tiền:** ${donation.amount.toLocaleString('vi-VN')}đ`,
-            `- **Trạng thái mới:** ${statusText}`,
-            `- **Thời gian thay đổi:** <t:${Math.floor(new Date().getTime() / 1000)}:R>`,
-            donation.message && `- **Lời nhắn:** ${donation.message}`
-          )
-        )
-      )
+    return this.buildBaseLog(donation, {
+      title: 'CHUYỂN TRẠNG THÁI',
+      extraFields: [['Trạng thái mới', `**${statusText}**`]],
+      timeLabel: 'Ngày thay đổi',
+      timeValue: new Date(),
+      color: Colors.Purple
+    })
+  }
+
+  private static buildBaseLog(
+    donation: DonationNotificationOptions['donation'],
+    options: {
+      title: string
+      timeLabel: string
+      timeValue?: Date
+      extraFields?: [string, string | null | undefined][]
+      color?: number
+    }
+  ): LoggerBuilder {
+    const { title, timeLabel, timeValue = donation.createdAt, extraFields = [], color } = options
+
+    const builder = new LoggerBuilder({ title, color })
+
+    builder.addFields([
+      ['Mã giao dịch', `**#${donation.code}**`],
+      ['Số tiền', `**${donation.amount.toLocaleString('vi-VN')}đ**`],
+      ...extraFields,
+      [timeLabel, `<t:${Math.floor(timeValue.getTime() / 1000)}:R>`],
+      ['Lời nhắn', donation.message ? `**${donation.message}**` : undefined]
+    ])
+
+    return builder
   }
 
   public static async sendThankYouMessage(
@@ -225,13 +177,14 @@ export class DonationHelper {
     try {
       const thread = (await container.client.channels.fetch(
         guildConfig.donationTutorialThreadId
-      )) as ThreadChannel
+      )) as TextThreadChannel
       if (!thread) return
 
-      const maskedId = `xxxxx${donation.donorId.slice(5, -5)}xxxxx`
+      const maskedId = encryptId(donation.donorId)
       const amountStr = donation.amount.toLocaleString('vi-VN')
 
-      await thread.send(
+      await MessageUtil.sendWithContainer(
+        thread,
         `${ANIMATED_EMOJI.HEART} Cảm ơn bạn **_${maskedId}_** đã quyên góp **${amountStr}đ**.`
       )
     } catch (error) {

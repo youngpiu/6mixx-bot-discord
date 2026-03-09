@@ -86,11 +86,12 @@ export class TicketListCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction.guildId) throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
+    if (!interaction || !interaction.guild)
+      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
 
     // Fetch initial data (page 1, default limits)
     const { items, meta } = await TicketRepository.getTickets({
-      guildId: interaction.guildId,
+      guildId: interaction.guild.id,
       page: 1,
       limit: 10
     })
@@ -100,11 +101,12 @@ export class TicketListCommand {
 
   // Handles pagination and filter button interactions
   public static async handleButton(interaction: ButtonInteraction, state: TicketListState) {
-    if (!interaction.guildId) throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
+    if (!interaction || !interaction.guild)
+      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
 
     // Fetch data based on the state encoded in the button
     const { items, meta } = await TicketRepository.getTickets({
-      guildId: interaction.guildId,
+      guildId: interaction.guild.id,
       page: state.page,
       limit: 10,
       type: state.type,
