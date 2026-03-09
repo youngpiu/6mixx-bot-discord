@@ -3,6 +3,7 @@ import type {
   Events
 } from '@sapphire/framework'
 import { Listener, type UserError } from '@sapphire/framework'
+
 import { handleError } from '~/shared/utils/errorUtil'
 import type { RepliableInteraction } from '~/shared/utils/messageUtil'
 import { mapDeniedError } from '~/shared/utils/preconditionErrorUtil'

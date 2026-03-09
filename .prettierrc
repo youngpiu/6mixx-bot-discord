@@ -8,13 +8,18 @@
   "importOrder": [
     "<THIRD_PARTY_MODULES>",
     "^generated/(.*)$",
-    "^~/(core|lib|constants)/(.*)$",
-    "^~/(utils|helpers)/(.*)$",
-    "^~/(commands|listeners|preconditions|handlers|repositories)/(.*)$",
+    "^~/(core|lib)/(.*)$",
+    "^~/shared/(.*)$",
+    "^~/modules/(.*)$",
     "^[./]"
   ],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true,
+  "importOrderParserPlugins": [
+    "typescript",
+    "classProperties",
+    "[\"decorators\", { \"decoratorsBeforeExport\": true }]"
+  ],
   "useTabs": false,
   "singleQuote": true,
   "printWidth": 80,

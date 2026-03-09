@@ -1,4 +1,5 @@
 import { ScheduledTask } from '@sapphire/plugin-scheduled-tasks'
+
 import { DonateRepository } from '~/modules/donation/repositories/donateRepository'
 
 export class RemoveDonationTask extends ScheduledTask {

@@ -1,7 +1,8 @@
 import { container } from '@sapphire/pieces'
-import { TIME } from '~/shared/constants/timeConstant'
 
 import type { GuildUpdateInput } from 'generated/prisma/models/Guild'
+
+import { TIME } from '~/shared/constants/timeConstant'
 
 export class GuildRepository {
   private static async invalidateCache(guildId: string) {

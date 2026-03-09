@@ -6,16 +6,18 @@ import {
   type ChatInputCommandInteraction,
   EmbedBuilder
 } from 'discord.js'
-import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
-import { TicketRepository } from '~/modules/ticket/repositories/ticketRepository'
-import { STATIC_EMOJI } from '~/shared/constants/emojiConstant'
-import { CUSTOM_ID } from '~/shared/constants/idConstant'
-import { lines } from '~/shared/utils/textUtil'
 
 import { Ticket, TicketType } from 'generated/prisma/client'
 import { TicketStatus } from 'generated/prisma/enums'
 
 import { NormalError } from '~/core/errorResponse'
+
+import { STATIC_EMOJI } from '~/shared/constants/emojiConstant'
+import { CUSTOM_ID } from '~/shared/constants/idConstant'
+import { lines } from '~/shared/utils/textUtil'
+
+import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
+import { TicketRepository } from '~/modules/ticket/repositories/ticketRepository'
 
 // Types
 // Represents the state of the ticket list view (filters and pagination)

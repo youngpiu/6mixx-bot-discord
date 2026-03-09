@@ -4,6 +4,7 @@ import type {
 } from '@sapphire/framework'
 import { Listener } from '@sapphire/framework'
 import type { RepliableInteraction } from 'discord.js'
+
 import { handleError } from '~/shared/utils/errorUtil'
 
 export class ContextMenuCommandErrorListener extends Listener<

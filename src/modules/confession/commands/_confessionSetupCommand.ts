@@ -7,13 +7,15 @@ import {
   ForumChannel,
   TextChannel
 } from 'discord.js'
-import { GuildRepository } from '~/modules/confession/repositories/guildRepository'
+
+import { NormalError } from '~/core/errorResponse'
+
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { GuildRepository as SharedGuildRepository } from '~/shared/repositories/guildRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 import { lines } from '~/shared/utils/textUtil'
 
-import { NormalError } from '~/core/errorResponse'
+import { GuildRepository } from '~/modules/confession/repositories/guildRepository'
 
 export class ConfessionSetupCommand {
   public static async run(interaction: ChatInputCommandInteraction) {

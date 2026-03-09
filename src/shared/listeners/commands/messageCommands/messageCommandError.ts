@@ -1,5 +1,6 @@
 import type { Events, MessageCommandErrorPayload } from '@sapphire/framework'
 import { Listener } from '@sapphire/framework'
+
 import { handleError } from '~/shared/utils/errorUtil'
 
 export class MessageCommandErrorListener extends Listener<

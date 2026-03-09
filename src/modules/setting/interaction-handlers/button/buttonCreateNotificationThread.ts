@@ -3,11 +3,12 @@ import {
   InteractionHandlerTypes
 } from '@sapphire/framework'
 import { ButtonInteraction, ChannelType } from 'discord.js'
+
+import { NormalError } from '~/core/errorResponse'
+
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
-
-import { NormalError } from '~/core/errorResponse'
 
 const NOTIFICATION_THREAD_CONFIG = {
   [CUSTOM_ID.BTN_CONFESSION_CREATE_NOTIFICATION_THREAD]: {

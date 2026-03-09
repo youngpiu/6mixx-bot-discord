@@ -1,5 +1,6 @@
 import { container } from '@sapphire/pieces'
 import Redis from 'ioredis'
+
 import { env } from '~/shared/config/env'
 
 const redis = new Redis(env.REDIS_URL, {

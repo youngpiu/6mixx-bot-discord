@@ -6,14 +6,16 @@ import {
   TextChannel,
   TextDisplayBuilder
 } from 'discord.js'
-import { GuildRepository } from '~/modules/ticket/repositories/guildRepository'
-import { TicketRepository } from '~/modules/ticket/repositories/ticketRepository'
-import { lines } from '~/shared/utils/textUtil'
 
 import { Ticket, TicketType } from 'generated/prisma/client'
 import { TicketStatus } from 'generated/prisma/enums'
 
 import { NormalError } from '~/core/errorResponse'
+
+import { lines } from '~/shared/utils/textUtil'
+
+import { GuildRepository } from '~/modules/ticket/repositories/guildRepository'
+import { TicketRepository } from '~/modules/ticket/repositories/ticketRepository'
 
 interface CloseTicketOptions {
   channel: TextChannel

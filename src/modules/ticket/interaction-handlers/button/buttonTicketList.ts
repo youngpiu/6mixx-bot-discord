@@ -3,11 +3,13 @@ import {
   InteractionHandlerTypes
 } from '@sapphire/framework'
 import { type ButtonInteraction } from 'discord.js'
+
+import { CUSTOM_ID } from '~/shared/constants/idConstant'
+
 import {
   TicketListCommand,
   decodeState
 } from '~/modules/ticket/commands/_ticketListCommand'
-import { CUSTOM_ID } from '~/shared/constants/idConstant'
 
 export class ButtonTicketList extends InteractionHandler {
   public constructor(

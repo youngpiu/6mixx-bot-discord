@@ -3,10 +3,12 @@ import {
   InteractionHandlerTypes
 } from '@sapphire/framework'
 import { ButtonInteraction, TextChannel } from 'discord.js'
-import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
-import { CUSTOM_ID } from '~/shared/constants/idConstant'
 
 import { NormalError } from '~/core/errorResponse'
+
+import { CUSTOM_ID } from '~/shared/constants/idConstant'
+
+import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
 
 export class ButtonTicketClose extends InteractionHandler {
   public constructor(

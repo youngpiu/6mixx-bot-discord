@@ -1,5 +1,8 @@
 import { ApplyOptions } from '@sapphire/decorators'
-import { InteractionHandler, InteractionHandlerTypes } from '@sapphire/framework'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
 import {
   ActionRowBuilder,
   ButtonStyle,
@@ -9,10 +12,10 @@ import {
   StringSelectMenuInteraction,
   StringSelectMenuOptionBuilder
 } from 'discord.js'
+
 import { ANIMATED_EMOJI } from '~/shared/constants/emojiConstant'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
-
 
 type SettingNavType = 'general' | 'ticket' | 'donation' | 'confession'
 
@@ -21,7 +24,8 @@ type SettingNavType = 'general' | 'ticket' | 'donation' | 'confession'
 })
 export class SelectSettingNav extends InteractionHandler {
   public override parse(interaction: Interaction) {
-    if (!interaction.isMessageComponent() || !interaction.isStringSelectMenu()) return this.none()
+    if (!interaction.isMessageComponent() || !interaction.isStringSelectMenu())
+      return this.none()
     const customId = interaction.customId
 
     if (customId !== CUSTOM_ID.SELECT_SETTING_NAV) return this.none()
@@ -30,7 +34,10 @@ export class SelectSettingNav extends InteractionHandler {
     return this.some({ navType })
   }
 
-  public async run(interaction: StringSelectMenuInteraction, parsedData?: { navType: SettingNavType }) {
+  public async run(
+    interaction: StringSelectMenuInteraction,
+    parsedData?: { navType: SettingNavType }
+  ) {
     if (!parsedData) return
     await interaction.deferUpdate()
 
@@ -54,10 +61,10 @@ export class SelectSettingNav extends InteractionHandler {
         return
     }
 
-   InteractionUtil.editReply(interaction, {
-    components: [container],
-    flags: ['IsComponentsV2']
-   })
+    InteractionUtil.editReply(interaction, {
+      components: [container],
+      flags: ['IsComponentsV2']
+    })
   }
 
   /**
@@ -96,10 +103,14 @@ export class SelectSettingNav extends InteractionHandler {
   public static createGeneralSettings(): ContainerBuilder {
     return new ContainerBuilder()
       .addActionRowComponents(() => this.generateSelectMenu('general'))
-     .addSeparatorComponents((separator) => separator.setSpacing(2).setDivider(false))
+      .addSeparatorComponents((separator) =>
+        separator.setSpacing(2).setDivider(false)
+      )
       .addSectionComponents((section) =>
         section
-          .addTextDisplayComponents((text) => text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Kênh**`))
+          .addTextDisplayComponents((text) =>
+            text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Kênh**`)
+          )
           .setButtonAccessory((button) =>
             button
               .setCustomId(CUSTOM_ID.BTN_CHANNEL_SETTING)
@@ -110,10 +121,16 @@ export class SelectSettingNav extends InteractionHandler {
       .addSeparatorComponents((separator) => separator)
       .addSectionComponents((section) =>
         section
-          .addTextDisplayComponents((text) => text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Tạo kênh để thông báo lỗi**`))
+          .addTextDisplayComponents((text) =>
+            text.setContent(
+              `${ANIMATED_EMOJI.BLUE_DOT} **Tạo kênh để thông báo lỗi**`
+            )
+          )
           .setButtonAccessory((button) =>
             button
-              .setCustomId(CUSTOM_ID.BTN_GENERAL_CREATE_ERROR_NOTIFICATION_THREAD)
+              .setCustomId(
+                CUSTOM_ID.BTN_GENERAL_CREATE_ERROR_NOTIFICATION_THREAD
+              )
               .setLabel('Tạo')
               .setStyle(ButtonStyle.Secondary)
           )
@@ -127,10 +144,14 @@ export class SelectSettingNav extends InteractionHandler {
   public static createTicketSettings(): ContainerBuilder {
     return new ContainerBuilder()
       .addActionRowComponents(() => this.generateSelectMenu('ticket'))
- .addSeparatorComponents((separator) => separator.setSpacing(2).setDivider(false))
+      .addSeparatorComponents((separator) =>
+        separator.setSpacing(2).setDivider(false)
+      )
       .addSectionComponents((section) =>
         section
-          .addTextDisplayComponents((text) => text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Kênh**`))
+          .addTextDisplayComponents((text) =>
+            text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Kênh**`)
+          )
           .setButtonAccessory((button) =>
             button
               .setCustomId(CUSTOM_ID.BTN_TICKET_GENERAL_SETTING)
@@ -141,7 +162,9 @@ export class SelectSettingNav extends InteractionHandler {
       .addSeparatorComponents((separator) => separator)
       .addSectionComponents((section) =>
         section
-          .addTextDisplayComponents((text) => text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Gửi hướng dẫn**`))
+          .addTextDisplayComponents((text) =>
+            text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Gửi hướng dẫn**`)
+          )
           .setButtonAccessory((button) =>
             button
               .setCustomId(CUSTOM_ID.BTN_TICKET_SEND)
@@ -152,7 +175,11 @@ export class SelectSettingNav extends InteractionHandler {
       .addSeparatorComponents((separator) => separator)
       .addSectionComponents((section) =>
         section
-          .addTextDisplayComponents((text) => text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Tạo kênh để thông báo**`))
+          .addTextDisplayComponents((text) =>
+            text.setContent(
+              `${ANIMATED_EMOJI.BLUE_DOT} **Tạo kênh để thông báo**`
+            )
+          )
           .setButtonAccessory((button) =>
             button
               .setCustomId(CUSTOM_ID.BTN_TICKET_CREATE_NOTIFICATION_THREAD)
@@ -168,10 +195,14 @@ export class SelectSettingNav extends InteractionHandler {
   public static createDonationSettings(): ContainerBuilder {
     return new ContainerBuilder()
       .addActionRowComponents(() => this.generateSelectMenu('donation'))
-     .addSeparatorComponents((separator) => separator.setSpacing(2).setDivider(false))
+      .addSeparatorComponents((separator) =>
+        separator.setSpacing(2).setDivider(false)
+      )
       .addSectionComponents((section) =>
         section
-          .addTextDisplayComponents((text) => text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Gửi hướng dẫn**`))
+          .addTextDisplayComponents((text) =>
+            text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Gửi hướng dẫn**`)
+          )
           .setButtonAccessory((button) =>
             button
               .setCustomId(CUSTOM_ID.BTN_DONATION_SEND)
@@ -182,7 +213,11 @@ export class SelectSettingNav extends InteractionHandler {
       .addSeparatorComponents((separator) => separator)
       .addSectionComponents((section) =>
         section
-          .addTextDisplayComponents((text) => text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Tạo kênh để thông báo**`))
+          .addTextDisplayComponents((text) =>
+            text.setContent(
+              `${ANIMATED_EMOJI.BLUE_DOT} **Tạo kênh để thông báo**`
+            )
+          )
           .setButtonAccessory((button) =>
             button
               .setCustomId(CUSTOM_ID.BTN_DONATION_CREATE_NOTIFICATION_THREAD)
@@ -198,10 +233,14 @@ export class SelectSettingNav extends InteractionHandler {
   public static createConfessionSettings(): ContainerBuilder {
     return new ContainerBuilder()
       .addActionRowComponents(() => this.generateSelectMenu('confession'))
-     .addSeparatorComponents((separator) => separator.setSpacing(2).setDivider(false))
+      .addSeparatorComponents((separator) =>
+        separator.setSpacing(2).setDivider(false)
+      )
       .addSectionComponents((section) =>
         section
-          .addTextDisplayComponents((text) => text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Kênh**`))
+          .addTextDisplayComponents((text) =>
+            text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Kênh**`)
+          )
           .setButtonAccessory((button) =>
             button
               .setCustomId(CUSTOM_ID.BTN_CONFESSION_GENERAL_SETTING)
@@ -212,7 +251,9 @@ export class SelectSettingNav extends InteractionHandler {
       .addSeparatorComponents((separator) => separator)
       .addSectionComponents((section) =>
         section
-          .addTextDisplayComponents((text) => text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Gửi hướng dẫn**`))
+          .addTextDisplayComponents((text) =>
+            text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Gửi hướng dẫn**`)
+          )
           .setButtonAccessory((button) =>
             button
               .setCustomId(CUSTOM_ID.BTN_CONFESSION_SEND)
@@ -223,7 +264,11 @@ export class SelectSettingNav extends InteractionHandler {
       .addSeparatorComponents((separator) => separator)
       .addSectionComponents((section) =>
         section
-          .addTextDisplayComponents((text) => text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Tạo kênh để thông báo**`))
+          .addTextDisplayComponents((text) =>
+            text.setContent(
+              `${ANIMATED_EMOJI.BLUE_DOT} **Tạo kênh để thông báo**`
+            )
+          )
           .setButtonAccessory((button) =>
             button
               .setCustomId(CUSTOM_ID.BTN_CONFESSION_CREATE_NOTIFICATION_THREAD)

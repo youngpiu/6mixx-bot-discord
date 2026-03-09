@@ -1,5 +1,6 @@
 import { Listener } from '@sapphire/framework'
 import type { GuildMember } from 'discord.js'
+
 import { MemberRepository } from '~/shared/repositories/memberRepository'
 
 export class GuildMemberAddListener extends Listener {

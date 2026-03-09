@@ -3,6 +3,7 @@ import {
   InteractionHandlerTypes
 } from '@sapphire/framework'
 import type { AutocompleteInteraction } from 'discord.js'
+
 import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
 import { TicketRepository } from '~/modules/ticket/repositories/ticketRepository'
 

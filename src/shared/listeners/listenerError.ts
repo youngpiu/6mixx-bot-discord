@@ -3,6 +3,7 @@ import {
   Listener,
   type ListenerErrorPayload
 } from '@sapphire/framework'
+
 import { handleError } from '~/shared/utils/errorUtil'
 
 export class ListenerErrorListener extends Listener<

@@ -1,4 +1,5 @@
 import { PrismaPg } from '@prisma/adapter-pg'
+
 import { env } from '~/shared/config/env'
 
 import { PrismaClient } from '../../generated/prisma/client'

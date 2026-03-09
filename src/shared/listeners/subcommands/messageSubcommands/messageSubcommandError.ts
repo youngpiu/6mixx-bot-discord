@@ -3,6 +3,7 @@ import {
   type MessageSubcommandErrorPayload,
   SubcommandPluginEvents
 } from '@sapphire/plugin-subcommands'
+
 import { handleError } from '~/shared/utils/errorUtil'
 
 export class MessageSubcommandErrorListener extends Listener<

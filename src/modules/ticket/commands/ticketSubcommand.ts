@@ -1,5 +1,6 @@
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChatInputCommandInteraction } from 'discord.js'
+
 import { TicketDetailCommand } from '~/modules/ticket/commands/_ticketDetailCommand'
 import { TicketListCommand } from '~/modules/ticket/commands/_ticketListCommand'
 

@@ -1,5 +1,6 @@
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChannelType, ChatInputCommandInteraction } from 'discord.js'
+
 import { ConfessionSetupCommand } from '~/modules/confession/commands/_confessionSetupCommand'
 
 export class ConfessionSubcommand extends Subcommand {

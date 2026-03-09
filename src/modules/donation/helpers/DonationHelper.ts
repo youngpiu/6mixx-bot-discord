@@ -7,13 +7,14 @@ import {
   TextChannel,
   TextThreadChannel
 } from 'discord.js'
+
+import { DonationStatus } from 'generated/prisma/enums'
+
 import { LoggerBuilder } from '~/shared/components/LoggerBuilder'
 import { ANIMATED_EMOJI } from '~/shared/constants/emojiConstant'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
 import { MessageUtil } from '~/shared/utils/messageUtil'
 import { encryptId } from '~/shared/utils/textUtil'
-
-import { DonationStatus } from 'generated/prisma/enums'
 
 /** Events that trigger donation notifications */
 type DonationNotificationEvent =

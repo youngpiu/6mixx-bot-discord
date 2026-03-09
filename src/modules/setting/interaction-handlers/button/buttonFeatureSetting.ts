@@ -8,11 +8,13 @@ import {
   LabelBuilder,
   ModalBuilder
 } from 'discord.js'
-import { SettingHelper } from '~/modules/setting/helpers/SettingHelper'
+
+import { NormalError } from '~/core/errorResponse'
+
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
 
-import { NormalError } from '~/core/errorResponse'
+import { SettingHelper } from '~/modules/setting/helpers/SettingHelper'
 
 // Configuration structure for channel selection labels in setting modals
 type ChannelLabelConfig = {

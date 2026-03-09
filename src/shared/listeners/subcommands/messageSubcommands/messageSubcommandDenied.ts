@@ -3,6 +3,7 @@ import {
   type MessageSubcommandDeniedPayload,
   SubcommandPluginEvents
 } from '@sapphire/plugin-subcommands'
+
 import { handleError } from '~/shared/utils/errorUtil'
 import { mapDeniedError } from '~/shared/utils/preconditionErrorUtil'
 

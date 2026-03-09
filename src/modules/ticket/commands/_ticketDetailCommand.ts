@@ -1,10 +1,11 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js'
-import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
-import { TicketRepository } from '~/modules/ticket/repositories/ticketRepository'
 
 import { TicketStatus } from 'generated/prisma/enums'
 
 import { NormalError } from '~/core/errorResponse'
+
+import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
+import { TicketRepository } from '~/modules/ticket/repositories/ticketRepository'
 
 export class TicketDetailCommand {
   /**

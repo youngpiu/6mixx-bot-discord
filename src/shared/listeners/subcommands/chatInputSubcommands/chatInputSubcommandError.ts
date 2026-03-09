@@ -3,6 +3,7 @@ import {
   type ChatInputSubcommandErrorPayload,
   SubcommandPluginEvents
 } from '@sapphire/plugin-subcommands'
+
 import { handleError } from '~/shared/utils/errorUtil'
 
 export class ChatInputSubcommandErrorListener extends Listener<

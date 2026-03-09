@@ -1,10 +1,11 @@
 import { Command } from '@sapphire/framework'
 import { ChatInputCommandInteraction } from 'discord.js'
+
+import { NormalError } from '~/core/errorResponse'
+
 import { GuildRepository } from '~/shared/repositories/guildRepository'
 import { MemberRepository } from '~/shared/repositories/memberRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
-
-import { NormalError } from '~/core/errorResponse'
 
 export class SyncCommand extends Command {
   public constructor(context: Command.LoaderContext, options: Command.Options) {

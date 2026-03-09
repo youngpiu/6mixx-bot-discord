@@ -15,10 +15,11 @@ import { ActivityType, GatewayIntentBits, Partials } from 'discord.js'
 import 'dotenv/config'
 import { existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { env } from '~/shared/config/env'
 
 import prisma from '~/lib/prisma'
 import redis from '~/lib/redis'
+
+import { env } from '~/shared/config/env'
 
 export class BotClient extends SapphireClient {
   private rootData = getRootData()

@@ -1,9 +1,11 @@
 import { container } from '@sapphire/pieces'
-import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
-import { TIME } from '~/shared/constants/timeConstant'
 
 import { Ticket } from 'generated/prisma/client'
 import { TicketStatus, TicketType } from 'generated/prisma/enums'
+
+import { TIME } from '~/shared/constants/timeConstant'
+
+import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
 
 const TICKET_PREFIX: Record<TicketType, string> = {
   REPORT: 'RP',

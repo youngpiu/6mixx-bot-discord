@@ -1,4 +1,5 @@
 import { ButtonBuilder, ContainerBuilder } from 'discord.js'
+
 import { formatFields, lines } from '~/shared/utils/textUtil'
 
 export interface DetailBuilderOptions {

@@ -1,8 +1,6 @@
 import { DecoratorIdentifiers } from '@sapphire/decorators'
 import { Identifiers, type UserError } from '@sapphire/framework'
 import { ChannelType, type PermissionsString } from 'discord.js'
-import { CHANNEL_TYPE_NAMES } from '~/shared/constants/channelTypeConstant'
-import { PERMISSION_NAMES } from '~/shared/constants/permissionConstant'
 
 import {
   BannedError,
@@ -11,6 +9,9 @@ import {
   PermissionError,
   RateLimitError
 } from '~/core/errorResponse'
+
+import { CHANNEL_TYPE_NAMES } from '~/shared/constants/channelTypeConstant'
+import { PERMISSION_NAMES } from '~/shared/constants/permissionConstant'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

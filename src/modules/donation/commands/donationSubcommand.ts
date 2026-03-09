@@ -1,19 +1,21 @@
 import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
+import { container } from '@sapphire/pieces'
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChatInputCommandInteraction } from 'discord.js'
-import { container } from '@sapphire/pieces'
 
+import { DisbursementAddCommand } from '~/modules/donation/commands/_disbursementAddCommand'
+import { DisbursementListCommand } from '~/modules/donation/commands/_disbursementListCommand'
 import { DonationDetailCommand } from '~/modules/donation/commands/_donationDetailCommand'
 import { DonationListCommand } from '~/modules/donation/commands/_donationListCommand'
-import { DisbursementListCommand } from '~/modules/donation/commands/_disbursementListCommand'
-import { DisbursementAddCommand } from '~/modules/donation/commands/_disbursementAddCommand'
 
 @RegisterChatInputCommand((builder) =>
   builder
     .setName('donation')
     .setDescription('Quản lý hệ thống quyên góp.')
     .addSubcommand((subcommand) =>
-      subcommand.setName('list').setDescription('[OWNER] Xem danh sách các khoản quyên góp.')
+      subcommand
+        .setName('list')
+        .setDescription('[OWNER] Xem danh sách các khoản quyên góp.')
     )
     .addSubcommand((subcommand) =>
       subcommand
@@ -32,10 +34,14 @@ import { DisbursementAddCommand } from '~/modules/donation/commands/_disbursemen
         .setName('disbursement')
         .setDescription('[OWNER] Quản lý các khoản chi.')
         .addSubcommand((subcommand) =>
-          subcommand.setName('add').setDescription('[OWNER] Thêm một khoản chi mới.')
+          subcommand
+            .setName('add')
+            .setDescription('[OWNER] Thêm một khoản chi mới.')
         )
         .addSubcommand((subcommand) =>
-          subcommand.setName('list').setDescription('[OWNER] Xem danh sách các khoản chi.')
+          subcommand
+            .setName('list')
+            .setDescription('[OWNER] Xem danh sách các khoản chi.')
         )
     )
 )
@@ -71,15 +77,21 @@ export class DonationSubcommand extends Subcommand {
     return DonationDetailCommand.run(interaction)
   }
 
-  public async chatInputAddDisbursement(interaction: ChatInputCommandInteraction) {
+  public async chatInputAddDisbursement(
+    interaction: ChatInputCommandInteraction
+  ) {
     return DisbursementAddCommand.run(interaction)
   }
 
-  public async chatInputListDisbursement(interaction: ChatInputCommandInteraction) {
+  public async chatInputListDisbursement(
+    interaction: ChatInputCommandInteraction
+  ) {
     return DisbursementListCommand.run(interaction)
   }
 
-  public override async autocompleteRun(interaction: Subcommand.AutocompleteInteraction) {
+  public override async autocompleteRun(
+    interaction: Subcommand.AutocompleteInteraction
+  ) {
     const subcommand = interaction.options.getSubcommand()
     const focused = interaction.options.getFocused(true)
 
