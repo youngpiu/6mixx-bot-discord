@@ -1,7 +1,6 @@
 import {
   InteractionHandler,
-  InteractionHandlerTypes,
-  container
+  InteractionHandlerTypes
 } from '@sapphire/framework'
 import {
   ButtonBuilder,
@@ -121,8 +120,8 @@ export class ButtonSendGuide extends InteractionHandler {
             isUpdated = true
           }
         }
-      } catch (error) {
-        container.logger.error(error)
+      } catch {
+        // ignore
       }
     }
 

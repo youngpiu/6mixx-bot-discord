@@ -46,14 +46,12 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
   ) {
     await interaction.deferUpdate()
 
-    if (!interaction || !interaction.guild) return
-    if (!result) return
+    if (!interaction.guild) return
 
     const { targetStatus, donationId } = result as {
       targetStatus: DonationStatus
       donationId: string
     }
-    if (!donationId || !targetStatus) return
 
     const donation = await DonateRepository.findById(donationId)
 
@@ -63,25 +61,26 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
       )
     }
 
-    if (targetStatus === DonationStatus.TRANSFERRED) {
-      if (donation.status === DonationStatus.TRANSFERRED) {
-        throw new NormalError('Giao dịch này đã được xác nhận rồi.')
-      }
-
-      await DonateRepository.updateStatus(
-        donation.id,
-        DonationStatus.TRANSFERRED
+    if (donation.status === targetStatus) {
+      throw new NormalError(
+        targetStatus === DonationStatus.TRANSFERRED
+          ? 'Giao dịch này đã được xác nhận rồi.'
+          : 'Giao dịch này đã bị hủy trước đó.'
       )
+    }
 
-      const updatedDonation = await DonateRepository.findById(donation.id)
-      if (!updatedDonation) return
+    const updatedDonation = await DonateRepository.updateStatus(
+      donation.id,
+      targetStatus
+    )
 
-      await DonationHelper.sendDonationNotification({
-        guildId: interaction.guild.id,
-        donation: updatedDonation,
-        event: 'ADMIN_STATUS_CHANGED'
-      })
+    await DonationHelper.sendDonationNotification({
+      guildId: interaction.guild.id,
+      donation: updatedDonation,
+      event: 'ADMIN_STATUS_CHANGED'
+    })
 
+    if (targetStatus === DonationStatus.TRANSFERRED) {
       try {
         const guildConfig = await GuildRepository.findCached(
           interaction.guild.id
@@ -98,22 +97,7 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
           ? 'Giao dịch đã được khôi phục và xác nhận thành công.'
           : 'Giao dịch đã được xác nhận thành công.'
       )
-    } else if (targetStatus === DonationStatus.CANCELED) {
-      if (donation.status === DonationStatus.CANCELED) {
-        throw new NormalError('Giao dịch này đã bị hủy trước đó.')
-      }
-
-      await DonateRepository.updateStatus(donation.id, DonationStatus.CANCELED)
-
-      const updatedDonation = await DonateRepository.findById(donation.id)
-      if (!updatedDonation) return
-
-      await DonationHelper.sendDonationNotification({
-        guildId: interaction.guild.id,
-        donation: updatedDonation,
-        event: 'ADMIN_STATUS_CHANGED'
-      })
-
+    } else {
       await InteractionUtil.replySuccess(
         interaction,
         `Giao dịch #${donation.code} đã được chuyển sang trạng thái **${DonationHelper.getStatusText(targetStatus)}**.`

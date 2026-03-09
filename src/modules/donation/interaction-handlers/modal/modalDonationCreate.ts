@@ -118,7 +118,7 @@ export class ModalDonationCreate extends InteractionHandler {
       .addSeparatorComponents((s) => s.setSpacing(2))
       .addTextDisplayComponents((text) =>
         text.setContent(
-          `-# Giao dịch sẽ tự động hủy sau 10 phút nữa, vào lúc ${new Date(expiryTime * 1000).toLocaleTimeString('vi-VN', { hour12: true })} nếu bạn không xác nhận.`
+          `-# Giao dịch sẽ tự động hủy sau <t:${expiryTime}:R> nữa nếu bạn không xác nhận.`
         )
       )
       .addActionRowComponents((row) =>

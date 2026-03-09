@@ -12,7 +12,9 @@ import { DonationStatus } from 'generated/prisma/enums'
 
 import { NormalError } from '~/core/errorResponse'
 
-export class ButtonDonationDonorConfirmedHandler extends InteractionHandler {
+type ActionType = 'CONFIRMED' | 'CANCELED'
+
+export class ButtonDonationDonorUpdateStatusHandler extends InteractionHandler {
   public constructor(
     ctx: InteractionHandler.LoaderContext,
     options: InteractionHandler.Options
@@ -24,14 +26,21 @@ export class ButtonDonationDonorConfirmedHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ButtonInteraction) {
-    if (
-      !interaction.customId.startsWith(
-        CUSTOM_ID.BTN_DONATION_DONOR_CONFIRMED_PREFIX
-      )
-    )
-      return this.none()
-    const donationId = interaction.customId.split(':')[1]
-    return this.some({ donationId })
+    const { customId } = interaction
+    let type: ActionType | undefined
+
+    if (customId.startsWith(CUSTOM_ID.BTN_DONATION_DONOR_CONFIRMED_PREFIX)) {
+      type = 'CONFIRMED'
+    } else if (
+      customId.startsWith(CUSTOM_ID.BTN_DONATION_DONOR_CANCELED_PREFIX)
+    ) {
+      type = 'CANCELED'
+    }
+
+    if (!type) return this.none()
+
+    const donationId = customId.split(':')[1]
+    return this.some({ donationId, type })
   }
 
   public async run(
@@ -40,10 +49,12 @@ export class ButtonDonationDonorConfirmedHandler extends InteractionHandler {
   ) {
     await interaction.deferUpdate()
 
-    if (!interaction || !interaction.guild) return
-    if (!result) return
+    if (!interaction.guild) return
 
-    const { donationId } = result as { donationId: string }
+    const { donationId, type } = result as {
+      donationId: string
+      type: ActionType
+    }
     if (!donationId) return
 
     const donation = await DonateRepository.findById(donationId)
@@ -56,29 +67,33 @@ export class ButtonDonationDonorConfirmedHandler extends InteractionHandler {
 
     if (donation.status !== DonationStatus.PENDING) {
       throw new NormalError(
-        donation.status === 'CANCELED'
+        donation.status === DonationStatus.CANCELED
           ? 'Giao dịch này đã bị hủy trước đó.'
           : 'Giao dịch này đã được xác nhận rồi.'
       )
     }
 
-    await DonateRepository.updateStatus(
-      donationId,
-      DonationStatus.PENDING_VERIFICATION
-    )
+    const nextStatus =
+      type === 'CONFIRMED'
+        ? DonationStatus.PENDING_VERIFICATION
+        : DonationStatus.CANCELED
 
-    const updatedDonation = await DonateRepository.findById(donationId)
-    if (!updatedDonation) return
+    const updatedDonation = await DonateRepository.updateStatus(
+      donationId,
+      nextStatus
+    )
 
     await DonationHelper.sendDonationNotification({
       guildId: interaction.guild.id,
       donation: updatedDonation,
-      event: 'PENDING_VERIFICATION'
+      event: nextStatus
     })
 
-    await InteractionUtil.replySuccess(
-      interaction,
-      'Chân thành cảm ơn bạn đã chuyển khoản ủng hộ dự án, sự đóng góp của bạn vô cùng quý giá.'
-    )
+    const successMessage =
+      type === 'CONFIRMED'
+        ? 'Chân thành cảm ơn bạn đã chuyển khoản ủng hộ dự án, sự đóng góp của bạn vô cùng quý giá.'
+        : 'Cảm ơn bạn đã quan tâm đến dự án, hy vọng sẽ nhận được sự ủng hộ của bạn trong thời gian tới.'
+
+    await InteractionUtil.replySuccess(interaction, successMessage)
   }
 }
