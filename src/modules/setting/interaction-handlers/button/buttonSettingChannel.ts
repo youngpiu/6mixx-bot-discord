@@ -6,7 +6,7 @@ import {
 import { ButtonInteraction, ChannelType, ModalBuilder } from 'discord.js'
 
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
-import { GuildRepository } from '~/shared/repositories/guildRepository'
+import { SettingRepository } from '~/shared/repositories/settingRepository'
 
 import { SettingHelper } from '~/modules/setting/helpers/SettingHelper'
 
@@ -14,17 +14,22 @@ import { SettingHelper } from '~/modules/setting/helpers/SettingHelper'
   interactionHandlerType: InteractionHandlerTypes.Button
 })
 export class ButtonSettingChannel extends InteractionHandler {
-  public override parse(interaction: ButtonInteraction) {
+  public override async parse(interaction: ButtonInteraction) {
     if (interaction.customId !== CUSTOM_ID.BTN_SETTING_CHANNEL_CONFIG)
       return this.none()
-    return this.some()
+    const guildConfig = interaction.guild
+      ? await SettingRepository.find(interaction.guild.id)
+      : null
+    return this.some({ guildConfig })
   }
 
-  public async run(interaction: ButtonInteraction) {
+  public async run(
+    interaction: ButtonInteraction,
+    result: InteractionHandler.ParseResult<this>
+  ) {
     if (!interaction.guild) return
 
-    const guildConfig = await GuildRepository.findUnique(interaction.guild.id)
-
+    const { guildConfig } = result
     const labelServiceForum = SettingHelper.createChannelLabel({
       guild: interaction.guild,
       channelId: guildConfig?.serviceForumChannelId,
