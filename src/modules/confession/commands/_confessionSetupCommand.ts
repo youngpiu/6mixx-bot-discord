@@ -22,7 +22,7 @@ export class ConfessionSetupCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction || !interaction.guild) {
+    if (!interaction.guild) {
       throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }
 

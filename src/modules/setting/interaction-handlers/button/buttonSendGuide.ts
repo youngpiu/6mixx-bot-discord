@@ -334,7 +334,11 @@ export class ButtonSendGuide extends InteractionHandler {
           new ButtonBuilder()
             .setCustomId(CUSTOM_ID.BTN_DONATION_STATS)
             .setLabel('Thống kê')
-            .setStyle(ButtonStyle.Secondary)
+            .setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_DISBURSEMENT_LIST)
+            .setLabel('Danh sách khoản chi')
+            .setStyle(ButtonStyle.Primary)
         )
       )
   }

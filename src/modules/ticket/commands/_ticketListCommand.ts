@@ -88,7 +88,7 @@ export class TicketListCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction || !interaction.guild)
+    if (!interaction.guild)
       throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
 
     // Fetch initial data (page 1, default limits)
@@ -105,7 +105,7 @@ export class TicketListCommand {
     interaction: ButtonInteraction,
     state: TicketListState
   ) {
-    if (!interaction || !interaction.guild)
+    if (!interaction.guild)
       throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
 
     // Fetch data based on the state encoded in the button

@@ -23,7 +23,7 @@ export class SyncCommand extends Command {
   public override async chatInputRun(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: 'Ephemeral' })
 
-    if (!interaction || !interaction.guild)
+    if (!interaction.guild)
       throw new NormalError('Lệnh này chỉ dùng trong máy chủ.')
 
     await GuildRepository.upsert(interaction.guild.id)

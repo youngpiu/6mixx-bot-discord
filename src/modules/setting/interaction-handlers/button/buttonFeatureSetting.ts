@@ -109,6 +109,27 @@ const SETTING_CONFIG = {
         }
       }
     ]
+  },
+  [CUSTOM_ID.BTN_DISBURSEMENT_LOG_SETTING]: {
+    modalCustomId: CUSTOM_ID.MODAL_DISBURSEMENT_LOG_SETTING,
+    modalTitle: 'Cài đặt hệ thống quyên góp',
+    labels: [
+      {
+        configKey: 'disbursementLogChannelId',
+        selectCustomId: CUSTOM_ID.SELECT_DISBURSEMENT_LOG_CHANNEL,
+        channelType: ChannelType.GuildText,
+        label: 'Kênh thông báo khoản chi',
+        description:
+          'Các log tin nhắn hiển thị khoản chi mới sẽ được gửi ở kênh này.',
+        placeholders: {
+          channelConfiguredAndExists: 'Chọn kênh thông báo khoản chi',
+          channelConfiguredButDeleted:
+            'Kênh thông báo khoản chi đã thiết lập không còn tồn tại',
+          channelNotConfigured: 'Chưa thiết lập kênh thông báo khoản chi',
+          noChannelsInServer: 'Không có kênh văn bản nào'
+        }
+      }
+    ]
   }
 } as const
 
@@ -132,7 +153,7 @@ export class ButtonFeatureSetting extends InteractionHandler {
     const { buttonId } = result
     const config = SETTING_CONFIG[buttonId]
 
-    if (!interaction || !interaction.guild)
+    if (!interaction.guild)
       throw new NormalError('Lệnh này chỉ dùng trong máy chủ.')
 
     const guildConfig = await GuildRepository.findUnique(interaction.guild.id)

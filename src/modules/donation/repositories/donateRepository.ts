@@ -39,8 +39,9 @@ export class DonateRepository {
   }
 
   public static async findByCode(code: string) {
+    const cleanCode = code.replace(/#/g, '')
     return container.prisma.donation.findUnique({
-      where: { code },
+      where: { code: cleanCode },
       include: {
         donor: true
       }
@@ -89,10 +90,11 @@ export class DonateRepository {
     guildId: string
     search: string
   }) {
+    const cleanSearch = search.replace(/#/g, '').toUpperCase()
     return container.prisma.donation.findMany({
       where: {
         guildId,
-        code: { contains: search.toUpperCase() }
+        code: { contains: cleanSearch }
       },
       include: {
         donor: true

@@ -1,9 +1,12 @@
-// Command to display a paginated list of bot disbursements
+import { ApplyOptions } from '@sapphire/decorators'
+import {
+  InteractionHandler,
+  InteractionHandlerTypes
+} from '@sapphire/framework'
 import {
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
-  type ChatInputCommandInteraction,
   type InteractionEditReplyOptions,
   MessageFlags
 } from 'discord.js'
@@ -14,7 +17,7 @@ import { NormalError } from '~/core/errorResponse'
 
 import { ListBuilder } from '~/shared/components/ListBuilder'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
-import { lines } from '~/shared/utils/textUtil'
+import { formatFields, lines } from '~/shared/utils/textUtil'
 
 import { DisbursementRepository } from '~/modules/donation/repositories/disbursementRepository'
 
@@ -66,17 +69,39 @@ const createButton = (
   return button
 }
 
-export class DisbursementListCommand {
-  public static async run(interaction: ChatInputCommandInteraction) {
+@ApplyOptions<InteractionHandler.Options>({
+  interactionHandlerType: InteractionHandlerTypes.Button
+})
+export class ButtonDisbursementList extends InteractionHandler {
+  public override parse(interaction: ButtonInteraction) {
+    if (interaction.customId === CUSTOM_ID.BTN_DISBURSEMENT_LIST) {
+      return this.some({ page: 1 })
+    }
+
+    if (interaction.customId.startsWith(CUSTOM_ID.DISBURSEMENT_LIST_PREFIX)) {
+      const parts = interaction.customId
+        .slice(CUSTOM_ID.DISBURSEMENT_LIST_PREFIX.length)
+        .split(':')
+      const state = decodeState(parts[1] || '')
+      return this.some(state)
+    }
+
+    return this.none()
+  }
+
+  public async run(
+    interaction: ButtonInteraction,
+    state: DisbursementListState
+  ) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction || !interaction.guild) {
+    if (!interaction.guild) {
       throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }
 
     const { items, meta } = await DisbursementRepository.findMany({
       guildId: interaction.guild.id,
-      page: 1,
+      page: state.page,
       limit: 5
     })
 
@@ -88,38 +113,24 @@ export class DisbursementListCommand {
     await interaction.editReply(response)
   }
 
-  public static async handleButton(
-    interaction: ButtonInteraction,
-    state: DisbursementListState
-  ) {
-    if (!interaction || !interaction.guild) {
-      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
-    }
-
-    const { items, meta } = await DisbursementRepository.findMany({
-      guildId: interaction.guild.id,
-      page: state.page,
-      limit: 5
-    })
-
-    const response = this.createListResponse(items, meta)
-    await interaction.editReply(response)
-  }
-
-  public static createListResponse(
+  private createListResponse(
     disbursements: Disbursement[],
     meta: DisbursementListMeta
   ): InteractionEditReplyOptions {
     const listBuilder = new ListBuilder({
-      title: 'DANH SÁCH CÁC KHOẢN CHI'
+      title: 'DANH SÁCH CÁC KHOẢN CHI',
+      footer: `Trang ${meta.page}/${meta.totalPages || 1} • Tổng: ${meta.total} khoản`
     })
 
     disbursements.forEach((d, index) => {
       const indexNumber = (meta.page - 1) * meta.limit + index + 1
       const itemContent = lines(
         `### ${indexNumber}. ${d.amount.toLocaleString('vi-VN')}đ`,
-        `- \`Mô tả    :\` **${d.description}**`,
-        `- \`Thời gian:\` <t:${Math.floor(d.createdAt.getTime() / 1000)}:F>`
+        ...formatFields([
+          ['Mô tả', `**${d.description}**`],
+          ['Thời gian', `<t:${Math.floor(d.createdAt.getTime() / 1000)}:R>`],
+          ['Đường dẫn tin nhắn', `[Xem tại đây](${d.messageUrl})`]
+        ])
       )
       listBuilder.addItem(itemContent)
     })

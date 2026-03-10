@@ -23,7 +23,7 @@ export class ModalTicketSetting extends InteractionHandler {
 
   public async run(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
-    if (!interaction || !interaction.guild) return
+    if (!interaction.guild) return
 
     const ticketCategoryId = interaction.fields
       .getSelectedChannels('select-ticket-category')

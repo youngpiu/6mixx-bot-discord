@@ -193,6 +193,19 @@ export class SelectSettingNav extends InteractionHandler {
       .addSectionComponents((section) =>
         section
           .addTextDisplayComponents((text) =>
+            text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Kênh**`)
+          )
+          .setButtonAccessory((button) =>
+            button
+              .setCustomId(CUSTOM_ID.BTN_DISBURSEMENT_LOG_SETTING)
+              .setLabel('Thiết lập')
+              .setStyle(ButtonStyle.Secondary)
+          )
+      )
+      .addSeparatorComponents((separator) => separator)
+      .addSectionComponents((section) =>
+        section
+          .addTextDisplayComponents((text) =>
             text.setContent(`${ANIMATED_EMOJI.BLUE_DOT} **Gửi hướng dẫn**`)
           )
           .setButtonAccessory((button) =>

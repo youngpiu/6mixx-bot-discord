@@ -28,7 +28,7 @@ export class ButtonTicketCloseWithReason extends InteractionHandler {
   }
 
   public async run(interaction: ButtonInteraction) {
-    if (!interaction || !interaction.guild) return
+    if (!interaction.guild) return
 
     const modal = new ModalBuilder()
       .setCustomId(CUSTOM_ID.MODAL_TICKET_CLOSE_REASON)

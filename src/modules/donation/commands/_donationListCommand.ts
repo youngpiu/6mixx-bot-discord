@@ -79,7 +79,7 @@ export class DonationListCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction || !interaction.guild) {
+    if (!interaction.guild) {
       throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }
 
@@ -96,7 +96,7 @@ export class DonationListCommand {
     interaction: ButtonInteraction,
     state: DonationListState
   ) {
-    if (!interaction || !interaction.guild) return
+    if (!interaction.guild) return
 
     const { items, meta } = await DonateRepository.findMany({
       guildId: interaction.guild.id,
@@ -147,10 +147,15 @@ export class DonationListCommand {
         ...formatFields([
           ['Trạng thái', `**${itemStatusText}**`],
           ['Số tiền', `**${formattedAmount}**`],
-          ['Lời nhắn', donation.message ? `**${donation.message}**` : null],
+          [
+            'Lời nhắn',
+            donation.message
+              ? `**${donation.message.length > 100 ? donation.message.slice(0, 100) + '...' : donation.message}**`
+              : null
+          ],
           [
             'Thời gian tạo',
-            `<t:${Math.floor(donation.createdAt.getTime() / 1000)}:F>`
+            `<t:${Math.floor(donation.createdAt.getTime() / 1000)}:R>`
           ]
         ])
       )
@@ -159,6 +164,15 @@ export class DonationListCommand {
     })
 
     listBuilder.addPaginationRow(meta, createButton)
+
+    listBuilder.addActionRow([
+      new ButtonBuilder()
+        .setCustomId('label-status')
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(true)
+        .setLabel('Trạng thái ⬇️')
+    ])
+
     listBuilder.addActionRow(this.createFilterRow(meta))
 
     return {
@@ -193,7 +207,7 @@ export class DonationListCommand {
         undefined,
         meta.status === DonationStatus.PENDING_VERIFICATION,
         ButtonStyle.Secondary,
-        'Chờ x.nhận'
+        'Chờ xác nhận'
       ),
       createButton(
         'status-transferred',

@@ -44,7 +44,7 @@ export class DisbursementAddCommand {
       .setRequired(true)
 
     const imagesLabel = new LabelBuilder()
-      .setLabel('Ảnh minh chứng (Bill)')
+      .setLabel('Ảnh minh chứng')
       .setDescription('Tối đa 10 ảnh.')
       .setFileUploadComponent(imagesUpload)
 

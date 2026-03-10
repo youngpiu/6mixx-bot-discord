@@ -41,6 +41,8 @@ export const CUSTOM_ID = {
   BTN_DONATION_SEND: 'btn-donation-send',
   BTN_DONATION_CREATE_NOTIFICATION_THREAD:
     'btn-donation-create-notification-thread',
+  BTN_DISBURSEMENT_LOG_SETTING: 'btn-disbursement-log-setting',
+  SELECT_DISBURSEMENT_LOG_CHANNEL: 'select-disbursement-log-channel',
 
   // Donation Dynamic Prefixes
   DONATION_LIST_PREFIX: 'donation-list:',
@@ -75,6 +77,7 @@ export const CUSTOM_ID = {
 
   // Disbursement
   MODAL_DISBURSEMENT_CREATE: 'modal-disbursement-create',
+  MODAL_DISBURSEMENT_LOG_SETTING: 'modal-disbursement-log-setting',
   BTN_DISBURSEMENT_LIST: 'btn-disbursement-list',
   DISBURSEMENT_LIST_PREFIX: 'disbursement-list:',
   INPUT_DISBURSEMENT_AMOUNT: 'input-disbursement-amount',

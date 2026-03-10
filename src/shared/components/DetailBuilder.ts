@@ -57,9 +57,9 @@ export class DetailBuilder {
     })
 
     this.actionRows.forEach((rowButtons) => {
-      this.container.addActionRowComponents((row) =>
-        row.addComponents(...rowButtons)
-      )
+      this.container
+        .addSeparatorComponents((s) => s)
+        .addActionRowComponents((row) => row.addComponents(...rowButtons))
     })
 
     return [this.container]

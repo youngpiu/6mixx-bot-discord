@@ -4,10 +4,9 @@ model Disbursement {
   guildId String
   guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
 
-  amount         Int
-  description    String
-  attachmentUrls String[]
-  messageUrl     String?
+  amount      Int
+  description String
+  messageUrl  String
 
   createdAt DateTime @default(now())
 

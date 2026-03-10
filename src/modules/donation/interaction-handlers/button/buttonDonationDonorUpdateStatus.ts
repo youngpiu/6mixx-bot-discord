@@ -54,16 +54,14 @@ export class ButtonDonationDonorUpdateStatusHandler extends InteractionHandler {
     const donation = await DonateRepository.findById(donationId)
 
     if (!donation) {
-      throw new NormalError(
-        'Không tìm thấy giao dịch quyên góp này trong hệ thống.'
-      )
+      throw new NormalError('Không tìm thấy khoản quyên góp này.')
     }
 
     if (donation.status !== DonationStatus.PENDING) {
       throw new NormalError(
         donation.status === DonationStatus.CANCELED
-          ? 'Giao dịch này đã bị hủy trước đó.'
-          : 'Giao dịch này đã được xác nhận rồi.'
+          ? 'Khoản quyên góp này đã bị hủy trước đó.'
+          : 'Khoản quyên góp này đã được xác nhận trước đó rồi.'
       )
     }
 
@@ -85,7 +83,7 @@ export class ButtonDonationDonorUpdateStatusHandler extends InteractionHandler {
 
     const successMessage =
       type === 'CONFIRMED'
-        ? 'Chân thành cảm ơn bạn đã chuyển khoản ủng hộ dự án, sự đóng góp của bạn vô cùng quý giá.'
+        ? 'Chân thành cảm ơn bạn đã chuyển khoản ủng hộ dự án, mình sẽ xác nhận sớm nhất có thể.'
         : 'Cảm ơn bạn đã quan tâm đến dự án, hy vọng sẽ nhận được sự ủng hộ của bạn trong thời gian tới.'
 
     await InteractionUtil.replySuccess(interaction, successMessage)

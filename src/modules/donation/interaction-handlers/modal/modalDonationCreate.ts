@@ -19,7 +19,7 @@ import { ANIMATED_EMOJI, STATIC_EMOJI } from '~/shared/constants/emojiConstant'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { TIME } from '~/shared/constants/timeConstant'
 import { createTextContainer } from '~/shared/utils/messageUtil'
-import { lines } from '~/shared/utils/textUtil'
+import { formatFields, lines } from '~/shared/utils/textUtil'
 
 import { DonationHelper } from '~/modules/donation/helpers/DonationHelper'
 import { DonateRepository } from '~/modules/donation/repositories/donateRepository'
@@ -37,7 +37,7 @@ export class ModalDonationCreate extends InteractionHandler {
   public async run(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: 'Ephemeral' })
 
-    if (!interaction || !interaction.guild) return
+    if (!interaction.guild) return
 
     const moneyStr = interaction.fields.getTextInputValue(
       CUSTOM_ID.INPUT_DONATION_AMOUNT
@@ -99,12 +99,17 @@ export class ModalDonationCreate extends InteractionHandler {
             `  - **Sau khi chuyển khoản**, vui lòng bấm nút **Đã chuyển khoản** để xác nhận.`,
             `  - **Nếu không chuyển khoản**, vui lòng bấm nút **Hủy** để hủy giao dịch.`,
             '',
-            `- Thông tin giao dịch`,
-            `  - **Mã giao dịch:** \`#${donation.code}\``,
-            `  - **Số tiền:** ${amount.toLocaleString('vi-VN')}đ`,
-            `  - **Người nhận:** ${env.BANK_ACCOUNT_NAME}`,
-            `  - **Số tài khoản:** \`${env.BANK_ACCOUNT_NUMBER}\``,
-            `  - **Ngân hàng:** ${env.BANK_NAME}`
+            `- **Thông tin giao dịch:**`,
+            ...formatFields(
+              [
+                ['Mã giao dịch', `**#${donation.code}**`],
+                ['Số tiền', `**${amount.toLocaleString('vi-VN')}đ**`],
+                ['Người nhận', `**${env.BANK_ACCOUNT_NAME}**`],
+                ['Số tài khoản', `**${env.BANK_ACCOUNT_NUMBER}**`],
+                ['Ngân hàng', `**${env.BANK_NAME}**`]
+              ],
+              '  - '
+            )
           )
         )
       )
@@ -115,7 +120,7 @@ export class ModalDonationCreate extends InteractionHandler {
       .addSeparatorComponents((s) => s.setSpacing(2))
       .addTextDisplayComponents((text) =>
         text.setContent(
-          `-# Giao dịch sẽ tự động hủy sau <t:${expiryTime}:R> nữa nếu bạn không xác nhận.`
+          `-# Giao dịch sẽ tự động hủy trong <t:${expiryTime}:R> nữa nếu bạn không xác nhận.`
         )
       )
       .addActionRowComponents((row) =>

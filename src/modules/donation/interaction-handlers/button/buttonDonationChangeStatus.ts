@@ -10,6 +10,7 @@ import { DonationStatus } from 'generated/prisma/enums'
 
 import { NormalError } from '~/core/errorResponse'
 
+import { ANIMATED_EMOJI } from '~/shared/constants/emojiConstant'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
@@ -41,7 +42,7 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
     interaction: ButtonInteraction,
     result: InteractionHandler.ParseResult<this>
   ) {
-    await interaction.deferUpdate()
+    await interaction.deferUpdate().catch()
 
     if (!interaction.guild) return
 
@@ -49,13 +50,13 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
 
     const donation = await DonateRepository.findById(donationId)
 
-    if (!donation) throw new NormalError('Không tìm thấy giao dịch này.')
+    if (!donation) throw new NormalError('Không tìm thấy khoản quyên góp này.')
 
     if (donation.status === targetStatus)
       throw new NormalError(
         targetStatus === DonationStatus.TRANSFERRED
-          ? 'Giao dịch này đã được xác nhận rồi.'
-          : 'Giao dịch này đã bị hủy trước đó.'
+          ? 'Khoản quyên góp này đã được xác nhận trước đó rồi.'
+          : 'Khoản quyên góp này đã bị hủy trước đó.'
       )
 
     const updatedDonation = await DonateRepository.updateStatus(
@@ -63,34 +64,35 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
       targetStatus
     )
 
-    await DonationHelper.sendDonationNotification({
-      guildId: interaction.guild.id,
-      donation: updatedDonation,
-      event: 'ADMIN_STATUS_CHANGED'
-    })
+    const asyncTasks: Promise<unknown>[] = [
+      DonationHelper.sendDonationNotification({
+        guildId: interaction.guild.id,
+        donation: updatedDonation,
+        event: 'ADMIN_STATUS_CHANGED'
+      })
+    ]
 
     if (targetStatus === DonationStatus.TRANSFERRED) {
-      try {
-        const guildConfig = await GuildRepository.findCached(
-          interaction.guild.id
+      asyncTasks.push(
+        GuildRepository.findCached(interaction.guild.id)
+          .then((guildConfig) =>
+            DonationHelper.sendThankYouMessage(guildConfig, updatedDonation)
+          )
+          .catch(() => {
+            // ignore
+          }),
+        InteractionUtil.sendDM(
+          donation.donorId,
+          `${ANIMATED_EMOJI.HEART} Cảm ơn bạn rất nhiều! Mình đã nhận được số tiền **${donation.amount.toLocaleString('vi-VN')}đ** từ khoản quyên góp \`#${donation.code}\` của bạn.`
         )
-        await DonationHelper.sendThankYouMessage(guildConfig, updatedDonation)
-      } catch (error) {
-        this.container.logger.error(error)
-      }
-
-      await InteractionUtil.replySuccess(
-        interaction,
-        'Xác nhận thành công',
-        donation.status === DonationStatus.CANCELED
-          ? 'Giao dịch đã được khôi phục và xác nhận thành công.'
-          : 'Giao dịch đã được xác nhận thành công.'
-      )
-    } else {
-      await InteractionUtil.replySuccess(
-        interaction,
-        `Giao dịch #${donation.code} đã được chuyển sang trạng thái **${DonationHelper.getStatusText(targetStatus)}**.`
       )
     }
+
+    await Promise.all(asyncTasks)
+
+    await InteractionUtil.replySuccess(
+      interaction,
+      `Khoản quyên góp \`#${donation.code}\` đã được chuyển sang trạng thái \`${DonationHelper.getStatusText(targetStatus)}\`.`
+    )
   }
 }

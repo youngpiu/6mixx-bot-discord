@@ -40,7 +40,7 @@ export class ModalConfession extends InteractionHandler {
   public async run(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction || !interaction.guild) {
+    if (!interaction.guild) {
       throw new NormalError('Không thể tìm thấy máy chủ.')
     }
 

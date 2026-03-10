@@ -70,7 +70,7 @@ export class ButtonTicketCreate extends InteractionHandler {
 
     await interaction.deferReply({ flags: 'Ephemeral' })
 
-    if (!interaction || !interaction.guild)
+    if (!interaction.guild)
       throw new NormalError('Lệnh này chỉ dùng trong máy chủ.')
 
     const guildConfig = await GuildRepository.getConfig(interaction.guild.id)

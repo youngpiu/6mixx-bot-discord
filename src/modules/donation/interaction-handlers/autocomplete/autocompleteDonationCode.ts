@@ -24,7 +24,7 @@ export class AutocompleteDonationCode extends InteractionHandler {
     const focusedOption = interaction.options.getFocused(true)
 
     if (focusedOption.name !== 'code') return this.none()
-    if (!interaction || !interaction.guild) return this.none()
+    if (!interaction.guild) return this.none()
 
     const searchedDonations = await DonateRepository.searchByCode({
       guildId: interaction.guild.id,

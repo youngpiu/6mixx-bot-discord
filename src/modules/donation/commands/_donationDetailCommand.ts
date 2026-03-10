@@ -7,6 +7,8 @@ import {
   MessageFlags
 } from 'discord.js'
 
+import { DonationStatus } from 'generated/prisma/enums'
+
 import { NormalError } from '~/core/errorResponse'
 
 import { DetailBuilder } from '~/shared/components/DetailBuilder'
@@ -21,87 +23,67 @@ export class DonationDetailCommand {
       flags: ['Ephemeral']
     })
 
-    if (!interaction || !interaction.guild) {
-      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
-    }
+    if (!interaction.guild) return
 
     const code = interaction.options.getString('code', true)
 
     if (!code) {
       throw new NormalError(
-        'Vui lòng lựa chọn một mã quyên góp mà bạn muốn xem chi tiết.'
+        'Vui lòng lựa chọn một khoản quyên góp mà bạn muốn xem thông tin chi tiết.'
       )
     }
 
     const donation = await DonateRepository.findByCode(code)
 
     if (!donation) {
-      throw new NormalError(
-        `Hệ thống không tìm thấy mã quyên góp này trong cơ sở dữ liệu.`
-      )
+      throw new NormalError(`Không tìm thấy khoản quyên góp này.`)
     }
 
     const statusText = DonationHelper.getStatusText(donation.status)
 
-    const builder = new DetailBuilder({
-      title: `Thông tin quyên góp #${donation.code}`
-    }).addFields([
+    const fields: [string, string][] = [
       ['Trạng thái', `**${statusText}**`],
-      ['Mã giao dịch', `**#${donation.code}**`],
-      ['Số tiền', `**${donation.amount.toLocaleString('vi-VN')}đ**`],
-      [
-        'Thời gian tạo',
-        `<t:${Math.floor(donation.createdAt.getTime() / 1000)}:F>`
-      ]
-    ])
+      ['Số tiền', `**${donation.amount.toLocaleString('vi-VN')}đ**`]
+    ]
 
     if (donation.message) {
-      builder.addFields([['Lời nhắn', `**${donation.message}**`]])
+      fields.push(['Lời nhắn', `**${donation.message}**`])
     }
+
+    fields.push([
+      'Thời gian tạo',
+      `<t:${Math.floor(donation.createdAt.getTime() / 1000)}:R>`
+    ])
+
+    const builder = new DetailBuilder({
+      title: `Thông tin khoản quyên góp \`#${donation.code}\``
+    }).addFields(fields)
 
     const actionRows: ButtonBuilder[][] = []
 
-    // Check donation status to determine available actions
+    const btnConfirm = new ButtonBuilder()
+      .setCustomId(
+        `${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}TRANSFERRED:${donation.id}`
+      )
+      .setLabel('Xác nhận')
+      .setStyle(ButtonStyle.Success)
+
+    const btnCancel = new ButtonBuilder()
+      .setCustomId(
+        `${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}CANCELED:${donation.id}`
+      )
+      .setLabel('Hủy')
+      .setStyle(ButtonStyle.Danger)
+
     if (
-      donation.status === 'PENDING' ||
-      donation.status === 'PENDING_VERIFICATION'
+      donation.status === DonationStatus.PENDING ||
+      donation.status === DonationStatus.PENDING_VERIFICATION
     ) {
-      actionRows.push([
-        new ButtonBuilder()
-          .setCustomId(
-            `${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}TRANSFERRED:${donation.id}`
-          )
-          .setLabel('Xác nhận')
-          .setStyle(ButtonStyle.Success),
-        new ButtonBuilder()
-          .setCustomId(
-            `${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}CANCELED:${donation.id}`
-          )
-          .setLabel('Hủy')
-          .setStyle(ButtonStyle.Danger)
-      ])
-    }
-    // For transferred donations, show Cancel button
-    else if (donation.status === 'TRANSFERRED') {
-      actionRows.push([
-        new ButtonBuilder()
-          .setCustomId(
-            `${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}CANCELED:${donation.id}`
-          )
-          .setLabel('Hủy')
-          .setStyle(ButtonStyle.Danger)
-      ])
-    }
-    // For canceled donations, show Confirm button to revert
-    else if (donation.status === 'CANCELED') {
-      actionRows.push([
-        new ButtonBuilder()
-          .setCustomId(
-            `${CUSTOM_ID.BTN_DONATION_CHANGE_STATUS_PREFIX}TRANSFERRED:${donation.id}`
-          )
-          .setLabel('Xác nhận')
-          .setStyle(ButtonStyle.Success)
-      ])
+      actionRows.push([btnConfirm, btnCancel])
+    } else if (donation.status === DonationStatus.TRANSFERRED) {
+      actionRows.push([btnCancel])
+    } else if (donation.status === DonationStatus.CANCELED) {
+      actionRows.push([btnConfirm])
     }
 
     actionRows.forEach((rowButtons) => {

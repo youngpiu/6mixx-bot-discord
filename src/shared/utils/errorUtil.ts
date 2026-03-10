@@ -56,7 +56,7 @@ const buildErrorEmbed = (
   errorType: ErrorType
 ): ContainerBuilder => {
   const nowSec = Math.floor(Date.now() / 1000)
-  const timestamp = `<t:${nowSec}:F> - <t:${nowSec}:R>`
+  const timestamp = `<t:${nowSec}:R>`
   const title =
     errorType === 'database'
       ? '🔴 DATABASE ERROR 🔴'

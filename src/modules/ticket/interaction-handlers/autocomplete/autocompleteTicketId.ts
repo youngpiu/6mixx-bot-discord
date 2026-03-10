@@ -24,7 +24,7 @@ export class AutocompleteTicketHandler extends InteractionHandler {
     const focusedOption = interaction.options.getFocused(true)
 
     if (focusedOption.name !== 'ticket-id') return this.none()
-    if (!interaction || !interaction.guild) return this.none()
+    if (!interaction.guild) return this.none()
 
     const searchedTickets = await TicketRepository.searchByCode({
       guildId: interaction.guild.id,

@@ -25,7 +25,7 @@ export class ModalTicketCloseReason extends InteractionHandler {
   public async run(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction || !interaction.guild) {
+    if (!interaction.guild) {
       throw new NormalError('Lệnh này chỉ dùng trong máy chủ.')
     }
 

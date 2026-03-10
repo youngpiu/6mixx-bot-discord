@@ -28,7 +28,7 @@ export class ButtonTicketClose extends InteractionHandler {
   public async run(interaction: ButtonInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction || !interaction.guild)
+    if (!interaction.guild)
       throw new NormalError('Lệnh này chỉ dùng trong máy chủ.')
 
     await TicketHelper.closeTicket({

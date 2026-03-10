@@ -23,7 +23,7 @@ export class ModalConfessionSetting extends InteractionHandler {
 
   public async run(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
-    if (!interaction || !interaction.guild) return
+    if (!interaction.guild) return
 
     const confessionForumChannelId = interaction.fields
       .getSelectedChannels('select-confession-forum-channel')

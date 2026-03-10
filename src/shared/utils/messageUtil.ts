@@ -1,4 +1,5 @@
 // Utility classes for handling Discord messages and interaction replies in a standardized way
+import { container } from '@sapphire/pieces'
 import {
   Channel,
   ContainerBuilder,
@@ -266,6 +267,22 @@ export class InteractionUtil {
       })
       return followed
     } catch {
+      return null
+    }
+  }
+
+  static async sendDM(
+    userId: string,
+    content: string
+  ): Promise<Message | null> {
+    if (!userId) return null
+    try {
+      const user = await container.client.users.fetch(userId)
+      if (!user) return null
+
+      return await user.send(content)
+    } catch {
+      // User might have DMs disabled, ignore silently
       return null
     }
   }

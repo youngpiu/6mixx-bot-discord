@@ -25,7 +25,7 @@ export class ButtonDonationStats extends InteractionHandler {
   }
 
   public async run(interaction: ButtonInteraction) {
-    if (!interaction || !interaction.guild) return
+    if (!interaction.guild) return
 
     await interaction.deferReply({
       flags: ['Ephemeral']
@@ -40,13 +40,15 @@ export class ButtonDonationStats extends InteractionHandler {
     const remainingBalance =
       donationStats.totalAmount - disbursementStats.totalAmount
 
-    const topDonorsFields = topDonors.map((d) => {
-      const maskedId = encryptId(d.donorId)
-      return [maskedId, `**${d.totalAmount.toLocaleString('vi-VN')}đ**`] as [
-        string,
-        string
-      ]
-    })
+    const topDonorsFields = topDonors.map(
+      (d: { donorId: string; totalAmount: number }) => {
+        const maskedId = encryptId(d.donorId)
+        return [maskedId, `**${d.totalAmount.toLocaleString('vi-VN')}đ**`] as [
+          string,
+          string
+        ]
+      }
+    )
 
     const statsContainer = new ContainerBuilder()
       .addTextDisplayComponents((text) =>
@@ -92,7 +94,7 @@ export class ButtonDonationStats extends InteractionHandler {
       )
       .addSeparatorComponents((sep) => sep)
       .addTextDisplayComponents((text) =>
-        text.setContent(`-# Cập nhật <t:${Math.floor(Date.now() / 1000)}:F>`)
+        text.setContent(`-# Cập nhật <t:${Math.floor(Date.now() / 1000)}:R>`)
       )
 
     await interaction.editReply({

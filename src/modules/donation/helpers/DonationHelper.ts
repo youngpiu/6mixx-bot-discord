@@ -3,6 +3,8 @@ import {
   ChannelType,
   Colors,
   ForumChannel,
+  MediaGalleryBuilder,
+  MediaGalleryItemBuilder,
   MessageFlags,
   TextChannel,
   TextThreadChannel
@@ -107,11 +109,74 @@ export class DonationHelper {
     }
   }
 
+  // Sends a notification to the donation notification thread when a disbursement is added
+  public static async sendDisbursementNotification(options: {
+    guildId: string
+    amount: number
+    description: string
+    attachmentUrls: string[]
+    createdAt?: Date
+  }): Promise<string | undefined> {
+    const {
+      guildId,
+      amount,
+      description,
+      attachmentUrls,
+      createdAt = new Date()
+    } = options
+
+    try {
+      const guildConfig = await GuildRepository.findCached(guildId)
+      if (!guildConfig?.disbursementLogChannelId) return
+
+      const notificationChannel = (await container.client.channels.fetch(
+        guildConfig.disbursementLogChannelId
+      )) as TextChannel
+
+      if (!notificationChannel || !notificationChannel.isTextBased()) return
+
+      const logContainer = new LoggerBuilder({
+        title: `${ANIMATED_EMOJI.WING_LEFT} KHOẢN CHI MỚI ${ANIMATED_EMOJI.WING_RIGHT}`,
+        color: Colors.Grey
+      })
+
+      logContainer.addFields([
+        ['Số tiền', `**${amount.toLocaleString('vi-VN')}đ**`],
+        ['Mô tả', `**${description}**`],
+        ['Ngày tạo', `<t:${Math.floor(createdAt.getTime() / 1000)}:R>`]
+      ])
+
+      const components = logContainer.build()
+      const containerComponent = components[0]
+
+      if (attachmentUrls.length > 0) {
+        containerComponent
+          .addSeparatorComponents((s) => s)
+          .addMediaGalleryComponents(
+            new MediaGalleryBuilder().addItems(
+              ...attachmentUrls.map(
+                (url) => (item: MediaGalleryItemBuilder) => item.setURL(url)
+              )
+            )
+          )
+      }
+
+      const message = await notificationChannel.send({
+        components,
+        flags: [MessageFlags.IsComponentsV2]
+      })
+
+      return message.url
+    } catch (error) {
+      container.logger.error(error)
+    }
+  }
+
   private static buildCreatedLog(
     donation: DonationNotificationOptions['donation']
   ) {
     return this.buildBaseLog(donation, {
-      title: 'QUYÊN GÓP MỚI',
+      title: 'Quyên Góp Mới',
       timeLabel: 'Thời gian tạo',
       color: Colors.Blue
     })
@@ -121,7 +186,7 @@ export class DonationHelper {
     donation: DonationNotificationOptions['donation']
   ) {
     return this.buildBaseLog(donation, {
-      title: 'CHỜ XÁC NHẬN',
+      title: 'Chờ Xác Nhận',
       timeLabel: 'Ngày tạo',
       color: Colors.Yellow
     })
@@ -131,7 +196,7 @@ export class DonationHelper {
     donation: DonationNotificationOptions['donation']
   ) {
     return this.buildBaseLog(donation, {
-      title: 'HỦY QUYÊN GÓP',
+      title: 'Huỷ Quyên Góp',
       timeLabel: 'Ngày tạo',
       color: Colors.Red
     })
@@ -143,10 +208,12 @@ export class DonationHelper {
     const statusText = this.getStatusText(donation.status as DonationStatus)
 
     return this.buildBaseLog(donation, {
-      title: 'CHUYỂN TRẠNG THÁI',
-      extraFields: [['Trạng thái mới', `**${statusText}**`]],
-      timeLabel: 'Ngày thay đổi',
-      timeValue: new Date(),
+      title: 'Chuyển Trạng Thái',
+      timeLabel: 'Ngày tạo',
+      extraFields: [
+        ['Trạng thái mới', `**${statusText}**`],
+        ['Ngày thay đổi', `<t:${Math.floor(Date.now() / 1000)}:R>`]
+      ],
       color: Colors.Purple
     })
   }
@@ -161,23 +228,24 @@ export class DonationHelper {
       color?: number
     }
   ): LoggerBuilder {
-    const {
-      title,
-      timeLabel,
-      timeValue = donation.createdAt,
-      extraFields = [],
+    const { title, timeLabel, extraFields = [], color } = options
+
+    const builder = new LoggerBuilder({
+      title: `${title} \`#${donation.code}\``,
       color
-    } = options
+    })
 
-    const builder = new LoggerBuilder({ title, color })
-
-    builder.addFields([
-      ['Mã giao dịch', `**#${donation.code}**`],
+    const fields: [string, string | null | undefined][] = [
       ['Số tiền', `**${donation.amount.toLocaleString('vi-VN')}đ**`],
-      ...extraFields,
-      [timeLabel, `<t:${Math.floor(timeValue.getTime() / 1000)}:R>`],
-      ['Lời nhắn', donation.message ? `**${donation.message}**` : undefined]
-    ])
+      ['Lời nhắn', donation.message ? `**${donation.message}**` : undefined],
+      [
+        timeLabel || 'Ngày tạo',
+        `<t:${Math.floor(donation.createdAt.getTime() / 1000)}:R>`
+      ],
+      ...extraFields
+    ]
+
+    builder.addFields(fields.filter((f) => f[1] !== undefined))
 
     return builder
   }

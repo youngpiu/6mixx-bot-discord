@@ -2,6 +2,28 @@
 import { container } from '@sapphire/pieces'
 
 export class DisbursementRepository {
+  public static async create(data: {
+    guildId: string
+    amount: number
+    description: string
+    messageUrl: string
+  }) {
+    return container.prisma.disbursement.create({
+      data
+    })
+  }
+  public static async findById(id: string) {
+    return container.prisma.disbursement.findUniqueOrThrow({
+      where: { id }
+    })
+  }
+
+  public static async delete(id: string) {
+    return container.prisma.disbursement.delete({
+      where: { id }
+    })
+  }
+
   public static async findMany({
     guildId,
     page = 1,
