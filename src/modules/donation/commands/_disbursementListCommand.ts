@@ -14,7 +14,7 @@ import { NormalError } from '~/core/errorResponse'
 
 import { ListBuilder } from '~/shared/components/ListBuilder'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
-import { lines } from '~/shared/utils/textUtil'
+import { formatFields, lines } from '~/shared/utils/textUtil'
 
 import { DisbursementRepository } from '~/modules/donation/repositories/disbursementRepository'
 
@@ -118,8 +118,11 @@ export class DisbursementListCommand {
       const indexNumber = (meta.page - 1) * meta.limit + index + 1
       const itemContent = lines(
         `### ${indexNumber}. ${d.amount.toLocaleString('vi-VN')}đ`,
-        `- \`Mô tả    :\` **${d.description}**`,
-        `- \`Thời gian:\` <t:${Math.floor(d.createdAt.getTime() / 1000)}:F>`
+        ...formatFields([
+          ['Mô tả', `**${d.description}**`],
+          ['Thời gian', `<t:${Math.floor(d.createdAt.getTime() / 1000)}:R>`],
+          ['Đường dẫn tin nhắn', `[Xem tại đây](${d.messageUrl})`]
+        ])
       )
       listBuilder.addItem(itemContent)
     })
