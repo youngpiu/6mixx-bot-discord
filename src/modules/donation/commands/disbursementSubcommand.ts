@@ -42,6 +42,7 @@ import { DisbursementRemoveCommand } from '~/modules/donation/commands/_disburse
 @ApplyOptions<Subcommand.Options>({
   name: 'disbursement',
   description: 'Quản lý hệ thống khoản chi.',
+  enabled: false,
   preconditions: ['OwnerOnly'],
   subcommands: [
     {

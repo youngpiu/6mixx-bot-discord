@@ -1,11 +1,9 @@
 // Repository for managing donation records and statistics in the database
 import { container } from '@sapphire/pieces'
-import { customAlphabet } from 'nanoid'
-
 import { DonationStatus } from 'generated/prisma/enums'
 import type { DonationUncheckedCreateInput } from 'generated/prisma/models/Donation'
 
-const generateNanoId = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 9)
+import { CounterRepository } from '~/shared/repositories/counterRepository'
 
 export class DonateRepository {
   public static async create(data: Omit<DonationUncheckedCreateInput, 'code'>) {
@@ -13,7 +11,7 @@ export class DonateRepository {
 
     while (retries > 0) {
       try {
-        const code = `DNT_${generateNanoId()}`
+        const code = await CounterRepository.generateCode(data.guildId, 'DONATION', 'DNT')
 
         return await container.prisma.donation.create({
           data: {

@@ -1,0 +1,16 @@
+/// Generic Auto Increment Counter (for Tickets, Donations, etc.)
+model AutoIncrement {
+  id String @id @default(cuid())
+
+  guildId String
+  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+
+  type    String
+  counter Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([guildId, type])
+  @@index([guildId])
+}

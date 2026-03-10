@@ -34,6 +34,7 @@ import { DonationListCommand } from '~/modules/donation/commands/_donationListCo
 @ApplyOptions<Subcommand.Options>({
   name: 'donation',
   description: 'Quản lý hệ thống quyên góp.',
+  enabled: false,
   preconditions: ['OwnerOnly'],
   subcommands: [
     {

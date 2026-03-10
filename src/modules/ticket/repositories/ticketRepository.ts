@@ -1,11 +1,11 @@
 import { container } from '@sapphire/pieces'
 
-import { Ticket } from 'generated/prisma/client'
 import { TicketStatus, TicketType } from 'generated/prisma/enums'
 
 import { TIME } from '~/shared/constants/timeConstant'
 
-import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
+import { CounterRepository } from '~/shared/repositories/counterRepository'
+import { CacheService } from '~/shared/services/cacheService'
 
 const TICKET_PREFIX: Record<TicketType, string> = {
   REPORT: 'RP',
@@ -15,30 +15,14 @@ const TICKET_PREFIX: Record<TicketType, string> = {
 
 export class TicketRepository {
   // Generates a unique, sequential ticket code (e.g., RP001, FB042).
-  // Uses atomic upsert on TicketCounter to prevent race conditions during concurrent requests.
+  // Uses atomic upsert on AutoIncrement to prevent race conditions during concurrent requests.
   // Format: PREFIX + 3-digit number (padded).
   public static async generateCode(guildId: string, type: TicketType) {
-    // Use atomic increment on TicketCounter
-    const counter = await container.prisma.ticketCounter.upsert({
-      where: {
-        guildId_type: {
-          guildId,
-          type
-        }
-      },
-      create: {
-        guildId,
-        type,
-        counter: 1
-      },
-      update: {
-        counter: {
-          increment: 1
-        }
-      }
-    })
-
-    return `${TICKET_PREFIX[type]}${String(counter.counter).padStart(3, '0')}`
+    return CounterRepository.generateCode(
+      guildId, 
+      `TICKET_${type}`, 
+      TICKET_PREFIX[type]
+    )
   }
 
   // Creates a new ticket record in the database.
@@ -83,12 +67,7 @@ export class TicketRepository {
 
   // Invalidate all cached tickets for a guild
   private static async invalidateTicketCache(guildId: string) {
-    const pattern = `tickets:${guildId}:*`
-    const keys = await container.redis.keys(pattern)
-
-    if (keys.length > 0) {
-      await container.redis.del(...keys)
-    }
+    await CacheService.invalidatePattern(`tickets:${guildId}:*`)
   }
 
   public static async searchByCode({
@@ -125,70 +104,32 @@ export class TicketRepository {
     status?: TicketStatus
   }) {
     const cacheKey = `tickets:${guildId}:${page}:${limit}:${type || '*'}:${status || '*'}`
-    const cached = await container.redis.get(cacheKey)
-
-    if (cached) {
-      const result = JSON.parse(cached)
-      result.items = (result.items as Ticket[]).map(
-        TicketHelper.deserializeTicket
-      )
-      return result
-    }
-
     const skip = (page - 1) * limit
 
     // Build where clause based on status parameter
-    const whereClause = {
-      guildId,
-      type,
-      status
-    }
+    const whereClause = { guildId, type, status }
 
-    const [items, total] = await Promise.all([
-      container.prisma.ticket.findMany({
-        where: whereClause,
-        include: {
-          requester: {
-            select: { userId: true, guildId: true }
+    return CacheService.remember(cacheKey, TIME.S30, async () => {
+      const [items, total] = await Promise.all([
+        container.prisma.ticket.findMany({
+          where: whereClause,
+          include: {
+            requester: { select: { userId: true, guildId: true } },
+            closer: { select: { userId: true, guildId: true } }
           },
-          closer: {
-            select: { userId: true, guildId: true }
-          }
-        },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit
-      }),
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit
+        }),
+        container.prisma.ticket.count({ where: whereClause })
+      ])
 
-      container.prisma.ticket.count({
-        where: whereClause
-      })
-    ])
-
-    const totalPages = Math.ceil(total / limit)
-
-    const result = {
-      items,
-      meta: {
-        total,
-        totalPages,
-        page,
-        limit,
-        hasNext: page < totalPages,
-        hasPrev: page > 1,
-        type,
-        status
+      const totalPages = Math.ceil(total / limit)
+      return {
+        items,
+        meta: { total, totalPages, page, limit, hasNext: page < totalPages, hasPrev: page > 1, type, status }
       }
-    }
-
-    await container.redis.set(
-      cacheKey,
-      JSON.stringify(result),
-      'EX',
-      TIME.S30 / 1000
-    )
-
-    return result
+    })
   }
 
   // Find ticket associated with a specific text channel
