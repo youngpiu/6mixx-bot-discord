@@ -8,12 +8,18 @@ import {
 } from 'discord.js'
 
 import { DisbursementAddCommand } from '~/modules/donation/commands/_disbursementAddCommand'
+import { DisbursementListCommand } from '~/modules/donation/commands/_disbursementListCommand'
 import { DisbursementRemoveCommand } from '~/modules/donation/commands/_disbursementRemoveCommand'
 
 @RegisterChatInputCommand((builder) =>
   builder
     .setName('disbursement')
     .setDescription('Quản lý hệ thống khoản chi.')
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName('list')
+        .setDescription('[ADMIN] Xem danh sách các khoản chi.')
+    )
     .addSubcommand((subcommand) =>
       subcommand
         .setName('add')
@@ -39,6 +45,10 @@ import { DisbursementRemoveCommand } from '~/modules/donation/commands/_disburse
   preconditions: ['OwnerOnly'],
   subcommands: [
     {
+      name: 'list',
+      chatInputRun: 'chatInputListDisbursement'
+    },
+    {
       name: 'add',
       chatInputRun: 'chatInputAddDisbursement'
     },
@@ -51,6 +61,12 @@ import { DisbursementRemoveCommand } from '~/modules/donation/commands/_disburse
   ]
 })
 export class DisbursementCommand extends Subcommand {
+  public async chatInputListDisbursement(
+    interaction: ChatInputCommandInteraction
+  ) {
+    return DisbursementListCommand.run(interaction)
+  }
+
   public async chatInputAddDisbursement(
     interaction: ChatInputCommandInteraction
   ) {

@@ -64,6 +64,23 @@ export class DisbursementRepository {
     }
   }
 
+  public static async searchByDescription({
+    guildId,
+    search
+  }: {
+    guildId: string
+    search: string
+  }) {
+    return container.prisma.disbursement.findMany({
+      where: {
+        guildId,
+        description: { contains: search, mode: 'insensitive' }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 25
+    })
+  }
+
   public static async getStats(guildId: string) {
     const stats = await container.prisma.disbursement.aggregate({
       where: { guildId },
