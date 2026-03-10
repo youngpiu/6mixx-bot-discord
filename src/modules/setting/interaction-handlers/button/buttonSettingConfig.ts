@@ -5,8 +5,6 @@ import {
 } from '@sapphire/framework'
 import { ButtonInteraction, ChannelType, ModalBuilder } from 'discord.js'
 
-import { NormalError } from '~/core/errorResponse'
-
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
 
@@ -23,8 +21,7 @@ export class ButtonSettingConfig extends InteractionHandler {
   }
 
   public async run(interaction: ButtonInteraction) {
-    if (!interaction.guild)
-      throw new NormalError('Lệnh này chỉ dùng trong máy chủ.')
+    if (!interaction.guild) return
 
     const guildConfig = await GuildRepository.findUnique(interaction.guild.id)
 
@@ -33,8 +30,7 @@ export class ButtonSettingConfig extends InteractionHandler {
       channelId: guildConfig?.serviceForumChannelId,
       customId: CUSTOM_ID.SELECT_SETTING_SERVICE_FORUM,
       channelType: ChannelType.GuildForum,
-      label: 'Kênh diễn đàn dịch vụ',
-      description: 'Nơi đăng các bài hướng dẫn.',
+      label: 'Kênh dịch vụ',
       placeholders: {
         channelConfiguredAndExists: 'Chọn kênh dịch vụ',
         channelConfiguredButDeleted: 'Kênh dịch vụ đã thiết lập không tồn tại',
@@ -48,8 +44,7 @@ export class ButtonSettingConfig extends InteractionHandler {
       channelId: guildConfig?.notificationForumChannelId,
       customId: CUSTOM_ID.SELECT_SETTING_NOTIFICATION_FORUM,
       channelType: ChannelType.GuildForum,
-      label: 'Kênh diễn đàn thông báo',
-      description: 'Nơi đăng các thông báo.',
+      label: 'Kênh thông báo',
       placeholders: {
         channelConfiguredAndExists: 'Chọn kênh thông báo',
         channelConfiguredButDeleted:
@@ -65,7 +60,6 @@ export class ButtonSettingConfig extends InteractionHandler {
       customId: CUSTOM_ID.SELECT_SETTING_CONFESSION_FORUM,
       channelType: ChannelType.GuildForum,
       label: 'Kênh đăng CFS',
-      description: 'Nơi đăng confession.',
       placeholders: {
         channelConfiguredAndExists: 'Chọn kênh confession',
         channelConfiguredButDeleted:
@@ -81,7 +75,6 @@ export class ButtonSettingConfig extends InteractionHandler {
       customId: CUSTOM_ID.SELECT_SETTING_DISBURSEMENT_LOG,
       channelType: ChannelType.GuildText,
       label: 'Kênh lưu khoản chi',
-      description: 'Nơi log sao kê khoản chi.',
       placeholders: {
         channelConfiguredAndExists: 'Chọn kênh sao kê',
         channelConfiguredButDeleted: 'Kênh đã thiết lập không tồn tại',
@@ -96,7 +89,6 @@ export class ButtonSettingConfig extends InteractionHandler {
       customId: CUSTOM_ID.SELECT_SETTING_TICKET_CATEGORY,
       channelType: ChannelType.GuildCategory,
       label: 'Danh mục chứa phiếu hỗ trợ',
-      description: 'Nơi tạo channel hỗ trợ thành viên.',
       placeholders: {
         channelConfiguredAndExists: 'Chọn danh mục',
         channelConfiguredButDeleted: 'Danh mục đã thiết lập không tồn tại',
