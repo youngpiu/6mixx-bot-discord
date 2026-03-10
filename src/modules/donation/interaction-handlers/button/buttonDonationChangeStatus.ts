@@ -12,7 +12,7 @@ import { NormalError } from '~/core/errorResponse'
 
 import { ANIMATED_EMOJI } from '~/shared/constants/emojiConstant'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
-import { GuildRepository } from '~/shared/repositories/guildRepository'
+import { SettingRepository } from '~/shared/repositories/settingRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 
 import { DonationHelper } from '~/modules/donation/helpers/DonationHelper'
@@ -74,7 +74,7 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
 
     if (targetStatus === DonationStatus.TRANSFERRED) {
       asyncTasks.push(
-        GuildRepository.findCached(interaction.guild.id)
+        SettingRepository.find(interaction.guild.id)
           .then((guildConfig) =>
             DonationHelper.sendThankYouMessage(guildConfig, updatedDonation)
           )

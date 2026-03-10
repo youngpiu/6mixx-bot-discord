@@ -7,7 +7,7 @@ import { ModalSubmitInteraction } from 'discord.js'
 import { channelMention } from 'discord.js'
 
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
-import { GuildRepository } from '~/shared/repositories/guildRepository'
+import { SettingRepository } from '~/shared/repositories/settingRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 import { formatFields } from '~/shared/utils/textUtil'
 
@@ -45,7 +45,7 @@ export class ModalSettingConfig extends InteractionHandler {
       .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_TICKET_CATEGORY)
       ?.first()?.id
 
-    await GuildRepository.update(interaction.guild.id, {
+    await SettingRepository.update(interaction.guild.id, {
       serviceForumChannelId,
       notificationForumChannelId,
       confessionForumChannelId,

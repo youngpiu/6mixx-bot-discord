@@ -16,7 +16,7 @@ import { NormalError } from '~/core/errorResponse'
 import { env } from '~/shared/config/env'
 import { ANIMATED_EMOJI } from '~/shared/constants/emojiConstant'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
-import { GuildRepository } from '~/shared/repositories/guildRepository'
+import { SettingRepository } from '~/shared/repositories/settingRepository'
 import { InteractionUtil, MessageUtil } from '~/shared/utils/messageUtil'
 import { lines } from '~/shared/utils/textUtil'
 
@@ -80,7 +80,7 @@ export class ButtonSettingSync extends InteractionHandler {
     if (!result || !interaction.guild) return
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    const guildConfig = await GuildRepository.findUnique(interaction.guild.id)
+    const guildConfig = await SettingRepository.find(interaction.guild.id)
     if (!guildConfig) throw new NormalError('Không thể lấy cấu hình máy chủ.')
 
     if (result.syncType === 'guides') {
@@ -101,7 +101,7 @@ export class ButtonSettingSync extends InteractionHandler {
   private async syncGuides(
     interaction: ButtonInteraction,
     guildConfig: NonNullable<
-      Awaited<ReturnType<typeof GuildRepository.findUnique>>
+      Awaited<ReturnType<typeof SettingRepository.find>>
     >
   ) {
     if (!guildConfig.serviceForumChannelId) {
@@ -147,7 +147,7 @@ export class ButtonSettingSync extends InteractionHandler {
             flags: ['IsComponentsV2']
           }
         })
-        await GuildRepository.update(interaction.guild!.id, {
+        await SettingRepository.update(interaction.guild!.id, {
           [config.threadIdKey]: newThread.id
         })
       }
@@ -157,7 +157,7 @@ export class ButtonSettingSync extends InteractionHandler {
   private async syncNotifications(
     interaction: ButtonInteraction,
     guildConfig: NonNullable<
-      Awaited<ReturnType<typeof GuildRepository.findUnique>>
+      Awaited<ReturnType<typeof SettingRepository.find>>
     >
   ) {
     if (!guildConfig.notificationForumChannelId) {
@@ -189,7 +189,7 @@ export class ButtonSettingSync extends InteractionHandler {
           name: config.threadName,
           message: { content: config.threadName }
         })
-        await GuildRepository.update(interaction.guild!.id, {
+        await SettingRepository.update(interaction.guild!.id, {
           [config.threadIdKey]: newThread.id
         })
       }

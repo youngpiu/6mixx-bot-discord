@@ -13,7 +13,7 @@ import {
 import { LoggerBuilder } from '~/shared/components/LoggerBuilder'
 import { env } from '~/shared/config/env'
 import { TIME } from '~/shared/constants/timeConstant'
-import { GuildRepository } from '~/shared/repositories/guildRepository'
+import { SettingRepository } from '~/shared/repositories/settingRepository'
 import {
   InteractionUtil,
   MessageUtil,
@@ -92,7 +92,7 @@ export const sendErrorToNotificationThread = async (
 ): Promise<void> => {
   if (env.NODE_ENV !== 'production' || !guildId) return
 
-  const config = await GuildRepository.findUnique(guildId)
+  const config = await SettingRepository.find(guildId)
   if (!config?.errorNotificationThreadId) return
 
   const guild = container.client.guilds.cache.get(guildId)

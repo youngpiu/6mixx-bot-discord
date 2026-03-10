@@ -14,7 +14,7 @@ import { DonationStatus } from 'generated/prisma/enums'
 
 import { LoggerBuilder } from '~/shared/components/LoggerBuilder'
 import { ANIMATED_EMOJI } from '~/shared/constants/emojiConstant'
-import { GuildRepository } from '~/shared/repositories/guildRepository'
+import { SettingRepository } from '~/shared/repositories/settingRepository'
 import { MessageUtil } from '~/shared/utils/messageUtil'
 import { encryptId } from '~/shared/utils/textUtil'
 
@@ -62,7 +62,7 @@ export class DonationHelper {
     const { guildId, donation, event } = options
 
     try {
-      const guildConfig = await GuildRepository.findCached(guildId)
+      const guildConfig = await SettingRepository.find(guildId)
       if (
         !guildConfig?.donationNotificationThreadId ||
         !guildConfig.notificationForumChannelId
@@ -126,7 +126,7 @@ export class DonationHelper {
     } = options
 
     try {
-      const guildConfig = await GuildRepository.findCached(guildId)
+      const guildConfig = await SettingRepository.find(guildId)
       if (!guildConfig?.disbursementLogChannelId) return
 
       const notificationChannel = (await container.client.channels.fetch(
@@ -251,7 +251,7 @@ export class DonationHelper {
   }
 
   public static async sendThankYouMessage(
-    guildConfig: Awaited<ReturnType<typeof GuildRepository.findCached>>,
+    guildConfig: Awaited<ReturnType<typeof SettingRepository.find>>,
     donation: { donorId: string; amount: number }
   ) {
     if (!guildConfig?.donationTutorialThreadId) return

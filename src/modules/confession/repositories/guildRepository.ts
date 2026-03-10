@@ -1,15 +1,15 @@
 // Repository for confession-related guild configuration
-import { GuildRepository as SharedGuildRepository } from '~/shared/repositories/guildRepository'
+import { SettingRepository } from '~/shared/repositories/settingRepository'
 
 export class GuildRepository {
   public static async getConfig(guildId: string) {
-    const guild = await SharedGuildRepository.findCached(guildId)
-    if (!guild) return null
+    const setting = await SettingRepository.find(guildId)
+    if (!setting) return null
     return {
-      notificationForumChannelId: guild.notificationForumChannelId,
-      forumChannelId: guild.confessionForumChannelId,
-      confessionTutorialThreadId: guild.confessionTutorialThreadId,
-      confessionNotificationThreadId: guild.confessionNotificationThreadId
+      notificationForumChannelId: setting.notificationForumChannelId,
+      forumChannelId: setting.confessionForumChannelId,
+      confessionTutorialThreadId: setting.confessionTutorialThreadId,
+      confessionNotificationThreadId: setting.confessionNotificationThreadId
     }
   }
 
@@ -25,6 +25,6 @@ export class GuildRepository {
       confessionNotificationThreadId?: string
     }
   }) {
-    return SharedGuildRepository.update(guildId, data)
+    return SettingRepository.update(guildId, data)
   }
 }

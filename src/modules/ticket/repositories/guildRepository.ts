@@ -1,15 +1,15 @@
 // Repository for ticket-specific guild configuration
-import { GuildRepository as SharedGuildRepository } from '~/shared/repositories/guildRepository'
+import { SettingRepository } from '~/shared/repositories/settingRepository'
 
 export class GuildRepository {
   public static async getConfig(guildId: string) {
-    const guild = await SharedGuildRepository.findCached(guildId)
-    return guild
+    const setting = await SettingRepository.find(guildId)
+    return setting
       ? {
-          ticketCategoryId: guild.ticketCategoryId,
-          ticketTutorialThreadId: guild.ticketTutorialThreadId,
-          ticketNotificationThreadId: guild.ticketNotificationThreadId,
-          notificationForumChannelId: guild.notificationForumChannelId
+          ticketCategoryId: setting.ticketCategoryId,
+          ticketTutorialThreadId: setting.ticketTutorialThreadId,
+          ticketNotificationThreadId: setting.ticketNotificationThreadId,
+          notificationForumChannelId: setting.notificationForumChannelId
         }
       : null
   }

@@ -41,7 +41,6 @@ export class ConfessionSetupCommand {
       )
     }
 
-    // Ensure guild exists
     await SharedGuildRepository.upsert(interaction.guild.id)
 
     // Check if config exists and delete old thread

@@ -1,12 +1,12 @@
-import { GuildRepository as SharedGuildRepository } from '~/shared/repositories/guildRepository'
+import { SettingRepository } from '~/shared/repositories/settingRepository'
 
 export class GuildRepository {
   public static async getConfig(guildId: string) {
-    const guild = await SharedGuildRepository.findCached(guildId)
-    return guild
+    const setting = await SettingRepository.find(guildId)
+    return setting
       ? {
-          donationTutorialThreadId: guild.donationTutorialThreadId,
-          donationNotificationThreadId: guild.donationNotificationThreadId
+          donationTutorialThreadId: setting.donationTutorialThreadId,
+          donationNotificationThreadId: setting.donationNotificationThreadId
         }
       : null
   }
