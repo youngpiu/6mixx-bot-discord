@@ -2,14 +2,13 @@
 import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import {
-  AutocompleteInteraction,
   ChatInputCommandInteraction,
   PermissionFlagsBits
 } from 'discord.js'
 
 import { DisbursementAddCommand } from '~/modules/donation/commands/_disbursementAddCommand'
+import { DisbursementDetailCommand } from '~/modules/donation/commands/_disbursementDetailCommand'
 import { DisbursementListCommand } from '~/modules/donation/commands/_disbursementListCommand'
-import { DisbursementRemoveCommand } from '~/modules/donation/commands/_disbursementRemoveCommand'
 
 @RegisterChatInputCommand((builder) =>
   builder
@@ -27,12 +26,12 @@ import { DisbursementRemoveCommand } from '~/modules/donation/commands/_disburse
     )
     .addSubcommand((subcommand) =>
       subcommand
-        .setName('remove')
-        .setDescription('[ADMIN] Xóa một khoản chi đã tạo.')
+        .setName('detail')
+        .setDescription('[ADMIN] Xem thông tin chi tiết một khoản chi.')
         .addStringOption((option) =>
           option
-            .setName('disbursement')
-            .setDescription('Khoản chi cần xóa')
+            .setName('code')
+            .setDescription('Mã khoản chi cần xem')
             .setRequired(true)
             .setAutocomplete(true)
         )
@@ -42,7 +41,7 @@ import { DisbursementRemoveCommand } from '~/modules/donation/commands/_disburse
 @ApplyOptions<Subcommand.Options>({
   name: 'disbursement',
   description: 'Quản lý hệ thống khoản chi.',
-  enabled: false,
+  enabled: true,
   preconditions: ['OwnerOnly'],
   subcommands: [
     {
@@ -54,10 +53,8 @@ import { DisbursementRemoveCommand } from '~/modules/donation/commands/_disburse
       chatInputRun: 'chatInputAddDisbursement'
     },
     {
-      name: 'remove',
-      chatInputRun: 'chatInputRemoveDisbursement',
-      // @ts-expect-error sapphire doesn't fully type subcommand autocomplete hooks correctly without manual typing
-      autocompleteRun: 'autocompleteRemoveDisbursement'
+      name: 'detail',
+      chatInputRun: 'chatInputDetailDisbursement'
     }
   ]
 })
@@ -74,15 +71,9 @@ export class DisbursementCommand extends Subcommand {
     return DisbursementAddCommand.run(interaction)
   }
 
-  public async chatInputRemoveDisbursement(
+  public async chatInputDetailDisbursement(
     interaction: ChatInputCommandInteraction
   ) {
-    return DisbursementRemoveCommand.run(interaction)
-  }
-
-  public async autocompleteRemoveDisbursement(
-    interaction: AutocompleteInteraction
-  ) {
-    return DisbursementRemoveCommand.autocompleteRun(interaction)
+    return DisbursementDetailCommand.run(interaction)
   }
 }

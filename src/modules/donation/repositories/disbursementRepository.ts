@@ -1,6 +1,8 @@
 // Repository for managing disbursement records and expense statistics
 import { container } from '@sapphire/pieces'
 
+import { CounterRepository } from '~/shared/repositories/counterRepository'
+
 export class DisbursementRepository {
   public static async create(data: {
     guildId: string
@@ -8,13 +10,41 @@ export class DisbursementRepository {
     description: string
     messageUrl: string
   }) {
+    const code = await CounterRepository.generateCode(
+      data.guildId,
+      'DISBURSEMENT',
+      'DSB'
+    )
+
     return container.prisma.disbursement.create({
-      data
+      data: {
+        ...data,
+        code
+      }
     })
   }
   public static async findById(id: string) {
-    return container.prisma.disbursement.findUniqueOrThrow({
+    return container.prisma.disbursement.findUnique({
       where: { id }
+    })
+  }
+
+  public static async findByCode(guildId: string, code: string) {
+    const cleanCode = code.toUpperCase().replace(/#/g, '')
+    return container.prisma.disbursement.findUnique({
+      where: {
+        code: cleanCode
+      }
+    })
+  }
+
+  public static async findUnique(guildId: string, idOrCode: string) {
+    const cleanIdOrCode = idOrCode.toUpperCase().replace(/#/g, '')
+    return container.prisma.disbursement.findFirst({
+      where: {
+        guildId,
+        OR: [{ id: idOrCode }, { code: cleanIdOrCode }]
+      }
     })
   }
 
@@ -64,17 +94,21 @@ export class DisbursementRepository {
     }
   }
 
-  public static async searchByDescription({
+  public static async searchByCode({
     guildId,
     search
   }: {
     guildId: string
     search: string
   }) {
+    const cleanSearch = search.toUpperCase().replace(/#/g, '')
     return container.prisma.disbursement.findMany({
       where: {
         guildId,
-        description: { contains: search, mode: 'insensitive' }
+        OR: [
+          { code: { contains: cleanSearch } },
+          { description: { contains: search, mode: 'insensitive' } }
+        ]
       },
       orderBy: { createdAt: 'desc' },
       take: 25

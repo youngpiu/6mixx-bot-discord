@@ -1,6 +1,9 @@
 model Disbursement {
   id String @id @default(cuid())
 
+  /// Unique Tracking Code
+  code String @unique
+
   guildId String
   guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
 
@@ -10,5 +13,6 @@ model Disbursement {
 
   createdAt DateTime @default(now())
 
+  @@index([guildId, code])
   @@index([guildId, createdAt(sort: Desc)])
 }

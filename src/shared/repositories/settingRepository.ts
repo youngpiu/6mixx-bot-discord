@@ -3,21 +3,17 @@ import { container } from '@sapphire/pieces'
 import type { GuildSettingUpdateInput } from 'generated/prisma/models/GuildSetting'
 
 import { TIME } from '~/shared/constants/timeConstant'
-import { CacheService } from '~/shared/services/cacheService'
-
 import { GuildRepository } from '~/shared/repositories/guildRepository'
+import { CacheService } from '~/shared/services/cacheService'
 
 const CACHE_KEY = (guildId: string) => `guild_setting:${guildId}`
 
 export class SettingRepository {
   public static async find(guildId: string) {
-    return CacheService.remember(
-      CACHE_KEY(guildId),
-      TIME.M5,
-      () =>
-        container.prisma.guildSetting.findUnique({
-          where: { guildId }
-        })
+    return CacheService.remember(CACHE_KEY(guildId), TIME.D30, () =>
+      container.prisma.guildSetting.findUnique({
+        where: { guildId }
+      })
     )
   }
 

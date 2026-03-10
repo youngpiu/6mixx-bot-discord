@@ -47,6 +47,13 @@ export class TicketRepository {
   }) {
     const ticketCode = code || (await this.generateCode(guildId, type))
 
+    // Ensure requester exists in Member table before creating ticket (FK constraint)
+    await container.prisma.member.upsert({
+      where: { guildId_userId: { userId: requesterId, guildId } },
+      create: { userId: requesterId, guildId },
+      update: {}
+    })
+
     const ticket = await container.prisma.ticket.create({
       data: {
         guildId,

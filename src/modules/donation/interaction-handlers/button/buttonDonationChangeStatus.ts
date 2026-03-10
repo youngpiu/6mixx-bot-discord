@@ -56,7 +56,7 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
       throw new NormalError(
         targetStatus === DonationStatus.TRANSFERRED
           ? 'Khoản quyên góp này đã được xác nhận trước đó rồi.'
-          : 'Khoản quyên góp này đã bị hủy trước đó.'
+          : 'Khoản quyên góp này đã bị hủy trước đó rồi.'
       )
 
     const updatedDonation = await DonateRepository.updateStatus(

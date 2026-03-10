@@ -95,5 +95,6 @@ export const CUSTOM_ID = {
   DISBURSEMENT_LIST_PREFIX: 'disbursement-list:',
   INPUT_DISBURSEMENT_AMOUNT: 'input-disbursement-amount',
   INPUT_DISBURSEMENT_DESCRIPTION: 'input-disbursement-description',
-  UPLOAD_DISBURSEMENT_IMAGES: 'upload-disbursement-images'
+  UPLOAD_DISBURSEMENT_IMAGES: 'upload-disbursement-images',
+  BTN_DISBURSEMENT_DELETE_PREFIX: 'btn-disbursement-delete:'
 } as const

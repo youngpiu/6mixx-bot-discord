@@ -1,4 +1,3 @@
-// Command to display a paginated list of bot disbursements
 import {
   ButtonBuilder,
   ButtonInteraction,
@@ -46,7 +45,7 @@ export const decodeState = (encoded: string): DisbursementListState => {
   return state
 }
 
-const createButton = (
+export const createFilterButton = (
   action: string,
   state: DisbursementListState,
   emoji: string | undefined,
@@ -70,9 +69,7 @@ export class DisbursementListCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction || !interaction.guild) {
-      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
-    }
+    if (!interaction.guild) return
 
     const { items, meta } = await DisbursementRepository.findMany({
       guildId: interaction.guild.id,
@@ -92,9 +89,7 @@ export class DisbursementListCommand {
     interaction: ButtonInteraction,
     state: DisbursementListState
   ) {
-    if (!interaction || !interaction.guild) {
-      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
-    }
+    if (!interaction.guild) return
 
     const { items, meta } = await DisbursementRepository.findMany({
       guildId: interaction.guild.id,
@@ -110,24 +105,27 @@ export class DisbursementListCommand {
     disbursements: Disbursement[],
     meta: DisbursementListMeta
   ): InteractionEditReplyOptions {
-    const listBuilder = new ListBuilder({
-      title: 'DANH SÁCH CÁC KHOẢN CHI'
+    const listBuilder = new ListBuilder<DisbursementListMeta>({
+      title: 'DANH SÁCH CÁC KHOẢN CHI',
+      idPrefix: CUSTOM_ID.DISBURSEMENT_LIST_PREFIX,
+      encodeState: encodeState
     })
 
     disbursements.forEach((d, index) => {
       const indexNumber = (meta.page - 1) * meta.limit + index + 1
       const itemContent = lines(
-        `### ${indexNumber}. ${d.amount.toLocaleString('vi-VN')}đ`,
+        `### ${indexNumber}. [${d.code}]`,
         ...formatFields([
+          ['Số tiền', `**${d.amount.toLocaleString('vi-VN')}đ**`],
           ['Mô tả', `**${d.description}**`],
           ['Thời gian', `<t:${Math.floor(d.createdAt.getTime() / 1000)}:R>`],
-          ['Đường dẫn tin nhắn', `[Xem tại đây](${d.messageUrl})`]
+          ['Đường dẫn tin nhắn', `**[Xem tại đây](${d.messageUrl})**`]
         ])
       )
       listBuilder.addItem(itemContent)
     })
 
-    listBuilder.addPaginationRow(meta, createButton)
+    listBuilder.addPaginationRow(meta)
 
     return {
       components: listBuilder.build(),

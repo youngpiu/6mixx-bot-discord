@@ -1,4 +1,3 @@
-// Command to display a paginated list of all guild donations
 import {
   ButtonBuilder,
   type ButtonInteraction,
@@ -10,12 +9,11 @@ import {
 import { Donation } from 'generated/prisma/client'
 import { DonationStatus } from 'generated/prisma/enums'
 
-import { NormalError } from '~/core/errorResponse'
-
 import { ListBuilder } from '~/shared/components/ListBuilder'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { formatFields, lines } from '~/shared/utils/textUtil'
 
+import { DonationHelper } from '~/modules/donation/helpers/DonationHelper'
 import { DonateRepository } from '~/modules/donation/repositories/donateRepository'
 
 export interface DonationListState {
@@ -50,7 +48,7 @@ export const decodeState = (encoded: string): DonationListState => {
   return state
 }
 
-const createButton = (
+export const createFilterButton = (
   action: string,
   state: DonationListState,
   emoji: string | undefined,
@@ -64,13 +62,8 @@ const createButton = (
     .setStyle(style)
     .setDisabled(disabled)
 
-  if (emoji) {
-    button.setEmoji(emoji)
-  }
-
-  if (label) {
-    button.setLabel(label)
-  }
+  if (emoji) button.setEmoji(emoji)
+  if (label) button.setLabel(label)
 
   return button
 }
@@ -79,9 +72,7 @@ export class DonationListCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction.guild) {
-      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
-    }
+    if (!interaction.guild) return
 
     const { items, meta } = await DonateRepository.findMany({
       guildId: interaction.guild.id,
@@ -114,31 +105,19 @@ export class DonationListCommand {
   ): InteractionEditReplyOptions {
     const statusText = !meta.status
       ? 'Tất cả'
-      : meta.status === DonationStatus.PENDING
-        ? 'Đang chờ'
-        : meta.status === DonationStatus.PENDING_VERIFICATION
-          ? 'Chờ xác nhận'
-          : meta.status === DonationStatus.TRANSFERRED
-            ? 'Đã chuyển'
-            : 'Đã hủy'
+      : DonationHelper.getStatusText(meta.status)
 
-    const listBuilder = new ListBuilder({
+    const listBuilder = new ListBuilder<DonationListMeta>({
       title: 'DANH SÁCH QUYÊN GÓP',
       emptyMessage: '_Không có khoản quyên góp nào._',
-      footer: `Trang ${meta.page}/${meta.totalPages || 1} • Tổng: ${meta.total} khoản • Trạng thái: ${statusText}`
+      footer: `Trang ${meta.page}/${meta.totalPages || 1} • Tổng: ${meta.total} khoản • Trạng thái: ${statusText}`,
+      idPrefix: CUSTOM_ID.DONATION_LIST_PREFIX,
+      encodeState: encodeState
     })
 
     donations.forEach((donation, index) => {
       const indexNumber = (meta.page - 1) * meta.limit + index + 1
-
-      let itemStatusText = 'Đang chờ'
-      if (donation.status === DonationStatus.TRANSFERRED) {
-        itemStatusText = 'Đã chuyển'
-      } else if (donation.status === DonationStatus.PENDING_VERIFICATION) {
-        itemStatusText = 'Chờ xác nhận'
-      } else if (donation.status === DonationStatus.CANCELED) {
-        itemStatusText = 'Đã hủy'
-      }
+      const itemStatusText = DonationHelper.getStatusText(donation.status)
 
       const formattedAmount = donation.amount.toLocaleString('vi-VN') + 'đ'
 
@@ -163,7 +142,7 @@ export class DonationListCommand {
       listBuilder.addItem(itemContent)
     })
 
-    listBuilder.addPaginationRow(meta, createButton)
+    listBuilder.addPaginationRow(meta)
 
     listBuilder.addActionRow([
       new ButtonBuilder()
@@ -185,7 +164,7 @@ export class DonationListCommand {
     const baseState: DonationListState = { page: 1 } // Reset page when filtering
 
     return [
-      createButton(
+      createFilterButton(
         'status-all',
         { ...baseState, status: undefined },
         undefined,
@@ -193,7 +172,7 @@ export class DonationListCommand {
         ButtonStyle.Secondary,
         'Tất cả'
       ),
-      createButton(
+      createFilterButton(
         'status-pending',
         { ...baseState, status: DonationStatus.PENDING },
         undefined,
@@ -201,7 +180,7 @@ export class DonationListCommand {
         ButtonStyle.Secondary,
         'Chờ'
       ),
-      createButton(
+      createFilterButton(
         'status-pending-verification',
         { ...baseState, status: DonationStatus.PENDING_VERIFICATION },
         undefined,
@@ -209,7 +188,7 @@ export class DonationListCommand {
         ButtonStyle.Secondary,
         'Chờ xác nhận'
       ),
-      createButton(
+      createFilterButton(
         'status-transferred',
         { ...baseState, status: DonationStatus.TRANSFERRED },
         undefined,
@@ -217,7 +196,7 @@ export class DonationListCommand {
         ButtonStyle.Secondary,
         'Đã chuyển'
       ),
-      createButton(
+      createFilterButton(
         'status-canceled',
         { ...baseState, status: DonationStatus.CANCELED },
         undefined,

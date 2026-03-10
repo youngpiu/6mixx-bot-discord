@@ -5,9 +5,7 @@ import {
   InteractionHandlerTypes
 } from '@sapphire/framework'
 import {
-  ButtonBuilder,
   ButtonInteraction,
-  ButtonStyle,
   ChannelType,
   ContainerBuilder,
   MessageFlags
@@ -126,22 +124,7 @@ export class ButtonTicketCreate extends InteractionHandler {
           )
         )
       )
-      .addSeparatorComponents((separator) => separator)
-      .addActionRowComponents((row) =>
-        row
-          .addComponents(
-            new ButtonBuilder()
-              .setCustomId(CUSTOM_ID.BTN_TICKET_CLOSE)
-              .setLabel('Đóng')
-              .setStyle(ButtonStyle.Secondary)
-          )
-          .addComponents(
-            new ButtonBuilder()
-              .setCustomId(CUSTOM_ID.BTN_TICKET_CLOSE_REASON)
-              .setLabel('Đóng với lý do')
-              .setStyle(ButtonStyle.Danger)
-          )
-      )
+
 
     const message = await ticketChannel.send({
       components: [containerMessage],

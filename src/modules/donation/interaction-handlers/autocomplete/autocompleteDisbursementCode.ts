@@ -10,7 +10,7 @@ import { DisbursementRepository } from '~/modules/donation/repositories/disburse
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Autocomplete
 })
-export class AutocompleteDisbursementDescription extends InteractionHandler {
+export class AutocompleteDisbursementCode extends InteractionHandler {
   public override async run(
     interaction: AutocompleteInteraction,
     result: InteractionHandler.ParseResult<this>
@@ -22,19 +22,18 @@ export class AutocompleteDisbursementDescription extends InteractionHandler {
     if (interaction.commandName !== 'disbursement') return this.none()
     const focusedOption = interaction.options.getFocused(true)
 
-    if (focusedOption.name !== 'disbursement') return this.none()
+    if (focusedOption.name !== 'code') return this.none()
     if (!interaction.guild) return this.none()
 
-    const searchedDisbursements =
-      await DisbursementRepository.searchByDescription({
-        guildId: interaction.guild.id,
-        search: focusedOption.value
-      })
+    const searchedDisbursements = await DisbursementRepository.searchByCode({
+      guildId: interaction.guild.id,
+      search: focusedOption.value
+    })
 
     return this.some(
       searchedDisbursements.map((d) => ({
-        name: `${d.description.slice(0, 80)} - ${d.amount.toLocaleString('vi-VN')}đ`,
-        value: d.id
+        name: `${d.code} - ${d.amount.toLocaleString('vi-VN')}đ`,
+        value: d.code
       }))
     )
   }

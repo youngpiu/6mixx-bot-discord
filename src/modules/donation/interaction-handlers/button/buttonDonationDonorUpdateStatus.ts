@@ -60,7 +60,7 @@ export class ButtonDonationDonorUpdateStatusHandler extends InteractionHandler {
     if (donation.status !== DonationStatus.PENDING) {
       throw new NormalError(
         donation.status === DonationStatus.CANCELED
-          ? 'Khoản quyên góp này đã bị hủy trước đó.'
+          ? 'Khoản quyên góp này đã bị hủy trước đó rồi.'
           : 'Khoản quyên góp này đã được xác nhận trước đó rồi.'
       )
     }

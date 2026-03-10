@@ -100,9 +100,7 @@ export class ButtonSettingSync extends InteractionHandler {
 
   private async syncGuides(
     interaction: ButtonInteraction,
-    guildConfig: NonNullable<
-      Awaited<ReturnType<typeof SettingRepository.find>>
-    >
+    guildConfig: NonNullable<Awaited<ReturnType<typeof SettingRepository.find>>>
   ) {
     if (!guildConfig.serviceForumChannelId) {
       throw new NormalError('Kênh dịch vụ chưa được cấu hình.')
@@ -156,9 +154,7 @@ export class ButtonSettingSync extends InteractionHandler {
 
   private async syncNotifications(
     interaction: ButtonInteraction,
-    guildConfig: NonNullable<
-      Awaited<ReturnType<typeof SettingRepository.find>>
-    >
+    guildConfig: NonNullable<Awaited<ReturnType<typeof SettingRepository.find>>>
   ) {
     if (!guildConfig.notificationForumChannelId) {
       throw new NormalError('Kênh thông báo chưa được cấu hình.')
@@ -395,8 +391,8 @@ export class ButtonSettingSync extends InteractionHandler {
             .setStyle(ButtonStyle.Secondary),
           new ButtonBuilder()
             .setCustomId(CUSTOM_ID.BTN_DISBURSEMENT_LIST)
-            .setLabel('Danh sách khoản chi')
-            .setStyle(ButtonStyle.Primary)
+            .setLabel('Danh sách các khoản chi')
+            .setStyle(ButtonStyle.Secondary)
         )
       )
   }
