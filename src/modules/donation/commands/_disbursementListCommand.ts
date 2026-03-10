@@ -9,7 +9,6 @@ import {
 
 import { Disbursement } from 'generated/prisma/client'
 
-import { NormalError } from '~/core/errorResponse'
 
 import { ListBuilder } from '~/shared/components/ListBuilder'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
@@ -77,9 +76,6 @@ export class DisbursementListCommand {
       limit: 5
     })
 
-    if (items.length === 0) {
-      throw new NormalError('Chưa có khoản chi nào được ghi nhận.')
-    }
 
     const response = this.createListResponse(items, meta)
     await interaction.editReply(response)
