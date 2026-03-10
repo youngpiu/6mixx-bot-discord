@@ -107,6 +107,7 @@ export class DisbursementListCommand {
   ): InteractionEditReplyOptions {
     const listBuilder = new ListBuilder<DisbursementListMeta>({
       title: 'DANH SÁCH CÁC KHOẢN CHI',
+      emptyMessage: 'Không có dữ liệu...',
       idPrefix: CUSTOM_ID.DISBURSEMENT_LIST_PREFIX,
       encodeState: encodeState
     })
