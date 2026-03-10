@@ -49,7 +49,7 @@ const GUIDE_CONFIGS = [
   },
   {
     threadIdKey: 'ticketTutorialThreadId',
-    threadName: '🎟️ NƠI GỬI HỖ TRỢ THÀNH VIÊN [ BÁO CÁO | GÓP Ý | BÁO LỖI ] 🎟️',
+    threadName: '🎟️ NƠI GỬI YÊU CẦU HỖ TRỢ 🎟️',
     generatorButtonId: 'btn-ticket-send'
   },
   {
@@ -100,8 +100,9 @@ export class ButtonSettingSync extends InteractionHandler {
 
   private async syncGuides(
     interaction: ButtonInteraction,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    guildConfig: any
+    guildConfig: NonNullable<
+      Awaited<ReturnType<typeof GuildRepository.findUnique>>
+    >
   ) {
     if (!guildConfig.serviceForumChannelId) {
       throw new NormalError('Kênh dịch vụ chưa được cấu hình.')
@@ -155,8 +156,9 @@ export class ButtonSettingSync extends InteractionHandler {
 
   private async syncNotifications(
     interaction: ButtonInteraction,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    guildConfig: any
+    guildConfig: NonNullable<
+      Awaited<ReturnType<typeof GuildRepository.findUnique>>
+    >
   ) {
     if (!guildConfig.notificationForumChannelId) {
       throw new NormalError('Kênh thông báo chưa được cấu hình.')
@@ -258,7 +260,7 @@ export class ButtonSettingSync extends InteractionHandler {
       .addTextDisplayComponents((text) =>
         text.setContent(
           lines(
-            `### ${ANIMATED_EMOJI.WING_LEFT} **NƠI GỬI HỖ TRỢ THÀNH VIÊN** ${ANIMATED_EMOJI.WING_RIGHT}`,
+            `### ${ANIMATED_EMOJI.WING_LEFT} **NƠI GỬI YÊU CẦU HỖ TRỢ** ${ANIMATED_EMOJI.WING_RIGHT}`,
             '-# Tại đây, bạn có thể **gửi báo cáo vi phạm luật**, **góp ý cải thiện máy chủ** và **báo lỗi** nếu có trong máy chủ **VNMIXX**.'
           )
         )

@@ -4,10 +4,12 @@ import {
   InteractionHandlerTypes
 } from '@sapphire/framework'
 import { ModalSubmitInteraction } from 'discord.js'
+import { channelMention } from 'discord.js'
 
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
+import { formatFields } from '~/shared/utils/textUtil'
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
@@ -51,9 +53,41 @@ export class ModalSettingConfig extends InteractionHandler {
       ticketCategoryId
     })
 
+    const formattedFields = formatFields([
+      [
+        'Kênh dịch vụ',
+        serviceForumChannelId
+          ? channelMention(serviceForumChannelId)
+          : 'Không có'
+      ],
+      [
+        'Kênh thông báo',
+        notificationForumChannelId
+          ? channelMention(notificationForumChannelId)
+          : 'Không có'
+      ],
+      [
+        'Kênh đăng confession',
+        confessionForumChannelId
+          ? channelMention(confessionForumChannelId)
+          : 'Không có'
+      ],
+      [
+        'Kênh sao kê khoản chi',
+        disbursementLogChannelId
+          ? channelMention(disbursementLogChannelId)
+          : 'Không có'
+      ],
+      [
+        'Danh mục chứa phiếu/kênh hỗ trợ',
+        ticketCategoryId ? channelMention(ticketCategoryId) : 'Không có'
+      ]
+    ]).join('\n')
+
     await InteractionUtil.replySuccess(
       interaction,
-      'Cấu hình kênh đã được lưu thành công!'
+      'Cấu hình kênh đã được lưu thành công!',
+      formattedFields
     )
   }
 }

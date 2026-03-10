@@ -19,7 +19,7 @@ type CreateChannelLabelOptions = {
   customId: string
   channelType: ChannelType
   label: string
-  description: string
+  description?: string
   placeholders: {
     channelConfiguredAndExists: string
     channelConfiguredButDeleted: string
@@ -92,9 +92,14 @@ export class SettingHelper {
       selectMenu.setDefaultChannels([channelId])
     }
 
-    return new LabelBuilder()
+    const labelBuilder = new LabelBuilder()
       .setLabel(label)
-      .setDescription(description)
       .setChannelSelectMenuComponent(selectMenu)
+
+    if (description) {
+      labelBuilder.setDescription(description)
+    }
+
+    return labelBuilder
   }
 }

@@ -31,7 +31,7 @@ export class SettingCommand extends Command {
         text.setContent(
           lines(
             `### ${ANIMATED_EMOJI.WING_LEFT} **BẢNG ĐIỀU KHIỂN CÀI ĐẶT** ${ANIMATED_EMOJI.WING_RIGHT}`,
-            '-# Tại đây bạn có thể cấu hình toàn bộ hệ thống kênh của VNMIXX Bot.'
+            '-# Tại đây, bạn có thể cấu hình toàn bộ hệ thống kênh và nhiều thứ khác.'
           )
         )
       )
@@ -41,14 +41,14 @@ export class SettingCommand extends Command {
           new ButtonBuilder()
             .setCustomId(CUSTOM_ID.BTN_SETTING_CHANNEL_CONFIG)
             .setLabel('Cài đặt toàn bộ kênh')
-            .setStyle(ButtonStyle.Primary)
+            .setStyle(ButtonStyle.Secondary)
         )
       )
       .addActionRowComponents((row) =>
         row.addComponents(
           new ButtonBuilder()
             .setCustomId(CUSTOM_ID.BTN_SETTING_SYNC_GUIDES)
-            .setLabel('Tạo / chỉnh sửa toàn bộ kênh hướng dẫn')
+            .setLabel('Tạo/chỉnh sửa toàn bộ kênh hướng dẫn')
             .setStyle(ButtonStyle.Secondary)
         )
       )
@@ -56,7 +56,7 @@ export class SettingCommand extends Command {
         row.addComponents(
           new ButtonBuilder()
             .setCustomId(CUSTOM_ID.BTN_SETTING_SYNC_NOTIFICATIONS)
-            .setLabel('Tạo / chỉnh sửa toàn bộ kênh thông báo')
+            .setLabel('Tạo/chỉnh sửa toàn bộ kênh thông báo')
             .setStyle(ButtonStyle.Secondary)
         )
       )
