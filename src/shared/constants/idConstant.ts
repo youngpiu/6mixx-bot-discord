@@ -1,6 +1,5 @@
 export const CUSTOM_ID = {
   // Navigation
-  SELECT_SETTING_NAV: 'select-setting-nav',
   BTN_SETTING_NAV_GENERAL: 'btn-setting-nav-general',
   BTN_SETTING_NAV_TICKET: 'btn-setting-nav-ticket',
   BTN_SETTING_NAV_DONATION: 'btn-setting-nav-donation',
@@ -63,6 +62,20 @@ export const CUSTOM_ID = {
   BTN_TICKET_CLOSE: 'btn-ticket-close',
   BTN_TICKET_CLOSE_REASON: 'btn-ticket-close-reason',
   BTN_TICKET_BUG: 'btn-ticket-bug',
+
+  // Setting
+  SELECT_SETTING_NAV: 'select-setting-nav',
+  BTN_SETTING_CHANNEL_CONFIG: 'btn-setting-channel-config',
+  BTN_SETTING_SYNC_GUIDES: 'btn-setting-sync-guides',
+  BTN_SETTING_SYNC_NOTIFICATIONS: 'btn-setting-sync-notifications',
+  MODAL_SETTING_CHANNEL_CONFIG: 'modal-setting-channel-config',
+  SELECT_SETTING_SERVICE_FORUM: 'select-setting-service-forum',
+  SELECT_SETTING_NOTIFICATION_FORUM: 'select-setting-notification-forum',
+  SELECT_SETTING_CONFESSION_FORUM: 'select-setting-confession-forum',
+  SELECT_SETTING_DISBURSEMENT_LOG: 'select-setting-disbursement-log',
+  SELECT_SETTING_TICKET_CATEGORY: 'select-setting-ticket-category',
+
+  // Setting -> General
   BTN_TICKET_FEEDBACK: 'btn-ticket-feedback',
   BTN_TICKET_REPORT: 'btn-ticket-report',
   BTN_TICKET_GENERAL_SETTING: 'btn-ticket-general-setting',

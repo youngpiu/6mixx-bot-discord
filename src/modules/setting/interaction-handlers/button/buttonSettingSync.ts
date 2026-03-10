@@ -7,6 +7,7 @@ import {
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
+  ChannelType,
   ContainerBuilder
 } from 'discord.js'
 
@@ -19,55 +20,57 @@ import { GuildRepository } from '~/shared/repositories/guildRepository'
 import { InteractionUtil, MessageUtil } from '~/shared/utils/messageUtil'
 import { lines } from '~/shared/utils/textUtil'
 
-const SEND_GUIDE_CONFIG = {
-  [CUSTOM_ID.BTN_CONFESSION_SEND]: {
-    channelIdKey: 'serviceForumChannelId',
+type SyncType = 'guides' | 'notifications'
+
+const NOTIFICATION_CONFIGS = [
+  {
+    threadName: '💌 THÔNG BÁO HỆ THỐNG CONFESSION 💌',
+    threadIdKey: 'confessionNotificationThreadId'
+  },
+  {
+    threadName: '💸 THÔNG BÁO HỆ THỐNG QUYÊN GÓP 💸',
+    threadIdKey: 'donationNotificationThreadId'
+  },
+  {
+    threadName: '⚠️ THÔNG BÁO LỖI BOT ⚠️',
+    threadIdKey: 'errorNotificationThreadId'
+  },
+  {
+    threadName: '🎟️ THÔNG BÁO HỆ THỐNG HỖ TRỢ THÀNH VIÊN 🎟️',
+    threadIdKey: 'ticketNotificationThreadId'
+  }
+] as const
+
+const GUIDE_CONFIGS = [
+  {
     threadIdKey: 'confessionTutorialThreadId',
     threadName: '💌 NƠI GỬI CONFESSION 💌',
-    successMessage: 'Bài đăng hướng dẫn gửi confession đã được tạo',
-    successUpdateMessage: 'Bài đăng hướng dẫn gửi confession đã được chỉnh sửa',
-    errorChannelNotConfigured:
-      'Kênh dịch vụ chưa được thiết lập, không thể gửi hướng dẫn.',
-    errorChannelInvalid:
-      'Kênh dịch vụ không tồn tại hoặc không phải là kênh diễn đàn, không thể gửi hướng dẫn.'
+    generatorButtonId: 'btn-confession-send'
   },
-  [CUSTOM_ID.BTN_TICKET_SEND]: {
-    channelIdKey: 'serviceForumChannelId',
+  {
     threadIdKey: 'ticketTutorialThreadId',
     threadName: '🎟️ NƠI GỬI HỖ TRỢ THÀNH VIÊN [ BÁO CÁO | GÓP Ý | BÁO LỖI ] 🎟️',
-    successMessage: 'Bài đăng hướng dẫn gửi yêu cầu hỗ trợ đã được tạo',
-    successUpdateMessage:
-      'Bài đăng hướng dẫn gửi yêu cầu hỗ trợ đã được chỉnh sửa',
-    errorChannelNotConfigured:
-      'Kênh dịch vụ chưa được thiết lập, không thể gửi hướng dẫn.',
-    errorChannelInvalid:
-      'Kênh dịch vụ không tồn tại hoặc không phải là kênh diễn đàn, không thể gửi hướng dẫn.'
+    generatorButtonId: 'btn-ticket-send'
   },
-  [CUSTOM_ID.BTN_DONATION_SEND]: {
-    channelIdKey: 'serviceForumChannelId',
+  {
     threadIdKey: 'donationTutorialThreadId',
     threadName: '💝 NƠI GÓP GẠCH NUÔI BOT 💝',
-    successMessage: 'Bài đăng hướng dẫn quyên góp đã được tạo',
-    successUpdateMessage: 'Bài đăng hướng dẫn quyên góp đã được chỉnh sửa',
-    errorChannelNotConfigured:
-      'Kênh dịch vụ chưa được thiết lập, không thể gửi hướng dẫn.',
-    errorChannelInvalid:
-      'Kênh dịch vụ không tồn tại hoặc không phải là kênh diễn đàn, không thể gửi hướng dẫn.'
+    generatorButtonId: 'btn-donation-send'
   }
-} as const
-
-type SendGuideButtonId = keyof typeof SEND_GUIDE_CONFIG
-type ChannelIdKey =
-  (typeof SEND_GUIDE_CONFIG)[SendGuideButtonId]['channelIdKey']
-type ThreadIdKey = (typeof SEND_GUIDE_CONFIG)[SendGuideButtonId]['threadIdKey']
+] as const
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button
 })
-export class ButtonSendGuide extends InteractionHandler {
+export class ButtonSettingSync extends InteractionHandler {
   public override parse(interaction: ButtonInteraction) {
-    if (!(interaction.customId in SEND_GUIDE_CONFIG)) return this.none()
-    return this.some({ buttonId: interaction.customId as SendGuideButtonId })
+    if (interaction.customId === CUSTOM_ID.BTN_SETTING_SYNC_GUIDES) {
+      return this.some({ syncType: 'guides' as SyncType })
+    }
+    if (interaction.customId === CUSTOM_ID.BTN_SETTING_SYNC_NOTIFICATIONS) {
+      return this.some({ syncType: 'notifications' as SyncType })
+    }
+    return this.none()
   }
 
   public async run(
@@ -75,80 +78,132 @@ export class ButtonSendGuide extends InteractionHandler {
     result: InteractionHandler.ParseResult<this>
   ) {
     if (!result || !interaction.guild) return
-
-    await interaction.deferReply()
-
-    const { buttonId } = result
-    const config = SEND_GUIDE_CONFIG[buttonId]
+    await interaction.deferReply({ flags: ['Ephemeral'] })
 
     const guildConfig = await GuildRepository.findUnique(interaction.guild.id)
+    if (!guildConfig) throw new NormalError('Không thể lấy cấu hình máy chủ.')
 
-    const forumChannelId = guildConfig?.[config.channelIdKey as ChannelIdKey]
-
-    if (!forumChannelId) throw new NormalError(config.errorChannelNotConfigured)
-
-    const forumChannel = await interaction.guild.channels.fetch(forumChannelId)
-
-    if (!forumChannel || !forumChannel.isThreadOnly()) {
-      throw new NormalError(config.errorChannelInvalid)
+    if (result.syncType === 'guides') {
+      await this.syncGuides(interaction, guildConfig)
+      await InteractionUtil.replySuccess(
+        interaction,
+        'Đã đồng bộ toàn bộ kênh hướng dẫn thành công!'
+      )
+    } else {
+      await this.syncNotifications(interaction, guildConfig)
+      await InteractionUtil.replySuccess(
+        interaction,
+        'Đã đồng bộ toàn bộ kênh thông báo thành công!'
+      )
     }
-
-    // Get message components based on button type
-    const messageComponents = this.createGuideMessage(buttonId)
-
-    // Try to edit existing thread's first message, or create new thread
-    const oldThreadId = guildConfig?.[config.threadIdKey as ThreadIdKey]
-    let thread
-    let isUpdated = false
-
-    if (oldThreadId) {
-      try {
-        const oldThread = await forumChannel.threads.fetch(oldThreadId)
-        if (oldThread) {
-          const firstMessage = await oldThread.fetchStarterMessage()
-          if (firstMessage) {
-            MessageUtil.edit(firstMessage, {
-              components: [messageComponents],
-              flags: ['IsComponentsV2']
-            })
-            thread = oldThread
-            isUpdated = true
-          }
-        }
-      } catch {
-        // ignore
-      }
-    }
-
-    // Create new thread if old one doesn't exist
-    if (!thread) {
-      thread = await forumChannel.threads.create({
-        name: config.threadName,
-        message: {
-          components: [messageComponents],
-          flags: ['IsComponentsV2']
-        }
-      })
-
-      await GuildRepository.update(interaction.guild.id, {
-        [config.threadIdKey]: thread.id
-      })
-    }
-
-    await InteractionUtil.replySuccess(
-      interaction,
-      `${isUpdated ? config.successUpdateMessage : config.successMessage}: <#${thread.id}>`
-    )
   }
 
-  private createGuideMessage(buttonId: SendGuideButtonId): ContainerBuilder {
+  private async syncGuides(
+    interaction: ButtonInteraction,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    guildConfig: any
+  ) {
+    if (!guildConfig.serviceForumChannelId) {
+      throw new NormalError('Kênh dịch vụ chưa được cấu hình.')
+    }
+
+    const forumChannel = await interaction
+      .guild!.channels.fetch(guildConfig.serviceForumChannelId)
+      .catch(() => null)
+
+    if (!forumChannel || forumChannel.type !== ChannelType.GuildForum) {
+      throw new NormalError('Kênh dịch vụ không tồn tại hoặc không hợp lệ.')
+    }
+
+    for (const config of GUIDE_CONFIGS) {
+      const components = this.createGuideMessage(config.generatorButtonId)
+
+      let thread = null
+      const oldThreadId = guildConfig[config.threadIdKey]
+
+      if (oldThreadId) {
+        try {
+          thread = await forumChannel.threads.fetch(oldThreadId)
+          if (thread) {
+            const firstMessage = await thread.fetchStarterMessage()
+            if (firstMessage) {
+              await MessageUtil.edit(firstMessage, {
+                components: [components],
+                flags: ['IsComponentsV2']
+              })
+            }
+          }
+        } catch {
+          thread = null
+        }
+      }
+
+      if (!thread) {
+        const newThread = await forumChannel.threads.create({
+          name: config.threadName,
+          message: {
+            components: [components],
+            flags: ['IsComponentsV2']
+          }
+        })
+        await GuildRepository.update(interaction.guild!.id, {
+          [config.threadIdKey]: newThread.id
+        })
+      }
+    }
+  }
+
+  private async syncNotifications(
+    interaction: ButtonInteraction,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    guildConfig: any
+  ) {
+    if (!guildConfig.notificationForumChannelId) {
+      throw new NormalError('Kênh thông báo chưa được cấu hình.')
+    }
+
+    const forumChannel = await interaction
+      .guild!.channels.fetch(guildConfig.notificationForumChannelId)
+      .catch(() => null)
+
+    if (!forumChannel || forumChannel.type !== ChannelType.GuildForum) {
+      throw new NormalError('Kênh thông báo không tồn tại hoặc không hợp lệ.')
+    }
+
+    for (const config of NOTIFICATION_CONFIGS) {
+      let thread = null
+      const oldThreadId = guildConfig[config.threadIdKey]
+
+      if (oldThreadId) {
+        try {
+          thread = await forumChannel.threads.fetch(oldThreadId)
+        } catch {
+          thread = null
+        }
+      }
+
+      if (!thread) {
+        const newThread = await forumChannel.threads.create({
+          name: config.threadName,
+          message: { content: config.threadName }
+        })
+        await GuildRepository.update(interaction.guild!.id, {
+          [config.threadIdKey]: newThread.id
+        })
+      }
+    }
+  }
+
+  private createGuideMessage(buttonId: string): ContainerBuilder {
     switch (buttonId) {
-      case CUSTOM_ID.BTN_CONFESSION_SEND:
+      case 'btn-confession-send':
         return this.createConfessionGuide()
-      case CUSTOM_ID.BTN_TICKET_SEND:
+      case 'btn-ticket-send':
         return this.createTicketGuide()
-      case CUSTOM_ID.BTN_DONATION_SEND:
+      case 'btn-donation-send':
         return this.createDonationGuide()
+      default:
+        return new ContainerBuilder()
     }
   }
 
@@ -283,6 +338,7 @@ export class ButtonSendGuide extends InteractionHandler {
           )
       )
   }
+
   private createDonationGuide(): ContainerBuilder {
     return new ContainerBuilder()
       .addTextDisplayComponents((text) =>

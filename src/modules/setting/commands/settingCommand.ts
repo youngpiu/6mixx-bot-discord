@@ -1,11 +1,16 @@
-// Command for bot owners to manage guild settings via interactive UI
 import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Command } from '@sapphire/framework'
-import { ChatInputCommandInteraction } from 'discord.js'
+import {
+  ButtonBuilder,
+  ButtonStyle,
+  ChatInputCommandInteraction,
+  ContainerBuilder
+} from 'discord.js'
 
+import { ANIMATED_EMOJI } from '~/shared/constants/emojiConstant'
+import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
-
-import { SelectSettingNav } from '~/modules/setting/interaction-handlers/selectMenu/selectSettingNav'
+import { lines } from '~/shared/utils/textUtil'
 
 @RegisterChatInputCommand((builder) =>
   builder.setName('setting').setDescription('[OWNER] Cài đặt máy chủ VNMIXX')
@@ -21,7 +26,40 @@ export class SettingCommand extends Command {
       flags: ['Ephemeral']
     })
 
-    const container = SelectSettingNav.createGeneralSettings()
+    const container = new ContainerBuilder()
+      .addTextDisplayComponents((text) =>
+        text.setContent(
+          lines(
+            `### ${ANIMATED_EMOJI.WING_LEFT} **BẢNG ĐIỀU KHIỂN CÀI ĐẶT** ${ANIMATED_EMOJI.WING_RIGHT}`,
+            '-# Tại đây bạn có thể cấu hình toàn bộ hệ thống kênh của VNMIXX Bot.'
+          )
+        )
+      )
+      .addSeparatorComponents((sep) => sep)
+      .addActionRowComponents((row) =>
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_SETTING_CHANNEL_CONFIG)
+            .setLabel('Cài đặt toàn bộ kênh')
+            .setStyle(ButtonStyle.Primary)
+        )
+      )
+      .addActionRowComponents((row) =>
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_SETTING_SYNC_GUIDES)
+            .setLabel('Tạo / chỉnh sửa toàn bộ kênh hướng dẫn')
+            .setStyle(ButtonStyle.Secondary)
+        )
+      )
+      .addActionRowComponents((row) =>
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_SETTING_SYNC_NOTIFICATIONS)
+            .setLabel('Tạo / chỉnh sửa toàn bộ kênh thông báo')
+            .setStyle(ButtonStyle.Secondary)
+        )
+      )
 
     await InteractionUtil.editReply(interaction, {
       components: [container],

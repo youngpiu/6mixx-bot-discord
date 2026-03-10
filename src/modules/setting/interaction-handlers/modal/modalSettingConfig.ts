@@ -1,4 +1,3 @@
-// Handler for ticket-specific guild settings modal submissions
 import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
@@ -9,14 +8,13 @@ import { ModalSubmitInteraction } from 'discord.js'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
-import { lines } from '~/shared/utils/textUtil'
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
 })
-export class ModalTicketSetting extends InteractionHandler {
+export class ModalSettingConfig extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
-    if (interaction.customId !== CUSTOM_ID.MODAL_TICKET_GENERAL_SETTING)
+    if (interaction.customId !== CUSTOM_ID.MODAL_SETTING_CHANNEL_CONFIG)
       return this.none()
     return this.some()
   }
@@ -25,20 +23,37 @@ export class ModalTicketSetting extends InteractionHandler {
     await interaction.deferReply({ flags: ['Ephemeral'] })
     if (!interaction.guild) return
 
+    const serviceForumChannelId = interaction.fields
+      .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_SERVICE_FORUM)
+      ?.first()?.id
+
+    const notificationForumChannelId = interaction.fields
+      .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_NOTIFICATION_FORUM)
+      ?.first()?.id
+
+    const confessionForumChannelId = interaction.fields
+      .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_CONFESSION_FORUM)
+      ?.first()?.id
+
+    const disbursementLogChannelId = interaction.fields
+      .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_DISBURSEMENT_LOG)
+      ?.first()?.id
+
     const ticketCategoryId = interaction.fields
-      .getSelectedChannels('select-ticket-category')
+      .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_TICKET_CATEGORY)
       ?.first()?.id
 
     await GuildRepository.update(interaction.guild.id, {
+      serviceForumChannelId,
+      notificationForumChannelId,
+      confessionForumChannelId,
+      disbursementLogChannelId,
       ticketCategoryId
     })
 
     await InteractionUtil.replySuccess(
       interaction,
-      'Bạn đã cập nhật thành công danh mục trong **Cài đặt hỗ trợ**.',
-      lines(
-        `- **Danh mục kênh hỗ trợ:** ${ticketCategoryId ? `<#${ticketCategoryId}>` : '*Chưa thiết lập*'}`
-      )
+      'Cấu hình kênh đã được lưu thành công!'
     )
   }
 }
