@@ -143,6 +143,8 @@ export class ListBuilder<TState = unknown> {
         .addTextDisplayComponents((text) =>
           text.setContent(`-# ${this.options.footer}`)
         )
+    } else if (this.actionRows.length > 0) {
+      this.container.addSeparatorComponents((sep) => sep)
     }
 
     this.actionRows.forEach((rowButtons) => {
