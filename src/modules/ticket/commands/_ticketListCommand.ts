@@ -1,9 +1,13 @@
-import { ButtonBuilder, type ButtonInteraction, ButtonStyle, type ChatInputCommandInteraction, type InteractionEditReplyOptions } from 'discord.js'
+import {
+  ButtonBuilder,
+  type ButtonInteraction,
+  ButtonStyle,
+  type ChatInputCommandInteraction,
+  type InteractionEditReplyOptions
+} from 'discord.js'
 
 import { Ticket, TicketType } from 'generated/prisma/client'
 import { TicketStatus } from 'generated/prisma/enums'
-
-import { NormalError } from '~/core/errorResponse'
 
 import { ListBuilder } from '~/shared/components/ListBuilder'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
@@ -75,8 +79,7 @@ export class TicketListCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction.guild)
-      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
+    if (!interaction.guild) return
 
     // Fetch initial data (page 1, default limits)
     const { items, meta } = await TicketRepository.findMany({
@@ -92,8 +95,7 @@ export class TicketListCommand {
     interaction: ButtonInteraction,
     state: TicketListState
   ) {
-    if (!interaction.guild)
-      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
+    if (!interaction.guild) return
 
     // Fetch data based on the state encoded in the button
     const { items, meta } = await TicketRepository.findMany({
@@ -137,7 +139,10 @@ export class TicketListCommand {
         ['Trạng thái', `**${statusLabel}**`],
         ['Loại', `**${typeLabel}**`],
         ['Người tạo', `<@${ticket.requesterId}>`],
-        ['Thời gian tạo', `<t:${Math.floor(ticket.createdAt.getTime() / 1000)}:R>`]
+        [
+          'Thời gian tạo',
+          `<t:${Math.floor(ticket.createdAt.getTime() / 1000)}:R>`
+        ]
       ]
 
       if (ticket.status === TicketStatus.OPEN) {

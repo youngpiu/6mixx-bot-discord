@@ -43,7 +43,7 @@ export class ButtonDisbursementDelete extends InteractionHandler {
 
     await InteractionUtil.replySuccess(
       interaction,
-      `Đã xóa khoản chi mã **#${disbursement.code}** trị giá **${disbursement.amount.toLocaleString('vi-VN')}đ** thành công.`
+      `Đã xoá khoản chi thành công.`
     )
   }
 }

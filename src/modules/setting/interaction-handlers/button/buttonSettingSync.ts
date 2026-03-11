@@ -87,13 +87,13 @@ export class ButtonSettingSync extends InteractionHandler {
       await this.syncGuides(interaction, guildConfig)
       await InteractionUtil.replySuccess(
         interaction,
-        'Đã đồng bộ toàn bộ kênh hướng dẫn thành công!'
+        'Đã đồng bộ toàn bộ kênh hướng dẫn thành công.'
       )
     } else {
       await this.syncNotifications(interaction, guildConfig)
       await InteractionUtil.replySuccess(
         interaction,
-        'Đã đồng bộ toàn bộ kênh thông báo thành công!'
+        'Đã đồng bộ toàn bộ kênh thông báo thành công.'
       )
     }
   }
@@ -103,7 +103,7 @@ export class ButtonSettingSync extends InteractionHandler {
     guildConfig: NonNullable<Awaited<ReturnType<typeof SettingRepository.find>>>
   ) {
     if (!guildConfig.serviceForumChannelId) {
-      throw new NormalError('Kênh dịch vụ chưa được cấu hình.')
+      throw new NormalError('Kênh dịch vụ chưa được thiết lập.')
     }
 
     const forumChannel = await interaction
@@ -157,7 +157,7 @@ export class ButtonSettingSync extends InteractionHandler {
     guildConfig: NonNullable<Awaited<ReturnType<typeof SettingRepository.find>>>
   ) {
     if (!guildConfig.notificationForumChannelId) {
-      throw new NormalError('Kênh thông báo chưa được cấu hình.')
+      throw new NormalError('Kênh thông báo chưa được thiết lập.')
     }
 
     const forumChannel = await interaction

@@ -86,7 +86,7 @@ export class ModalSettingConfig extends InteractionHandler {
 
     await InteractionUtil.replySuccess(
       interaction,
-      'Cấu hình kênh đã được lưu thành công!',
+      'Cập nhật cấu hình thành công.',
       formattedFields
     )
   }

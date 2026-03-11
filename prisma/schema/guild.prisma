@@ -1,17 +1,16 @@
 /// Server identity
 model Guild {
-  id      String @id @default(cuid())
-  guildId String @unique
+  id String @id
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   /// --- Relations ---
-  setting          GuildSetting?
-  members          Member[]
-  tickets          Ticket[]
-  autoIncrements   AutoIncrement[]
-  donations        Donation[]
-  disbursements    Disbursement[]
-  confessions      Confession[]
+  setting        GuildSetting?
+  members        Member[]
+  tickets        Ticket[]
+  autoIncrements AutoIncrement[]
+  donations      Donation[]
+  disbursements  Disbursement[]
+  confessions    Confession[]
 }

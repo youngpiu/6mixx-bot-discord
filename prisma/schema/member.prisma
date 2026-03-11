@@ -1,26 +1,22 @@
 /// User in a guild
 model Member {
-  id String @id @default(cuid())
+  id String
 
   guildId String
-  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
-
-  /// Discord User ID
-  userId String
-
+  guild   Guild  @relation(fields: [guildId], references: [id], onDelete: Cascade)
 
   /// --- Relations ---
   ticketsCreated Ticket[] @relation("TicketRequester")
   ticketsClosed  Ticket[] @relation("TicketCloser")
 
-  donations          Donation[] @relation("Donor")
+  donations Donation[] @relation("Donor")
 
   confessions         Confession[]
-  confessionsApproved Confession[]   @relation("ConfessionApprover")
+  confessionsApproved Confession[] @relation("ConfessionApprover")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([guildId, userId])
+  @@id([guildId, id])
   @@index([guildId])
 }

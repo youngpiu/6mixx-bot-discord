@@ -49,8 +49,8 @@ export class TicketRepository {
 
     // Ensure requester exists in Member table before creating ticket (FK constraint)
     await container.prisma.member.upsert({
-      where: { guildId_userId: { userId: requesterId, guildId } },
-      create: { userId: requesterId, guildId },
+      where: { guildId_id: { id: requesterId, guildId } },
+      create: { id: requesterId, guildId },
       update: {}
     })
 
@@ -121,8 +121,8 @@ export class TicketRepository {
         container.prisma.ticket.findMany({
           where: whereClause,
           include: {
-            requester: { select: { userId: true, guildId: true } },
-            closer: { select: { userId: true, guildId: true } }
+            requester: { select: { id: true, guildId: true } },
+            closer: { select: { id: true, guildId: true } }
           },
           orderBy: { createdAt: 'desc' },
           skip,

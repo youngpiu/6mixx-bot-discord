@@ -1,46 +1,55 @@
 // Main confession command router
 import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Subcommand } from '@sapphire/plugin-subcommands'
-import { ChannelType, ChatInputCommandInteraction } from 'discord.js'
+import { ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js'
 
-import { ConfessionSetupCommand } from '~/modules/confession/commands/_confessionSetupCommand'
+import { ConfessionDetailCommand } from '~/modules/confession/commands/_confessionDetailCommand'
+import { ConfessionListCommand } from '~/modules/confession/commands/_confessionListCommand'
 
 @RegisterChatInputCommand((builder) =>
   builder
     .setName('confession')
-    .setDescription('Quản lý hệ thống Confession.')
+    .setDescription('Quản lý hệ thống confession.')
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addSubcommand((subcommand) =>
       subcommand
-        .setName('setup')
-        .setDescription('[OWNER] Thiết lập hệ thống Confession.')
-        .addChannelOption((option) =>
+        .setName('detail')
+        .setDescription('[ADMIN] Xem thông tin chi tiết confession bất kỳ.')
+        .addStringOption((option) =>
           option
-            .setName('notification-channel')
-            .setDescription('Kênh nhận thông báo duyệt confession')
-            .addChannelTypes(ChannelType.GuildText)
+            .setName('code')
+            .setDescription('Mã confession cần xem thông tin chi tiết.')
             .setRequired(true)
+            .setAutocomplete(true)
         )
-        .addChannelOption((option) =>
-          option
-            .setName('forum-channel')
-            .setDescription('Kênh forum để đăng confession')
-            .addChannelTypes(ChannelType.GuildForum)
-            .setRequired(true)
-        )
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName('list')
+        .setDescription('[ADMIN] Xem danh sách các confession.')
     )
 )
 @ApplyOptions<Subcommand.Options>({
   name: 'confession',
-  description: 'Quản lý hệ thống Confession.',
+  description: 'Quản lý hệ thống confession.',
+  requiredUserPermissions: ['Administrator'],
   subcommands: [
     {
-      name: 'setup',
-      chatInputRun: 'chatInputSetup'
+      name: 'list',
+      chatInputRun: 'chatInputList'
+    },
+    {
+      name: 'detail',
+      chatInputRun: 'chatInputDetail'
     }
   ]
 })
 export class ConfessionSubcommand extends Subcommand {
-  public async chatInputSetup(interaction: ChatInputCommandInteraction) {
-    return ConfessionSetupCommand.run(interaction)
+  public async chatInputList(interaction: ChatInputCommandInteraction) {
+    return ConfessionListCommand.run(interaction)
+  }
+
+  public async chatInputDetail(interaction: ChatInputCommandInteraction) {
+    return ConfessionDetailCommand.run(interaction)
   }
 }

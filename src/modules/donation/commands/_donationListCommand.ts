@@ -109,7 +109,6 @@ export class DonationListCommand {
 
     const listBuilder = new ListBuilder<DonationListMeta>({
       title: 'DANH SÁCH QUYÊN GÓP',
-      emptyMessage: 'Không có dữ liệu...',
       footer: `Trang ${meta.page}/${meta.totalPages || 1} • Tổng: ${meta.total} khoản • Trạng thái: ${statusText}`,
       idPrefix: CUSTOM_ID.DONATION_LIST_PREFIX,
       encodeState: encodeState

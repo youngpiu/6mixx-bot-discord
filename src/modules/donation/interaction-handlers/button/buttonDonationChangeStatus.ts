@@ -83,7 +83,7 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
           }),
         InteractionUtil.sendDM(
           donation.donorId,
-          `${ANIMATED_EMOJI.HEART} Cảm ơn bạn rất nhiều! Mình đã nhận được số tiền **${donation.amount.toLocaleString('vi-VN')}đ** từ khoản quyên góp \`#${donation.code}\` của bạn.`
+          `${ANIMATED_EMOJI.HEART} Mình đã nhận được số tiền **${donation.amount.toLocaleString('vi-VN')}đ** từ khoản quyên góp \`#${donation.code}\` của bạn, cảm ơn bạn rất nhiều.`
         )
       )
     }

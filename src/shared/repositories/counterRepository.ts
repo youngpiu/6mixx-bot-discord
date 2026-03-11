@@ -33,4 +33,22 @@ export class CounterRepository {
 
     return `${prefix}${String(result.counter).padStart(3, '0')}`
   }
+
+  /**
+   * Generates a generic sequential increment number
+   * 
+   * @param guildId The Guild ID
+   * @param type The distinct type of sequence
+   */
+  public static async getNextSequence(guildId: string, type: string): Promise<number> {
+    const result = await container.prisma.autoIncrement.upsert({
+      where: {
+        guildId_type: { guildId, type }
+      },
+      create: { guildId, type, counter: 1 },
+      update: { counter: { increment: 1 } }
+    })
+
+    return result.counter
+  }
 }

@@ -5,7 +5,7 @@ model Disbursement {
   code String @unique
 
   guildId String
-  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  guild   Guild  @relation(fields: [guildId], references: [id], onDelete: Cascade)
 
   amount      Int
   description String

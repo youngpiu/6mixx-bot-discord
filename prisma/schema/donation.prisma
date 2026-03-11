@@ -14,18 +14,18 @@ model Donation {
   code String @unique
 
   guildId String
-  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  guild   Guild  @relation(fields: [guildId], references: [id], onDelete: Cascade)
 
   amount  Int
   message String?
   status  DonationStatus @default(PENDING)
 
   donorId String
-  donor   Member @relation("Donor", fields: [guildId, donorId], references: [guildId, userId])
+  donor   Member @relation("Donor", fields: [guildId, donorId], references: [guildId, id])
 
   confirmedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@index([guildId, code])
   @@index([guildId, status])

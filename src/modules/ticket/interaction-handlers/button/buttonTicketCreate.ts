@@ -145,7 +145,7 @@ export class ButtonTicketCreate extends InteractionHandler {
       ),
       InteractionUtil.replySuccess(
         interaction,
-        `Kênh yêu cầu hỗ trợ của bạn đã được tạo thành công. Vui lòng truy cập vào <#${ticketChannel.id}> để thảo luận.`
+        `Đã tạo kênh hỗ trợ thành công, vui lòng truy cập <#${ticketChannel.id}> để thảo luận.`
       )
     ])
   }

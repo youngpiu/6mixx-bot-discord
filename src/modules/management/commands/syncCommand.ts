@@ -3,8 +3,6 @@ import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Command } from '@sapphire/framework'
 import { ChatInputCommandInteraction } from 'discord.js'
 
-import { NormalError } from '~/core/errorResponse'
-
 import { GuildRepository } from '~/shared/repositories/guildRepository'
 import { MemberRepository } from '~/shared/repositories/memberRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
@@ -23,8 +21,7 @@ export class SyncCommand extends Command {
   public override async chatInputRun(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: 'Ephemeral' })
 
-    if (!interaction.guild)
-      throw new NormalError('Lệnh này chỉ dùng trong máy chủ.')
+    if (!interaction.guild) return
 
     await GuildRepository.upsert(interaction.guild.id)
 
@@ -35,14 +32,14 @@ export class SyncCommand extends Command {
     if (userMembers.size === 0) {
       await InteractionUtil.replySuccess(
         interaction,
-        'Đồng bộ hoàn tất — không có thành viên nào cần đồng bộ.'
+        'Đồng bộ hoàn tất, không có thành viên nào cần đồng bộ.'
       )
       return
     }
 
     const membersData = userMembers.map((m) => ({
       guildId: interaction.guild!.id,
-      userId: m.id
+      id: m.id
     }))
     const result = await MemberRepository.createMany(membersData)
 
@@ -52,7 +49,7 @@ export class SyncCommand extends Command {
 
     await InteractionUtil.replySuccess(
       interaction,
-      `Đồng bộ hoàn tất — đã đồng bộ **${result.count}** thành viên vào cơ sở dữ liệu.`
+      `Đồng bộ hoàn tất, đã đồng bộ **${result.count}** thành viên vào cơ sở dữ liệu.`
     )
   }
 }

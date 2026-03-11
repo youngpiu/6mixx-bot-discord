@@ -5,6 +5,8 @@ import {
 } from '@sapphire/framework'
 import { type ButtonInteraction } from 'discord.js'
 
+import { NormalError } from '~/core/errorResponse'
+
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 
@@ -39,18 +41,14 @@ export class ButtonTicketDelete extends InteractionHandler {
     const ticket = await TicketRepository.findById(ticketId)
 
     if (!ticket) {
-      await InteractionUtil.replyError(
-        interaction,
-        'Không tìm thấy phiếu hỗ trợ này.'
-      )
-      return
+      throw new NormalError('Không tìm thấy phiếu hỗ trợ này.')
     }
 
     await TicketRepository.delete(ticketId)
 
     await InteractionUtil.replySuccess(
       interaction,
-      `Đã xoá thành công phiếu hỗ trợ \`#${ticket.code}\` thành công.`
+      `Đã xoá phiếu hỗ trợ \`#${ticket.code}\` thành công.`
     )
   }
 }

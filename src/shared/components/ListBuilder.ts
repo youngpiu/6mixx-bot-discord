@@ -127,7 +127,7 @@ export class ListBuilder<TState = unknown> {
   // @returns An array containing the constructed ContainerBuilder.
   public build(): [ContainerBuilder] {
     if (this.items.length === 0) {
-      const fallbackMessage = this.options.emptyMessage || '_Không có dữ liệu._'
+      const fallbackMessage = this.options.emptyMessage || 'Không có dữ liệu...'
       this.container.addTextDisplayComponents((text) =>
         text.setContent(fallbackMessage)
       )

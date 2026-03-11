@@ -25,13 +25,13 @@ export class TicketCloseCommand {
 
     if (!ticket) {
       throw new NormalError(
-        'Không tìm thấy phiếu hỗ trợ nào được liên kết với kênh này, vui lòng kiểm tra lại cơ sở dữ liệu.'
+        'Không tìm thấy phiếu hỗ trợ nào liên kết với kênh này.'
       )
     }
 
     if (ticket.status === 'CLOSED') {
       throw new NormalError(
-        'Không thể đóng phiếu hỗ trợ đã đóng trước đó, vui lòng bỏ qua lệnh này.'
+        'Phiếu hỗ trợ này đã được đóng trước đó rồi.'
       )
     }
 

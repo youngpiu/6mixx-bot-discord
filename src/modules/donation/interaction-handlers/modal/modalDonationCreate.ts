@@ -49,7 +49,7 @@ export class ModalDonationCreate extends InteractionHandler {
 
     if (isNaN(amount) || amount < MIN || amount > MAX) {
       throw new NormalError(
-        `Bạn thông cảm nha, số tiền quyên góp phải từ **${MIN.toLocaleString('vi-VN')}đ** đến **${MAX.toLocaleString('vi-VN')}đ**.`
+        `Số tiền quyên góp phải từ **${MIN.toLocaleString('vi-VN')}đ** đến **${MAX.toLocaleString('vi-VN')}đ**.`
       )
     }
 
@@ -157,7 +157,7 @@ export class ModalDonationCreate extends InteractionHandler {
         await interaction.editReply({
           components: [
             createTextContainer(
-              `${STATIC_EMOJI.RATE_LIMIT_ERROR} Giao dịch của bạn đã bị huỷ tự động do hết thời gian (10 phút).`
+              `${STATIC_EMOJI.RATE_LIMIT_ERROR} Giao dịch đã bị huỷ tự động do hết thời gian chờ (10 phút).`
             )
           ],
           flags: ['IsComponentsV2']

@@ -14,9 +14,9 @@ export class MemberRepository {
   public static async create(data: Prisma.MemberUncheckedCreateInput) {
     return container.prisma.member.upsert({
       where: {
-        guildId_userId: {
+        guildId_id: {
           guildId: data.guildId,
-          userId: data.userId
+          id: data.id
         }
       },
       update: {},

@@ -16,6 +16,7 @@ export const CUSTOM_ID = {
     'btn-confession-create-notification-thread',
 
   // Confession Dynamic Prefixes
+  CONFESSION_LIST_PREFIX: 'confession-list:',
   BTN_CONFESSION_APPROVE_PREFIX: 'btn-confession-approve:',
   BTN_CONFESSION_REJECT_PREFIX: 'btn-confession-reject:',
   BTN_CONFESSION_VIEW_PREFIX: 'btn-confession-view:',
@@ -24,6 +25,7 @@ export const CUSTOM_ID = {
   MODAL_CONFESSION_ANONYMOUS: 'modal-confession-anonymous',
   MODAL_CONFESSION_NAMED: 'modal-confession-named',
   MODAL_CONFESSION_GENERAL_SETTING: 'modal-confession-general-setting',
+  MODAL_CONFESSION_REJECT_PREFIX: 'modal-confession-reject:',
 
   // Input Fields
   INPUT_CONTENT: 'content',
@@ -94,5 +96,8 @@ export const CUSTOM_ID = {
   INPUT_DISBURSEMENT_AMOUNT: 'input-disbursement-amount',
   INPUT_DISBURSEMENT_DESCRIPTION: 'input-disbursement-description',
   UPLOAD_DISBURSEMENT_IMAGES: 'upload-disbursement-images',
-  BTN_DISBURSEMENT_DELETE_PREFIX: 'btn-disbursement-delete:'
+  BTN_DISBURSEMENT_DELETE_PREFIX: 'btn-disbursement-delete:',
+
+  // Utility
+  MODAL_COMMENT_PREFIX: 'modal-comment:'
 } as const

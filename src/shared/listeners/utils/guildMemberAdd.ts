@@ -16,7 +16,7 @@ export class GuildMemberAddListener extends Listener {
     try {
       await MemberRepository.create({
         guildId: member.guild.id,
-        userId: member.user.id
+        id: member.user.id
       })
 
       this.container.logger.debug(

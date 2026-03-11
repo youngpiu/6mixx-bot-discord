@@ -3,7 +3,7 @@ model GuildSetting {
   id String @id @default(cuid())
 
   guildId String @unique
-  guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
+  guild   Guild  @relation(fields: [guildId], references: [id], onDelete: Cascade)
 
   /// --- General Config ---
   serviceForumChannelId      String?

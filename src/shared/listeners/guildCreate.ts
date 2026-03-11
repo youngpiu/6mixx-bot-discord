@@ -23,7 +23,7 @@ export class GuildCreateListener extends Listener {
 
     const membersData = userMembers.map((m) => ({
       guildId: guild.id,
-      userId: m.id
+      id: m.id
     }))
 
     const count = await MemberRepository.createMany(membersData)

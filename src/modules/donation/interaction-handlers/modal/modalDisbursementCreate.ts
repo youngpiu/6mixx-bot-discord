@@ -28,9 +28,7 @@ export class ModalDisbursementCreate extends InteractionHandler {
   public async run(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction.guild) {
-      throw new NormalError('Không thể tìm thấy máy chủ.')
-    }
+    if (!interaction.guild) return
 
     const amountStr = interaction.fields.getTextInputValue(
       CUSTOM_ID.INPUT_DISBURSEMENT_AMOUNT
@@ -83,7 +81,7 @@ export class ModalDisbursementCreate extends InteractionHandler {
 
     if (!messageUrl) {
       throw new NormalError(
-        'Không thể gửi thông báo khoản chi, vui lòng kiểm tra lại cài đặt.'
+        'Không thể gửi thông báo khoản chi, vui lòng kiểm tra cài đặt.'
       )
     }
 
@@ -96,7 +94,7 @@ export class ModalDisbursementCreate extends InteractionHandler {
 
     await InteractionUtil.replySuccess(
       interaction,
-      `Đã thêm khoản chi mới trị giá **${amount.toLocaleString('vi-VN')}đ** thành công!`
+      `Đã thêm khoản chi **${amount.toLocaleString('vi-VN')}đ** thành công!`
     )
   }
 }

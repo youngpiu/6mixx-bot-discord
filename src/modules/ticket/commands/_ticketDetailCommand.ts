@@ -1,4 +1,11 @@
-import { type ChatInputCommandInteraction, type InteractionEditReplyOptions, MessageFlags, Colors, ButtonBuilder, ButtonStyle } from 'discord.js'
+import {
+  ButtonBuilder,
+  ButtonStyle,
+  type ChatInputCommandInteraction,
+  Colors,
+  type InteractionEditReplyOptions,
+  MessageFlags
+} from 'discord.js'
 
 import { TicketStatus } from 'generated/prisma/enums'
 
@@ -16,18 +23,14 @@ export class TicketDetailCommand {
       flags: ['Ephemeral']
     })
 
-    if (!interaction.guild) {
-      throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
-    }
+    if (!interaction.guild) return
 
     const code = interaction.options.getString('code', true)
 
     const ticket = await TicketRepository.findByCode(code)
 
     if (!ticket) {
-      throw new NormalError(
-        'Hệ thống không tìm thấy phiếu hỗ trợ này trong cơ sở dữ liệu.'
-      )
+      throw new NormalError('Không tìm thấy phiếu hỗ trợ này.')
     }
 
     const typeLabel = TicketHelper.getTicketTypeLabel(ticket.type)
