@@ -1,21 +1,13 @@
-// Command to list and filter tickets with pagination
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  type ButtonInteraction,
-  ButtonStyle,
-  type ChatInputCommandInteraction,
-  EmbedBuilder
-} from 'discord.js'
+import { ButtonBuilder, type ButtonInteraction, ButtonStyle, type ChatInputCommandInteraction, type InteractionEditReplyOptions } from 'discord.js'
 
 import { Ticket, TicketType } from 'generated/prisma/client'
 import { TicketStatus } from 'generated/prisma/enums'
 
 import { NormalError } from '~/core/errorResponse'
 
-import { STATIC_EMOJI } from '~/shared/constants/emojiConstant'
+import { ListBuilder } from '~/shared/components/ListBuilder'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
-import { lines } from '~/shared/utils/textUtil'
+import { formatFields, lines } from '~/shared/utils/textUtil'
 
 import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
 import { TicketRepository } from '~/modules/ticket/repositories/ticketRepository'
@@ -59,7 +51,7 @@ export const decodeState = (encoded: string): TicketListState => {
 }
 
 // Helper to create a button with encoded state
-const createButton = (
+export const createFilterButton = (
   action: string,
   state: TicketListState,
   emoji: string | undefined,
@@ -73,13 +65,8 @@ const createButton = (
     .setStyle(style)
     .setDisabled(disabled)
 
-  if (emoji) {
-    button.setEmoji(emoji)
-  }
-
-  if (label) {
-    button.setLabel(label)
-  }
+  if (emoji) button.setEmoji(emoji)
+  if (label) button.setLabel(label)
 
   return button
 }
@@ -120,45 +107,10 @@ export class TicketListCommand {
     await interaction.editReply(this.createListResponse(items, meta))
   }
 
-  public static createListResponse(tickets: Ticket[], meta: TicketListMeta) {
-    return {
-      embeds: [this.createEmbed(tickets, meta)],
-      components: [
-        this.createPagination(meta),
-        this.createTypeFilter(meta),
-        this.createStatusFilter(meta)
-      ]
-    }
-  }
-
-  private static createEmbed(tickets: Ticket[], meta: TicketListMeta) {
-    const embed = new EmbedBuilder()
-      .setTitle('Danh sách phiếu hỗ trợ')
-      .setColor('Navy')
-
-    if (tickets.length === 0) {
-      embed.setDescription('Không có phiếu hỗ trợ nào.')
-    } else {
-      tickets.forEach((ticket, index) => {
-        const typeLabel = TicketHelper.TICKET_TYPE_LABELS[ticket.type]
-        const createdTimestamp = Math.floor(ticket.createdAt.getTime() / 1000)
-        const indexNumber = (meta.page - 1) * meta.limit + index + 1
-
-        embed.addFields({
-          name: `${ticket.status === TicketStatus.CLOSED ? '🔒' : '🔓'} **${indexNumber}. #${ticket.code}**`,
-          value: lines(
-            `- **Loại:** ${typeLabel}`,
-            `- **Người tạo:** <@${ticket.requesterId}>`,
-            `- **Thời gian tạo:** <t:${createdTimestamp}:R>`,
-            ticket.status === TicketStatus.OPEN &&
-              `- **Kênh hỗ trợ:** <#${ticket.channelId}>`
-          ),
-          inline: false
-        })
-      })
-    }
-
-    // Footer with filters info
+  public static createListResponse(
+    tickets: Ticket[],
+    meta: TicketListMeta
+  ): InteractionEditReplyOptions {
     const typeText = meta.type
       ? TicketHelper.TICKET_TYPE_LABELS[meta.type]
       : 'Tất cả'
@@ -168,158 +120,132 @@ export class TicketListCommand {
         ? 'Đang mở'
         : 'Đã đóng'
 
-    embed.setFooter({
-      text: `Trang ${meta.page}/${meta.totalPages || 1} • Tổng: ${meta.total} phiếu • Loại: ${typeText} • Trạng thái: ${statusText}`
+    const listBuilder = new ListBuilder<TicketListMeta>({
+      title: 'DANH SÁCH PHIẾU HỖ TRỢ',
+      emptyMessage: 'Không có phiếu hỗ trợ nào.',
+      footer: `Trang ${meta.page}/${meta.totalPages || 1} • Tổng: ${meta.total} phiếu • Loại: ${typeText} • Trạng thái: ${statusText}`,
+      idPrefix: CUSTOM_ID.TICKET_LIST_PREFIX,
+      encodeState: encodeState
     })
 
-    return embed
+    tickets.forEach((ticket, index) => {
+      const typeLabel = TicketHelper.TICKET_TYPE_LABELS[ticket.type]
+      const statusLabel = TicketHelper.getStatusText(ticket.status)
+      const indexNumber = (meta.page - 1) * meta.limit + index + 1
+
+      const fields: [string, string][] = [
+        ['Trạng thái', `**${statusLabel}**`],
+        ['Loại', `**${typeLabel}**`],
+        ['Người tạo', `<@${ticket.requesterId}>`],
+        ['Thời gian tạo', `<t:${Math.floor(ticket.createdAt.getTime() / 1000)}:R>`]
+      ]
+
+      if (ticket.status === TicketStatus.OPEN) {
+        fields.push(['Kênh hỗ trợ', `<#${ticket.channelId}>`])
+      }
+
+      const itemContent = lines(
+        `### ${indexNumber}. #${ticket.code}`,
+        ...formatFields(fields)
+      )
+
+      listBuilder.addItem(itemContent)
+    })
+
+    listBuilder.addPaginationRow(meta)
+
+    listBuilder.addActionRow(this.createTypeFilterRow(meta))
+    listBuilder.addActionRow(this.createStatusFilterRow(meta))
+
+    return {
+      components: listBuilder.build(),
+      flags: ['IsComponentsV2']
+    }
   }
 
-  private static createPagination(meta: TicketListMeta) {
-    const currentState: TicketListState = {
-      page: meta.page,
-      type: meta.type,
-      status: meta.status
-    }
+  private static createTypeFilterRow(meta: TicketListMeta): ButtonBuilder[] {
+    const baseState: TicketListState = { page: 1, status: meta.status } // Reset page when filtering
 
-    return new ActionRowBuilder<ButtonBuilder>().addComponents(
-      createButton(
-        'pagination-indicator',
-        currentState,
+    return [
+      createFilterButton(
+        'type-filter-indicator',
+        { ...baseState, type: undefined },
         undefined,
         true,
         ButtonStyle.Secondary,
-        'Trang'
+        'Loại'
       ),
-      createButton(
-        'first',
-        { ...currentState, page: 1 },
-        STATIC_EMOJI.FIRST,
-        !meta.hasPrev,
-        ButtonStyle.Primary
+      createFilterButton(
+        'type-all',
+        { ...baseState, type: undefined },
+        undefined,
+        meta.type === undefined,
+        ButtonStyle.Secondary,
+        'Tất cả'
       ),
-      createButton(
-        'prev',
-        { ...currentState, page: meta.page - 1 },
-        STATIC_EMOJI.PREVIOUS,
-        !meta.hasPrev,
-        ButtonStyle.Primary
+      createFilterButton(
+        'type-report',
+        { ...baseState, type: 'REPORT' },
+        undefined,
+        meta.type === 'REPORT',
+        ButtonStyle.Secondary,
+        'Báo cáo'
       ),
-      createButton(
-        'next',
-        { ...currentState, page: meta.page + 1 },
-        STATIC_EMOJI.NEXT,
-        !meta.hasNext,
-        ButtonStyle.Primary
+      createFilterButton(
+        'type-feedback',
+        { ...baseState, type: 'FEEDBACK' },
+        undefined,
+        meta.type === 'FEEDBACK',
+        ButtonStyle.Secondary,
+        'Góp ý'
       ),
-      createButton(
-        'last',
-        { ...currentState, page: meta.totalPages },
-        STATIC_EMOJI.LAST,
-        !meta.hasNext,
-        ButtonStyle.Primary
+      createFilterButton(
+        'type-bug',
+        { ...baseState, type: 'BUG' },
+        undefined,
+        meta.type === 'BUG',
+        ButtonStyle.Secondary,
+        'Báo lỗi'
       )
-    )
-  }
-
-  private static createTypeFilter(meta: TicketListMeta) {
-    const baseState: TicketListState = { page: 1, status: meta.status } // Reset page when filtering
-
-    const types: Array<{
-      action: string
-      emoji: string | undefined
-      state: TicketListState
-      label?: string
-      disabled?: boolean
-      style?: ButtonStyle
-    }> = [
-      {
-        action: 'type-filter-indicator',
-        emoji: undefined,
-        label: 'Loại',
-        state: { ...baseState, type: undefined },
-        disabled: true,
-        style: ButtonStyle.Secondary
-      },
-      {
-        action: 'type-all',
-        emoji: '📁',
-        state: { ...baseState, type: undefined }
-      },
-      {
-        action: 'type-report',
-        emoji: '🚩',
-        state: { ...baseState, type: 'REPORT' }
-      },
-      {
-        action: 'type-feedback',
-        emoji: '💡',
-        state: { ...baseState, type: 'FEEDBACK' }
-      },
-      { action: 'type-bug', emoji: '🐛', state: { ...baseState, type: 'BUG' } }
     ]
-
-    return new ActionRowBuilder<ButtonBuilder>().addComponents(
-      types.map(({ action, emoji, state, label, disabled, style }) =>
-        createButton(
-          action,
-          state,
-          emoji,
-          disabled ?? meta.type === state.type,
-          style ?? ButtonStyle.Primary,
-          label
-        )
-      )
-    )
   }
 
-  private static createStatusFilter(meta: TicketListMeta) {
+  private static createStatusFilterRow(meta: TicketListMeta): ButtonBuilder[] {
     const baseState: TicketListState = { page: 1, type: meta.type } // Reset page when filtering
 
-    const statuses: Array<{
-      action: string
-      emoji: string | undefined
-      state: TicketListState
-      label?: string
-      disabled?: boolean
-      style?: ButtonStyle
-    }> = [
-      {
-        action: 'status-filter-indicator',
-        emoji: undefined,
-        label: 'T.Thái',
-        state: { ...baseState, status: undefined },
-        disabled: true,
-        style: ButtonStyle.Secondary
-      },
-      {
-        action: 'status-all',
-        emoji: '📂',
-        state: { ...baseState, status: undefined }
-      },
-      {
-        action: 'status-open',
-        emoji: '🔓',
-        state: { ...baseState, status: TicketStatus.OPEN }
-      },
-      {
-        action: 'status-closed',
-        emoji: '🔒',
-        state: { ...baseState, status: TicketStatus.CLOSED }
-      }
-    ]
-
-    return new ActionRowBuilder<ButtonBuilder>().addComponents(
-      statuses.map(({ action, emoji, state, label, disabled, style }) =>
-        createButton(
-          action,
-          state,
-          emoji,
-          disabled ?? meta.status === state.status,
-          style ?? ButtonStyle.Primary,
-          label
-        )
+    return [
+      createFilterButton(
+        'status-filter-indicator',
+        { ...baseState, status: undefined },
+        undefined,
+        true,
+        ButtonStyle.Secondary,
+        'T.Thái'
+      ),
+      createFilterButton(
+        'status-all',
+        { ...baseState, status: undefined },
+        undefined,
+        meta.status === undefined,
+        ButtonStyle.Secondary,
+        'Tất cả'
+      ),
+      createFilterButton(
+        'status-open',
+        { ...baseState, status: TicketStatus.OPEN },
+        undefined,
+        meta.status === TicketStatus.OPEN,
+        ButtonStyle.Secondary,
+        'Đang mở'
+      ),
+      createFilterButton(
+        'status-closed',
+        { ...baseState, status: TicketStatus.CLOSED },
+        undefined,
+        meta.status === TicketStatus.CLOSED,
+        ButtonStyle.Secondary,
+        'Đã đóng'
       )
-    )
+    ]
   }
 }

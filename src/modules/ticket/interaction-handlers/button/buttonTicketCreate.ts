@@ -7,7 +7,7 @@ import {
 import {
   ButtonInteraction,
   ChannelType,
-  ContainerBuilder,
+  Colors,
   MessageFlags
 } from 'discord.js'
 
@@ -15,9 +15,10 @@ import { TicketType } from 'generated/prisma/client'
 
 import { NormalError } from '~/core/errorResponse'
 
+import { LoggerBuilder } from '~/shared/components/LoggerBuilder'
+
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
-import { lines } from '~/shared/utils/textUtil'
 
 import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
 import { GuildRepository } from '~/modules/ticket/repositories/guildRepository'
@@ -68,8 +69,7 @@ export class ButtonTicketCreate extends InteractionHandler {
 
     await interaction.deferReply({ flags: 'Ephemeral' })
 
-    if (!interaction.guild)
-      throw new NormalError('Lệnh này chỉ dùng trong máy chủ.')
+    if (!interaction.guild) return
 
     const guildConfig = await GuildRepository.getConfig(interaction.guild.id)
     const code = await TicketRepository.generateCode(interaction.guild.id, type)
@@ -110,24 +110,17 @@ export class ButtonTicketCreate extends InteractionHandler {
       ]
     })
 
-    const containerMessage = new ContainerBuilder()
-      .addTextDisplayComponents((text) =>
-        text.setContent(lines('## Bắt đầu hỗ trợ', config.description))
-      )
-      .addSeparatorComponents((separator) => separator)
-      .addTextDisplayComponents((text) =>
-        text.setContent(
-          lines(
-            `- **Mã phiếu:** _#${code}_`,
-            `- **Người tạo:** <@${interaction.user.id}>`,
-            `- **Thời gian tạo:** <t:${Math.floor(now.getTime() / 1000)}:R>`
-          )
-        )
-      )
-
+    const containerMessage = new LoggerBuilder({
+      title: `Bắt đầu hỗ trợ\n-# ${config.description}`,
+      color: Colors.Blue
+    }).addFields([
+      ['Mã phiếu', `_#${code}_`],
+      ['Người tạo', `<@${interaction.user.id}>`],
+      ['Thời gian tạo', `<t:${Math.floor(now.getTime() / 1000)}:R>`]
+    ]).build()
 
     const message = await ticketChannel.send({
-      components: [containerMessage],
+      components: containerMessage,
       flags: MessageFlags.IsComponentsV2
     })
 

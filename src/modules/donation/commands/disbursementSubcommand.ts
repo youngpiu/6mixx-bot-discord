@@ -1,10 +1,7 @@
 // Main disbursement command router to manage bot expenses
 import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Subcommand } from '@sapphire/plugin-subcommands'
-import {
-  ChatInputCommandInteraction,
-  PermissionFlagsBits
-} from 'discord.js'
+import { ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js'
 
 import { DisbursementAddCommand } from '~/modules/donation/commands/_disbursementAddCommand'
 import { DisbursementDetailCommand } from '~/modules/donation/commands/_disbursementDetailCommand'
@@ -17,17 +14,17 @@ import { DisbursementListCommand } from '~/modules/donation/commands/_disburseme
     .addSubcommand((subcommand) =>
       subcommand
         .setName('list')
-        .setDescription('[ADMIN] Xem danh sách các khoản chi.')
+        .setDescription('[OWNER] Xem danh sách các khoản chi.')
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName('add')
-        .setDescription('[ADMIN] Thêm một khoản chi mới.')
+        .setDescription('[OWNER] Thêm một khoản chi mới.')
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName('detail')
-        .setDescription('[ADMIN] Xem thông tin chi tiết một khoản chi.')
+        .setDescription('[OWNER] Xem thông tin chi tiết một khoản chi.')
         .addStringOption((option) =>
           option
             .setName('code')

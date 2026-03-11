@@ -1,9 +1,11 @@
-// Command to view detailed information of a ticket
-import { ChatInputCommandInteraction, EmbedBuilder } from 'discord.js'
+import { type ChatInputCommandInteraction, type InteractionEditReplyOptions, MessageFlags, Colors, ButtonBuilder, ButtonStyle } from 'discord.js'
 
 import { TicketStatus } from 'generated/prisma/enums'
 
 import { NormalError } from '~/core/errorResponse'
+
+import { DetailBuilder } from '~/shared/components/DetailBuilder'
+import { CUSTOM_ID } from '~/shared/constants/idConstant'
 
 import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
 import { TicketRepository } from '~/modules/ticket/repositories/ticketRepository'
@@ -18,9 +20,9 @@ export class TicketDetailCommand {
       throw new NormalError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
     }
 
-    const id = interaction.options.getString('ticket-id', true)
+    const code = interaction.options.getString('code', true)
 
-    const ticket = await TicketRepository.findById(id)
+    const ticket = await TicketRepository.findByCode(code)
 
     if (!ticket) {
       throw new NormalError(
@@ -29,58 +31,56 @@ export class TicketDetailCommand {
     }
 
     const typeLabel = TicketHelper.getTicketTypeLabel(ticket.type)
+    const statusLabel = TicketHelper.getStatusText(ticket.status)
 
-    const fields = [
-      {
-        name: 'Mã phiếu',
-        value: `${ticket.status === TicketStatus.CLOSED ? '🔒' : '🔓'} **#${ticket.code}**`,
-        inline: false
-      },
-      { name: 'Loại phiếu', value: typeLabel, inline: false },
-      { name: 'Người tạo', value: `<@${ticket.requesterId}>`, inline: false },
-      {
-        name: 'Thời gian tạo',
-        value: `<t:${Math.floor(ticket.createdAt.getTime() / 1000)}:R>`,
-        inline: false
-      }
+    const fields: [string, string][] = [
+      ['Trạng thái', `**${statusLabel}**`],
+      ['Loại phiếu', `**${typeLabel}**`],
+      ['Người tạo', `<@${ticket.requesterId}>`]
     ]
 
     // Show channel link only for OPEN tickets as closed tickets might have their channels deleted
     if (ticket.status === TicketStatus.OPEN) {
-      fields.push({
-        name: 'Kênh hỗ trợ',
-        value: `<#${ticket.channelId}>`,
-        inline: false
-      })
+      fields.push(['Kênh hỗ trợ', `<#${ticket.channelId}>`])
     }
 
+    fields.push([
+      'Thời gian tạo',
+      `<t:${Math.floor(ticket.createdAt.getTime() / 1000)}:R>`
+    ])
+
     if (ticket.closedBy) {
-      fields.push({
-        name: 'Người đóng',
-        value: `<@${ticket.closedBy}>`,
-        inline: false
-      })
+      fields.push(['Người đóng', `<@${ticket.closedBy}>`])
     }
 
     if (ticket.closedAt) {
-      fields.push({
-        name: 'Thời gian đóng',
-        value: `<t:${Math.floor(ticket.closedAt.getTime() / 1000)}:R>`,
-        inline: false
-      })
+      fields.push([
+        'Thời gian đóng',
+        `<t:${Math.floor(ticket.closedAt.getTime() / 1000)}:R>`
+      ])
     }
 
     if (ticket.reason) {
-      fields.push({ name: 'Lý do đóng', value: ticket.reason, inline: false })
+      fields.push(['Lý do đóng', `**${ticket.reason}**`])
     }
 
-    await interaction.editReply({
-      embeds: [
-        new EmbedBuilder()
-          .setColor(ticket.status === TicketStatus.CLOSED ? 'DarkRed' : 'Green')
-          .setTitle(`Thông tin phiếu #${ticket.code}`)
-          .setFields(fields)
-      ]
-    })
+    const builder = new DetailBuilder({
+      title: `Thông tin phiếu hỗ trợ \`#${ticket.code}\``,
+      color: ticket.status === TicketStatus.CLOSED ? Colors.Red : Colors.Green
+    }).addFields(fields)
+
+    const btnDelete = new ButtonBuilder()
+      .setCustomId(`${CUSTOM_ID.BTN_TICKET_DELETE_PREFIX}${ticket.id}`)
+      .setLabel('Xóa')
+      .setStyle(ButtonStyle.Danger)
+
+    builder.addActionRow([btnDelete])
+
+    const response: InteractionEditReplyOptions = {
+      components: builder.build(),
+      flags: [MessageFlags.IsComponentsV2]
+    }
+
+    await interaction.editReply(response)
   }
 }

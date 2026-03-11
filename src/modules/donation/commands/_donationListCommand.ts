@@ -149,7 +149,7 @@ export class DonationListCommand {
         .setCustomId('label-status')
         .setStyle(ButtonStyle.Secondary)
         .setDisabled(true)
-        .setLabel('Trạng thái ⬇️')
+        .setLabel('Trạng thái')
     ])
 
     listBuilder.addActionRow(this.createFilterRow(meta))

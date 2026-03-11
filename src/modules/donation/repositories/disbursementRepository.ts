@@ -1,9 +1,15 @@
 // Repository for managing disbursement records and expense statistics
 import { container } from '@sapphire/pieces'
 
+import { TIME } from '~/shared/constants/timeConstant'
 import { CounterRepository } from '~/shared/repositories/counterRepository'
+import { CacheService } from '~/shared/services/cacheService'
 
 export class DisbursementRepository {
+  private static async invalidateDisbursementCache(guildId: string) {
+    await CacheService.invalidatePattern(`disbursements:${guildId}:*`)
+  }
+
   public static async create(data: {
     guildId: string
     amount: number
@@ -16,12 +22,15 @@ export class DisbursementRepository {
       'DSB'
     )
 
-    return container.prisma.disbursement.create({
+    const disbursement = await container.prisma.disbursement.create({
       data: {
         ...data,
         code
       }
     })
+    
+    await this.invalidateDisbursementCache(data.guildId)
+    return disbursement
   }
   public static async findById(id: string) {
     return container.prisma.disbursement.findUnique({
@@ -49,9 +58,12 @@ export class DisbursementRepository {
   }
 
   public static async delete(id: string) {
-    return container.prisma.disbursement.delete({
+    const disbursement = await container.prisma.disbursement.delete({
       where: { id }
     })
+    
+    await this.invalidateDisbursementCache(disbursement.guildId)
+    return disbursement
   }
 
   public static async findMany({
@@ -63,34 +75,45 @@ export class DisbursementRepository {
     page?: number
     limit?: number
   }) {
+    const cacheKey = `disbursements:${guildId}:${page}:${limit}`
     const skip = (page - 1) * limit
 
-    const [items, total] = await Promise.all([
-      container.prisma.disbursement.findMany({
-        where: { guildId },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit
-      }),
-      container.prisma.disbursement.count({
-        where: { guildId }
-      })
-    ])
+    const result = await CacheService.remember(cacheKey, TIME.S30, async () => {
+      const [items, total] = await Promise.all([
+        container.prisma.disbursement.findMany({
+          where: { guildId },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit
+        }),
+        container.prisma.disbursement.count({
+          where: { guildId }
+        })
+      ])
 
-    const totalPages = Math.ceil(total / limit)
-    const hasNext = page < totalPages
-    const hasPrev = page > 1
+      const totalPages = Math.ceil(total / limit)
+      const hasNext = page < totalPages
+      const hasPrev = page > 1
+
+      return {
+        items,
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages,
+          hasNext,
+          hasPrev
+        }
+      }
+    })
 
     return {
-      items,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages,
-        hasNext,
-        hasPrev
-      }
+      ...result,
+      items: result.items.map((item) => ({
+        ...item,
+        createdAt: new Date(item.createdAt)
+      }))
     }
   }
 

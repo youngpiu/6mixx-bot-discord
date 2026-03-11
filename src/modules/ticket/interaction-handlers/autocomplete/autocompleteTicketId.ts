@@ -23,7 +23,7 @@ export class AutocompleteTicketHandler extends InteractionHandler {
     if (interaction.commandName !== 'ticket') return this.none()
     const focusedOption = interaction.options.getFocused(true)
 
-    if (focusedOption.name !== 'ticket-id') return this.none()
+    if (focusedOption.name !== 'code') return this.none()
     if (!interaction.guild) return this.none()
 
     const searchedTickets = await TicketRepository.searchByCode({
@@ -34,7 +34,7 @@ export class AutocompleteTicketHandler extends InteractionHandler {
     return this.some(
       searchedTickets.map((ticket) => ({
         name: `${ticket.code} - ${TicketHelper.getStatusText(ticket.status)}`,
-        value: ticket.id
+        value: ticket.code
       }))
     )
   }

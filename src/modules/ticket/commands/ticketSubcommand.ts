@@ -1,7 +1,7 @@
 // Main ticket command router
 import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Subcommand } from '@sapphire/plugin-subcommands'
-import { ChatInputCommandInteraction } from 'discord.js'
+import { ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js'
 
 import { TicketCloseCommand } from '~/modules/ticket/commands/_ticketCloseCommand'
 import { TicketDetailCommand } from '~/modules/ticket/commands/_ticketDetailCommand'
@@ -11,10 +11,11 @@ import { TicketListCommand } from '~/modules/ticket/commands/_ticketListCommand'
   builder
     .setName('ticket')
     .setDescription('Quản lý hệ thống hỗ trợ thành viên.')
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addSubcommand((subcommand) =>
       subcommand
         .setName('close')
-        .setDescription('Đóng phiếu hỗ trợ hiện tại.')
+        .setDescription('[ADMIN] Đóng phiếu hỗ trợ hiện tại.')
         .addStringOption((option) =>
           option
             .setName('reason')
@@ -25,13 +26,11 @@ import { TicketListCommand } from '~/modules/ticket/commands/_ticketListCommand'
     .addSubcommand((subcommand) =>
       subcommand
         .setName('detail')
-        .setDescription(
-          '[ADMINISTRATOR] Xem thông tin chi tiết một phiếu hỗ trợ bằng mã phiếu.'
-        )
+        .setDescription('[ADMIN] Xem thông tin chi tiết phiếu hỗ trợ bất kỳ.')
         .addStringOption((option) =>
           option
-            .setName('ticket-id')
-            .setDescription('Mã phiếu hỗ trợ mà bạn muốn xem chi tiết.')
+            .setName('code')
+            .setDescription('Mã phiếu hỗ trợ cần xem thông tin chi tiết.')
             .setRequired(true)
             .setAutocomplete(true)
         )
@@ -39,14 +38,14 @@ import { TicketListCommand } from '~/modules/ticket/commands/_ticketListCommand'
     .addSubcommand((subcommand) =>
       subcommand
         .setName('list')
-        .setDescription(
-          '[ADMINISTRATOR] Xem danh sách các phiếu hỗ trợ có trong cơ sở dữ liệu.'
-        )
+        .setDescription('[ADMIN] Xem danh sách các phiếu hỗ trợ.')
     )
 )
 @ApplyOptions<Subcommand.Options>({
   name: 'ticket',
   description: 'Hệ thống hỗ trợ thành viên.',
+  enabled: true,
+  requiredUserPermissions: ['Administrator'],
   subcommands: [
     {
       name: 'close',

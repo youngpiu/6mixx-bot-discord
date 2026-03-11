@@ -116,7 +116,7 @@ export class TicketRepository {
     // Build where clause based on status parameter
     const whereClause = { guildId, type, status }
 
-    return CacheService.remember(cacheKey, TIME.S30, async () => {
+    const result = await CacheService.remember(cacheKey, TIME.S30, async () => {
       const [items, total] = await Promise.all([
         container.prisma.ticket.findMany({
           where: whereClause,
@@ -136,6 +136,23 @@ export class TicketRepository {
         items,
         meta: { total, totalPages, page, limit, hasNext: page < totalPages, hasPrev: page > 1, type, status }
       }
+    })
+
+    return {
+      ...result,
+      items: result.items.map((item) => ({
+        ...item,
+        createdAt: new Date(item.createdAt),
+        updatedAt: new Date(item.updatedAt),
+        closedAt: item.closedAt ? new Date(item.closedAt) : null
+      }))
+    }
+  }
+
+  public static async findByCode(code: string) {
+    const cleanCode = code.replace(/#/g, '').toUpperCase()
+    return container.prisma.ticket.findUnique({
+      where: { code: cleanCode }
     })
   }
 
@@ -180,5 +197,16 @@ export class TicketRepository {
     await this.invalidateTicketCache(result.guildId)
 
     return result
+  }
+
+  // Deletes a ticket from the database by its ID
+  // - Invalidates cache after deletion
+  public static async delete(id: string) {
+    const ticket = await container.prisma.ticket.delete({
+      where: { id }
+    })
+
+    await this.invalidateTicketCache(ticket.guildId)
+    return ticket
   }
 }

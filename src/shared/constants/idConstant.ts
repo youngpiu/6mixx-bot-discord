@@ -59,8 +59,6 @@ export const CUSTOM_ID = {
   MODAL_CHANNEL_SETTING: 'modal-channel-setting',
 
   // Ticket Buttons
-  BTN_TICKET_CLOSE: 'btn-ticket-close',
-  BTN_TICKET_CLOSE_REASON: 'btn-ticket-close-reason',
   BTN_TICKET_BUG: 'btn-ticket-bug',
 
   // Setting
@@ -84,9 +82,9 @@ export const CUSTOM_ID = {
     'btn-ticket-create-notification-thread',
 
   // Ticket Modals / Dynamic
-  MODAL_TICKET_CLOSE_REASON: 'modal-ticket-close-reason',
   MODAL_TICKET_GENERAL_SETTING: 'modal-ticket-general-setting',
   TICKET_LIST_PREFIX: 'ticket-list:',
+  BTN_TICKET_DELETE_PREFIX: 'btn-ticket-delete:',
 
   // Disbursement
   MODAL_DISBURSEMENT_CREATE: 'modal-disbursement-create',
