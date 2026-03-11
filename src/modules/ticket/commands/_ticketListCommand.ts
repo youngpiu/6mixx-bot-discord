@@ -124,7 +124,6 @@ export class TicketListCommand {
 
     const listBuilder = new ListBuilder<TicketListMeta>({
       title: 'DANH SÁCH PHIẾU HỖ TRỢ',
-      emptyMessage: 'Không có phiếu hỗ trợ nào.',
       footer: `Trang ${meta.page}/${meta.totalPages || 1} • Tổng: ${meta.total} phiếu • Loại: ${typeText} • Trạng thái: ${statusText}`,
       idPrefix: CUSTOM_ID.TICKET_LIST_PREFIX,
       encodeState: encodeState

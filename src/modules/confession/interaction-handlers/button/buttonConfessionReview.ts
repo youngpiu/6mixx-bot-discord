@@ -110,7 +110,9 @@ export class ButtonConfessionReview extends InteractionHandler {
     )) as ForumChannel
 
     if (!forumChannel || forumChannel.type !== ChannelType.GuildForum) {
-      throw new NormalError('Kênh đăng confession không tồn tại hoặc không hợp lệ.')
+      throw new NormalError(
+        'Kênh đăng confession không tồn tại hoặc không hợp lệ.'
+      )
     }
 
     // Prepare Thread Content
@@ -156,7 +158,7 @@ export class ButtonConfessionReview extends InteractionHandler {
       'CONFESSION_APPROVED'
     )
 
-    const creditText = `\n\n\\- _Gửi từ: **${authorLine}** - <t:${Math.floor(confession.createdAt.getTime() / 1000)}:F>_`
+    const creditText = `\n\n\\- _Gửi bởi: **${authorLine}** - <t:${Math.floor(confession.createdAt.getTime() / 1000)}:F>_`
 
     // Append credit to the last chunk
     chunks[chunks.length - 1] += creditText

@@ -145,35 +145,33 @@ export class ConfessionListCommand {
       const indexNumber = (meta.page - 1) * meta.limit + index + 1
       const itemStatusText = ConfessionHelper.getStatusLabel(cfs.status)
 
-      const fields = formatFields([
+      const fieldList: [string, string][] = [
         ['Trạng thái', `**${itemStatusText}**`],
-        [
+        ['Loại', cfs.isAnonymous ? 'Ẩn danh' : 'Công khai']
+      ]
+
+      if (!cfs.isAnonymous) {
+        fieldList.push([
           'Người gửi',
-          cfs.isAnonymous
-            ? 'Ẩn danh'
-            : cfs.author
-              ? `<@${cfs.author.userId}>`
-              : 'Không rõ'
-        ],
-        [
-          'Nội dung',
-          cfs.content.length > 100
-            ? cfs.content.substring(0, 100) + '...'
-            : cfs.content
-        ]
+          cfs.author ? `<@${cfs.author.id}>` : 'Không rõ'
+        ])
+      }
+
+      fieldList.push([
+        'Nội dung',
+        cfs.content.length > 100
+          ? cfs.content.substring(0, 100) + '...'
+          : cfs.content
       ])
 
-      if (cfs.forumPostId)
-        fields.push(...formatFields([['Bài viết', `<#${cfs.forumPostId}>`]]))
+      if (cfs.forumPostId) fieldList.push(['Bài viết', `<#${cfs.forumPostId}>`])
 
-      fields.push(
-        ...formatFields([
-          [
-            'Thời gian gửi',
-            `<t:${Math.floor(cfs.createdAt.getTime() / 1000)}:R>`
-          ]
-        ])
-      )
+      fieldList.push([
+        'Thời gian gửi',
+        `<t:${Math.floor(cfs.createdAt.getTime() / 1000)}:R>`
+      ])
+
+      const fields = formatFields(fieldList)
 
       const itemContent = lines(`### ${indexNumber}. #${cfs.code}`, ...fields)
 

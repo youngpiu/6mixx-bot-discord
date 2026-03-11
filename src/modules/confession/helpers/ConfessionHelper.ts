@@ -55,10 +55,13 @@ export class ConfessionHelper {
           ? `${confession.content.substring(0, 150)}...`
           : confession.content
 
-      const senderField: [string, string] = [
-        'Người gửi',
-        confession.isAnonymous ? '**Ẩn danh**' : `<@${confession.authorId}>`
+      const fields: [string, string][] = [
+        ['Loại', confession.isAnonymous ? '**Ẩn danh**' : '**Công khai**']
       ]
+
+      if (!confession.isAnonymous) {
+        fields.push(['Người gửi', `<@${confession.authorId}>`])
+      }
 
       let logContainer: LoggerBuilder
 
@@ -67,8 +70,7 @@ export class ConfessionHelper {
           title: `Confession mới \`#${confession.code}\``,
           color: Colors.Yellow
         }).addFields([
-          ['Loại', confession.isAnonymous ? '**Ẩn danh**' : '**Công khai**'],
-          senderField,
+          ...fields,
           ['Nội dung', `**${preview}**`],
           [
             'Thời gian',
@@ -80,8 +82,7 @@ export class ConfessionHelper {
           title: `Duyệt Confession \`#${confession.code}\``,
           color: Colors.Green
         }).addFields([
-          ['Loại', confession.isAnonymous ? '**Ẩn danh**' : '**Công khai**'],
-          senderField,
+          ...fields,
           ['Người duyệt', executorId ? `<@${executorId}>` : 'N/A'],
           ['Thời gian duyệt', `<t:${Math.floor(Date.now() / 1000)}:R>`]
         ])
@@ -90,8 +91,7 @@ export class ConfessionHelper {
           title: `Từ chối Confession \`#${confession.code}\``,
           color: Colors.Red
         }).addFields([
-          ['Loại', confession.isAnonymous ? '**Ẩn danh**' : '**Công khai**'],
-          senderField,
+          ...fields,
           ['Người từ chối', executorId ? `<@${executorId}>` : 'N/A'],
           ['Thời gian', `<t:${Math.floor(Date.now() / 1000)}:R>`]
         ])

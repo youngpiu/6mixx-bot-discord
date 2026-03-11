@@ -50,6 +50,37 @@ export class ButtonDonationStats extends InteractionHandler {
       }
     )
 
+    const donationFields: [string, string][] = [
+      ['Số người', `**${donationStats.uniqueDonors}**`],
+      ['Số giao dịch', `**${donationStats.totalTransactions}**`],
+      ['Tổng tiền', `**${donationStats.totalAmount.toLocaleString('vi-VN')}đ**`]
+    ]
+
+    const disbursementFields: [string, string][] = [
+      ['Số khoản chi', `**${disbursementStats.count}**`],
+      [
+        'Tổng tiền',
+        `**${disbursementStats.totalAmount.toLocaleString('vi-VN')}đ**`
+      ],
+      ['Số dư hiện tại', `**${remainingBalance.toLocaleString('vi-VN')}đ**`]
+    ]
+
+    // Use a single formatFields call for all fields to ensure global alignment (same maxKeyLength)
+    // then slice it back to original sections.
+    const allFormatted = formatFields(
+      [...donationFields, ...disbursementFields, ...topDonorsFields],
+      '  - '
+    )
+
+    const formattedDonation = allFormatted.slice(0, donationFields.length)
+    const formattedDisbursement = allFormatted.slice(
+      donationFields.length,
+      donationFields.length + disbursementFields.length
+    )
+    const formattedTopDonors = allFormatted.slice(
+      donationFields.length + disbursementFields.length
+    )
+
     const statsContainer = new ContainerBuilder()
       .addTextDisplayComponents((text) =>
         text.setContent(
@@ -61,34 +92,11 @@ export class ButtonDonationStats extends InteractionHandler {
         text.setContent(
           lines(
             `- **Quyên góp:**`,
-            ...formatFields(
-              [
-                ['Số người', `**${donationStats.uniqueDonors}**`],
-                ['Số giao dịch', `**${donationStats.totalTransactions}**`],
-                [
-                  'Tổng tiền',
-                  `**${donationStats.totalAmount.toLocaleString('vi-VN')}đ**`
-                ]
-              ],
-              '  - '
-            ),
+            ...formattedDonation,
             `- **Giải ngân:**`,
-            ...formatFields(
-              [
-                ['Số khoản chi', `**${disbursementStats.count}**`],
-                [
-                  'Tổng tiền',
-                  `**${disbursementStats.totalAmount.toLocaleString('vi-VN')}đ**`
-                ],
-                [
-                  'Số dư hiện tại',
-                  `**${remainingBalance.toLocaleString('vi-VN')}đ**`
-                ]
-              ],
-              '  - '
-            ),
+            ...formattedDisbursement,
             topDonors.length > 0 ? `- **Danh sách quyên góp:**` : undefined,
-            ...formatFields(topDonorsFields, '  - ')
+            ...formattedTopDonors
           )
         )
       )
