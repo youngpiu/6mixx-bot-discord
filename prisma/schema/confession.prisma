@@ -16,9 +16,8 @@ model Confession {
   guild   Guild  @relation(fields: [guildId], references: [guildId], onDelete: Cascade)
 
   /// Content of the confession
-  content        String
-  attachmentUrls String[]
-  isAnonymous    Boolean  @default(true)
+  content     String
+  isAnonymous Boolean @default(true)
 
   status          ConfessionStatus @default(PENDING)
   rejectionReason String?
