@@ -115,7 +115,8 @@ CREATE TABLE "GuildSetting" (
     "donationTutorialThreadId" TEXT,
     "donationNotificationThreadId" TEXT,
     "disbursementLogChannelId" TEXT,
-    "wordChainChannelId" TEXT,
+    "vietnameseWordChainChannelId" TEXT,
+    "englishWordChainChannelId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -151,7 +152,7 @@ CREATE TABLE "VietnamesePhrase" (
 );
 
 -- CreateTable
-CREATE TABLE "VietnameseWordChainSession" (
+CREATE TABLE "WordChainSession" (
     "id" BIGSERIAL NOT NULL,
     "guildId" TEXT NOT NULL,
     "channelId" TEXT NOT NULL,
@@ -159,17 +160,17 @@ CREATE TABLE "VietnameseWordChainSession" (
     "endedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "VietnameseWordChainSession_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "WordChainSession_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "VietnameseWordChainSessionPlayer" (
+CREATE TABLE "WordChainSessionPlayer" (
     "sessionId" BIGINT NOT NULL,
     "guildId" TEXT NOT NULL,
     "memberId" TEXT NOT NULL,
     "score" INTEGER NOT NULL DEFAULT 0,
 
-    CONSTRAINT "VietnameseWordChainSessionPlayer_pkey" PRIMARY KEY ("sessionId","guildId","memberId")
+    CONSTRAINT "WordChainSessionPlayer_pkey" PRIMARY KEY ("sessionId","guildId","memberId")
 );
 
 -- CreateIndex
@@ -248,13 +249,13 @@ CREATE UNIQUE INDEX "VietnamesePhrase_phrase_key" ON "VietnamesePhrase"("phrase"
 CREATE INDEX "VietnamesePhrase_firstWord_idx" ON "VietnamesePhrase"("firstWord");
 
 -- CreateIndex
-CREATE INDEX "VietnameseWordChainSession_guildId_idx" ON "VietnameseWordChainSession"("guildId");
+CREATE INDEX "WordChainSession_guildId_idx" ON "WordChainSession"("guildId");
 
 -- CreateIndex
-CREATE INDEX "VietnameseWordChainSession_guildId_channelId_idx" ON "VietnameseWordChainSession"("guildId", "channelId");
+CREATE INDEX "WordChainSession_guildId_channelId_idx" ON "WordChainSession"("guildId", "channelId");
 
 -- CreateIndex
-CREATE INDEX "VietnameseWordChainSessionPlayer_guildId_memberId_idx" ON "VietnameseWordChainSessionPlayer"("guildId", "memberId");
+CREATE INDEX "WordChainSessionPlayer_guildId_memberId_idx" ON "WordChainSessionPlayer"("guildId", "memberId");
 
 -- AddForeignKey
 ALTER TABLE "Confession" ADD CONSTRAINT "Confession_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -293,13 +294,13 @@ ALTER TABLE "Ticket" ADD CONSTRAINT "Ticket_guildId_requesterId_fkey" FOREIGN KE
 ALTER TABLE "Ticket" ADD CONSTRAINT "Ticket_guildId_closedBy_fkey" FOREIGN KEY ("guildId", "closedBy") REFERENCES "Member"("guildId", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "VietnameseWordChainSession" ADD CONSTRAINT "VietnameseWordChainSession_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "WordChainSession" ADD CONSTRAINT "WordChainSession_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "VietnameseWordChainSession" ADD CONSTRAINT "VietnameseWordChainSession_guildId_winnerId_fkey" FOREIGN KEY ("guildId", "winnerId") REFERENCES "Member"("guildId", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "WordChainSession" ADD CONSTRAINT "WordChainSession_guildId_winnerId_fkey" FOREIGN KEY ("guildId", "winnerId") REFERENCES "Member"("guildId", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "VietnameseWordChainSessionPlayer" ADD CONSTRAINT "VietnameseWordChainSessionPlayer_sessionId_fkey" FOREIGN KEY ("sessionId") REFERENCES "VietnameseWordChainSession"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "WordChainSessionPlayer" ADD CONSTRAINT "WordChainSessionPlayer_sessionId_fkey" FOREIGN KEY ("sessionId") REFERENCES "WordChainSession"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "VietnameseWordChainSessionPlayer" ADD CONSTRAINT "VietnameseWordChainSessionPlayer_guildId_memberId_fkey" FOREIGN KEY ("guildId", "memberId") REFERENCES "Member"("guildId", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "WordChainSessionPlayer" ADD CONSTRAINT "WordChainSessionPlayer_guildId_memberId_fkey" FOREIGN KEY ("guildId", "memberId") REFERENCES "Member"("guildId", "id") ON DELETE RESTRICT ON UPDATE CASCADE;
