@@ -8,6 +8,8 @@
     "dev": "npx nodemon",
     "build": "rimraf ./dist && tsc && tsc-alias --resolve-full-paths",
     "start": "node --experimental-specifier-resolution=node dist/src/index.js",
+    "prepare": "git config core.hooksPath .githooks || true",
+    "precommit": "pnpm lint && pnpm prettier:fix",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --check .",
