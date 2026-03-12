@@ -47,6 +47,21 @@ services:
     networks:
       - bot-network
 
+  # ── Database Migration (production only) ──
+  migrate:
+    profiles: [prod]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migration
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+    networks:
+      - bot-network
+
   # ── Discord Bot (production only) ──────────
   bot:
     profiles: [prod]
