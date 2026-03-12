@@ -12,6 +12,12 @@ import {
 import { cyan } from 'colorette'
 import { APIUser, Guild, User } from 'discord.js'
 
+/**
+ * Logs a standardized debug message when a command or subcommand executes successfully.
+ * Extracts guild, user, and command information from the success payload.
+ *
+ * @param payload - The success payload from Sapphire command or subcommand execution.
+ */
 export function logSuccessCommand(
   payload:
     | ContextMenuCommandSuccessPayload

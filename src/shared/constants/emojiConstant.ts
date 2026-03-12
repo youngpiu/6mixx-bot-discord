@@ -198,11 +198,22 @@ const PROD_ANIMATED_EMOJI = {
   HEART: '<a:heart:1481571430373003329>'
 } as const
 
+/**
+ * Static custom emojis used for UI status and navigation.
+ * Switches between production and development IDs based on the environment.
+ */
 export const STATIC_EMOJI =
   env.NODE_ENV === 'production' ? PROD_STATIC_EMOJI : DEV_STATIC_EMOJI
 
+/**
+ * Custom emojis for digits (0-9).
+ * Each digit has multiple variants (V1-V6) used for cyclic display in features like word chains.
+ */
 export const NUMBER_EMOJI =
   env.NODE_ENV === 'production' ? PROD_NUMBER_EMOJI : DEV_NUMBER_EMOJI
 
+/**
+ * Animated custom emojis used for decorative UI elements.
+ */
 export const ANIMATED_EMOJI =
   env.NODE_ENV === 'production' ? PROD_ANIMATED_EMOJI : DEV_ANIMATED_EMOJI

@@ -26,9 +26,21 @@ interface RunInContext {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+/**
+ * Formats a list of missing permission strings into human-readable Vietnamese names.
+ *
+ * @param missing - Array of permission technical names.
+ * @returns A comma-separated string of readable permission names.
+ */
 const formatMissingPermissions = (missing: string[]): string =>
   missing.map((p) => PERMISSION_NAMES[p as PermissionsString] ?? p).join(', ')
 
+/**
+ * Formats a list of allowed channel types into human-readable Vietnamese names.
+ *
+ * @param types - Array of ChannelType integers.
+ * @returns A comma-separated string of readable channel type names.
+ */
 const formatAllowedChannels = (types: ChannelType[]): string =>
   types.map((t) => CHANNEL_TYPE_NAMES[t] ?? `#${t}`).join(', ')
 
@@ -51,6 +63,13 @@ const CLIENT_PERMISSION_IDENTIFIERS = new Set<string>([
 
 // ─── Mapper ───────────────────────────────────────────────────────────────────
 
+/**
+ * Maps a Sapphire precondition denial error to a standardized ErrorResponseCore.
+ * Translates technical error identifiers into user-friendly Vietnamese messages.
+ *
+ * @param error - The UserError from Sapphire's precondition denial.
+ * @returns A standardized error response object.
+ */
 export function mapDeniedError(error: UserError): ErrorResponseCore {
   const id = error.identifier
   const ctx = error.context as Record<string, unknown> | null

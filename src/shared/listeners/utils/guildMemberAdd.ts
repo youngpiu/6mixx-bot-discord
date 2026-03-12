@@ -5,10 +5,20 @@ import type { GuildMember } from 'discord.js'
 
 import { GuildMemberRepository } from '~/shared/repositories/guildMemberRepository'
 
+/**
+ * Listener that executes when a new member joins a guild.
+ * It ensures a record for the user and their guild membership exists in the database.
+ */
 @ApplyOptions<Listener.Options>({
   event: 'guildMemberAdd'
 })
 export class GuildMemberAddListener extends Listener {
+  /**
+   * Responds to a new member joining by creating or verifying their database record.
+   * Ignores bot accounts.
+   *
+   * @param member - The Discord guild member who joined.
+   */
   async run(member: GuildMember) {
     // Ignore bots
     if (member.user.bot) return

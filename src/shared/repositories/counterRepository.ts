@@ -1,14 +1,22 @@
 import { container } from '@sapphire/pieces'
 
+/**
+ * Repository for managing auto-incrementing counters used for generating unique codes and sequences.
+ */
 export class CounterRepository {
   /**
-   * Generates a unique, sequential formatted code (e.g. DNT001, BU042).
-   * Uses an atomic upsert on the generic AutoIncrement model to prevent race conditions.
-   * Format: PREFIX + 3-digit number (padded).
+   * Generates a unique, sequential formatted code (e.g., DNT001, BU042).
+   * Uses an atomic upsert on the AutoIncrement model to ensure thread-safety and prevent race conditions.
    *
-   * @param guildId The Guild ID
-   * @param type The distinct type of sequence (e.g., 'DONATION', 'TICKET_BUG')
-   * @param prefix The string to prepend to the sequence (e.g., 'DNT', 'BU')
+   * @example
+   * ```ts
+   * await CounterRepository.generateCode('guild-id', 'DONATION', 'DNT'); // returns 'DNT001'
+   * ```
+   *
+   * @param guildId - The Discord Guild ID.
+   * @param type - The distinct type of sequence (key for the counter).
+   * @param prefix - The string to prepend to the padded sequence number.
+   * @returns A string in the format: PREFIX + 3-digit padded number.
    */
   public static async generateCode(
     guildId: string,
@@ -39,10 +47,12 @@ export class CounterRepository {
   }
 
   /**
-   * Generates a generic sequential increment number
+   * Retrieves the next available sequence number for a given guild and type.
+   * Increments the counter atomically in the database.
    *
-   * @param guildId The Guild ID
-   * @param type The distinct type of sequence
+   * @param guildId - The Discord Guild ID.
+   * @param type - The distinct type of sequence.
+   * @returns A promise that resolves to the next sequence number.
    */
   public static async getNextSequence(
     guildId: string,

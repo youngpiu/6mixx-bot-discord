@@ -2,20 +2,38 @@ import { ButtonBuilder, ButtonStyle, ContainerBuilder } from 'discord.js'
 
 import { STATIC_EMOJI } from '~/shared/constants/emojiConstant'
 
+/**
+ * Options for configuring a ListBuilder instance.
+ * @template TState - The type of the state object used for encoding interaction IDs.
+ */
 export interface ListBuilderOptions<TState = unknown> {
+  /** The title of the list. */
   title: string
+  /** Message to display when the list is empty. */
   emptyMessage?: string
+  /** Optional footer text displayed at the bottom of the list. */
   footer?: string
+  /** Prefix for custom IDs, required if using default pagination. */
   idPrefix?: string
+  /** Function to encode state into a string for custom IDs, required if using default pagination. */
   encodeState?: (state: TState) => string
 }
 
+/**
+ * A utility class for building standardized list view containers using Sapphire's ContainerBuilder.
+ * Supports pagination, individual items, footers, and custom action rows.
+ * @template TState - The type of the state object for pagination and filtering.
+ */
 export class ListBuilder<TState = unknown> {
   private container: ContainerBuilder
   private items: string[] = []
   private actionRows: ButtonBuilder[][] = []
   private options: ListBuilderOptions<TState>
 
+  /**
+   * Initializes a new ListBuilder with the specified options.
+   * @param options - Configuration options for the list.
+   */
   constructor(options: ListBuilderOptions<TState>) {
     this.options = options
     this.container = new ContainerBuilder()
@@ -25,15 +43,23 @@ export class ListBuilder<TState = unknown> {
       .addSeparatorComponents((sep) => sep)
   }
 
-  // Adds a single text item to the list.
-  // @param itemContent The formatted string content of the item.
+  /**
+   * Adds a single text item to the list.
+   *
+   * @param itemContent - The formatted string content of the item.
+   * @returns The builder instance for chaining.
+   */
   public addItem(itemContent: string): this {
     this.items.push(itemContent)
     return this
   }
 
-  // Adds a row of buttons to the bottom of the container.
-  // @param buttons An array of ButtonBuilder instances.
+  /**
+   * Adds a row of buttons to the bottom of the container.
+   *
+   * @param buttons - An array of ButtonBuilder instances.
+   * @returns The builder instance for chaining.
+   */
   public addActionRow(buttons: ButtonBuilder[]): this {
     if (buttons.length > 0) {
       this.actionRows.push(buttons)
@@ -41,10 +67,14 @@ export class ListBuilder<TState = unknown> {
     return this
   }
 
-  // Generates a standard pagination action row (First, Prev, Indicator, Next, Last).
-  // @param state The state object that contains both pagination metadata and other custom filter states.
-  //              It must include `page`, `totalPages`, `hasPrev`, and `hasNext`.
-  // @param buttonFactory An optional callback to construct a ButtonBuilder if not using the default config.
+  /**
+   * Generates a standard pagination action row (First, Prev, Next, Last).
+   * Requires `idPrefix` and `encodeState` to be set in options if `buttonFactory` is not provided.
+   *
+   * @param state - The current pagination state including page metadata.
+   * @param buttonFactory - Optional custom factory for creating pagination buttons.
+   * @returns The builder instance for chaining.
+   */
   public addPaginationRow(
     state: TState & {
       page: number
@@ -125,8 +155,11 @@ export class ListBuilder<TState = unknown> {
     return this.addActionRow(paginationButtons)
   }
 
-  // Builds and returns the final container array for Discord responses.
-  // @returns An array containing the constructed ContainerBuilder.
+  /**
+   * Builds and returns the final container array for Discord responses.
+   *
+   * @returns An array containing the constructed ContainerBuilder.
+   */
   public build(): [ContainerBuilder] {
     if (this.items.length === 0) {
       const fallbackMessage = this.options.emptyMessage || 'Không có dữ liệu...'

@@ -10,7 +10,7 @@ import '@sapphire/plugin-logger/register'
 import '@sapphire/plugin-scheduled-tasks'
 import '@sapphire/plugin-scheduled-tasks/register'
 import '@sapphire/plugin-subcommands/register'
-import { ActivityType, GatewayIntentBits, Partials } from 'discord.js'
+import { GatewayIntentBits, Partials } from 'discord.js'
 import 'dotenv/config'
 import { existsSync, readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -21,9 +21,18 @@ import redis from '~/lib/redis'
 
 import { env } from '~/shared/config/env'
 
+/**
+ * The core client class for the Discord bot, extending the Sapphire framework's SapphireClient.
+ * Responsible for configuring intents, partials, plugins, and registering feature modules.
+ */
 export class BotClient extends SapphireClient {
   private runtimeRoot = dirname(fileURLToPath(import.meta.url))
 
+  /**
+   * Initializes a new instance of the BotClient.
+   * Configures Discord gateaway intents, partials, default cooldowns, and logging.
+   * Also dynamically registers command and listener paths from the modules and shared directories.
+   */
   constructor() {
     super({
       intents: [
@@ -39,15 +48,6 @@ export class BotClient extends SapphireClient {
         Partials.Reaction,
         Partials.User
       ],
-      presence: {
-        status: 'online',
-        activities: [
-          {
-            name: 'NMIXX',
-            type: ActivityType.Listening
-          }
-        ]
-      },
       loadDefaultErrorListeners: false,
       defaultPrefix: env.DEFAULT_PREFIX,
       loadMessageCommandListeners: true,
@@ -102,6 +102,14 @@ export class BotClient extends SapphireClient {
     this.stores.registerPath(join(this.runtimeRoot, 'shared'))
   }
 
+  /**
+   * Overrides the login method to perform additional initialization before connecting to Discord.
+   * Sets the default behavior for application command registries, connects to Prisma and Redis,
+   * and starts the client login process.
+   *
+   * @param token - The Discord bot token.
+   * @returns A promise that resolves to the client's token when login is successful.
+   */
   async login(token: string): Promise<string> {
     ApplicationCommandRegistries.setDefaultBehaviorWhenNotIdentical(
       RegisterBehavior.BulkOverwrite

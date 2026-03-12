@@ -6,7 +6,12 @@ import { PrismaClient } from '../../generated/prisma/client'
 
 const connectionString = env.DATABASE_URL
 
-// Initializes the Prisma client with the PostgreSQL adapter
+/**
+ * The initialized Prisma client instance using the PostgreSQL adapter.
+ * Provides type-safe database access throughout the application.
+ *
+ * @see {@link https://www.prisma.io/docs/concepts/components/prisma-client Prisma Client Documentation}
+ */
 const adapter = new PrismaPg({ connectionString })
 const prisma = new PrismaClient({ adapter })
 

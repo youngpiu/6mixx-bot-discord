@@ -3,7 +3,12 @@ import Redis from 'ioredis'
 
 import { env } from '~/shared/config/env'
 
-// Initializes the Redis client for caching and task management
+/**
+ * The initialized Redis client instance using `ioredis`.
+ * Used for caching, session management, and other high-performance data operations.
+ *
+ * @see {@link https://github.com/redis/ioredis ioredis Documentation}
+ */
 const redis = new Redis(env.REDIS_URL, {
   maxRetriesPerRequest: null,
   enableReadyCheck: false

@@ -2,9 +2,12 @@ import type { APIMessageComponentEmoji } from 'discord.js'
 
 import { NUMBER_EMOJI } from '~/shared/constants/emojiConstant'
 
-// Parse Discord custom emoji string to API emoji object
-// Input: '<:name:id>' or '<a:name:id>' (animated)
-// Output: { id: string, name: string, animated?: boolean }
+/**
+ * Parses a Discord custom emoji string to an API emoji object.
+ *
+ * @param emojiString - The emoji string to parse (e.g., '<:name:id>' or '<a:name:id>').
+ * @returns An object containing the emoji id, name, and animated status.
+ */
 export function parseEmoji(emojiString: string): APIMessageComponentEmoji {
   // Match custom emoji format: <:name:id> or <a:name:id>
   const match = emojiString.match(/^<(a)?:(\w+):(\d+)>$/)
@@ -22,6 +25,12 @@ export function parseEmoji(emojiString: string): APIMessageComponentEmoji {
   }
 }
 
+/**
+ * Extracts the ID from a Discord custom emoji string.
+ *
+ * @param emojiString - The emoji string to extract the ID from.
+ * @returns The emoji ID if found, otherwise null.
+ */
 export function extractEmojiId(emojiString: string): string | null {
   const match = emojiString.match(/<a?:\w+:(\d+)>/)
   return match ? match[1] : null
@@ -60,7 +69,14 @@ Object.entries(NUMBER_EMOJI).forEach(([key, value]) => {
 /**
  * Returns an array of emoji IDs for each digit of the given number.
  * Handles duplicate digits by cycling through available variants (V1-V6).
- * E.g. 11 → [ONE_V1_ID, ONE_V2_ID]
+ *
+ * @example
+ * ```ts
+ * getNumberEmojiIds(11) // returns [ONE_V1_ID, ONE_V2_ID]
+ * ```
+ *
+ * @param n - The number to convert to emoji IDs.
+ * @returns An array of emoji IDs.
  */
 export function getNumberEmojiIds(n: number): string[] {
   if (n <= 0) return []

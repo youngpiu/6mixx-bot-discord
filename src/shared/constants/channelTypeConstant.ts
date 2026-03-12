@@ -1,8 +1,9 @@
 import { ChannelType } from 'discord.js'
 
-// Mapping of Discord ChannelTypes to their human-readable Vietnamese labels
-// Key: ChannelType (numeric enum from discord.js)
-// Value: Vietnamese channel type name for UI display
+/**
+ * A mapping of Discord {@link ChannelType} numeric enums to their human-readable Vietnamese labels.
+ * Used for displaying channel types in error messages and UI components.
+ */
 export const CHANNEL_TYPE_NAMES: Record<ChannelType, string> = {
   [ChannelType.GuildText]: 'Kênh chữ',
   [ChannelType.DM]: 'Tin nhắn riêng (DM)',

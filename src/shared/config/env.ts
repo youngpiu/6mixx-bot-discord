@@ -1,4 +1,11 @@
-// Utility to fetch and validate environment variables
+/**
+ * Fetches an environment variable by its key and optionally throws an error if it's missing.
+ *
+ * @param key - The name of the environment variable to retrieve.
+ * @param required - Whether the variable is mandatory (default: true).
+ * @returns The value of the environment variable, or an empty string if not found and not required.
+ * @throws {Error} If the variable is required but not found.
+ */
 function getEnvVar(key: string, required = true): string {
   const value = process.env[key]
   if (required && !value) {
@@ -7,6 +14,10 @@ function getEnvVar(key: string, required = true): string {
   return value ?? ''
 }
 
+/**
+ * Validated environment configuration object.
+ * Contains database connection strings, Discord tokens, and application settings.
+ */
 export const env = {
   DATABASE_URL: getEnvVar('DATABASE_URL'),
   REDIS_URL: getEnvVar('REDIS_URL'),

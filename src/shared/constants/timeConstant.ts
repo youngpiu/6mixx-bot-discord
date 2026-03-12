@@ -1,9 +1,13 @@
-// Time constants in milliseconds for common durations (seconds, minutes, hours, days)
 const s = (v: number) => v * 1000
 const m = (v: number) => v * 60_000
 const h = (v: number) => v * 3_600_000
 const d = (v: number) => v * 86_400_000
 
+/**
+ * A collection of common time durations in milliseconds.
+ * Useful for timeouts, intervals, and message deletion delays.
+ * S = Seconds, M = Minutes, H = Hours, D = Days.
+ */
 export const TIME = {
   S2: s(2),
   S3: s(3),

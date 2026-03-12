@@ -6,10 +6,20 @@ import { Guild } from 'discord.js'
 import { GuildMemberRepository } from '~/shared/repositories/guildMemberRepository'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
 
+/**
+ * Listener that executes when the bot joins a new guild.
+ * It ensures the guild record exists in the database and synchronizes all non-bot members.
+ */
 @ApplyOptions<Listener.Options>({
   event: 'guildCreate'
 })
 export class GuildCreateListener extends Listener {
+  /**
+   * Performs data synchronization when the bot joins a guild.
+   * Upserts the guild into the database and bulk-creates records for all human members.
+   *
+   * @param guild - The Discord guild that was joined.
+   */
   public run = async (guild: Guild) => {
     this.container.logger.info(`Joined guild: ${guild.name} (${guild.id})`)
 

@@ -29,6 +29,12 @@ type ChannelInput = SendableChannels | null | undefined
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
+/**
+ * Maps an error type to its corresponding emoji.
+ *
+ * @param type - The type of error.
+ * @returns The emoji associated with the error type.
+ */
 export function getEmojiForErrorType(type: ErrorType): string {
   switch (type) {
     case 'DATABASE':
@@ -48,16 +54,39 @@ export function getEmojiForErrorType(type: ErrorType): string {
 
 // ─── MessageUtil ──────────────────────────────────────────────────────────────
 
+/**
+ * Utility class for handling message-based operations like sending, replying, editing, and deleting.
+ */
 export class MessageUtil {
+  /**
+   * Internal delay function using setTimeout.
+   *
+   * @param ms - Milliseconds to delay.
+   * @returns A promise that resolves after the delay.
+   */
   private static delay(ms: number): Promise<void> {
     return new Promise<void>((res) => setTimeout(res, ms))
   }
 
+  /**
+   * Schedules a list of messages to be deleted after a specified timeout.
+   *
+   * @param messages - The messages to delete.
+   * @param timeout - The delay in milliseconds before deletion.
+   */
   private static scheduleDelete(messages: Message[], timeout?: number): void {
     if (!timeout || timeout <= 0) return
     this.deleteAfter(messages, timeout)
   }
 
+  /**
+   * Sends a message to a text-based channel.
+   *
+   * @param channel - The channel to send the message to.
+   * @param messageOptions - Options for the message content.
+   * @param timeoutDeleteMessage - Optional timeout in milliseconds to delete the message after sending.
+   * @returns The sent message or null if sending failed.
+   */
   static async sendToChannel(
     channel: Channel | null | undefined,
     messageOptions: MessageCreateOptions,
@@ -74,6 +103,15 @@ export class MessageUtil {
     }
   }
 
+  /**
+   * Replies to a specific message.
+   *
+   * @param message - The message to reply to.
+   * @param messageOptions - Options for the reply content.
+   * @param timeoutDeleteMessage - Optional timeout in milliseconds to delete the reply.
+   * @param deleteTrigger - Whether to also delete the trigger message.
+   * @returns The replied message or null if replying failed.
+   */
   static async reply(
     message: MessageInput,
     messageOptions: MessageCreateOptions,
@@ -99,6 +137,14 @@ export class MessageUtil {
     }
   }
 
+  /**
+   * Edits an existing message.
+   *
+   * @param message - The message to edit.
+   * @param messageOptions - New options for the message content.
+   * @param timeoutDeleteMessage - Optional timeout in milliseconds to delete the message after editing.
+   * @returns The edited message or null if editing failed.
+   */
   static async edit(
     message: MessageInput,
     messageOptions: MessageEditOptions,
@@ -115,6 +161,11 @@ export class MessageUtil {
     }
   }
 
+  /**
+   * Triggers a 'typing' indicator in the message's channel.
+   *
+   * @param message - The message whose channel should show the typing indicator.
+   */
   static async sendTyping(message: MessageInput): Promise<void> {
     if (!message || !message.channel) return
     if (message.channel.isTextBased() && message.channel.isSendable()) {
@@ -123,6 +174,12 @@ export class MessageUtil {
     return
   }
 
+  /**
+   * Deletes one or more messages immediately.
+   *
+   * @param messages - The message(s) to delete.
+   * @returns True if at least one message was successfully deleted.
+   */
   static async deleteNow(
     messages: MessageInput | MessageInput[]
   ): Promise<boolean> {
@@ -134,6 +191,13 @@ export class MessageUtil {
     return results.some((r) => r.status === 'fulfilled')
   }
 
+  /**
+   * Deletes one or more messages after a specified delay.
+   *
+   * @param messages - The message(s) to delete.
+   * @param timeoutDeleteMessage - The delay in milliseconds before deletion.
+   * @returns A promise that resolves when deletion is attempted.
+   */
   static async deleteAfter(
     messages: MessageInput | MessageInput[],
     timeoutDeleteMessage: number
@@ -146,6 +210,15 @@ export class MessageUtil {
     return this.deleteNow(valid)
   }
 
+  /**
+   * Replies to a message using a ContainerBuilder or a simple text string.
+   *
+   * @param message - The message to reply to.
+   * @param containerOrText - The content to reply with.
+   * @param timeoutDeleteMessage - Optional timeout in milliseconds to delete the reply.
+   * @param deleteTrigger - Whether to also delete the trigger message.
+   * @returns The replied message or null if replying failed.
+   */
   static async replyWithContainer(
     message: Message,
     containerOrText: ContainerBuilder | string,
@@ -170,6 +243,15 @@ export class MessageUtil {
     )
   }
 
+  /**
+   * Replies to a message with a success status, prefixed by a success emoji.
+   *
+   * @param message - The message to reply to.
+   * @param content - The success message content.
+   * @param timeoutDeleteMessage - How long to wait before deleting the reply.
+   * @param deleteTrigger - Whether to also delete the trigger message.
+   * @returns The replied message or null.
+   */
   static async replySuccess(
     message: Message,
     content: string,
@@ -186,6 +268,16 @@ export class MessageUtil {
     )
   }
 
+  /**
+   * Replies to a message with an error status, prefixed by an error emoji.
+   *
+   * @param message - The message to reply to.
+   * @param content - The error message content.
+   * @param timeoutDeleteMessage - How long to wait before deleting the reply.
+   * @param type - The type of error for emoji selection.
+   * @param deleteTrigger - Whether to also delete the trigger message.
+   * @returns The replied message or null.
+   */
   static async replyError(
     message: Message,
     content: string,
@@ -204,6 +296,14 @@ export class MessageUtil {
     )
   }
 
+  /**
+   * Sends a message to a channel using a ContainerBuilder or a simple text string.
+   *
+   * @param channel - The channel to send to.
+   * @param containerOrText - The content to send.
+   * @param timeoutDeleteMessage - Optional timeout in milliseconds to delete the message.
+   * @returns The sent message or null.
+   */
   static async sendWithContainer(
     channel: ChannelInput,
     containerOrText: ContainerBuilder | string,
@@ -231,7 +331,17 @@ export class MessageUtil {
 
 // ─── InteractionUtil ──────────────────────────────────────────────────────────
 
+/**
+ * Utility class for handling interaction-based operations like replies, edits, follow-ups, and DMs.
+ */
 export class InteractionUtil {
+  /**
+   * Initial reply to an interaction. Defaults to ephemeral.
+   *
+   * @param interaction - The interaction to reply to.
+   * @param options - Reply options.
+   * @returns The interaction response or null.
+   */
   static async reply(
     interaction: RepliableInteraction,
     options: InteractionReplyOptions
@@ -249,6 +359,13 @@ export class InteractionUtil {
     }
   }
 
+  /**
+   * Edits the initial reply or deferred response of an interaction.
+   *
+   * @param interaction - The interaction whose reply should be edited.
+   * @param options - Edit reply options.
+   * @returns The edited message or null.
+   */
   static async editReply(
     interaction: OptionalRepliableInteraction,
     options: InteractionEditReplyOptions
@@ -263,6 +380,13 @@ export class InteractionUtil {
     }
   }
 
+  /**
+   * Sends a follow-up message to an interaction. Defaults to ephemeral.
+   *
+   * @param interaction - The interaction to follow up.
+   * @param options - Follow-up options.
+   * @returns The follow-up message or null.
+   */
   static async followUp(
     interaction: OptionalRepliableInteraction,
     options: InteractionReplyOptions
@@ -281,6 +405,13 @@ export class InteractionUtil {
     }
   }
 
+  /**
+   * Sends a direct message (DM) to a user.
+   *
+   * @param userId - The ID of the user to DM.
+   * @param content - The message content.
+   * @returns The sent DM message or null.
+   */
   static async sendDM(
     userId: string,
     content: string
@@ -297,6 +428,14 @@ export class InteractionUtil {
     }
   }
 
+  /**
+   * Replies to an interaction with an error status.
+   *
+   * @param interaction - The interaction to reply to.
+   * @param content - The error message content.
+   * @param type - The type of error for emoji selection.
+   * @returns The reply message or response or null.
+   */
   static async replyError(
     interaction: OptionalRepliableInteraction,
     content: string,
@@ -306,6 +445,15 @@ export class InteractionUtil {
     return this.replyWithContainer(interaction, `${errorEmoji} ${content}`)
   }
 
+  /**
+   * Replies to an interaction with a success status.
+   *
+   * @param interaction - The interaction to reply to.
+   * @param content - The success message title/content.
+   * @param description - Optional detailed description.
+   * @param ephemeral - Whether the reply should be ephemeral (default: true).
+   * @returns The reply message or response or null.
+   */
   static async replySuccess(
     interaction: OptionalRepliableInteraction,
     content: string,
@@ -324,6 +472,15 @@ export class InteractionUtil {
     return this.replyWithContainer(interaction, successContainerr, ephemeral)
   }
 
+  /**
+   * Replies to an interaction using a ContainerBuilder or simple text.
+   * Handles both initial replies and edits to deferred/existing replies.
+   *
+   * @param interaction - The interaction to respond to.
+   * @param containerOrText - The content to respond with.
+   * @param ephemeral - Whether the response should be ephemeral (default: true).
+   * @returns The reply message or response or null.
+   */
   static async replyWithContainer(
     interaction: OptionalRepliableInteraction,
     containerOrText: ContainerBuilder | string,
@@ -352,5 +509,11 @@ export class InteractionUtil {
   }
 }
 
+/**
+ * Creates a ContainerBuilder with a single text display component containing the provided content.
+ *
+ * @param content - The content to put in the container.
+ * @returns A new ContainerBuilder instance.
+ */
 export const createTextContainer = (content: string) =>
   new ContainerBuilder().addTextDisplayComponents((t) => t.setContent(content))

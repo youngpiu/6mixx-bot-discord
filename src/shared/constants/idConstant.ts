@@ -1,3 +1,8 @@
+/**
+ * A centralized collection of all custom IDs used for Discord interaction components.
+ * Includes IDs for buttons, modals, select menus, and input fields across various features
+ * like Settings, Confessions, Donations, Tickets, and Word Chains.
+ */
 export const CUSTOM_ID = {
   // Navigation
   BTN_SETTING_NAV_GENERAL: 'btn-setting-nav-general',

@@ -6,11 +6,21 @@ import type { Client } from 'discord.js'
 import { WordChainRedisService } from '~/modules/word-chain/services/WordChainRedisService'
 import { WordChainService } from '~/modules/word-chain/services/WordChainService'
 
+/**
+ * Listener that executes once when the client has finished logging in and is ready.
+ * Handles initial setup tasks like preloading scripts and initializing dictionaries.
+ */
 @ApplyOptions<Listener.Options>({
   once: true,
   event: 'clientReady'
 })
 export class ReadyListener extends Listener {
+  /**
+   * Executes initial startup logic, including preloading WordChain Lua scripts
+   * and loading the Vietnamese and English dictionaries.
+   *
+   * @param client - The connected Discord client.
+   */
   async run(client: Client<true>) {
     const { username, id } = client.user
     this.container.logger.info(`Successfully logged in as ${username} (${id})`)
