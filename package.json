@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "npx nodemon",
-    "build": "rimraf ./dist && tsc && tsc-alias",
-    "start": "node dist/src/index.js",
+    "build": "rimraf ./dist && tsc && tsc-alias --resolve-full-paths",
+    "start": "node --experimental-specifier-resolution=node dist/src/index.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --check .",
