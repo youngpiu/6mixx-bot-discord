@@ -5,7 +5,6 @@ import {
   SapphireClient,
   container
 } from '@sapphire/framework'
-import { getRootData } from '@sapphire/pieces'
 import '@sapphire/plugin-editable-commands/register'
 import '@sapphire/plugin-logger/register'
 import '@sapphire/plugin-scheduled-tasks'
@@ -14,7 +13,8 @@ import '@sapphire/plugin-subcommands/register'
 import { ActivityType, GatewayIntentBits, Partials } from 'discord.js'
 import 'dotenv/config'
 import { existsSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import prisma from '~/lib/prisma'
 import redis from '~/lib/redis'
@@ -22,7 +22,7 @@ import redis from '~/lib/redis'
 import { env } from '~/shared/config/env'
 
 export class BotClient extends SapphireClient {
-  private rootData = getRootData()
+  private runtimeRoot = dirname(fileURLToPath(import.meta.url))
 
   constructor() {
     super({
@@ -85,7 +85,7 @@ export class BotClient extends SapphireClient {
     })
 
     // Register all feature modules
-    const modulesDir = join(this.rootData.root, 'modules')
+    const modulesDir = join(this.runtimeRoot, 'modules')
     if (existsSync(modulesDir)) {
       const modules = readdirSync(modulesDir, { withFileTypes: true })
         .filter((dirent) => dirent.isDirectory())
@@ -99,7 +99,7 @@ export class BotClient extends SapphireClient {
 
     // Register shared pieces (listeners, preconditions)
     this.logger.info('Registering shared pieces path')
-    this.stores.registerPath(join(this.rootData.root, 'shared'))
+    this.stores.registerPath(join(this.runtimeRoot, 'shared'))
   }
 
   async login(token: string): Promise<string> {
