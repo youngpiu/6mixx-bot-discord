@@ -1,5 +1,4 @@
-// Handler for confession rejection modal submission
-import { ApplyOptions } from '@sapphire/decorators'
+import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -32,6 +31,7 @@ export class ModalConfessionReject extends InteractionHandler {
     return this.none()
   }
 
+  @RequiresGuildContext()
   public async run(
     interaction: ModalSubmitInteraction,
     result: InteractionHandler.ParseResult<this>
@@ -40,8 +40,6 @@ export class ModalConfessionReject extends InteractionHandler {
     const { confessionId } = result
 
     await interaction.deferUpdate()
-
-    if (!interaction.guild) return
 
     const confession = await ConfessionRepository.findById(confessionId)
 
@@ -63,7 +61,7 @@ export class ModalConfessionReject extends InteractionHandler {
     })
 
     await ConfessionHelper.sendConfessionLog({
-      guildId: interaction.guild.id,
+      guildId: interaction.guild!.id,
       confession: {
         code: confession.code,
         content: confession.content,

@@ -1,4 +1,4 @@
-import { ApplyOptions } from '@sapphire/decorators'
+import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -25,6 +25,7 @@ export class ModalComment extends InteractionHandler {
     return this.some({ targetMessageId })
   }
 
+  @RequiresGuildContext()
   public async run(
     interaction: ModalSubmitInteraction,
     result: InteractionHandler.ParseResult<this>

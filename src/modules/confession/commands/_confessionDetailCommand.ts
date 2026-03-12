@@ -1,4 +1,4 @@
-// Command to view and manage specific confession details
+import { RequiresGuildContext } from '@sapphire/decorators'
 import {
   ButtonBuilder,
   ButtonStyle,
@@ -19,6 +19,7 @@ import { ConfessionHelper } from '~/modules/confession/helpers/ConfessionHelper'
 import { ConfessionRepository } from '~/modules/confession/repositories/confessionRepository'
 
 export class ConfessionDetailCommand {
+  @RequiresGuildContext()
   public static async run(
     interaction: RepliableInteraction,
     code?: string | null
@@ -26,8 +27,6 @@ export class ConfessionDetailCommand {
     await interaction.deferReply({
       flags: ['Ephemeral']
     })
-
-    if (!interaction.guild) return
 
     const confessionCode =
       code ||

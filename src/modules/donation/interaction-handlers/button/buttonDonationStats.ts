@@ -1,5 +1,4 @@
-// Handler to generate and display donation and disbursement statistics
-import { ApplyOptions } from '@sapphire/decorators'
+import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -24,17 +23,16 @@ export class ButtonDonationStats extends InteractionHandler {
     return this.some()
   }
 
+  @RequiresGuildContext()
   public async run(interaction: ButtonInteraction) {
-    if (!interaction.guild) return
-
     await interaction.deferReply({
       flags: ['Ephemeral']
     })
 
     const [donationStats, disbursementStats, topDonors] = await Promise.all([
-      DonateRepository.getStats(interaction.guild.id),
-      DisbursementRepository.getStats(interaction.guild.id),
-      DonateRepository.getTopDonors(interaction.guild.id, 10)
+      DonateRepository.getStats(interaction.guild!.id),
+      DisbursementRepository.getStats(interaction.guild!.id),
+      DonateRepository.getTopDonors(interaction.guild!.id, 10)
     ])
 
     const remainingBalance =

@@ -1,9 +1,12 @@
-// Listener executed when an error occurs during chat input command execution
+import { ApplyOptions } from '@sapphire/decorators'
 import type { ChatInputCommandErrorPayload, Events } from '@sapphire/framework'
 import { Listener } from '@sapphire/framework'
 
 import { handleError } from '~/shared/utils/errorUtil'
 
+@ApplyOptions<Listener.Options>({
+  event: 'chatInputCommandError'
+})
 export class ChatInputCommandErrorListener extends Listener<
   typeof Events.ChatInputCommandError
 > {

@@ -1,10 +1,13 @@
-// Listener executed when a message command is denied due to precondition failures
+import { ApplyOptions } from '@sapphire/decorators'
 import type { Events, MessageCommandDeniedPayload } from '@sapphire/framework'
 import { Listener, type UserError } from '@sapphire/framework'
 
 import { handleError } from '~/shared/utils/errorUtil'
 import { mapDeniedError } from '~/shared/utils/preconditionErrorUtil'
 
+@ApplyOptions<Listener.Options>({
+  event: 'messageCommandDenied'
+})
 export class UserEvent extends Listener<typeof Events.MessageCommandDenied> {
   public override async run(
     error: UserError,

@@ -1,4 +1,4 @@
-// Listener executed when an error occurs during chat input subcommand execution
+import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
 import {
   type ChatInputSubcommandErrorPayload,
@@ -7,6 +7,9 @@ import {
 
 import { handleError } from '~/shared/utils/errorUtil'
 
+@ApplyOptions<Listener.Options>({
+  event: SubcommandPluginEvents.ChatInputSubcommandError
+})
 export class ChatInputSubcommandErrorListener extends Listener<
   typeof SubcommandPluginEvents.ChatInputSubcommandError
 > {

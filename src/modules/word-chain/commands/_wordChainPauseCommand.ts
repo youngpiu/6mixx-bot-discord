@@ -1,3 +1,4 @@
+import { RequiresGuildContext } from '@sapphire/decorators'
 import { ChatInputCommandInteraction } from 'discord.js'
 
 import { NormalError } from '~/core/errorResponse'
@@ -11,11 +12,11 @@ import {
 } from '~/modules/word-chain/services/WordChainRedisService'
 
 export class WordChainPauseCommand {
+  @RequiresGuildContext()
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
-    if (!interaction.guild) return
 
-    const guildId = interaction.guild.id
+    const guildId = interaction.guild!.id
     const mode = await this.detectMode(guildId, interaction.channelId)
     if (!mode) {
       throw new NormalError('Kênh này không phải kênh nối từ.')

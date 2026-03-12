@@ -1,5 +1,4 @@
-// Handler for deleting a disbursement via the "Delete" button in the detail view
-import { ApplyOptions } from '@sapphire/decorators'
+import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -29,10 +28,9 @@ export class ButtonDisbursementDelete extends InteractionHandler {
     return this.none()
   }
 
+  @RequiresGuildContext()
   public async run(interaction: ButtonInteraction, id: string) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
-
-    if (!interaction.guild) return
 
     const disbursement = await DisbursementRepository.findById(id)
     if (!disbursement) {

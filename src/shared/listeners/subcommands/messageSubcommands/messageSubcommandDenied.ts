@@ -1,4 +1,4 @@
-// Listener executed when a message subcommand is denied due to precondition failures
+import { ApplyOptions } from '@sapphire/decorators'
 import { Listener, type UserError } from '@sapphire/framework'
 import {
   type MessageSubcommandDeniedPayload,
@@ -8,6 +8,9 @@ import {
 import { handleError } from '~/shared/utils/errorUtil'
 import { mapDeniedError } from '~/shared/utils/preconditionErrorUtil'
 
+@ApplyOptions<Listener.Options>({
+  event: SubcommandPluginEvents.MessageSubcommandDenied
+})
 export class UserEvent extends Listener<
   typeof SubcommandPluginEvents.MessageSubcommandDenied
 > {

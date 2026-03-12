@@ -1,4 +1,4 @@
-import { ApplyOptions } from '@sapphire/decorators'
+import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -14,25 +14,23 @@ import { SettingHelper } from '~/modules/setting/helpers/SettingHelper'
   interactionHandlerType: InteractionHandlerTypes.Button
 })
 export class ButtonSettingWordChain extends InteractionHandler {
+  @RequiresGuildContext()
   public override async parse(interaction: ButtonInteraction) {
     if (interaction.customId !== CUSTOM_ID.BTN_SETTING_WORDCHAIN_CHANNEL)
       return this.none()
-    const guildConfig = interaction.guild
-      ? await SettingRepository.find(interaction.guild.id)
-      : null
+    const guildConfig = await SettingRepository.find(interaction.guild!.id)
     return this.some({ guildConfig })
   }
 
+  @RequiresGuildContext()
   public async run(
     interaction: ButtonInteraction,
     result: InteractionHandler.ParseResult<this>
   ) {
-    if (!interaction.guild) return
-
     const { guildConfig } = result
 
     const labelVietnameseWordChain = SettingHelper.createChannelLabel({
-      guild: interaction.guild,
+      guild: interaction.guild!,
       channelId: guildConfig?.vietnameseWordChainChannelId,
       customId: CUSTOM_ID.SELECT_SETTING_VIETNAMESE_WORDCHAIN_CHANNEL,
       channelType: ChannelType.GuildText,
@@ -47,7 +45,7 @@ export class ButtonSettingWordChain extends InteractionHandler {
     })
 
     const labelEnglishWordChain = SettingHelper.createChannelLabel({
-      guild: interaction.guild,
+      guild: interaction.guild!,
       channelId: guildConfig?.englishWordChainChannelId,
       customId: CUSTOM_ID.SELECT_SETTING_ENGLISH_WORDCHAIN_CHANNEL,
       channelType: ChannelType.GuildText,

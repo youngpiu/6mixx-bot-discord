@@ -1,4 +1,4 @@
-import { ApplyOptions } from '@sapphire/decorators'
+import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -20,9 +20,9 @@ export class ModalSettingWordChain extends InteractionHandler {
     return this.some()
   }
 
+  @RequiresGuildContext()
   public async run(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
-    if (!interaction.guild) return
 
     const vietnameseWordChainChannelId = interaction.fields
       .getSelectedChannels(
@@ -34,7 +34,7 @@ export class ModalSettingWordChain extends InteractionHandler {
       .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_ENGLISH_WORDCHAIN_CHANNEL)
       ?.first()?.id
 
-    await SettingRepository.update(interaction.guild.id, {
+    await SettingRepository.update(interaction.guild!.id, {
       vietnameseWordChainChannelId,
       englishWordChainChannelId
     })

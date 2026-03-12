@@ -1,5 +1,4 @@
-// Handler for disbursement modal submission
-import { ApplyOptions } from '@sapphire/decorators'
+import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -25,10 +24,9 @@ export class ModalDisbursementCreate extends InteractionHandler {
     return this.some()
   }
 
+  @RequiresGuildContext()
   public async run(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
-
-    if (!interaction.guild) return
 
     const amountStr = interaction.fields.getTextInputValue(
       CUSTOM_ID.INPUT_DISBURSEMENT_AMOUNT
@@ -73,7 +71,7 @@ export class ModalDisbursementCreate extends InteractionHandler {
     }
 
     const messageUrl = await DonationHelper.sendDisbursementNotification({
-      guildId: interaction.guild.id,
+      guildId: interaction.guild!.id,
       amount,
       description,
       attachmentUrls
@@ -86,7 +84,7 @@ export class ModalDisbursementCreate extends InteractionHandler {
     }
 
     await DisbursementRepository.create({
-      guildId: interaction.guild.id,
+      guildId: interaction.guild!.id,
       amount,
       description,
       messageUrl

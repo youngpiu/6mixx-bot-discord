@@ -1,4 +1,4 @@
-// Listener executed when an error occurs during context menu command execution
+import { ApplyOptions } from '@sapphire/decorators'
 import type {
   ContextMenuCommandErrorPayload,
   Events
@@ -8,6 +8,9 @@ import type { RepliableInteraction } from 'discord.js'
 
 import { handleError } from '~/shared/utils/errorUtil'
 
+@ApplyOptions<Listener.Options>({
+  event: 'contextMenuCommandError'
+})
 export class ContextMenuCommandErrorListener extends Listener<
   typeof Events.ContextMenuCommandError
 > {

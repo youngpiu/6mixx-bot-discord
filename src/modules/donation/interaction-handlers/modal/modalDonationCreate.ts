@@ -1,5 +1,4 @@
-// Handler for donation creation modal submissions, including QR code generation
-import { ApplyOptions } from '@sapphire/decorators'
+import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -34,10 +33,9 @@ export class ModalDonationCreate extends InteractionHandler {
     return this.some()
   }
 
+  @RequiresGuildContext()
   public async run(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: 'Ephemeral' })
-
-    if (!interaction.guild) return
 
     const moneyStr = interaction.fields.getTextInputValue(
       CUSTOM_ID.INPUT_DONATION_AMOUNT
@@ -58,7 +56,7 @@ export class ModalDonationCreate extends InteractionHandler {
       undefined
 
     const donation = await DonateRepository.create({
-      guildId: interaction.guild.id,
+      guildId: interaction.guild!.id,
       donorId: interaction.user.id,
       amount,
       message
@@ -146,7 +144,7 @@ export class ModalDonationCreate extends InteractionHandler {
         flags: ['IsComponentsV2']
       }),
       DonationHelper.sendDonationNotification({
-        guildId: interaction.guild.id,
+        guildId: interaction.guild!.id,
         donation,
         event: 'CREATED'
       })

@@ -1,5 +1,4 @@
-// Handler for approving/rejecting a confession
-import { ApplyOptions } from '@sapphire/decorators'
+import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -51,6 +50,7 @@ export class ButtonConfessionReview extends InteractionHandler {
     return this.none()
   }
 
+  @RequiresGuildContext()
   public async run(
     interaction: ButtonInteraction,
     result: InteractionHandler.ParseResult<this>
@@ -61,8 +61,6 @@ export class ButtonConfessionReview extends InteractionHandler {
     if (action === 'APPROVE') {
       await interaction.deferUpdate()
     }
-
-    if (!interaction.guild) return
 
     const confession = await ConfessionRepository.findById(confessionId)
 
@@ -100,7 +98,7 @@ export class ButtonConfessionReview extends InteractionHandler {
 
     // Approve Logic Below
 
-    const guildConfig = await GuildRepository.getConfig(interaction.guild.id)
+    const guildConfig = await GuildRepository.getConfig(interaction.guild!.id)
     if (!guildConfig || !guildConfig.forumChannelId) {
       throw new NormalError('Kênh đăng confession chưa được thiết lập.')
     }
@@ -154,7 +152,7 @@ export class ButtonConfessionReview extends InteractionHandler {
     }
 
     const approvedSequence = await CounterRepository.getNextSequence(
-      interaction.guild.id,
+      interaction.guild!.id,
       'CONFESSION_APPROVED'
     )
 
@@ -184,7 +182,7 @@ export class ButtonConfessionReview extends InteractionHandler {
     })
 
     await ConfessionHelper.sendConfessionLog({
-      guildId: interaction.guild.id,
+      guildId: interaction.guild!.id,
       confession: {
         code: confession.code,
         content: confession.content,

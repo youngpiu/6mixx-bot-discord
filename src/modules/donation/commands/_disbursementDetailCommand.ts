@@ -1,4 +1,4 @@
-// Command to view detailed information of a specific disbursement
+import { RequiresGuildContext } from '@sapphire/decorators'
 import {
   ButtonBuilder,
   ButtonStyle,
@@ -15,17 +15,16 @@ import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { DisbursementRepository } from '~/modules/donation/repositories/disbursementRepository'
 
 export class DisbursementDetailCommand {
+  @RequiresGuildContext()
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({
       flags: ['Ephemeral']
     })
 
-    if (!interaction.guild) return
-
     const code = interaction.options.getString('code', true)
 
     const disbursement = await DisbursementRepository.findByCode(
-      interaction.guild.id,
+      interaction.guild!.id,
       code
     )
 

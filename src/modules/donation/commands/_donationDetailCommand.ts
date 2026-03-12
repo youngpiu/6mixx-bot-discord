@@ -1,4 +1,5 @@
 // Command to view and manage specific donation details
+import { RequiresGuildContext } from '@sapphire/decorators'
 import {
   ButtonBuilder,
   ButtonStyle,
@@ -18,12 +19,11 @@ import { DonationHelper } from '~/modules/donation/helpers/DonationHelper'
 import { DonateRepository } from '~/modules/donation/repositories/donateRepository'
 
 export class DonationDetailCommand {
+  @RequiresGuildContext()
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({
       flags: ['Ephemeral']
     })
-
-    if (!interaction.guild) return
 
     const code = interaction.options.getString('code', true)
 

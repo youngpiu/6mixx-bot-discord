@@ -1,4 +1,4 @@
-// Command to list confessions
+import { RequiresGuildContext } from '@sapphire/decorators'
 import {
   ButtonBuilder,
   type ButtonInteraction,
@@ -70,13 +70,12 @@ export const createFilterButton = (
 }
 
 export class ConfessionListCommand {
+  @RequiresGuildContext()
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction.guild) return
-
     const { confessions, total } = await ConfessionRepository.findMany({
-      guildId: interaction.guild.id,
+      guildId: interaction.guild!.id,
       page: 1,
       limit: 5
     })
@@ -97,14 +96,13 @@ export class ConfessionListCommand {
     )
   }
 
+  @RequiresGuildContext()
   public static async handleButton(
     interaction: ButtonInteraction,
     state: ConfessionListState
   ) {
-    if (!interaction.guild) return
-
     const { confessions, total } = await ConfessionRepository.findMany({
-      guildId: interaction.guild.id,
+      guildId: interaction.guild!.id,
       page: state.page,
       limit: 5,
       status: state.status

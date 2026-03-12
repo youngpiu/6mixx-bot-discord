@@ -1,5 +1,4 @@
-// Handler for donors to confirm or cancel their pending donations
-import { ApplyOptions } from '@sapphire/decorators'
+import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -40,12 +39,11 @@ export class ButtonDonationDonorUpdateStatusHandler extends InteractionHandler {
     return this.some({ donationId, type })
   }
 
+  @RequiresGuildContext()
   public async run(
     interaction: ButtonInteraction,
     result: InteractionHandler.ParseResult<this>
   ) {
-    if (!interaction.guild) return
-
     await interaction.deferUpdate()
 
     const { donationId, type } = result
@@ -76,7 +74,7 @@ export class ButtonDonationDonorUpdateStatusHandler extends InteractionHandler {
     )
 
     await DonationHelper.sendDonationNotification({
-      guildId: interaction.guild.id,
+      guildId: interaction.guild!.id,
       donation: updatedDonation,
       event: nextStatus
     })

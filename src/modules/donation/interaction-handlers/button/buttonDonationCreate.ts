@@ -1,5 +1,4 @@
-// Handler to show donation creation modal
-import { ApplyOptions } from '@sapphire/decorators'
+import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -25,6 +24,7 @@ export class ButtonDonationCreate extends InteractionHandler {
     return this.some()
   }
 
+  @RequiresGuildContext()
   public async run(interaction: ButtonInteraction) {
     const amountInput = new TextInputBuilder()
       .setCustomId(CUSTOM_ID.INPUT_DONATION_AMOUNT)

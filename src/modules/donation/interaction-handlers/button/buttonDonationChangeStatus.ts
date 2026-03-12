@@ -1,5 +1,4 @@
-// Handler to change donation status (Admin actions)
-import { ApplyOptions } from '@sapphire/decorators'
+import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -38,13 +37,12 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
     return this.some({ targetStatus, donationId })
   }
 
+  @RequiresGuildContext()
   public async run(
     interaction: ButtonInteraction,
     result: InteractionHandler.ParseResult<this>
   ) {
     await interaction.deferUpdate().catch()
-
-    if (!interaction.guild) return
 
     const { targetStatus, donationId } = result
 
@@ -66,7 +64,7 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
 
     const asyncTasks: Promise<unknown>[] = [
       DonationHelper.sendDonationNotification({
-        guildId: interaction.guild.id,
+        guildId: interaction.guild!.id,
         donation: updatedDonation,
         event: 'ADMIN_STATUS_CHANGED'
       })
@@ -74,7 +72,7 @@ export class ButtonDonationChangeStatusHandler extends InteractionHandler {
 
     if (targetStatus === DonationStatus.TRANSFERRED) {
       asyncTasks.push(
-        SettingRepository.find(interaction.guild.id)
+        SettingRepository.find(interaction.guild!.id)
           .then((guildConfig) =>
             DonationHelper.sendThankYouMessage(guildConfig, updatedDonation)
           )

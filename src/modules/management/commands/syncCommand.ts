@@ -1,5 +1,8 @@
-// Command to synchronize guild members with the database
-import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
+import {
+  ApplyOptions,
+  RegisterChatInputCommand,
+  RequiresGuildContext
+} from '@sapphire/decorators'
 import { Command } from '@sapphire/framework'
 import { ChatInputCommandInteraction, GuildMember } from 'discord.js'
 
@@ -18,14 +21,13 @@ import { InteractionUtil } from '~/shared/utils/messageUtil'
   preconditions: ['OwnerOnly']
 })
 export class SyncCommand extends Command {
+  @RequiresGuildContext()
   public override async chatInputRun(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: 'Ephemeral' })
 
-    if (!interaction.guild) return
+    const guild = interaction.guild!
 
-    await GuildRepository.upsert(interaction.guild.id)
-
-    const guild = interaction.guild
+    await GuildRepository.upsert(guild.id)
 
     let after: string | undefined
     const allMembers: GuildMember[] = []

@@ -1,4 +1,4 @@
-// Listener that catches and handles errors occurring within other listeners
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   Events,
   Listener,
@@ -7,6 +7,9 @@ import {
 
 import { handleError } from '~/shared/utils/errorUtil'
 
+@ApplyOptions<Listener.Options>({
+  event: Events.ListenerError
+})
 export class ListenerErrorListener extends Listener<
   typeof Events.ListenerError
 > {

@@ -1,3 +1,4 @@
+import { RequiresGuildContext } from '@sapphire/decorators'
 import {
   ButtonBuilder,
   type ButtonInteraction,
@@ -76,14 +77,13 @@ export const createFilterButton = (
 }
 
 export class TicketListCommand {
+  @RequiresGuildContext()
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    if (!interaction.guild) return
-
     // Fetch initial data (page 1, default limits)
     const { items, meta } = await TicketRepository.findMany({
-      guildId: interaction.guild.id,
+      guildId: interaction.guild!.id,
       page: 1,
       limit: 10
     })
@@ -91,15 +91,14 @@ export class TicketListCommand {
     return await interaction.editReply(this.createListResponse(items, meta))
   }
 
+  @RequiresGuildContext()
   public static async handleButton(
     interaction: ButtonInteraction,
     state: TicketListState
   ) {
-    if (!interaction.guild) return
-
     // Fetch data based on the state encoded in the button
     const { items, meta } = await TicketRepository.findMany({
-      guildId: interaction.guild.id,
+      guildId: interaction.guild!.id,
       page: state.page,
       limit: 10,
       type: state.type,

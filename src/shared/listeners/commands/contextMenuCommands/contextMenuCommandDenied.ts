@@ -1,4 +1,4 @@
-// Listener executed when a context menu command is denied due to precondition failures
+import { ApplyOptions } from '@sapphire/decorators'
 import type {
   ContextMenuCommandDeniedPayload,
   Events
@@ -9,6 +9,9 @@ import { handleError } from '~/shared/utils/errorUtil'
 import type { RepliableInteraction } from '~/shared/utils/messageUtil'
 import { mapDeniedError } from '~/shared/utils/preconditionErrorUtil'
 
+@ApplyOptions<Listener.Options>({
+  event: 'contextMenuCommandDenied'
+})
 export class UserEvent extends Listener<
   typeof Events.ContextMenuCommandDenied
 > {

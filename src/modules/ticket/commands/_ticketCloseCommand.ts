@@ -1,4 +1,4 @@
-// Command to close a ticket from within the ticket channel
+import { RequiresGuildContext } from '@sapphire/decorators'
 import { ChatInputCommandInteraction, TextChannel } from 'discord.js'
 
 import { NormalError } from '~/core/errorResponse'
@@ -8,15 +8,14 @@ import { GuildRepository } from '~/modules/ticket/repositories/guildRepository'
 import { TicketRepository } from '~/modules/ticket/repositories/ticketRepository'
 
 export class TicketCloseCommand {
+  @RequiresGuildContext()
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
-
-    if (!interaction.guild) return
 
     const reason = interaction.options.getString('reason')
     const channel = interaction.channel as TextChannel
     const closedById = interaction.user.id
-    const guildId = interaction.guild.id
+    const guildId = interaction.guild!.id
 
     const [ticket, ticketConfig] = await Promise.all([
       TicketRepository.findByChannelId(channel.id),

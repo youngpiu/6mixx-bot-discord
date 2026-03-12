@@ -1,5 +1,8 @@
-// Main confession command router
-import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
+import {
+  ApplyOptions,
+  RegisterChatInputCommand,
+  RequiresGuildContext
+} from '@sapphire/decorators'
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js'
 
@@ -45,10 +48,12 @@ import { ConfessionListCommand } from '~/modules/confession/commands/_confession
   ]
 })
 export class ConfessionSubcommand extends Subcommand {
+  @RequiresGuildContext()
   public async chatInputList(interaction: ChatInputCommandInteraction) {
     return ConfessionListCommand.run(interaction)
   }
 
+  @RequiresGuildContext()
   public async chatInputDetail(interaction: ChatInputCommandInteraction) {
     return ConfessionDetailCommand.run(interaction)
   }

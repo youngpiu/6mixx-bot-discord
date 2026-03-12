@@ -1,3 +1,4 @@
+import { RequiresGuildContext } from '@sapphire/decorators'
 import { ChatInputCommandInteraction } from 'discord.js'
 
 import { NormalError } from '~/core/errorResponse'
@@ -12,11 +13,11 @@ import {
 import { WordChainService } from '~/modules/word-chain/services/WordChainService'
 
 export class WordChainStartCommand {
+  @RequiresGuildContext()
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
-    if (!interaction.guild) return
 
-    const guildId = interaction.guild.id
+    const guildId = interaction.guild!.id
 
     // Detect mode from channel
     const setting = await SettingRepository.find(guildId)
@@ -38,7 +39,7 @@ export class WordChainStartCommand {
     if (currentState) {
       const reason = 'Ván đấu được bắt đầu lại bởi Admin.'
       await WordChainService.endGame(
-        interaction.guild,
+        interaction.guild!,
         channelId,
         mode,
         currentState.sessionId,
@@ -51,7 +52,7 @@ export class WordChainStartCommand {
 
     // Start new game
     const success = await WordChainService.startNewGame(
-      interaction.guild,
+      interaction.guild!,
       channelId,
       mode
     )

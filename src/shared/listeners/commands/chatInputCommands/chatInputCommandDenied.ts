@@ -1,10 +1,13 @@
-// Listener executed when a chat input command is denied due to precondition failures
+import { ApplyOptions } from '@sapphire/decorators'
 import type { ChatInputCommandDeniedPayload, Events } from '@sapphire/framework'
 import { Listener, type UserError } from '@sapphire/framework'
 
 import { handleError } from '~/shared/utils/errorUtil'
 import { mapDeniedError } from '~/shared/utils/preconditionErrorUtil'
 
+@ApplyOptions<Listener.Options>({
+  event: 'chatInputCommandDenied'
+})
 export class UserEvent extends Listener<typeof Events.ChatInputCommandDenied> {
   public override async run(
     error: UserError,

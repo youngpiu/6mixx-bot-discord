@@ -1,4 +1,4 @@
-// Listener executed when an error occurs during message subcommand execution
+import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
 import {
   type MessageSubcommandErrorPayload,
@@ -7,6 +7,9 @@ import {
 
 import { handleError } from '~/shared/utils/errorUtil'
 
+@ApplyOptions<Listener.Options>({
+  event: SubcommandPluginEvents.MessageSubcommandError
+})
 export class MessageSubcommandErrorListener extends Listener<
   typeof SubcommandPluginEvents.MessageSubcommandError
 > {
