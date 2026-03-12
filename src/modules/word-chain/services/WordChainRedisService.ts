@@ -9,12 +9,21 @@ export interface WordChainState {
   mode: WordChainMode
   startWord: string
   currentLastWord: string // Vietnamese: last word of 2-word phrase; English: last letter of single word
-  usedWords: Record<string, string[]> // firstWord (vi) or firstLetter (en) → words already played
+  usedWordIndex: Record<string, Record<string, true>> // O(1) membership index by firstWord/firstLetter
+  usedWordCountByGroup: Record<string, number> // O(1) used-word count by firstWord/firstLetter
   playersScore: Record<string, number> // userId → score
   hintsUsed: Record<string, number> // userId → count
   lastPlayerId?: string // userId of last person who answered
   totalWords: number // total correct words played by players (excludes bot's start word)
   status: 'running' | 'paused'
+}
+
+interface LegacyWordChainState extends Omit<
+  WordChainState,
+  'usedWordCountByGroup'
+> {
+  usedWordCountByGroup?: Record<string, number>
+  usedWords?: Record<string, string[]>
 }
 
 const STATE_KEY = (guildId: string, mode: WordChainMode) =>
@@ -55,6 +64,16 @@ export class WordChainRedisService {
   public static async hasViPhrase(phrase: string): Promise<boolean> {
     const firstWord = phrase.split(/\s+/)[0].toLowerCase()
     return CacheService.sismember(VI_DICTIONARY_KEY(firstWord), phrase)
+  }
+
+  public static async hasViPhraseInGroup(
+    firstWord: string,
+    phrase: string
+  ): Promise<boolean> {
+    return CacheService.sismember(
+      VI_DICTIONARY_KEY(firstWord.toLowerCase()),
+      phrase
+    )
   }
 
   public static async checkExistingViPhrases(
@@ -119,6 +138,16 @@ export class WordChainRedisService {
     return CacheService.sismember(EN_DICTIONARY_KEY(firstLetter), word)
   }
 
+  public static async hasEnWordInGroup(
+    firstLetter: string,
+    word: string
+  ): Promise<boolean> {
+    return CacheService.sismember(
+      EN_DICTIONARY_KEY(firstLetter.toLowerCase()),
+      word
+    )
+  }
+
   public static async checkExistingEnWords(words: string[]): Promise<string[]> {
     if (words.length === 0) return []
 
@@ -164,7 +193,7 @@ export class WordChainRedisService {
     guildId: string,
     mode: WordChainMode
   ): Promise<WordChainState | null> {
-    const state = await CacheService.get<WordChainState>(
+    const state = await CacheService.get<LegacyWordChainState>(
       STATE_KEY(guildId, mode)
     )
     if (!state) return null
@@ -172,10 +201,26 @@ export class WordChainRedisService {
     // Normalize state: handle legacy data or missing fields
     if (!state.hintsUsed) state.hintsUsed = {}
     if (!state.playersScore) state.playersScore = {}
-    if (!state.usedWords) state.usedWords = {}
+    if (!state.usedWordIndex) {
+      state.usedWordIndex = {}
+      for (const [group, words] of Object.entries(state.usedWords ?? {})) {
+        if (!words?.length) continue
+        const index: Record<string, true> = {}
+        for (const word of words) {
+          index[word] = true
+        }
+        state.usedWordIndex[group] = index
+      }
+    }
+    if (!state.usedWordCountByGroup) {
+      state.usedWordCountByGroup = {}
+      for (const [group, index] of Object.entries(state.usedWordIndex)) {
+        state.usedWordCountByGroup[group] = Object.keys(index).length
+      }
+    }
     if (!state.totalWords) state.totalWords = 0
 
-    return state
+    return state as WordChainState
   }
 
   public static async setState(

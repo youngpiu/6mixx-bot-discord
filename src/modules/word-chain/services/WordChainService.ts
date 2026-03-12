@@ -94,7 +94,7 @@ export class WordChainService {
 
     let startWord: string
     let currentLastWord: string
-    let usedWordsGroupKey: string // firstWord (vi) or firstLetter (en)
+    let usedWordGroupKey: string // firstWord (vi) or firstLetter (en)
 
     if (mode === 'vi') {
       const count = await container.prisma.vietnamesePhrase.count()
@@ -123,7 +123,7 @@ export class WordChainService {
 
       startWord = startPhrase.phrase
       currentLastWord = startPhrase.lastWord
-      usedWordsGroupKey = startPhrase.firstWord
+      usedWordGroupKey = startPhrase.firstWord
     } else {
       const count = await container.prisma.englishWord.count()
       if (count === 0) return false
@@ -134,7 +134,7 @@ export class WordChainService {
 
       startWord = word.word
       currentLastWord = word.lastLetter
-      usedWordsGroupKey = word.firstLetter
+      usedWordGroupKey = word.firstLetter
     }
 
     // Create session in DB
@@ -149,7 +149,8 @@ export class WordChainService {
       mode,
       startWord,
       currentLastWord,
-      usedWords: { [usedWordsGroupKey]: [startWord] },
+      usedWordIndex: { [usedWordGroupKey]: { [startWord]: true } },
+      usedWordCountByGroup: { [usedWordGroupKey]: 1 },
       playersScore: {},
       hintsUsed: {},
       totalWords: 0,

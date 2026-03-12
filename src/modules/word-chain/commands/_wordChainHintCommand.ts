@@ -52,11 +52,8 @@ export class WordChainHintCommand {
           state.currentLastWord
         )
         if (!randomWord) break
-        if (
-          !(state.usedWords[randomWord.split(' ')[0]] ?? []).includes(
-            randomWord
-          )
-        ) {
+        const firstWord = randomWord.split(/\s+/)[0]
+        if (!(state.usedWordIndex[firstWord] ?? {})[randomWord]) {
           hintWord = randomWord
           break
         }
