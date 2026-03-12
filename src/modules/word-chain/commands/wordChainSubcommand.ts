@@ -22,9 +22,7 @@ import { WordChainUnpauseCommand } from '~/modules/word-chain/commands/_wordChai
       sub.setName('unpause').setDescription('[ADMIN] Tiếp tục ván nối từ.')
     )
     .addSubcommand((sub) =>
-      sub
-        .setName('hint')
-        .setDescription('Lấy gợi ý từ tiếp theo (tối đa 3 lần/ván).')
+      sub.setName('hint').setDescription('Lấy gợi ý từ tiếp theo.')
     )
     .addSubcommand((sub) =>
       sub.setName('add').setDescription('[ADMIN] Thêm từ vựng mới vào từ điển.')

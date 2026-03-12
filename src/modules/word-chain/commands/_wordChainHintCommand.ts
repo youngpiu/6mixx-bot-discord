@@ -33,10 +33,10 @@ export class WordChainHintCommand {
       throw new NormalError('Ván nối từ đang tạm dừng, không thể dùng gợi ý.')
     }
 
-    // 2. Check hint limit (3 uses per player)
+    // 2. Check hint limit (3 uses per player, unlimited for English)
     if (!state.hintsUsed) state.hintsUsed = {}
     const usedCount = state.hintsUsed[userId] ?? 0
-    if (usedCount >= 3) {
+    if (mode === 'vi' && usedCount >= 3) {
       throw new NormalError(
         'Bạn đã hết lượt gợi ý trong ván này (tối đa 3 lần).'
       )
@@ -85,10 +85,15 @@ export class WordChainHintCommand {
 
     // 5. Reply with hint
     const remaining = 3 - (usedCount + 1)
+    const footerText =
+      mode === 'vi'
+        ? `Bạn còn **${remaining}** lần dùng gợi ý trong ván này.`
+        : 'Gợi ý trong tiếng Anh là **vô hạn**.'
+
     await InteractionUtil.replySuccess(
       interaction,
       `Gợi ý cho bạn: \`${hintWord}\``,
-      `Bạn còn **${remaining}** lần dùng gợi ý trong ván này.`
+      footerText
     )
   }
 
