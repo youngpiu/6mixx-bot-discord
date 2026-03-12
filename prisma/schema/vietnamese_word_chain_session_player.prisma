@@ -1,0 +1,16 @@
+model VietnameseWordChainSessionPlayer {
+  sessionId BigInt
+
+  guildId String
+  memberId String
+
+  score       Int @default(0) // số từ người X đã nối
+
+  session VietnameseWordChainSession @relation(fields: [sessionId], references: [id])
+
+  member Member @relation(fields: [guildId, memberId], references: [guildId, id])
+
+  @@id([sessionId, guildId, memberId])
+
+  @@index([guildId, memberId])
+}

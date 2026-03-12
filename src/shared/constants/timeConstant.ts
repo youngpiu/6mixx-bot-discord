@@ -5,6 +5,7 @@ const h = (v: number) => v * 3_600_000
 const d = (v: number) => v * 86_400_000
 
 export const TIME = {
+  S3: s(3),
   S5: s(5),
   S10: s(10),
   S15: s(15),

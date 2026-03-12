@@ -15,7 +15,8 @@ import { CUSTOM_ID } from '~/shared/constants/idConstant'
 @ApplyOptions<Command.Options>({
   name: 'Comment',
   description: 'Gửi bình luận ẩn danh vào kênh hoặc trả lời tin nhắn.',
-  requiredUserPermissions: ['Administrator']
+  requiredUserPermissions: ['Administrator'],
+  preconditions: ['ConfessionChannelOnly']
 })
 export class CommentCommand extends Command {
   public override registerApplicationCommands(registry: Command.Registry) {

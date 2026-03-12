@@ -1,7 +1,7 @@
 // Command to synchronize guild members with the database
 import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Command } from '@sapphire/framework'
-import { ChatInputCommandInteraction } from 'discord.js'
+import { ChatInputCommandInteraction, GuildMember } from 'discord.js'
 
 import { GuildRepository } from '~/shared/repositories/guildRepository'
 import { MemberRepository } from '~/shared/repositories/memberRepository'
@@ -25,11 +25,27 @@ export class SyncCommand extends Command {
 
     await GuildRepository.upsert(interaction.guild.id)
 
-    const members = await interaction.guild.members.fetch()
+    const guild = interaction.guild
 
-    const userMembers = members.filter((m) => !m.user.bot)
+    let after: string | undefined
+    const allMembers: GuildMember[] = []
 
-    if (userMembers.size === 0) {
+    while (true) {
+      const chunk = await guild.members.list({
+        limit: 100,
+        after
+      })
+
+      if (chunk.size === 0) break
+
+      const users = chunk.filter((m) => !m.user.bot)
+
+      allMembers.push(...users.values())
+
+      after = chunk.last()?.id
+    }
+
+    if (allMembers.length === 0) {
       await InteractionUtil.replySuccess(
         interaction,
         'Đồng bộ hoàn tất, không có thành viên nào cần đồng bộ.'
@@ -37,14 +53,15 @@ export class SyncCommand extends Command {
       return
     }
 
-    const membersData = userMembers.map((m) => ({
-      guildId: interaction.guild!.id,
+    const membersData = allMembers.map((m) => ({
+      guildId: guild.id,
       id: m.id
     }))
+
     const result = await MemberRepository.createMany(membersData)
 
     this.container.logger.info(
-      `[Sync Command] Synced ${result.count} members for guild ${interaction.guild.name}`
+      `[Sync Command] Synced ${result.count} members for guild ${guild.name}`
     )
 
     await InteractionUtil.replySuccess(

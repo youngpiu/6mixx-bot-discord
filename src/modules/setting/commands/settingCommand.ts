@@ -60,6 +60,14 @@ export class SettingCommand extends Command {
             .setStyle(ButtonStyle.Secondary)
         )
       )
+      .addActionRowComponents((row) =>
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_SETTING_VIETNAMESE_WORDCHAIN_CHANNEL)
+            .setLabel('Cài đặt kênh nối từ')
+            .setStyle(ButtonStyle.Secondary)
+        )
+      )
 
     await InteractionUtil.editReply(interaction, {
       components: [container],

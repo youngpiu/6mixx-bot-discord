@@ -77,7 +77,8 @@ export class MessageUtil {
   static async reply(
     message: MessageInput,
     messageOptions: MessageCreateOptions,
-    timeoutDeleteMessage?: number
+    timeoutDeleteMessage?: number,
+    deleteTrigger: boolean = true
   ): Promise<Message | null> {
     if (
       !message ||
@@ -88,7 +89,10 @@ export class MessageUtil {
 
     try {
       const repliedMessage = await message.reply(messageOptions)
-      this.scheduleDelete([repliedMessage, message], timeoutDeleteMessage)
+      this.scheduleDelete(
+        deleteTrigger ? [repliedMessage, message] : [repliedMessage],
+        timeoutDeleteMessage
+      )
       return repliedMessage
     } catch {
       return null
@@ -145,7 +149,8 @@ export class MessageUtil {
   static async replyWithContainer(
     message: Message,
     containerOrText: ContainerBuilder | string,
-    timeoutDeleteMessage?: number
+    timeoutDeleteMessage?: number,
+    deleteTrigger: boolean = true
   ): Promise<Message | null> {
     const container =
       typeof containerOrText === 'string'
@@ -160,21 +165,24 @@ export class MessageUtil {
         components: [container],
         flags: ['IsComponentsV2', 'SuppressNotifications']
       },
-      timeoutDeleteMessage
+      timeoutDeleteMessage,
+      deleteTrigger
     )
   }
 
   static async replySuccess(
     message: Message,
     content: string,
-    timeoutDeleteMessage: number = TIME.S15
+    timeoutDeleteMessage: number = TIME.S15,
+    deleteTrigger: boolean = true
   ): Promise<Message | null> {
     return MessageUtil.replyWithContainer(
       message,
       new ContainerBuilder().addTextDisplayComponents((t) =>
         t.setContent(`${STATIC_EMOJI.SUCCESS} ${content}`)
       ),
-      timeoutDeleteMessage
+      timeoutDeleteMessage,
+      deleteTrigger
     )
   }
 
@@ -182,7 +190,8 @@ export class MessageUtil {
     message: Message,
     content: string,
     timeoutDeleteMessage: number = TIME.S15,
-    type: ErrorType = 'NORMAL'
+    type: ErrorType = 'NORMAL',
+    deleteTrigger: boolean = true
   ): Promise<Message | null> {
     const errorEmoji = getEmojiForErrorType(type)
     return MessageUtil.replyWithContainer(
@@ -190,7 +199,8 @@ export class MessageUtil {
       new ContainerBuilder().addTextDisplayComponents((t) =>
         t.setContent(`${errorEmoji} ${content}`)
       ),
-      timeoutDeleteMessage
+      timeoutDeleteMessage,
+      deleteTrigger
     )
   }
 
