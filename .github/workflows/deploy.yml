@@ -30,7 +30,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /opt/6mixx-bot-discord
+            cd /home/${{ secrets.SSH_USERNAME }}/6mixx-bot-discord
             git pull origin main
             docker compose --profile prod build --no-cache bot migrate
             echo "🔄 Running database migrations..."
@@ -49,10 +49,10 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             sleep 10
-            if docker compose -f /opt/6mixx-bot-discord/docker-compose.yml --profile prod ps bot --format json | jq -e '.[0].State == "running"'; then
+            if docker compose -f /home/${{ secrets.SSH_USERNAME }}/6mixx-bot-discord/docker-compose.yml --profile prod ps bot --format json | jq -e '.[0].State == "running"'; then
               echo "✅ Bot is running"
             else
               echo "❌ Bot failed to start"
-              docker compose -f /opt/6mixx-bot-discord/docker-compose.yml --profile prod logs bot --tail 50
+              docker compose -f /home/${{ secrets.SSH_USERNAME }}/6mixx-bot-discord/docker-compose.yml --profile prod logs bot --tail 50
               exit 1
             fi

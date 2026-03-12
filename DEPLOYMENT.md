@@ -46,9 +46,8 @@ docker compose version
 ## 3. Chuan bi source tren VPS
 
 ```bash
-sudo mkdir -p /opt/6mixx-bot-discord
-sudo chown -R $USER:$USER /opt/6mixx-bot-discord
-cd /opt/6mixx-bot-discord
+mkdir -p ~/6mixx-bot-discord
+cd ~/6mixx-bot-discord
 git clone https://github.com/yngpiu/6mixx-bot-discord.git .
 ```
 
@@ -56,7 +55,7 @@ Neu la private repo, dung deploy key hoac PAT de server co quyen `git pull`.
 
 ## 4. Cau hinh bien moi truong
 
-1. Tao file `.env` trong `/opt/6mixx-bot-discord` (tham khao `.env.example`).
+1. Tao file `.env` trong `~/6mixx-bot-discord` (tham khao `.env.example`).
 2. Cac bien bat buoc:
 3. `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
 4. `DISCORD_TOKEN`, `TEST_GUILDS_ID`, `OWNER_BOT_ID`
@@ -68,7 +67,7 @@ Neu la private repo, dung deploy key hoac PAT de server co quyen `git pull`.
 ### 5.1 Chay database va redis
 
 ```bash
-cd /opt/6mixx-bot-discord
+cd ~/6mixx-bot-discord
 docker compose up -d postgres redis
 ```
 
@@ -92,9 +91,9 @@ docker compose --profile prod logs -f bot
 `prisma/seed.ts` doc file tu `/app/data`, vi vay can mount thu muc `data` cua host vao container khi seed.
 
 ```bash
-cd /opt/6mixx-bot-discord
+cd ~/6mixx-bot-discord
 docker compose --profile prod run --rm \
-  -v /opt/6mixx-bot-discord/data:/app/data \
+  -v ~/6mixx-bot-discord/data:/app/data \
   migrate pnpm exec prisma db seed --config ./prisma.config.ts
 ```
 
@@ -128,7 +127,7 @@ Khuyen nghi:
 ### 8.1 Deploy thu cong tren VPS
 
 ```bash
-cd /opt/6mixx-bot-discord
+cd ~/6mixx-bot-discord
 git pull origin main
 docker compose --profile prod build --no-cache bot migrate
 docker compose --profile prod run --rm migrate
@@ -152,7 +151,7 @@ docker compose --profile prod logs --tail 100 redis
 3. Neu loi DB schema, chay lai `docker compose --profile prod run --rm migrate`.
 
 4. Loi seed khong tim thay file data:
-5. Dam bao mount `-v /opt/6mixx-bot-discord/data:/app/data`.
+5. Dam bao mount `-v ~/6mixx-bot-discord/data:/app/data`.
 
 6. CI pass nhung deploy fail SSH:
 7. Kiem tra IP whitelist, port SSH, va format private key trong GitHub Secrets.
