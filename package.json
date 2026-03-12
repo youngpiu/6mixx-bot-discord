@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "npx nodemon",
-    "build": "rimraf ./dist && tsc && tsc-alias --resolve-full-paths",
+    "build": "rimraf ./dist && tsc && tsc-alias --resolve-full-paths && mkdir -p dist/src/modules/word-chain/services/lua && cp src/modules/word-chain/services/lua/*.lua dist/src/modules/word-chain/services/lua/",
     "start": "node --experimental-specifier-resolution=node dist/src/index.js",
     "prepare": "git config core.hooksPath .githooks || true",
     "precommit": "pnpm lint && pnpm prettier:fix",

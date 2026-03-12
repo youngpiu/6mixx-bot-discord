@@ -76,7 +76,7 @@ export class MessageWordChainListener extends Listener {
 
   private async reject(message: Message, content: string) {
     await message.react(STATIC_EMOJI.UNVERIFIED).catch(() => null)
-    await MessageUtil.replyError(message, content, TIME.S3, 'NORMAL', false)
+    await MessageUtil.replyError(message, content, TIME.S2, 'NORMAL', false)
   }
 
   private reactWordCount(message: Message, totalWords: number) {
@@ -100,91 +100,52 @@ export class MessageWordChainListener extends Listener {
     const firstWord = words[0]
     const lastWord = words[1]
 
-    const acquired = await WordChainRedisService.acquireLock(guildId, 'vi')
-    if (!acquired) return
+    const result = await WordChainRedisService.submitVietnameseWord(
+      guildId,
+      message.author.id,
+      firstWord,
+      input,
+      lastWord
+    )
 
-    try {
-      const freshState = await WordChainRedisService.getState(guildId, 'vi')
-      if (!freshState || freshState.status === 'paused') return
-
-      const userId = message.author.id
-
-      // Check consecutive answer
-      if (freshState.lastPlayerId === userId) {
+    switch (result.status) {
+      case 'no_state':
+      case 'paused':
+        return
+      case 'same_player':
         await this.reject(
           message,
           'Bạn không thể nối 2 lần liên tiếp, hãy đợi người chơi khác.'
         )
         return
-      }
-
-      // Check chain connection (O(1), No I/O)
-      if (firstWord !== freshState.currentLastWord) {
-        await this.reject(
-          message,
-          `Từ bắt đầu phải là \`${freshState.currentLastWord}\`.`
-        )
+      case 'invalid_chain':
+        await this.reject(message, `Từ bắt đầu phải là \`${result.expected}\`.`)
         return
-      }
-
-      // Lookup phrase in dictionary
-      const exists = await WordChainRedisService.hasViPhraseInGroup(
-        firstWord,
-        input
-      )
-      if (!exists) {
+      case 'not_in_dictionary':
         await this.reject(message, 'Từ này không có trong từ điển.')
         return
-      }
-
-      // Check already used (Vietnamese does NOT allow reuse)
-      const groupIndex = freshState.usedWordIndex[firstWord] ?? {}
-      if (groupIndex[input]) {
+      case 'already_used':
         await this.reject(message, 'Từ này đã được sử dụng rồi.')
         return
-      }
+      case 'ok':
+        break
+    }
 
-      // ─── Valid word ───────────────────────────────────────────
-      await message.react(STATIC_EMOJI.VERIFIED).catch(() => null)
+    // ─── Valid word ───────────────────────────────────────────
+    await message.react(STATIC_EMOJI.VERIFIED).catch(() => null)
+    this.reactWordCount(message, result.totalWords)
 
-      // Update state
-      groupIndex[input] = true
-      freshState.usedWordIndex[firstWord] = groupIndex
-      freshState.usedWordCountByGroup[firstWord] =
-        (freshState.usedWordCountByGroup[firstWord] ?? 0) + 1
-      freshState.currentLastWord = lastWord
-      freshState.playersScore[userId] =
-        (freshState.playersScore[userId] ?? 0) + 1
-      freshState.totalWords = (freshState.totalWords ?? 0) + 1
-      freshState.lastPlayerId = userId
+    if (result.remainingCount === 0) {
+      const finalState = await WordChainRedisService.getState(guildId, 'vi')
+      if (!finalState) return
 
-      await WordChainRedisService.setState(guildId, 'vi', freshState)
-      const totalWordsWithLastWordPromise =
-        WordChainRedisService.countViStartingWith(lastWord)
-
-      // React with word count number emojis
-      this.reactWordCount(message, freshState.totalWords)
-
-      // Check game over
-      const totalWordsWithLastWord = await totalWordsWithLastWordPromise
-
-      // O(1) game-over check: how many used words start with lastWord
-      const usedWordsWithLastWord =
-        freshState.usedWordCountByGroup[lastWord] ?? 0
-
-      const remainingCount = totalWordsWithLastWord - usedWordsWithLastWord
-
-      if (remainingCount === 0) {
-        await WordChainService.endGame(
-          message.guild!,
-          message.channelId,
-          'vi',
-          freshState.sessionId,
-          freshState.playersScore
-        )
-      }
-    } finally {
-      await WordChainRedisService.releaseLock(guildId, 'vi')
+      await WordChainService.endGame(
+        message.guild!,
+        message.channelId,
+        'vi',
+        finalState.sessionId,
+        finalState.playersScore
+      )
     }
   }
 
@@ -198,85 +159,57 @@ export class MessageWordChainListener extends Listener {
 
     const word = words[0]
 
-    const acquired = await WordChainRedisService.acquireLock(guildId, 'en')
-    if (!acquired) return
+    const firstLetter = word[0]
+    const lastLetter = word[word.length - 1]
 
-    try {
-      const freshState = await WordChainRedisService.getState(guildId, 'en')
-      if (!freshState || freshState.status === 'paused') return
+    const result = await WordChainRedisService.submitEnglishWord(
+      guildId,
+      message.author.id,
+      firstLetter,
+      word,
+      lastLetter
+    )
 
-      const userId = message.author.id
-
-      // Check consecutive answer
-      if (freshState.lastPlayerId === userId) {
+    switch (result.status) {
+      case 'no_state':
+      case 'paused':
+        return
+      case 'same_player':
         await this.reject(
           message,
           'Bạn không thể nối 2 lần liên tiếp, hãy đợi người chơi khác.'
         )
         return
-      }
-
-      // Check chain connection: first letter must match currentLastWord (which is a letter)
-      if (word[0] !== freshState.currentLastWord) {
+      case 'invalid_chain':
         await this.reject(
           message,
-          `Từ phải bắt đầu bằng chữ cái \`${freshState.currentLastWord.toUpperCase()}\`.`
+          `Từ phải bắt đầu bằng chữ cái \`${result.expected.toUpperCase()}\`.`
         )
         return
-      }
-
-      // Lookup word in dictionary
-      const exists = await WordChainRedisService.hasEnWordInGroup(word[0], word)
-      if (!exists) {
+      case 'not_in_dictionary':
         await this.reject(message, 'Từ này không có trong từ điển.')
         return
-      }
+      case 'ok':
+        break
+    }
 
-      // English allows reuse — no usedWords check
+    // ─── Valid word ───────────────────────────────────────────
+    await message
+      .react(result.isRepeat ? STATIC_EMOJI.LOOP : STATIC_EMOJI.VERIFIED)
+      .catch(() => null)
+    this.reactWordCount(message, result.totalWords)
 
-      // ─── Valid word ───────────────────────────────────────────
-      const lastLetter = word[word.length - 1]
-      const firstLetter = word[0]
-      const enGroupIndex = freshState.usedWordIndex[firstLetter] ?? {}
-      const isRepeat = Boolean(enGroupIndex[word])
+    if (result.remainingCount === 0) {
+      const finalState = await WordChainRedisService.getState(guildId, 'en')
+      if (!finalState) return
 
-      // Update state
-      if (!isRepeat) {
-        enGroupIndex[word] = true
-        freshState.usedWordCountByGroup[firstLetter] =
-          (freshState.usedWordCountByGroup[firstLetter] ?? 0) + 1
-      }
-      freshState.usedWordIndex[firstLetter] = enGroupIndex
-      freshState.currentLastWord = lastLetter
-      freshState.playersScore[userId] =
-        (freshState.playersScore[userId] ?? 0) + 1
-      freshState.totalWords = (freshState.totalWords ?? 0) + 1
-      freshState.lastPlayerId = userId
-
-      await WordChainRedisService.setState(guildId, 'en', freshState)
-      const remainingCountPromise =
-        WordChainRedisService.countEnStartingWith(lastLetter)
-
-      // React: LOOP if repeated word, VERIFIED if new; then show word count
-      await message
-        .react(isRepeat ? STATIC_EMOJI.LOOP : STATIC_EMOJI.VERIFIED)
-        .catch(() => null)
-      this.reactWordCount(message, freshState.totalWords)
-
-      // Check game over: if no words start with this letter
-      const remainingCount = await remainingCountPromise
-
-      if (remainingCount === 0) {
-        await WordChainService.endGame(
-          message.guild!,
-          message.channelId,
-          'en',
-          freshState.sessionId,
-          freshState.playersScore
-        )
-      }
-    } finally {
-      await WordChainRedisService.releaseLock(guildId, 'en')
+      await WordChainService.endGame(
+        message.guild!,
+        message.channelId,
+        'en',
+        finalState.sessionId,
+        finalState.playersScore
+      )
     }
   }
 }

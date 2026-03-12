@@ -53,7 +53,13 @@ export class WordChainHintCommand {
         )
         if (!randomWord) break
         const firstWord = randomWord.split(/\s+/)[0]
-        if (!(state.usedWordIndex[firstWord] ?? {})[randomWord]) {
+        const isUsed = await WordChainRedisService.isUsedWord(
+          guildId,
+          mode,
+          firstWord,
+          randomWord
+        )
+        if (!isUsed) {
           hintWord = randomWord
           break
         }
@@ -77,11 +83,14 @@ export class WordChainHintCommand {
     }
 
     // 4. Update usage count in Redis
-    state.hintsUsed[userId] = usedCount + 1
-    await WordChainRedisService.setState(guildId, mode, state)
+    const nextUsedCount = await WordChainRedisService.incrementHintUsed(
+      guildId,
+      mode,
+      userId
+    )
 
     // 5. Reply with hint
-    const remaining = 3 - (usedCount + 1)
+    const remaining = 3 - nextUsedCount
     const footerText =
       mode === 'vi'
         ? `Bạn còn **${remaining}** lần dùng gợi ý trong ván này.`
