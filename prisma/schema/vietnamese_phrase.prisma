@@ -1,8 +1,0 @@
-model VietnamesePhrase {
-  id        BigInt @id @default(autoincrement())
-  phrase    String @unique
-  firstWord String
-  lastWord  String
-
-  @@index([firstWord])
-}

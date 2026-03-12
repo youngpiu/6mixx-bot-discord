@@ -50,10 +50,10 @@ export class DonateRepository {
     return null
   }
 
-  public static async findByCode(code: string) {
+  public static async findByCode(guildId: string, code: string) {
     const cleanCode = code.replace(/#/g, '')
     return container.prisma.donation.findUnique({
-      where: { code: cleanCode },
+      where: { guildId_code: { guildId, code: cleanCode } },
       include: {
         donor: true
       }

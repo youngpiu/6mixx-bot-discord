@@ -19,7 +19,6 @@ model GuildSetting {
   confessionForumChannelId       String?
   confessionTutorialThreadId     String?
   confessionNotificationThreadId String?
-  confessionCounter              Int     @default(1)
 
   /// --- Donation Config ---
   donationTutorialThreadId     String?
@@ -29,6 +28,10 @@ model GuildSetting {
   /// --- Word Chain Config ---
   vietnameseWordChainChannelId String?
   englishWordChainChannelId    String?
+
+  /// --- Temp Voice Config ---
+  tempVoiceCreateChannelId String?
+  tempVoiceCategoryId      String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

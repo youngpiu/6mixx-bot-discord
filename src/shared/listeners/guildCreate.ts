@@ -3,8 +3,8 @@ import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
 import { Guild } from 'discord.js'
 
+import { GuildMemberRepository } from '~/shared/repositories/guildMemberRepository'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
-import { MemberRepository } from '~/shared/repositories/memberRepository'
 
 @ApplyOptions<Listener.Options>({
   event: 'guildCreate'
@@ -23,10 +23,10 @@ export class GuildCreateListener extends Listener {
 
     const membersData = userMembers.map((m) => ({
       guildId: guild.id,
-      id: m.id
+      userId: m.id
     }))
 
-    const count = await MemberRepository.createMany(membersData)
+    const count = await GuildMemberRepository.createMany(membersData)
 
     this.container.logger.info(
       `Synced ${count.count} members for guild ${guild.name}`

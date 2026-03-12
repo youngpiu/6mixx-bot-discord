@@ -11,7 +11,7 @@ model Donation {
   id String @id @default(cuid())
 
   /// Unique Transaction Code
-  code String @unique
+  code String
 
   guildId String
   guild   Guild  @relation(fields: [guildId], references: [id], onDelete: Cascade)
@@ -21,14 +21,14 @@ model Donation {
   status  DonationStatus @default(PENDING)
 
   donorId String
-  donor   Member @relation("Donor", fields: [guildId, donorId], references: [guildId, id])
+  donor   GuildMember @relation("Donor", fields: [guildId, donorId], references: [guildId, userId], onDelete: Restrict)
 
   confirmedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  @@index([guildId, code])
   @@index([guildId, status])
   @@index([guildId, createdAt(sort: Desc)])
   @@index([guildId, donorId])
+  @@unique([guildId, code])
 }

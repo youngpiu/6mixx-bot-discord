@@ -117,7 +117,7 @@ export class ButtonConfessionReview extends InteractionHandler {
 
     const authorLine = confession.isAnonymous
       ? 'Ẩn danh'
-      : `<@${confession.author.id}>`
+      : `<@${confession.author.userId}>`
 
     const MAX_TOTAL = 3800
     const MAX_CHUNK = 1900

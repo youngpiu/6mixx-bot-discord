@@ -45,9 +45,9 @@ export class ConfessionRepository {
     return confession
   }
 
-  public static async findByCode(code: string) {
+  public static async findByCode(guildId: string, code: string) {
     return container.prisma.confession.findUnique({
-      where: { code },
+      where: { guildId_code: { guildId, code } },
       include: { author: true }
     })
   }

@@ -1,0 +1,44 @@
+/// Temp voice profile (and active channel if any)
+model TempVoiceProfile {
+  id String @id @default(cuid())
+
+  guildId String
+  ownerId String
+  channelId String? @unique
+  sourceChannelId String?
+
+  name   String
+  limit  Int     @default(0)
+  locked Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  owner GuildMember @relation("TempVoiceOwner", fields: [guildId, ownerId], references: [guildId, userId], onDelete: Cascade)
+
+  trustedMembers TempVoiceTrustedMember[]
+
+  @@index([guildId])
+  @@index([ownerId])
+  @@unique([guildId, ownerId])
+}
+
+/// Trusted users for a temp voice profile
+model TempVoiceTrustedMember {
+  id String @id @default(cuid())
+
+  guildId   String
+  profileId String
+  userId    String
+
+  createdAt DateTime @default(now())
+
+  profile TempVoiceProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  guild   Guild            @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  user    GuildMember      @relation("TempVoiceTrustedUser", fields: [guildId, userId], references: [guildId, userId], onDelete: Cascade)
+
+  @@unique([profileId, userId])
+  @@index([profileId])
+  @@index([userId])
+}

@@ -1,7 +1,7 @@
 import { container } from '@sapphire/pieces'
 
+import { GuildMemberRepository } from '~/shared/repositories/guildMemberRepository'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
-import { MemberRepository } from '~/shared/repositories/memberRepository'
 
 export class WordChainRepository {
   /**
@@ -29,17 +29,17 @@ export class WordChainRepository {
     const playerEntries = Object.entries(playersScore)
     if (playerEntries.length === 0) return
 
-    await MemberRepository.createMany(
-      playerEntries.map(([memberId]) => ({ guildId, id: memberId }))
+    await GuildMemberRepository.createMany(
+      playerEntries.map(([userId]) => ({ guildId, userId }))
     )
 
     await container.prisma.$transaction(
-      playerEntries.map(([memberId, score]) =>
+      playerEntries.map(([userId, score]) =>
         container.prisma.wordChainSessionPlayer.upsert({
           where: {
-            sessionId_guildId_memberId: { sessionId, guildId, memberId }
+            sessionId_guildId_userId: { sessionId, guildId, userId }
           },
-          create: { sessionId, guildId, memberId, score },
+          create: { sessionId, guildId, userId, score },
           update: { score }
         })
       )

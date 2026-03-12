@@ -68,12 +68,17 @@ export const CUSTOM_ID = {
   BTN_SETTING_CHANNEL_CONFIG: 'btn-setting-channel-config',
   BTN_SETTING_SYNC_GUIDES: 'btn-setting-sync-guides',
   BTN_SETTING_SYNC_NOTIFICATIONS: 'btn-setting-sync-notifications',
+  BTN_SETTING_TEMPVOICE_CHANNEL: 'btn-setting-tempvoice-channel',
   MODAL_SETTING_CHANNEL_CONFIG: 'modal-setting-channel-config',
   SELECT_SETTING_SERVICE_FORUM: 'select-setting-service-forum',
   SELECT_SETTING_NOTIFICATION_FORUM: 'select-setting-notification-forum',
   SELECT_SETTING_CONFESSION_FORUM: 'select-setting-confession-forum',
   SELECT_SETTING_DISBURSEMENT_LOG: 'select-setting-disbursement-log',
   SELECT_SETTING_TICKET_CATEGORY: 'select-setting-ticket-category',
+  MODAL_SETTING_TEMPVOICE_CHANNEL: 'modal-setting-tempvoice-channel',
+  SELECT_SETTING_TEMPVOICE_CREATE_CHANNEL:
+    'select-setting-tempvoice-create-channel',
+  SELECT_SETTING_TEMPVOICE_CATEGORY: 'select-setting-tempvoice-category',
 
   // Setting -> General
   BTN_TICKET_FEEDBACK: 'btn-ticket-feedback',

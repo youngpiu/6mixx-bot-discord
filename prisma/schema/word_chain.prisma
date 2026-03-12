@@ -1,0 +1,55 @@
+model WordChainSession {
+  id BigInt @id @default(autoincrement())
+
+  guildId   String
+  channelId String // channel chơi game
+  guild     Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  winnerId String? // người chiến thắng ván chơi này
+
+  winner GuildMember? @relation("WordChainWinner", fields: [guildId, winnerId], references: [guildId, userId], onDelete: SetNull)
+
+  endedAt DateTime?
+
+  players WordChainSessionPlayer[]
+
+  createdAt DateTime @default(now())
+
+  @@index([guildId])
+  @@index([guildId, channelId])
+}
+
+model WordChainSessionPlayer {
+  sessionId BigInt
+
+  guildId String
+  userId  String
+
+  score       Int @default(0) // số từ người X đã nối
+
+  session WordChainSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  guildMember GuildMember @relation(fields: [guildId, userId], references: [guildId, userId], onDelete: Cascade)
+
+  @@id([sessionId, guildId, userId])
+
+  @@index([guildId, userId])
+}
+
+model VietnamesePhrase {
+  id        BigInt @id @default(autoincrement())
+  phrase    String @unique
+  firstWord String
+  lastWord  String
+
+  @@index([firstWord])
+}
+
+model EnglishWord {
+  id          BigInt @id @default(autoincrement())
+  word        String @unique
+  firstLetter String @db.Char(1)
+  lastLetter  String @db.Char(1)
+
+  @@index([firstLetter])
+}

@@ -20,6 +20,7 @@ type CreateChannelLabelOptions = {
   channelType: ChannelType
   label: string
   description?: string
+  required?: boolean
   placeholders: {
     channelConfiguredAndExists: string
     channelConfiguredButDeleted: string
@@ -72,6 +73,7 @@ export class SettingHelper {
       channelType,
       label,
       description,
+      required = true,
       placeholders
     } = options
 
@@ -86,7 +88,7 @@ export class SettingHelper {
       .setCustomId(customId)
       .setPlaceholder(result.placeholder)
       .setChannelTypes([channelType])
-      .setRequired(true)
+      .setRequired(required)
 
     if (channelId && result.exists) {
       selectMenu.setDefaultChannels([channelId])

@@ -10,7 +10,7 @@ model Confession {
   id String @id @default(cuid())
 
   /// Unique Code (e.g. CFS-1)
-  code String @unique
+  code String
 
   guildId String
   guild   Guild  @relation(fields: [guildId], references: [id], onDelete: Cascade)
@@ -24,14 +24,16 @@ model Confession {
   forumPostId     String?
 
   authorId String
-  author   Member @relation(fields: [guildId, authorId], references: [guildId, id])
+  author   GuildMember @relation(fields: [guildId, authorId], references: [guildId, userId], onDelete: Restrict)
 
   approvedBy String?
-  approver   Member? @relation("ConfessionApprover", fields: [guildId, approvedBy], references: [guildId, id])
+  approver   GuildMember? @relation("ConfessionApprover", fields: [guildId, approvedBy], references: [guildId, userId], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([guildId])
   @@index([guildId, status])
+  @@index([guildId, authorId])
+  @@unique([guildId, code])
 }

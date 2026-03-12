@@ -4,6 +4,7 @@ import { TicketStatus, TicketType } from 'generated/prisma/enums'
 
 import { TIME } from '~/shared/constants/timeConstant'
 import { CounterRepository } from '~/shared/repositories/counterRepository'
+import { GuildMemberRepository } from '~/shared/repositories/guildMemberRepository'
 import { CacheService } from '~/shared/services/cacheService'
 
 const TICKET_PREFIX: Record<TicketType, string> = {
@@ -46,11 +47,10 @@ export class TicketRepository {
   }) {
     const ticketCode = code || (await this.generateCode(guildId, type))
 
-    // Ensure requester exists in Member table before creating ticket (FK constraint)
-    await container.prisma.member.upsert({
-      where: { guildId_id: { id: requesterId, guildId } },
-      create: { id: requesterId, guildId },
-      update: {}
+    // Ensure requester exists in User/GuildMember tables before creating ticket (FK constraint)
+    await GuildMemberRepository.create({
+      guildId,
+      userId: requesterId
     })
 
     const ticket = await container.prisma.ticket.create({
@@ -120,8 +120,8 @@ export class TicketRepository {
         container.prisma.ticket.findMany({
           where: whereClause,
           include: {
-            requester: { select: { id: true, guildId: true } },
-            closer: { select: { id: true, guildId: true } }
+            requester: { select: { userId: true, guildId: true } },
+            closer: { select: { userId: true, guildId: true } }
           },
           orderBy: { createdAt: 'desc' },
           skip,
@@ -157,10 +157,10 @@ export class TicketRepository {
     }
   }
 
-  public static async findByCode(code: string) {
+  public static async findByCode(guildId: string, code: string) {
     const cleanCode = code.replace(/#/g, '').toUpperCase()
     return container.prisma.ticket.findUnique({
-      where: { code: cleanCode }
+      where: { guildId_code: { guildId, code: cleanCode } }
     })
   }
 

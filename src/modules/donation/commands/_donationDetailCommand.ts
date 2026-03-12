@@ -33,7 +33,10 @@ export class DonationDetailCommand {
       )
     }
 
-    const donation = await DonateRepository.findByCode(code)
+    const donation = await DonateRepository.findByCode(
+      interaction.guild!.id,
+      code
+    )
 
     if (!donation) {
       throw new NormalError(`Không tìm thấy khoản quyên góp này.`)

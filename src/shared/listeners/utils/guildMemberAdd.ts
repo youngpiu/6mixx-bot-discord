@@ -3,7 +3,7 @@ import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
 import type { GuildMember } from 'discord.js'
 
-import { MemberRepository } from '~/shared/repositories/memberRepository'
+import { GuildMemberRepository } from '~/shared/repositories/guildMemberRepository'
 
 @ApplyOptions<Listener.Options>({
   event: 'guildMemberAdd'
@@ -14,16 +14,16 @@ export class GuildMemberAddListener extends Listener {
     if (member.user.bot) return
 
     try {
-      await MemberRepository.create({
+      await GuildMemberRepository.create({
         guildId: member.guild.id,
-        id: member.user.id
+        userId: member.user.id
       })
 
       this.container.logger.debug(
-        `Created/verified Member record for ${member.user.tag} in ${member.guild.name}`
+        `Created/verified GuildMember record for ${member.user.tag} in ${member.guild.name}`
       )
     } catch (error) {
-      this.container.logger.error(`Failed to create Member record:`, error)
+      this.container.logger.error(`Failed to create GuildMember record:`, error)
     }
   }
 }

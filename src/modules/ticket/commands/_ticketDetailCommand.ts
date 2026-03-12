@@ -27,7 +27,10 @@ export class TicketDetailCommand {
 
     const code = interaction.options.getString('code', true)
 
-    const ticket = await TicketRepository.findByCode(code)
+    const ticket = await TicketRepository.findByCode(
+      interaction.guild!.id,
+      code
+    )
 
     if (!ticket) {
       throw new NormalError('Không tìm thấy phiếu hỗ trợ này.')

@@ -1,17 +1,19 @@
 /// Server identity
 model Guild {
-  id String @id
+  id String @id // guildId in discordjs
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   /// --- Relations ---
-  setting        GuildSetting?
-  members        Member[]
-  tickets        Ticket[]
-  autoIncrements AutoIncrement[]
-  donations      Donation[]
-  disbursements  Disbursement[]
-  confessions    Confession[]
+  setting           GuildSetting?
+  guildMembers      GuildMember[]
+  tickets           Ticket[]
+  autoIncrements    AutoIncrement[]
+  donations         Donation[]
+  disbursements     Disbursement[]
+  confessions       Confession[]
   wordChainSessions WordChainSession[]
+  tempVoiceProfiles TempVoiceProfile[]
+  tempVoiceTrustedMembers TempVoiceTrustedMember[]
 }

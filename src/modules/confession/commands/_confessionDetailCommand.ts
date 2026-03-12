@@ -40,7 +40,10 @@ export class ConfessionDetailCommand {
       )
     }
 
-    const confession = await ConfessionRepository.findByCode(confessionCode)
+    const confession = await ConfessionRepository.findByCode(
+      interaction.guild!.id,
+      confessionCode
+    )
 
     if (!confession) {
       throw new NormalError(`Không tìm thấy confession này.`)
@@ -62,7 +65,7 @@ export class ConfessionDetailCommand {
     if (!confession.isAnonymous) {
       fields.push([
         'Người gửi',
-        confession.author ? `<@${confession.author.id}>` : 'Không rõ'
+        confession.author ? `<@${confession.author.userId}>` : 'Không rõ'
       ])
     }
 

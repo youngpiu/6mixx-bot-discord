@@ -6,8 +6,8 @@ import {
 import { Command } from '@sapphire/framework'
 import { ChatInputCommandInteraction, GuildMember } from 'discord.js'
 
+import { GuildMemberRepository } from '~/shared/repositories/guildMemberRepository'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
-import { MemberRepository } from '~/shared/repositories/memberRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 
 @RegisterChatInputCommand((builder) =>
@@ -57,10 +57,10 @@ export class SyncCommand extends Command {
 
     const membersData = allMembers.map((m) => ({
       guildId: guild.id,
-      id: m.id
+      userId: m.id
     }))
 
-    const result = await MemberRepository.createMany(membersData)
+    const result = await GuildMemberRepository.createMany(membersData)
 
     this.container.logger.info(
       `[Sync Command] Synced ${result.count} members for guild ${guild.name}`

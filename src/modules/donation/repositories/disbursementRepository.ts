@@ -42,7 +42,7 @@ export class DisbursementRepository {
     const cleanCode = code.toUpperCase().replace(/#/g, '')
     return container.prisma.disbursement.findUnique({
       where: {
-        code: cleanCode
+        guildId_code: { guildId, code: cleanCode }
       }
     })
   }
