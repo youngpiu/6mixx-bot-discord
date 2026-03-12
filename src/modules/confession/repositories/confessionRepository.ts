@@ -1,12 +1,12 @@
 import { container } from '@sapphire/pieces'
 
-import type { ConfessionUncheckedCreateInput } from 'generated/prisma/models/Confession'
-import { ConfessionStatus } from 'generated/prisma/enums'
 import { Prisma } from 'generated/prisma/client'
+import { ConfessionStatus } from 'generated/prisma/enums'
+import type { ConfessionUncheckedCreateInput } from 'generated/prisma/models/Confession'
 
-import { CacheService } from '~/shared/services/cacheService'
-import { CounterRepository } from '~/shared/repositories/counterRepository'
 import { TIME } from '~/shared/constants/timeConstant'
+import { CounterRepository } from '~/shared/repositories/counterRepository'
+import { CacheService } from '~/shared/services/cacheService'
 
 export class ConfessionRepository {
   private static async generateCode(guildId: string): Promise<string> {
@@ -86,32 +86,28 @@ export class ConfessionRepository {
   }) {
     const cacheKey = `confessions:${guildId}:${page}:${limit}:${status || '*'}`
 
-    const cached = await CacheService.remember(
-      cacheKey,
-      TIME.S30,
-      async () => {
-        const skip = (page - 1) * limit
-        const [confessions, total] = await Promise.all([
-          container.prisma.confession.findMany({
-            where: {
-              guildId,
-              ...(status ? { status } : {})
-            },
-            include: { author: true },
-            orderBy: { createdAt: 'desc' },
-            skip,
-            take: limit
-          }),
-          container.prisma.confession.count({
-            where: {
-              guildId,
-              ...(status ? { status } : {})
-            }
-          })
-        ])
-        return { confessions, total }
-      }
-    )
+    const cached = await CacheService.remember(cacheKey, TIME.S30, async () => {
+      const skip = (page - 1) * limit
+      const [confessions, total] = await Promise.all([
+        container.prisma.confession.findMany({
+          where: {
+            guildId,
+            ...(status ? { status } : {})
+          },
+          include: { author: true },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit
+        }),
+        container.prisma.confession.count({
+          where: {
+            guildId,
+            ...(status ? { status } : {})
+          }
+        })
+      ])
+      return { confessions, total }
+    })
 
     // Reconstruct Date objects from cached JSON string
     return {

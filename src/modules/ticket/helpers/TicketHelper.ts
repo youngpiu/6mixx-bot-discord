@@ -1,10 +1,5 @@
 import { container } from '@sapphire/pieces'
-import {
-  ForumChannel,
-  MessageFlags,
-  TextChannel,
-  Colors
-} from 'discord.js'
+import { Colors, ForumChannel, MessageFlags, TextChannel } from 'discord.js'
 
 import { Ticket, TicketType } from 'generated/prisma/client'
 import { TicketStatus } from 'generated/prisma/enums'
@@ -98,27 +93,33 @@ export class TicketHelper {
         }).addFields([
           ['Loại phiếu', `**${this.getTicketTypeLabel(ticket.type)}**`],
           ['Người tạo', `<@${ticket.requesterId}>`],
-          ['Thời gian tạo', `<t:${Math.floor(ticket.createdAt.getTime() / 1000)}:R>`],
+          [
+            'Thời gian tạo',
+            `<t:${Math.floor(ticket.createdAt.getTime() / 1000)}:R>`
+          ],
           ['Kênh hỗ trợ', `<#${channelId || ticket.channelId}>`]
         ])
       } else if (event === 'CLOSED') {
         const closedFields: [string, string | null | undefined][] = [
           ['Loại phiếu', `**${this.getTicketTypeLabel(ticket.type)}**`],
           ['Người tạo', `<@${ticket.requesterId}>`],
-          ['Thời gian tạo', `<t:${Math.floor(ticket.createdAt.getTime() / 1000)}:R>`],
+          [
+            'Thời gian tạo',
+            `<t:${Math.floor(ticket.createdAt.getTime() / 1000)}:R>`
+          ],
           ['Người đóng', `<@${executorId}>`],
           ['Thời gian đóng', `<t:${Math.floor(new Date().getTime() / 1000)}:R>`]
         ]
         if (reason) {
           closedFields.push(['Lý do', `**${reason}**`])
         }
-        
+
         logContainer = new LoggerBuilder({
           title: `ĐÓNG PHIẾU HỖ TRỢ \`#${ticket.code}\``,
           color: Colors.Red
         }).addFields(closedFields)
       } else {
-         return null
+        return null
       }
 
       await thread.send({

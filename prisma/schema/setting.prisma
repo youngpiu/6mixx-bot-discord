@@ -27,7 +27,8 @@ model GuildSetting {
   disbursementLogChannelId     String?
 
   /// --- Word Chain Config ---
-  wordChainChannelId String?
+  vietnameseWordChainChannelId String?
+  englishWordChainChannelId    String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

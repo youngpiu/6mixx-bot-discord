@@ -1,5 +1,6 @@
 import { container } from '@sapphire/pieces'
 import { Colors, MessageFlags } from 'discord.js'
+
 import { ConfessionStatus } from 'generated/prisma/enums'
 
 import { LoggerBuilder } from '~/shared/components/LoggerBuilder'

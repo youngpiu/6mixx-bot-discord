@@ -3,38 +3,19 @@ import { container } from '@sapphire/pieces'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
 import { MemberRepository } from '~/shared/repositories/memberRepository'
 
-export class VietnameseWordChainRepository {
+export class WordChainRepository {
   /**
    * Create a new word chain session in the database.
-   * Accessor: vietnameseWordChainSeasion (generated name — typo in schema)
    */
   public static async createSession(
     guildId: string,
     channelId: string
   ): Promise<bigint> {
     await GuildRepository.upsert(guildId)
-    const session = await container.prisma.vietnameseWordChainSession.create({
+    const session = await container.prisma.wordChainSession.create({
       data: { guildId, channelId }
     })
     return session.id
-  }
-
-  /**
-   * Upsert a player's score for the current session.
-   * Accessor: wordChainPlayer (generated name)
-   */
-  public static async upsertPlayer(
-    sessionId: bigint,
-    guildId: string,
-    memberId: string,
-    score: number
-  ): Promise<void> {
-    await MemberRepository.create({ guildId, id: memberId })
-    await container.prisma.vietnameseWordChainSessionPlayer.upsert({
-      where: { sessionId_guildId_memberId: { sessionId, guildId, memberId } },
-      create: { sessionId, guildId, memberId, score },
-      update: { score }
-    })
   }
 
   /**
@@ -54,8 +35,10 @@ export class VietnameseWordChainRepository {
 
     await container.prisma.$transaction(
       playerEntries.map(([memberId, score]) =>
-        container.prisma.vietnameseWordChainSessionPlayer.upsert({
-          where: { sessionId_guildId_memberId: { sessionId, guildId, memberId } },
+        container.prisma.wordChainSessionPlayer.upsert({
+          where: {
+            sessionId_guildId_memberId: { sessionId, guildId, memberId }
+          },
           create: { sessionId, guildId, memberId, score },
           update: { score }
         })
@@ -70,17 +53,17 @@ export class VietnameseWordChainRepository {
     sessionId: bigint,
     winnerId?: string
   ): Promise<void> {
-    await container.prisma.vietnameseWordChainSession.update({
+    await container.prisma.wordChainSession.update({
       where: { id: sessionId },
       data: { endedAt: new Date(), winnerId: winnerId ?? null }
     })
   }
 
   /**
-   * Add multiple phrases to the database.
+   * Add multiple Vietnamese phrases to the database.
    * Skips duplicates.
    */
-  public static async addPhrases(phrases: string[]): Promise<void> {
+  public static async addViPhrases(phrases: string[]): Promise<void> {
     const data = phrases.map((phrase) => {
       const words = phrase.split(/\s+/)
       return {
@@ -91,6 +74,23 @@ export class VietnameseWordChainRepository {
     })
 
     await container.prisma.vietnamesePhrase.createMany({
+      data,
+      skipDuplicates: true
+    })
+  }
+
+  /**
+   * Add multiple English words to the database.
+   * Skips duplicates.
+   */
+  public static async addEnWords(words: string[]): Promise<void> {
+    const data = words.map((word) => ({
+      word: word.toLowerCase(),
+      firstLetter: word[0].toLowerCase(),
+      lastLetter: word[word.length - 1].toLowerCase()
+    }))
+
+    await container.prisma.englishWord.createMany({
       data,
       skipDuplicates: true
     })

@@ -9,7 +9,6 @@ import {
 
 import { Disbursement } from 'generated/prisma/client'
 
-
 import { ListBuilder } from '~/shared/components/ListBuilder'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { formatFields, lines } from '~/shared/utils/textUtil'
@@ -75,7 +74,6 @@ export class DisbursementListCommand {
       page: 1,
       limit: 5
     })
-
 
     const response = this.createListResponse(items, meta)
     await interaction.editReply(response)

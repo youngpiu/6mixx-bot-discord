@@ -13,9 +13,9 @@ import { formatFields } from '~/shared/utils/textUtil'
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
 })
-export class ModalSettingVietnameseWordChain extends InteractionHandler {
+export class ModalSettingWordChain extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
-    if (interaction.customId !== CUSTOM_ID.MODAL_SETTING_VIETNAMESE_WORDCHAIN_CHANNEL)
+    if (interaction.customId !== CUSTOM_ID.MODAL_SETTING_WORDCHAIN_CHANNEL)
       return this.none()
     return this.some()
   }
@@ -24,18 +24,33 @@ export class ModalSettingVietnameseWordChain extends InteractionHandler {
     await interaction.deferReply({ flags: ['Ephemeral'] })
     if (!interaction.guild) return
 
-    const wordChainChannelId = interaction.fields
-      .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_VIETNAMESE_WORDCHAIN_CHANNEL)
+    const vietnameseWordChainChannelId = interaction.fields
+      .getSelectedChannels(
+        CUSTOM_ID.SELECT_SETTING_VIETNAMESE_WORDCHAIN_CHANNEL
+      )
+      ?.first()?.id
+
+    const englishWordChainChannelId = interaction.fields
+      .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_ENGLISH_WORDCHAIN_CHANNEL)
       ?.first()?.id
 
     await SettingRepository.update(interaction.guild.id, {
-      wordChainChannelId
+      vietnameseWordChainChannelId,
+      englishWordChainChannelId
     })
 
     const formattedFields = formatFields([
       [
         'Kênh nối từ tiếng Việt',
-        wordChainChannelId ? channelMention(wordChainChannelId) : 'Không có'
+        vietnameseWordChainChannelId
+          ? channelMention(vietnameseWordChainChannelId)
+          : 'Không có'
+      ],
+      [
+        'Kênh nối từ tiếng Anh',
+        englishWordChainChannelId
+          ? channelMention(englishWordChainChannelId)
+          : 'Không có'
       ]
     ]).join('\n')
 

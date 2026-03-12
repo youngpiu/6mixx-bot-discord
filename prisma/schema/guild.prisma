@@ -13,5 +13,5 @@ model Guild {
   donations      Donation[]
   disbursements  Disbursement[]
   confessions    Confession[]
-  vietnameseWordChainSessions VietnameseWordChainSession[]
+  wordChainSessions WordChainSession[]
 }

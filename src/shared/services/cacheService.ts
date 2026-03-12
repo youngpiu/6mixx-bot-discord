@@ -11,14 +11,14 @@ export class CacheService {
    */
   public static async remember<T>(
     key: string,
-    ttlMs: number,
+    ttlMs: number | undefined,
     fetcher: () => Promise<T>
   ): Promise<T> {
     const cached = await container.redis.get(key)
     if (cached) return JSON.parse(cached) as T
 
     const result = await fetcher()
-    await this.set(key, result, Math.floor(ttlMs / 1000))
+    await this.set(key, result, ttlMs ? Math.floor(ttlMs / 1000) : undefined)
     return result
   }
 
@@ -34,7 +34,11 @@ export class CacheService {
   /**
    * Set a value in cache with optional TTL.
    */
-  public static async set<T>(key: string, value: T, ttlSeconds?: number): Promise<void> {
+  public static async set<T>(
+    key: string,
+    value: T,
+    ttlSeconds?: number
+  ): Promise<void> {
     const raw = JSON.stringify(value)
     if (ttlSeconds) {
       await container.redis.set(key, raw, 'EX', ttlSeconds)

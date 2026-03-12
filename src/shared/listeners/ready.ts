@@ -3,7 +3,7 @@ import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
 import type { Client } from 'discord.js'
 
-import { VietnameseWordChainService } from '~/modules/vietnamese-word-chain/services/VietnameseWordChainService'
+import { WordChainService } from '~/modules/word-chain/services/WordChainService'
 
 @ApplyOptions<Listener.Options>({
   once: true,
@@ -14,9 +14,20 @@ export class ReadyListener extends Listener {
     const { username, id } = client.user
     this.container.logger.info(`Successfully logged in as ${username} (${id})`)
 
-    // Load VietnameseWordChain dictionary
-    await VietnameseWordChainService.initDictionary().catch((err) => {
-      this.container.logger.error('[Ready] Failed to load dictionary:', err)
+    // Load Vietnamese WordChain dictionary
+    await WordChainService.initViDictionary().catch((err) => {
+      this.container.logger.error(
+        '[Ready] Failed to load Vietnamese dictionary:',
+        err
+      )
+    })
+
+    // Load English WordChain dictionary
+    await WordChainService.initEnDictionary().catch((err) => {
+      this.container.logger.error(
+        '[Ready] Failed to load English dictionary:',
+        err
+      )
     })
   }
 }

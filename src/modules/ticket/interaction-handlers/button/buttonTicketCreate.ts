@@ -16,7 +16,6 @@ import { TicketType } from 'generated/prisma/client'
 import { NormalError } from '~/core/errorResponse'
 
 import { LoggerBuilder } from '~/shared/components/LoggerBuilder'
-
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 
@@ -113,11 +112,13 @@ export class ButtonTicketCreate extends InteractionHandler {
     const containerMessage = new LoggerBuilder({
       title: `Bắt đầu hỗ trợ\n-# ${config.description}`,
       color: Colors.Blue
-    }).addFields([
-      ['Mã phiếu', `_#${code}_`],
-      ['Người tạo', `<@${interaction.user.id}>`],
-      ['Thời gian tạo', `<t:${Math.floor(now.getTime() / 1000)}:R>`]
-    ]).build()
+    })
+      .addFields([
+        ['Mã phiếu', `_#${code}_`],
+        ['Người tạo', `<@${interaction.user.id}>`],
+        ['Thời gian tạo', `<t:${Math.floor(now.getTime() / 1000)}:R>`]
+      ])
+      .build()
 
     const message = await ticketChannel.send({
       components: containerMessage,

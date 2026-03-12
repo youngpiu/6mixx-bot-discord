@@ -30,9 +30,7 @@ export class TicketCloseCommand {
     }
 
     if (ticket.status === 'CLOSED') {
-      throw new NormalError(
-        'Phiếu hỗ trợ này đã được đóng trước đó rồi.'
-      )
+      throw new NormalError('Phiếu hỗ trợ này đã được đóng trước đó rồi.')
     }
 
     // Run log sending and DB update in parallel for better performance

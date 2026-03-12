@@ -3,7 +3,6 @@ import { container } from '@sapphire/pieces'
 import { TicketStatus, TicketType } from 'generated/prisma/enums'
 
 import { TIME } from '~/shared/constants/timeConstant'
-
 import { CounterRepository } from '~/shared/repositories/counterRepository'
 import { CacheService } from '~/shared/services/cacheService'
 
@@ -19,8 +18,8 @@ export class TicketRepository {
   // Format: PREFIX + 3-digit number (padded).
   public static async generateCode(guildId: string, type: TicketType) {
     return CounterRepository.generateCode(
-      guildId, 
-      `TICKET_${type}`, 
+      guildId,
+      `TICKET_${type}`,
       TICKET_PREFIX[type]
     )
   }
@@ -134,7 +133,16 @@ export class TicketRepository {
       const totalPages = Math.ceil(total / limit)
       return {
         items,
-        meta: { total, totalPages, page, limit, hasNext: page < totalPages, hasPrev: page > 1, type, status }
+        meta: {
+          total,
+          totalPages,
+          page,
+          limit,
+          hasNext: page < totalPages,
+          hasPrev: page > 1,
+          type,
+          status
+        }
       }
     })
 

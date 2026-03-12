@@ -98,14 +98,18 @@ export const CUSTOM_ID = {
   UPLOAD_DISBURSEMENT_IMAGES: 'upload-disbursement-images',
   BTN_DISBURSEMENT_DELETE_PREFIX: 'btn-disbursement-delete:',
 
-  // Vietnamese Word Chain Setting
-  BTN_SETTING_VIETNAMESE_WORDCHAIN_CHANNEL: 'btn-setting-vietnamese-wordchain-channel',
-  MODAL_SETTING_VIETNAMESE_WORDCHAIN_CHANNEL: 'modal-setting-vietnamese-wordchain-channel',
-  SELECT_SETTING_VIETNAMESE_WORDCHAIN_CHANNEL: 'select-setting-vietnamese-wordchain-channel',
+  // Word Chain Setting
+  BTN_SETTING_WORDCHAIN_CHANNEL: 'btn-setting-wordchain-channel',
+  MODAL_SETTING_WORDCHAIN_CHANNEL: 'modal-setting-wordchain-channel',
+  SELECT_SETTING_VIETNAMESE_WORDCHAIN_CHANNEL:
+    'select-setting-vietnamese-wordchain-channel',
+  SELECT_SETTING_ENGLISH_WORDCHAIN_CHANNEL:
+    'select-setting-english-wordchain-channel',
 
-  // Vietnamese Word Chain Modals
-  MODAL_VIETNAMESE_WORDCHAIN_ADD: 'modal-vietnamese-wordchain-add',
-  INPUT_VIETNAMESE_WORDCHAIN_PHRASES: 'input-vietnamese-wordchain-phrases',
+  // Word Chain Modals
+  MODAL_WORDCHAIN_ADD_VI: 'modal-wordchain-add-vi',
+  MODAL_WORDCHAIN_ADD_EN: 'modal-wordchain-add-en',
+  INPUT_WORDCHAIN_PHRASES: 'input-wordchain-phrases',
 
   // Utility
   MODAL_COMMENT_PREFIX: 'modal-comment:'

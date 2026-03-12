@@ -13,9 +13,9 @@ import { SettingHelper } from '~/modules/setting/helpers/SettingHelper'
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button
 })
-export class ButtonSettingVietnameseWordChain extends InteractionHandler {
+export class ButtonSettingWordChain extends InteractionHandler {
   public override async parse(interaction: ButtonInteraction) {
-    if (interaction.customId !== CUSTOM_ID.BTN_SETTING_VIETNAMESE_WORDCHAIN_CHANNEL)
+    if (interaction.customId !== CUSTOM_ID.BTN_SETTING_WORDCHAIN_CHANNEL)
       return this.none()
     const guildConfig = interaction.guild
       ? await SettingRepository.find(interaction.guild.id)
@@ -33,23 +33,38 @@ export class ButtonSettingVietnameseWordChain extends InteractionHandler {
 
     const labelVietnameseWordChain = SettingHelper.createChannelLabel({
       guild: interaction.guild,
-      channelId: guildConfig?.wordChainChannelId,
+      channelId: guildConfig?.vietnameseWordChainChannelId,
       customId: CUSTOM_ID.SELECT_SETTING_VIETNAMESE_WORDCHAIN_CHANNEL,
       channelType: ChannelType.GuildText,
       label: 'Kênh nối từ tiếng Việt',
       placeholders: {
-        channelConfiguredAndExists: 'Chọn kênh nối từ',
+        channelConfiguredAndExists: 'Chọn kênh nối từ tiếng Việt',
         channelConfiguredButDeleted:
-          'Kênh nối từ đã thiết lập nhưng không tồn tại',
-        channelNotConfigured: 'Chưa thiết lập kênh nối từ',
+          'Kênh nối từ tiếng Việt đã thiết lập nhưng không tồn tại',
+        channelNotConfigured: 'Chưa thiết lập kênh nối từ tiếng Việt',
+        noChannelsInServer: 'Không có kênh văn bản nào'
+      }
+    })
+
+    const labelEnglishWordChain = SettingHelper.createChannelLabel({
+      guild: interaction.guild,
+      channelId: guildConfig?.englishWordChainChannelId,
+      customId: CUSTOM_ID.SELECT_SETTING_ENGLISH_WORDCHAIN_CHANNEL,
+      channelType: ChannelType.GuildText,
+      label: 'Kênh nối từ tiếng Anh',
+      placeholders: {
+        channelConfiguredAndExists: 'Chọn kênh nối từ tiếng Anh',
+        channelConfiguredButDeleted:
+          'Kênh nối từ tiếng Anh đã thiết lập nhưng không tồn tại',
+        channelNotConfigured: 'Chưa thiết lập kênh nối từ tiếng Anh',
         noChannelsInServer: 'Không có kênh văn bản nào'
       }
     })
 
     const modal = new ModalBuilder()
-      .setCustomId(CUSTOM_ID.MODAL_SETTING_VIETNAMESE_WORDCHAIN_CHANNEL)
+      .setCustomId(CUSTOM_ID.MODAL_SETTING_WORDCHAIN_CHANNEL)
       .setTitle('Cài đặt kênh nối từ')
-      .addLabelComponents(labelVietnameseWordChain)
+      .addLabelComponents(labelVietnameseWordChain, labelEnglishWordChain)
 
     await interaction.showModal(modal)
   }

@@ -1,4 +1,4 @@
-model VietnameseWordChainSession {
+model WordChainSession {
   id BigInt @id @default(autoincrement())
 
   guildId   String
@@ -11,7 +11,7 @@ model VietnameseWordChainSession {
 
   endedAt DateTime?
 
-  players VietnameseWordChainSessionPlayer[]
+  players WordChainSessionPlayer[]
 
   createdAt DateTime @default(now())
 

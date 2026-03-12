@@ -72,7 +72,9 @@ export class ListBuilder<TState = unknown> {
       const { idPrefix, encodeState } = this.options
 
       if (!idPrefix || !encodeState) {
-        throw new Error('ListBuilder requires idPrefix and encodeState in options to generate pagination buttons internally.')
+        throw new Error(
+          'ListBuilder requires idPrefix and encodeState in options to generate pagination buttons internally.'
+        )
       }
 
       const customId = `${idPrefix}${action}:${encodeState(state)}`

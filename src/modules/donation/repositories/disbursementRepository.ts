@@ -28,7 +28,7 @@ export class DisbursementRepository {
         code
       }
     })
-    
+
     await this.invalidateDisbursementCache(data.guildId)
     return disbursement
   }
@@ -61,7 +61,7 @@ export class DisbursementRepository {
     const disbursement = await container.prisma.disbursement.delete({
       where: { id }
     })
-    
+
     await this.invalidateDisbursementCache(disbursement.guildId)
     return disbursement
   }

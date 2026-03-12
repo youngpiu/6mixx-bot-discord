@@ -1,5 +1,6 @@
 // Repository for managing donation records and statistics in the database
 import { container } from '@sapphire/pieces'
+
 import { DonationStatus } from 'generated/prisma/enums'
 import type { DonationUncheckedCreateInput } from 'generated/prisma/models/Donation'
 
@@ -17,7 +18,11 @@ export class DonateRepository {
 
     while (retries > 0) {
       try {
-        const code = await CounterRepository.generateCode(data.guildId, 'DONATION', 'DNT')
+        const code = await CounterRepository.generateCode(
+          data.guildId,
+          'DONATION',
+          'DNT'
+        )
 
         const donation = await container.prisma.donation.create({
           data: {
@@ -28,7 +33,7 @@ export class DonateRepository {
             donor: true
           }
         })
-        
+
         await this.invalidateDonationCache(data.guildId)
         return donation
       } catch (error: unknown) {

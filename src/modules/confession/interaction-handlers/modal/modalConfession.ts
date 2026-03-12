@@ -6,7 +6,6 @@ import {
 } from '@sapphire/framework'
 import { ModalSubmitInteraction } from 'discord.js'
 
-
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 

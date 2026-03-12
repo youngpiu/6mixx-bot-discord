@@ -14,9 +14,9 @@ model Member {
   confessions         Confession[]
   confessionsApproved Confession[] @relation("ConfessionApprover")
 
-  wordChainSessions VietnameseWordChainSessionPlayer[]
+  wordChainSessions WordChainSessionPlayer[]
 
-  wonWordChainSessions VietnameseWordChainSession[] @relation("WordChainWinner")
+  wonWordChainSessions WordChainSession[] @relation("WordChainWinner")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

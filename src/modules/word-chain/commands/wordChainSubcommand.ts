@@ -2,16 +2,16 @@ import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChatInputCommandInteraction } from 'discord.js'
 
-import { VietnameseWordChainAddCommand } from '~/modules/vietnamese-word-chain/commands/_vietnameseWordChainAddCommand'
-import { VietnameseWordChainHintCommand } from '~/modules/vietnamese-word-chain/commands/_vietnameseWordChainHintCommand'
-import { VietnameseWordChainPauseCommand } from '~/modules/vietnamese-word-chain/commands/_vietnameseWordChainPauseCommand'
-import { VietnameseWordChainStartCommand } from '~/modules/vietnamese-word-chain/commands/_vietnameseWordChainStartCommand'
-import { VietnameseWordChainUnpauseCommand } from '~/modules/vietnamese-word-chain/commands/_vietnameseWordChainUnpauseCommand'
+import { WordChainAddCommand } from '~/modules/word-chain/commands/_wordChainAddCommand'
+import { WordChainHintCommand } from '~/modules/word-chain/commands/_wordChainHintCommand'
+import { WordChainPauseCommand } from '~/modules/word-chain/commands/_wordChainPauseCommand'
+import { WordChainStartCommand } from '~/modules/word-chain/commands/_wordChainStartCommand'
+import { WordChainUnpauseCommand } from '~/modules/word-chain/commands/_wordChainUnpauseCommand'
 
 @RegisterChatInputCommand((builder) =>
   builder
-    .setName('viwordchain')
-    .setDescription('Quản lý trò chơi nối từ tiếng Việt.')
+    .setName('wordchain')
+    .setDescription('Quản lý trò chơi nối từ.')
     .addSubcommand((sub) =>
       sub.setName('start').setDescription('[ADMIN] Bắt đầu ván nối từ mới.')
     )
@@ -31,28 +31,28 @@ import { VietnameseWordChainUnpauseCommand } from '~/modules/vietnamese-word-cha
     )
 )
 @ApplyOptions<Subcommand.Options>({
-  name: 'viwordchain',
-  description: 'Quản lý trò chơi nối từ tiếng Việt.',
+  name: 'wordchain',
+  description: 'Quản lý trò chơi nối từ.',
   subcommands: [
     {
       name: 'start',
       chatInputRun: 'chatInputStart',
-      preconditions: ['OwnerOnly', 'VietnameseWordChainChannelOnly']
+      preconditions: ['OwnerOnly', 'WordChainChannelOnly']
     },
     {
       name: 'pause',
       chatInputRun: 'chatInputPause',
-      preconditions: ['OwnerOnly', 'VietnameseWordChainChannelOnly']
+      preconditions: ['OwnerOnly', 'WordChainChannelOnly']
     },
     {
       name: 'unpause',
       chatInputRun: 'chatInputUnpause',
-      preconditions: ['OwnerOnly', 'VietnameseWordChainChannelOnly']
+      preconditions: ['OwnerOnly', 'WordChainChannelOnly']
     },
     {
       name: 'hint',
       chatInputRun: 'chatInputHint',
-      preconditions: ['VietnameseWordChainChannelOnly']
+      preconditions: ['WordChainChannelOnly']
     },
     {
       name: 'add',
@@ -61,24 +61,24 @@ import { VietnameseWordChainUnpauseCommand } from '~/modules/vietnamese-word-cha
     }
   ]
 })
-export class VietnameseWordChainSubcommand extends Subcommand {
+export class WordChainSubcommand extends Subcommand {
   public async chatInputStart(interaction: ChatInputCommandInteraction) {
-    return VietnameseWordChainStartCommand.run(interaction)
+    return WordChainStartCommand.run(interaction)
   }
 
   public async chatInputPause(interaction: ChatInputCommandInteraction) {
-    return VietnameseWordChainPauseCommand.run(interaction)
+    return WordChainPauseCommand.run(interaction)
   }
 
   public async chatInputUnpause(interaction: ChatInputCommandInteraction) {
-    return VietnameseWordChainUnpauseCommand.run(interaction)
+    return WordChainUnpauseCommand.run(interaction)
   }
 
   public async chatInputHint(interaction: ChatInputCommandInteraction) {
-    return VietnameseWordChainHintCommand.run(interaction)
+    return WordChainHintCommand.run(interaction)
   }
 
   public async chatInputAdd(interaction: ChatInputCommandInteraction) {
-    return VietnameseWordChainAddCommand.run(interaction)
+    return WordChainAddCommand.run(interaction)
   }
 }
