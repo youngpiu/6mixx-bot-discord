@@ -43,6 +43,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY package.json pnpm-lock.yaml prisma.config.ts ./
 COPY prisma ./prisma
 
+# Generate Prisma client for seed/migrate commands
+RUN pnpm exec prisma generate --config ./prisma.config.ts
+
 CMD ["pnpm", "exec", "prisma", "migrate", "deploy", "--config", "./prisma.config.ts"]
 
 # ============================================
