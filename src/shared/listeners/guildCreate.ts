@@ -20,7 +20,7 @@ export class GuildCreateListener extends Listener {
    *
    * @param guild - The Discord guild that was joined.
    */
-  public run = async (guild: Guild) => {
+  public async run(guild: Guild) {
     this.container.logger.info(`Joined guild: ${guild.name} (${guild.id})`)
 
     await GuildRepository.upsert(guild.id)
