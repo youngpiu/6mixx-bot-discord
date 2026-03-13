@@ -38,7 +38,7 @@ import { DisbursementListCommand } from '~/modules/donation/commands/_disburseme
 @ApplyOptions<Subcommand.Options>({
   name: 'disbursement',
   description: 'Quản lý hệ thống khoản chi.',
-  enabled: true,
+  enabled: false,
   preconditions: ['OwnerOnly'],
   subcommands: [
     {

@@ -127,7 +127,7 @@ import { VoiceUnlockCommand } from '~/modules/voice/commands/_voiceUnlockCommand
 @ApplyOptions<Subcommand.Options>({
   name: 'voice',
   description: 'Quản lý phòng voice tạm.',
-  runIn: [ChannelType.GuildText],
+  runIn: [ChannelType.GuildText, ChannelType.GuildVoice],
   preconditions: ['TempVoiceChannelOnly'],
   subcommands: [
     {

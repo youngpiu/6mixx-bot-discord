@@ -19,7 +19,7 @@ import { lines } from '~/shared/utils/textUtil'
 @ApplyOptions<Command.Options>({
   name: 'setting',
   description: '[OWNER] Cài đặt máy chủ VNMIXX',
-  runIn: [ChannelType.GuildText],
+  runIn: [ChannelType.GuildText, ChannelType.GuildVoice],
   preconditions: ['OwnerOnly']
 })
 export class SettingCommand extends Command {

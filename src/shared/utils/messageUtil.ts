@@ -286,12 +286,10 @@ export class MessageUtil {
     deleteTrigger: boolean = true
   ): Promise<Message | null> {
     const errorEmoji = getEmojiForErrorType(type)
-    const timestamp = `<t:${Math.floor(Date.now() / 1000)}:R>`
-
     return MessageUtil.replyWithContainer(
       message,
       new ContainerBuilder().addTextDisplayComponents((t) =>
-        t.setContent(`${errorEmoji} ${content} - ${timestamp}`)
+        t.setContent(`${errorEmoji} ${content}`)
       ),
       timeoutDeleteMessage,
       deleteTrigger
@@ -444,12 +442,7 @@ export class InteractionUtil {
     type: ErrorType = 'NORMAL'
   ): Promise<Message | InteractionResponse | null> {
     const errorEmoji = getEmojiForErrorType(type)
-    const timestamp = `<t:${Math.floor(Date.now() / 1000)}:R>`
-
-    return this.replyWithContainer(
-      interaction,
-      `${errorEmoji} ${content} - ${timestamp}`
-    )
+    return this.replyWithContainer(interaction, `${errorEmoji} ${content}`)
   }
 
   /**

@@ -34,7 +34,7 @@ import { VipRemoveCommand } from '~/modules/vip/commands/_vipRemoveCommand'
 @ApplyOptions<Subcommand.Options>({
   name: 'vip',
   description: 'Quản lý hệ thống vai trò VIP.',
-  runIn: [ChannelType.GuildText],
+  runIn: [ChannelType.GuildText, ChannelType.GuildVoice],
   preconditions: ['OwnerOnly'],
   subcommands: [
     {

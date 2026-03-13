@@ -1,6 +1,6 @@
 import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Command } from '@sapphire/framework'
-import { ChatInputCommandInteraction } from 'discord.js'
+import { ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js'
 
 import { GuildRepository } from '~/shared/repositories/guildRepository'
 import { GuildMemberSyncService } from '~/shared/services/guildMemberSyncService'
@@ -10,6 +10,7 @@ import { InteractionUtil } from '~/shared/utils/messageUtil'
   builder
     .setName('sync')
     .setDescription('Đồng bộ tất cả thành viên trong máy chủ vào cơ sở dữ liệu')
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 )
 @ApplyOptions<Command.Options>({
   name: 'sync',
