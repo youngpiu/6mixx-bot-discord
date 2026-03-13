@@ -2,15 +2,14 @@ import {
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
-  type ChatInputCommandInteraction,
-  type InteractionEditReplyOptions,
-  MessageFlags
+  type ChatInputCommandInteraction
 } from 'discord.js'
 
 import { Disbursement } from 'generated/prisma/client'
 
 import { ListBuilder } from '~/shared/components/ListBuilder'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
+import { InteractionUtil } from '~/shared/utils/messageUtil'
 import { formatFields, lines } from '~/shared/utils/textUtil'
 
 import { DisbursementRepository } from '~/modules/donation/repositories/disbursementRepository'
@@ -73,8 +72,10 @@ export class DisbursementListCommand {
       limit: 5
     })
 
-    const response = this.createListResponse(items, meta)
-    await interaction.editReply(response)
+    await InteractionUtil.editReply(
+      interaction,
+      this.createListResponse(items, meta)
+    )
   }
 
   public static async handleButton(
@@ -87,14 +88,16 @@ export class DisbursementListCommand {
       limit: 5
     })
 
-    const response = this.createListResponse(items, meta)
-    await interaction.editReply(response)
+    await InteractionUtil.editReply(
+      interaction,
+      this.createListResponse(items, meta)
+    )
   }
 
   public static createListResponse(
     disbursements: Disbursement[],
     meta: DisbursementListMeta
-  ): InteractionEditReplyOptions {
+  ) {
     const listBuilder = new ListBuilder<DisbursementListMeta>({
       title: 'DANH SÁCH CÁC KHOẢN CHI',
       idPrefix: CUSTOM_ID.DISBURSEMENT_LIST_PREFIX,
@@ -118,8 +121,7 @@ export class DisbursementListCommand {
     listBuilder.addPaginationRow(meta)
 
     return {
-      components: listBuilder.build(),
-      flags: [MessageFlags.IsComponentsV2]
+      components: listBuilder.build()
     }
   }
 }

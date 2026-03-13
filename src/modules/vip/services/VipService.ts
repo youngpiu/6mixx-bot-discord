@@ -1,12 +1,12 @@
 import { container } from '@sapphire/pieces'
 import { ColorResolvable, Guild, GuildMember, Role } from 'discord.js'
 
+import { VipType } from 'generated/prisma/enums'
+
 import { TIME } from '~/shared/constants/timeConstant'
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 
 import { VipRepository } from '~/modules/vip/repositories/vipRepository'
-
-import { VipType } from '../../../../generated/prisma/client'
 
 export class VipService {
   /**

@@ -3,8 +3,7 @@ import { Listener } from '@sapphire/framework'
 import { Events, GuildMember } from 'discord.js'
 
 import { VipRepository } from '~/modules/vip/repositories/vipRepository'
-
-import { VipService } from '../services/VipService'
+import { VipService } from '~/modules/vip/services/VipService'
 
 @ApplyOptions<Listener.Options>({
   event: Events.GuildMemberUpdate

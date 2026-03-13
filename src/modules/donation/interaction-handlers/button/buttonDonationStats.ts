@@ -7,6 +7,7 @@ import { ButtonInteraction, ContainerBuilder } from 'discord.js'
 
 import { ANIMATED_EMOJI } from '~/shared/constants/emojiConstant'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
+import { InteractionUtil } from '~/shared/utils/messageUtil'
 import { encryptId, formatFields, lines } from '~/shared/utils/textUtil'
 
 import { DisbursementRepository } from '~/modules/donation/repositories/disbursementRepository'
@@ -102,7 +103,7 @@ export class ButtonDonationStats extends InteractionHandler {
         text.setContent(`-# Cập nhật <t:${Math.floor(Date.now() / 1000)}:R>`)
       )
 
-    await interaction.editReply({
+    await InteractionUtil.editReply(interaction, {
       components: [statsContainer],
       flags: ['IsComponentsV2']
     })

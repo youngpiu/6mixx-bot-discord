@@ -9,8 +9,7 @@ import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 
 import { VipRepository } from '~/modules/vip/repositories/vipRepository'
-
-import { VipService } from '../../services/VipService'
+import { VipService } from '~/modules/vip/services/VipService'
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit

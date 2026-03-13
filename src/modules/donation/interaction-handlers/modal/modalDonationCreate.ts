@@ -17,7 +17,10 @@ import { env } from '~/shared/config/env'
 import { ANIMATED_EMOJI, STATIC_EMOJI } from '~/shared/constants/emojiConstant'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { TIME } from '~/shared/constants/timeConstant'
-import { createTextContainer } from '~/shared/utils/messageUtil'
+import {
+  InteractionUtil,
+  createTextContainer
+} from '~/shared/utils/messageUtil'
 import { formatFields, lines } from '~/shared/utils/textUtil'
 
 import { DonationHelper } from '~/modules/donation/helpers/DonationHelper'
@@ -138,7 +141,7 @@ export class ModalDonationCreate extends InteractionHandler {
       )
 
     await Promise.all([
-      interaction.editReply({
+      InteractionUtil.editReply(interaction, {
         components: [container],
         flags: ['IsComponentsV2']
       }),
@@ -151,7 +154,7 @@ export class ModalDonationCreate extends InteractionHandler {
 
     setTimeout(async () => {
       try {
-        await interaction.editReply({
+        await InteractionUtil.editReply(interaction, {
           components: [
             createTextContainer(
               `${STATIC_EMOJI.RATE_LIMIT_ERROR} Giao dịch đã bị huỷ tự động do hết thời gian chờ (10 phút).`

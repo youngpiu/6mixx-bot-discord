@@ -2,7 +2,6 @@ import {
   ButtonBuilder,
   ButtonStyle,
   type ChatInputCommandInteraction,
-  type InteractionEditReplyOptions,
   MessageFlags
 } from 'discord.js'
 
@@ -10,6 +9,7 @@ import { NormalError } from '~/core/errorResponse'
 
 import { DetailBuilder } from '~/shared/components/DetailBuilder'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
+import { InteractionUtil } from '~/shared/utils/messageUtil'
 
 import { DisbursementRepository } from '~/modules/donation/repositories/disbursementRepository'
 
@@ -53,11 +53,9 @@ export class DisbursementDetailCommand {
 
     builder.addActionRow([btnDelete])
 
-    const response: InteractionEditReplyOptions = {
+    await InteractionUtil.editReply(interaction, {
       components: builder.build(),
       flags: [MessageFlags.IsComponentsV2]
-    }
-
-    await interaction.editReply(response)
+    })
   }
 }

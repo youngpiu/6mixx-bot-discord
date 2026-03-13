@@ -2,8 +2,7 @@ import {
   ButtonBuilder,
   type ButtonInteraction,
   ButtonStyle,
-  type ChatInputCommandInteraction,
-  type InteractionEditReplyOptions
+  type ChatInputCommandInteraction
 } from 'discord.js'
 
 import { Ticket, TicketType } from 'generated/prisma/client'
@@ -11,6 +10,7 @@ import { TicketStatus } from 'generated/prisma/enums'
 
 import { ListBuilder } from '~/shared/components/ListBuilder'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
+import { InteractionUtil } from '~/shared/utils/messageUtil'
 import { formatFields, lines } from '~/shared/utils/textUtil'
 
 import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
@@ -86,7 +86,10 @@ export class TicketListCommand {
       limit: 10
     })
 
-    return await interaction.editReply(this.createListResponse(items, meta))
+    return await InteractionUtil.editReply(
+      interaction,
+      this.createListResponse(items, meta)
+    )
   }
 
   public static async handleButton(
@@ -102,13 +105,13 @@ export class TicketListCommand {
       status: state.status
     })
 
-    await interaction.editReply(this.createListResponse(items, meta))
+    await InteractionUtil.editReply(
+      interaction,
+      this.createListResponse(items, meta)
+    )
   }
 
-  public static createListResponse(
-    tickets: Ticket[],
-    meta: TicketListMeta
-  ): InteractionEditReplyOptions {
+  public static createListResponse(tickets: Ticket[], meta: TicketListMeta) {
     const typeText = meta.type
       ? TicketHelper.TICKET_TYPE_LABELS[meta.type]
       : 'Tất cả'
@@ -158,8 +161,7 @@ export class TicketListCommand {
     listBuilder.addActionRow(this.createStatusFilterRow(meta))
 
     return {
-      components: listBuilder.build(),
-      flags: ['IsComponentsV2']
+      components: listBuilder.build()
     }
   }
 

@@ -11,6 +11,7 @@ import { DonationStatus } from 'generated/prisma/enums'
 
 import { ListBuilder } from '~/shared/components/ListBuilder'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
+import { InteractionUtil } from '~/shared/utils/messageUtil'
 import { formatFields, lines } from '~/shared/utils/textUtil'
 
 import { DonationHelper } from '~/modules/donation/helpers/DonationHelper'
@@ -78,7 +79,10 @@ export class DonationListCommand {
       limit: 5
     })
 
-    return await interaction.editReply(this.createListResponse(items, meta))
+    return await InteractionUtil.editReply(
+      interaction,
+      this.createListResponse(items, meta)
+    )
   }
 
   public static async handleButton(
@@ -92,7 +96,10 @@ export class DonationListCommand {
       status: state.status
     })
 
-    await interaction.editReply(this.createListResponse(items, meta))
+    await InteractionUtil.editReply(
+      interaction,
+      this.createListResponse(items, meta)
+    )
   }
 
   public static createListResponse(

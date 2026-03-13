@@ -3,7 +3,6 @@ import {
   ButtonStyle,
   type ChatInputCommandInteraction,
   Colors,
-  type InteractionEditReplyOptions,
   MessageFlags
 } from 'discord.js'
 
@@ -13,6 +12,7 @@ import { NormalError } from '~/core/errorResponse'
 
 import { DetailBuilder } from '~/shared/components/DetailBuilder'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
+import { InteractionUtil } from '~/shared/utils/messageUtil'
 
 import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
 import { TicketRepository } from '~/modules/ticket/repositories/ticketRepository'
@@ -80,11 +80,9 @@ export class TicketDetailCommand {
 
     builder.addActionRow([btnDelete])
 
-    const response: InteractionEditReplyOptions = {
+    await InteractionUtil.editReply(interaction, {
       components: builder.build(),
       flags: [MessageFlags.IsComponentsV2]
-    }
-
-    await interaction.editReply(response)
+    })
   }
 }

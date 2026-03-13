@@ -1,6 +1,6 @@
 import { ScheduledTask } from '@sapphire/plugin-scheduled-tasks'
 
-import { VipSchedulerService } from '../services/VipSchedulerService'
+import { VipSchedulerService } from '~/modules/vip/services/VipSchedulerService'
 
 type VipExpirePayload = {
   userId: string
