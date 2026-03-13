@@ -12,3 +12,11 @@ declare module '@sapphire/framework' {
     tasks: TaskStore
   }
 }
+
+declare module '@sapphire/pieces' {
+  interface Container {
+    prisma: typeof prisma
+    redis: Redis
+    tasks: TaskStore
+  }
+}

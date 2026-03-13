@@ -18,3 +18,46 @@ model Guild {
   tempVoiceTrustedMembers TempVoiceTrustedMember[]
   tempVoiceTrustedRoles   TempVoiceTrustedRole[]
 }
+
+/// Server Settings (1-to-1 with Guild)
+model GuildSetting {
+  id String @id @default(cuid())
+
+  guildId String @unique
+  guild   Guild  @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  /// --- General Config ---
+  serviceForumChannelId      String?
+  notificationForumChannelId String?
+  errorNotificationThreadId  String?
+
+  /// --- Ticket Config ---
+  ticketCategoryId           String?
+  ticketTutorialThreadId     String?
+  ticketNotificationThreadId String?
+
+  /// --- Confession Config ---
+  confessionForumChannelId       String?
+  confessionTutorialThreadId     String?
+  confessionNotificationThreadId String?
+
+  /// --- Donation Config ---
+  donationTutorialThreadId     String?
+  donationNotificationThreadId String?
+  disbursementLogChannelId     String?
+
+  /// --- Word Chain Config ---
+  vietnameseWordChainChannelId String?
+  englishWordChainChannelId    String?
+
+  /// --- Temp Voice Config ---
+  tempVoiceCreateChannelId String?
+  tempVoiceCategoryId      String?
+
+  /// --- iChart Config ---
+  ichartSongId   String?
+  ichartSongName String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

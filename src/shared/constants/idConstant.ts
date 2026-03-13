@@ -116,6 +116,12 @@ export const CUSTOM_ID = {
   SELECT_SETTING_ENGLISH_WORDCHAIN_CHANNEL:
     'select-setting-english-wordchain-channel',
 
+  // iChart Setting
+  BTN_SETTING_ICHART_CONFIG: 'btn-setting-ichart-config',
+  MODAL_SETTING_ICHART_CONFIG: 'modal-setting-ichart-config',
+  INPUT_ICHART_SONG_ID: 'input-ichart-song-id',
+  INPUT_ICHART_SONG_NAME: 'input-ichart-song-name',
+
   // Word Chain Modals
   MODAL_WORDCHAIN_ADD_VI: 'modal-wordchain-add-vi',
   MODAL_WORDCHAIN_ADD_EN: 'modal-wordchain-add-en',

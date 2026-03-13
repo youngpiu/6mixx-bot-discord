@@ -76,6 +76,14 @@ export class SettingCommand extends Command {
             .setStyle(ButtonStyle.Secondary)
         )
       )
+      .addActionRowComponents((row) =>
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_SETTING_ICHART_CONFIG)
+            .setLabel('Cài đặt trạng thái')
+            .setStyle(ButtonStyle.Secondary)
+        )
+      )
 
     await InteractionUtil.editReply(interaction, {
       components: [container],
