@@ -4,7 +4,6 @@ import { TicketStatus, TicketType } from 'generated/prisma/enums'
 
 import { TIME } from '~/shared/constants/timeConstant'
 import { CounterRepository } from '~/shared/repositories/counterRepository'
-import { GuildMemberRepository } from '~/shared/repositories/guildMemberRepository'
 import { CacheService } from '~/shared/services/cacheService'
 
 const TICKET_PREFIX: Record<TicketType, string> = {
@@ -46,12 +45,6 @@ export class TicketRepository {
     updatedAt?: Date
   }) {
     const ticketCode = code || (await this.generateCode(guildId, type))
-
-    // Ensure requester exists in User/GuildMember tables before creating ticket (FK constraint)
-    await GuildMemberRepository.create({
-      guildId,
-      userId: requesterId
-    })
 
     const ticket = await container.prisma.ticket.create({
       data: {

@@ -3,6 +3,8 @@ import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
 import type { Client } from 'discord.js'
 
+import { GuildMemberRepository } from '~/shared/repositories/guildMemberRepository'
+
 import { VipSchedulerService } from '~/modules/vip/services/VipSchedulerService'
 import { WordChainRedisService } from '~/modules/word-chain/services/WordChainRedisService'
 import { WordChainService } from '~/modules/word-chain/services/WordChainService'
@@ -48,6 +50,12 @@ export class ReadyListener extends Listener {
       VipSchedulerService.runChecks().catch((err) => {
         this.container.logger.error(
           '[Ready] Failed to run VIP startup checks:',
+          err
+        )
+      }),
+      GuildMemberRepository.syncAllGuilds(client).catch((err) => {
+        this.container.logger.error(
+          '[Ready] Failed to sync guild members:',
           err
         )
       })

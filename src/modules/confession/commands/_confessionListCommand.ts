@@ -2,8 +2,7 @@ import {
   ButtonBuilder,
   type ButtonInteraction,
   ButtonStyle,
-  type ChatInputCommandInteraction,
-  type InteractionEditReplyOptions
+  type ChatInputCommandInteraction
 } from 'discord.js'
 
 import { Confession } from 'generated/prisma/client'
@@ -11,6 +10,7 @@ import { ConfessionStatus } from 'generated/prisma/enums'
 
 import { ListBuilder } from '~/shared/components/ListBuilder'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
+import { InteractionUtil } from '~/shared/utils/messageUtil'
 import { formatFields, lines } from '~/shared/utils/textUtil'
 
 import { ConfessionHelper } from '~/modules/confession/helpers/ConfessionHelper'
@@ -89,7 +89,8 @@ export class ConfessionListCommand {
       hasPrev: false
     }
 
-    return await interaction.editReply(
+    return await InteractionUtil.editReply(
+      interaction,
       this.createListResponse(confessions, meta)
     )
   }
@@ -117,14 +118,17 @@ export class ConfessionListCommand {
       status: state.status
     }
 
-    await interaction.editReply(this.createListResponse(confessions, meta))
+    await InteractionUtil.editReply(
+      interaction,
+      this.createListResponse(confessions, meta)
+    )
   }
 
   public static createListResponse(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     confessions: (Confession & { author?: any })[],
     meta: ConfessionListMeta
-  ): InteractionEditReplyOptions {
+  ) {
     const statusText = !meta.status
       ? 'Tất cả'
       : ConfessionHelper.getStatusLabel(meta.status)
@@ -178,8 +182,7 @@ export class ConfessionListCommand {
     listBuilder.addActionRow(this.createFilterRow(meta))
 
     return {
-      components: listBuilder.build(),
-      flags: ['IsComponentsV2']
+      components: listBuilder.build()
     }
   }
 
