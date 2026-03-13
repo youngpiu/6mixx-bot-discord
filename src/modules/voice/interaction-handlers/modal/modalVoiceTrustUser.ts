@@ -1,4 +1,4 @@
-import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -51,7 +51,7 @@ export class ModalVoiceTrustUser extends InteractionHandler {
    * @param interaction The modal submit interaction.
    * @param result The result from the parse method.
    */
-  @RequiresGuildContext()
+
   public async run(
     interaction: ModalSubmitInteraction,
     result: InteractionHandler.ParseResult<ModalVoiceTrustUser>
