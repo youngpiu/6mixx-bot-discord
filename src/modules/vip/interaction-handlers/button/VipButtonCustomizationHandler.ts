@@ -176,6 +176,8 @@ export class VipButtonCustomizationHandler extends InteractionHandler {
     const { FileUploadBuilder } = await import('discord.js')
     const iconUpload = new FileUploadBuilder()
       .setCustomId(CUSTOM_ID.INPUT_CONTENT)
+      .setMinValues(1)
+      .setMaxValues(1)
       .setRequired(true)
 
     const modal = new ModalBuilder()

@@ -5,6 +5,8 @@ import {
 } from '@sapphire/framework'
 import { HexColorString, ModalSubmitInteraction, Role } from 'discord.js'
 
+import { NormalError } from '~/core/errorResponse'
+
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 
@@ -125,9 +127,26 @@ export class VipModalCustomizationHandler extends InteractionHandler {
       )
     }
 
-    // files.first() contains the URL or data
     const firstFile = files.first()
-    const iconUrl = firstFile?.url || firstFile?.proxyURL
+
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
+    if (
+      !firstFile?.contentType ||
+      !allowedTypes.includes(firstFile.contentType)
+    ) {
+      throw new NormalError(
+        'Tệp tin không hợp lệ, chỉ chấp nhận ảnh PNG, JPG, JPEG.'
+      )
+    }
+
+    const MAX_SIZE = 2 * 1024 * 1024 // 2 MB — giới hạn thực tế Discord cho role icon
+    if (firstFile.size > MAX_SIZE) {
+      throw new NormalError(
+        `Ảnh quá lớn (${(firstFile.size / 1024).toFixed(0)} KB), vui lòng chọn ảnh nhỏ hơn 2 MB.`
+      )
+    }
+
+    const iconUrl = firstFile.url || firstFile.proxyURL
     if (!iconUrl)
       return InteractionUtil.replyError(
         interaction,
