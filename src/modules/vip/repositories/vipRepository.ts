@@ -148,4 +148,28 @@ export class VipRepository {
       })
       .catch(() => null)
   }
+
+  /**
+   * Finds a custom role by its Discord role ID.
+   * @param roleId The Discord role ID.
+   * @returns The custom role record if found, otherwise null.
+   */
+  public static async findCustomRoleByRoleId(roleId: string) {
+    return container.prisma.customRole.findUnique({
+      where: { roleId }
+    })
+  }
+
+  /**
+   * Deletes a custom role record by its Discord role ID.
+   * @param roleId The Discord role ID.
+   * @returns The deleted record, or null if it did not exist.
+   */
+  public static async deleteCustomRoleByRoleId(roleId: string) {
+    return container.prisma.customRole
+      .delete({
+        where: { roleId }
+      })
+      .catch(() => null)
+  }
 }
