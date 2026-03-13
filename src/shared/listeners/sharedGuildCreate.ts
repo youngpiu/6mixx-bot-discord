@@ -13,7 +13,7 @@ import { GuildRepository } from '~/shared/repositories/guildRepository'
 @ApplyOptions<Listener.Options>({
   event: Events.GuildCreate
 })
-export class GuildCreateListener extends Listener {
+export class SharedGuildCreateListener extends Listener {
   /**
    * Performs data synchronization when the bot joins a guild.
    * Upserts the guild into the database and bulk-creates records for all human members.

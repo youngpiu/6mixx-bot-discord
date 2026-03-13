@@ -12,7 +12,7 @@ import { GuildMemberRepository } from '~/shared/repositories/guildMemberReposito
 @ApplyOptions<Listener.Options>({
   event: Events.GuildMemberAdd
 })
-export class GuildMemberAddListener extends Listener {
+export class SharedGuildMemberAddListener extends Listener {
   /**
    * Responds to a new member joining by creating or verifying their database record.
    * Ignores bot accounts.

@@ -14,7 +14,7 @@ import { TempVoiceTrustedMemberRepository } from '~/modules/voice/repositories/t
 @ApplyOptions<Listener.Options>({
   event: Events.VoiceStateUpdate
 })
-export class VoiceStateUpdateListener extends Listener {
+export class VoiceVoiceStateUpdateListener extends Listener {
   /**
    * Main entry point for voice state updates.
    * @param oldState The previous voice state.

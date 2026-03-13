@@ -14,7 +14,7 @@ import { handleError } from '~/shared/utils/errorUtil'
 @ApplyOptions<Listener.Options>({
   event: Events.InteractionHandlerError
 })
-export class InteractionHandlerErrorListener extends Listener<
+export class SharedInteractionHandlerErrorListener extends Listener<
   typeof Events.InteractionHandlerError
 > {
   /**

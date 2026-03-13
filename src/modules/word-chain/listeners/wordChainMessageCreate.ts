@@ -17,7 +17,7 @@ import { WordChainService } from '~/modules/word-chain/services/WordChainService
 @ApplyOptions<Listener.Options>({
   event: Events.MessageCreate
 })
-export class MessageCreateListener extends Listener {
+export class WordChainMessageCreateListener extends Listener {
   public async run(message: Message) {
     // Ignore bots
     if (message.author.bot) return

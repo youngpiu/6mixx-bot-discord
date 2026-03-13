@@ -12,7 +12,7 @@ import { TempVoiceProfileRepository } from '~/modules/voice/repositories/tempVoi
   once: true,
   event: Events.ClientReady
 })
-export class ClientReadyListener extends Listener {
+export class VoiceClientReadyListener extends Listener {
   /**
    * Checks and cleans up all active temporary voice channels on startup.
    * @param client The ready client.

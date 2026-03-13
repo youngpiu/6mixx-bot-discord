@@ -14,7 +14,7 @@ import { handleError } from '~/shared/utils/errorUtil'
 @ApplyOptions<Listener.Options>({
   event: Events.ListenerError
 })
-export class ListenerErrorListener extends Listener<
+export class SharedListenerErrorListener extends Listener<
   typeof Events.ListenerError
 > {
   /**

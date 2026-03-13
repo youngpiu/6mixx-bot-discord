@@ -11,7 +11,7 @@ import { TempVoiceProfileRepository } from '~/modules/voice/repositories/tempVoi
 @ApplyOptions<Listener.Options>({
   event: Events.ChannelDelete
 })
-export class ChannelDeleteListener extends Listener {
+export class VoiceChannelDeleteListener extends Listener {
   /**
    * Cleans up database records when a voice channel is deleted.
    * @param channel The channel that was deleted.

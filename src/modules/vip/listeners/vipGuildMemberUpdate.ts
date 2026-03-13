@@ -8,7 +8,7 @@ import { VipService } from '~/modules/vip/services/VipService'
 @ApplyOptions<Listener.Options>({
   event: Events.GuildMemberUpdate
 })
-export class GuildMemberUpdateListener extends Listener {
+export class VipGuildMemberUpdateListener extends Listener {
   public override async run(oldMember: GuildMember, newMember: GuildMember) {
     const wasBoosting = !!oldMember.premiumSince
     const isBoosting = !!newMember.premiumSince

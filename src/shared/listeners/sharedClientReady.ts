@@ -18,12 +18,12 @@ import { WordChainService } from '~/modules/word-chain/services/WordChainService
  * foreign key constraints (VipStatus requires GuildMember to exist).
  */
 @ApplyOptions<Listener.Options>({
-  once: true,
   event: Events.ClientReady
 })
-export class ReadyListener extends Listener {
+export class SharedClientReadyListener extends Listener {
   /**
    * Executes initial startup logic.
+   * Guarded by a static flag to ensure it only runs once even without `once: true`.
    *
    * @param client - The connected Discord client.
    */
