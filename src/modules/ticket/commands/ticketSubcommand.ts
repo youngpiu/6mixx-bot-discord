@@ -46,6 +46,7 @@ import { TicketListCommand } from '~/modules/ticket/commands/_ticketListCommand'
   description: 'Hệ thống hỗ trợ thành viên.',
   enabled: true,
   requiredUserPermissions: ['Administrator'],
+  preconditions: ['GuildOnly'],
   subcommands: [
     {
       name: 'close',

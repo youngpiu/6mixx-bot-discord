@@ -1,4 +1,3 @@
-import { RequiresGuildContext } from '@sapphire/decorators'
 import { ChatInputCommandInteraction, TextChannel } from 'discord.js'
 
 import { NormalError } from '~/core/errorResponse'
@@ -8,7 +7,6 @@ import { GuildRepository } from '~/modules/ticket/repositories/guildRepository'
 import { TicketRepository } from '~/modules/ticket/repositories/ticketRepository'
 
 export class TicketCloseCommand {
-  @RequiresGuildContext()
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 

@@ -1,4 +1,3 @@
-import { RequiresGuildContext } from '@sapphire/decorators'
 import {
   ButtonBuilder,
   ButtonStyle,
@@ -19,7 +18,6 @@ import { ConfessionHelper } from '~/modules/confession/helpers/ConfessionHelper'
 import { ConfessionRepository } from '~/modules/confession/repositories/confessionRepository'
 
 export class ConfessionDetailCommand {
-  @RequiresGuildContext()
   public static async run(
     interaction: RepliableInteraction,
     code?: string | null

@@ -1,4 +1,3 @@
-import { RequiresGuildContext } from '@sapphire/decorators'
 import { ChatInputCommandInteraction } from 'discord.js'
 
 import { NormalError } from '~/core/errorResponse'
@@ -12,7 +11,6 @@ import {
 } from '~/modules/word-chain/services/WordChainRedisService'
 
 export class WordChainUnpauseCommand {
-  @RequiresGuildContext()
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 

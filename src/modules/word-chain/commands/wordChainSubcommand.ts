@@ -31,21 +31,25 @@ import { WordChainUnpauseCommand } from '~/modules/word-chain/commands/_wordChai
 @ApplyOptions<Subcommand.Options>({
   name: 'wordchain',
   description: 'Quản lý trò chơi nối từ.',
+  preconditions: ['GuildOnly'],
   subcommands: [
     {
       name: 'start',
       chatInputRun: 'chatInputStart',
-      preconditions: ['OwnerOnly', 'WordChainChannelOnly']
+      requiredUserPermissions: ['Administrator'],
+      preconditions: ['WordChainChannelOnly']
     },
     {
       name: 'pause',
       chatInputRun: 'chatInputPause',
-      preconditions: ['OwnerOnly', 'WordChainChannelOnly']
+      requiredUserPermissions: ['Administrator'],
+      preconditions: ['WordChainChannelOnly']
     },
     {
       name: 'unpause',
       chatInputRun: 'chatInputUnpause',
-      preconditions: ['OwnerOnly', 'WordChainChannelOnly']
+      requiredUserPermissions: ['Administrator'],
+      preconditions: ['WordChainChannelOnly']
     },
     {
       name: 'hint',
@@ -55,7 +59,7 @@ import { WordChainUnpauseCommand } from '~/modules/word-chain/commands/_wordChai
     {
       name: 'add',
       chatInputRun: 'chatInputAdd',
-      preconditions: ['OwnerOnly']
+      preconditions: ['OwnerOnly', 'WordChainChannelOnly']
     }
   ]
 })

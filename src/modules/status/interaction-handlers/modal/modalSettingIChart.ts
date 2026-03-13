@@ -1,4 +1,4 @@
-import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -25,7 +25,7 @@ export class ModalSettingIChart extends InteractionHandler {
    * @param interaction - The modal submit interaction to parse.
    * @returns A "some" result with the submitted song data if matched, otherwise "none".
    */
-  @RequiresGuildContext()
+
   public override async parse(interaction: ModalSubmitInteraction) {
     if (interaction.customId !== CUSTOM_ID.MODAL_SETTING_ICHART_CONFIG)
       return this.none()
@@ -47,7 +47,7 @@ export class ModalSettingIChart extends InteractionHandler {
    * @param interaction - The modal submit interaction.
    * @param result - The parsed song configuration data.
    */
-  @RequiresGuildContext()
+
   public async run(
     interaction: ModalSubmitInteraction,
     result: InteractionHandler.ParseResult<this>

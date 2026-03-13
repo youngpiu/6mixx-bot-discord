@@ -1,4 +1,4 @@
-import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -23,7 +23,6 @@ export class ButtonDonationStats extends InteractionHandler {
     return this.some()
   }
 
-  @RequiresGuildContext()
   public async run(interaction: ButtonInteraction) {
     await interaction.deferReply({
       flags: ['Ephemeral']

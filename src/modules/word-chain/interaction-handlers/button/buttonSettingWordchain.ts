@@ -1,4 +1,4 @@
-import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -14,7 +14,6 @@ import { SettingHelper } from '~/modules/setting/helpers/SettingHelper'
   interactionHandlerType: InteractionHandlerTypes.Button
 })
 export class ButtonSettingWordChain extends InteractionHandler {
-  @RequiresGuildContext()
   public override async parse(interaction: ButtonInteraction) {
     if (interaction.customId !== CUSTOM_ID.BTN_SETTING_WORDCHAIN_CHANNEL)
       return this.none()
@@ -22,7 +21,6 @@ export class ButtonSettingWordChain extends InteractionHandler {
     return this.some({ guildConfig })
   }
 
-  @RequiresGuildContext()
   public async run(
     interaction: ButtonInteraction,
     result: InteractionHandler.ParseResult<this>

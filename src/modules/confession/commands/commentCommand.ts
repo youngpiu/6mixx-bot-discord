@@ -1,4 +1,4 @@
-import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
+import { ApplyOptions } from '@sapphire/decorators'
 import { Command } from '@sapphire/framework'
 import {
   ApplicationCommandType,
@@ -33,12 +33,10 @@ export class CommentCommand extends Command {
     )
   }
 
-  @RequiresGuildContext()
   public override async chatInputRun(interaction: ChatInputCommandInteraction) {
     return this.showCommentModal(interaction)
   }
 
-  @RequiresGuildContext()
   public override async contextMenuRun(
     interaction: MessageContextMenuCommandInteraction
   ) {

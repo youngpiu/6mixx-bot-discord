@@ -1,4 +1,3 @@
-import { RequiresGuildContext } from '@sapphire/decorators'
 import {
   ButtonBuilder,
   type ButtonInteraction,
@@ -77,7 +76,6 @@ export const createFilterButton = (
 }
 
 export class TicketListCommand {
-  @RequiresGuildContext()
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
@@ -91,7 +89,6 @@ export class TicketListCommand {
     return await interaction.editReply(this.createListResponse(items, meta))
   }
 
-  @RequiresGuildContext()
   public static async handleButton(
     interaction: ButtonInteraction,
     state: TicketListState

@@ -1,4 +1,3 @@
-import { RequiresGuildContext } from '@sapphire/decorators'
 import {
   ButtonBuilder,
   type ButtonInteraction,
@@ -70,7 +69,6 @@ export const createFilterButton = (
 }
 
 export class ConfessionListCommand {
-  @RequiresGuildContext()
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
@@ -96,7 +94,6 @@ export class ConfessionListCommand {
     )
   }
 
-  @RequiresGuildContext()
   public static async handleButton(
     interaction: ButtonInteraction,
     state: ConfessionListState

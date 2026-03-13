@@ -1,4 +1,4 @@
-import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -50,7 +50,6 @@ export class ButtonConfessionReview extends InteractionHandler {
     return this.none()
   }
 
-  @RequiresGuildContext()
   public async run(
     interaction: ButtonInteraction,
     result: InteractionHandler.ParseResult<this>

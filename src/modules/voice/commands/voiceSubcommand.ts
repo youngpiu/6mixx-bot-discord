@@ -127,32 +127,33 @@ import { VoiceUnlockCommand } from '~/modules/voice/commands/_voiceUnlockCommand
 @ApplyOptions<Subcommand.Options>({
   name: 'voice',
   description: 'Quản lý phòng voice tạm.',
+  preconditions: ['GuildOnly', 'TempVoiceChannelOnly'],
   subcommands: [
     {
       name: 'rename',
       chatInputRun: 'chatInputRename',
-      preconditions: ['TempVoiceChannelOnly', 'TempVoiceOwnerOnly'],
+      preconditions: ['TempVoiceOwnerOnly'],
       cooldownDelay: TIME.M2,
       cooldownLimit: 1
     },
     {
       name: 'limit',
       chatInputRun: 'chatInputLimit',
-      preconditions: ['TempVoiceChannelOnly', 'TempVoiceOwnerOnly'],
+      preconditions: ['TempVoiceOwnerOnly'],
       cooldownDelay: TIME.M1,
       cooldownLimit: 1
     },
     {
       name: 'lock',
       chatInputRun: 'chatInputLock',
-      preconditions: ['TempVoiceChannelOnly', 'TempVoiceOwnerOnly'],
+      preconditions: ['TempVoiceOwnerOnly'],
       cooldownDelay: TIME.M1,
       cooldownLimit: 1
     },
     {
       name: 'unlock',
       chatInputRun: 'chatInputUnlock',
-      preconditions: ['TempVoiceChannelOnly', 'TempVoiceOwnerOnly'],
+      preconditions: ['TempVoiceOwnerOnly'],
       cooldownDelay: TIME.M1,
       cooldownLimit: 1
     },
@@ -163,7 +164,7 @@ import { VoiceUnlockCommand } from '~/modules/voice/commands/_voiceUnlockCommand
         {
           name: 'transfer',
           chatInputRun: 'chatInputPermissionTransfer',
-          preconditions: ['TempVoiceChannelOnly', 'TempVoiceOwnerOnly'],
+          preconditions: ['TempVoiceOwnerOnly'],
           cooldownDelay: TIME.M2,
           cooldownLimit: 1
         },
@@ -179,7 +180,7 @@ import { VoiceUnlockCommand } from '~/modules/voice/commands/_voiceUnlockCommand
     {
       name: 'kick',
       chatInputRun: 'chatInputKick',
-      preconditions: ['TempVoiceChannelOnly', 'TempVoiceOwnerOnly'],
+      preconditions: ['TempVoiceOwnerOnly'],
       cooldownDelay: TIME.S30,
       cooldownLimit: 1
     },
@@ -193,7 +194,6 @@ import { VoiceUnlockCommand } from '~/modules/voice/commands/_voiceUnlockCommand
     {
       name: 'invite',
       chatInputRun: 'chatInputInvite',
-      preconditions: ['TempVoiceChannelOnly', 'TempVoiceOwnerOnly'],
       cooldownDelay: TIME.S15,
       cooldownLimit: 1
     },
@@ -204,14 +204,14 @@ import { VoiceUnlockCommand } from '~/modules/voice/commands/_voiceUnlockCommand
         {
           name: 'user',
           chatInputRun: 'chatInputTrustUser',
-          preconditions: ['TempVoiceChannelOnly', 'TempVoiceOwnerOnly'],
+          preconditions: ['TempVoiceOwnerOnly'],
           cooldownDelay: TIME.M1,
           cooldownLimit: 1
         },
         {
           name: 'role',
           chatInputRun: 'chatInputTrustRole',
-          preconditions: ['TempVoiceChannelOnly', 'TempVoiceOwnerOnly'],
+          preconditions: ['TempVoiceOwnerOnly'],
           cooldownDelay: TIME.M1,
           cooldownLimit: 1
         }

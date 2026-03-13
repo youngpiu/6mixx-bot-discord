@@ -1,4 +1,3 @@
-import { RequiresGuildContext } from '@sapphire/decorators'
 import {
   ChatInputCommandInteraction,
   LabelBuilder,
@@ -13,7 +12,6 @@ import { SettingRepository } from '~/shared/repositories/settingRepository'
 import { type WordChainMode } from '~/modules/word-chain/services/WordChainRedisService'
 
 export class WordChainAddCommand {
-  @RequiresGuildContext()
   public static async run(interaction: ChatInputCommandInteraction) {
     const mode = await this.detectMode(
       interaction.guild!.id,

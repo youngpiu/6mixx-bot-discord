@@ -1,4 +1,4 @@
-import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -27,7 +27,7 @@ export class ButtonSettingIChart extends InteractionHandler {
    * @param interaction - The button interaction to parse.
    * @returns A "some" result with the current guild configuration if matched, otherwise "none".
    */
-  @RequiresGuildContext()
+
   public override async parse(interaction: ButtonInteraction) {
     if (interaction.customId !== CUSTOM_ID.BTN_SETTING_ICHART_CONFIG)
       return this.none()
@@ -43,7 +43,7 @@ export class ButtonSettingIChart extends InteractionHandler {
    * @param interaction - The button interaction.
    * @param result - The parsed configuration data.
    */
-  @RequiresGuildContext()
+
   public async run(
     interaction: ButtonInteraction,
     result: InteractionHandler.ParseResult<this>

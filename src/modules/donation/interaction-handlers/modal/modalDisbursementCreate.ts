@@ -1,4 +1,4 @@
-import { ApplyOptions, RequiresGuildContext } from '@sapphire/decorators'
+import { ApplyOptions } from '@sapphire/decorators'
 import {
   InteractionHandler,
   InteractionHandlerTypes
@@ -24,7 +24,6 @@ export class ModalDisbursementCreate extends InteractionHandler {
     return this.some()
   }
 
-  @RequiresGuildContext()
   public async run(interaction: ModalSubmitInteraction) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 

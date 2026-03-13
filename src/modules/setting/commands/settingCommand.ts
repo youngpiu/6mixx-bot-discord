@@ -18,7 +18,7 @@ import { lines } from '~/shared/utils/textUtil'
 @ApplyOptions<Command.Options>({
   name: 'setting',
   description: '[OWNER] Cài đặt máy chủ VNMIXX',
-  preconditions: ['OwnerOnly']
+  preconditions: ['OwnerOnly', 'GuildOnly']
 })
 export class SettingCommand extends Command {
   public override async chatInputRun(interaction: ChatInputCommandInteraction) {

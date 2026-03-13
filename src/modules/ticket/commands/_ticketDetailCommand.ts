@@ -1,4 +1,3 @@
-import { RequiresGuildContext } from '@sapphire/decorators'
 import {
   ButtonBuilder,
   ButtonStyle,
@@ -19,7 +18,6 @@ import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
 import { TicketRepository } from '~/modules/ticket/repositories/ticketRepository'
 
 export class TicketDetailCommand {
-  @RequiresGuildContext()
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({
       flags: ['Ephemeral']

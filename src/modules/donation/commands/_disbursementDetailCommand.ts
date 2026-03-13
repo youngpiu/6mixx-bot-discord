@@ -1,4 +1,3 @@
-import { RequiresGuildContext } from '@sapphire/decorators'
 import {
   ButtonBuilder,
   ButtonStyle,
@@ -15,7 +14,6 @@ import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { DisbursementRepository } from '~/modules/donation/repositories/disbursementRepository'
 
 export class DisbursementDetailCommand {
-  @RequiresGuildContext()
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({
       flags: ['Ephemeral']
