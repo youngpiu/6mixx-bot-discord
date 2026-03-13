@@ -10,6 +10,9 @@ CREATE TYPE "TicketType" AS ENUM ('FEEDBACK', 'REPORT', 'BUG');
 -- CreateEnum
 CREATE TYPE "TicketStatus" AS ENUM ('OPEN', 'CLOSED');
 
+-- CreateEnum
+CREATE TYPE "VipType" AS ENUM ('PERMANENT', 'LIMITED', 'BOOSTER');
+
 -- CreateTable
 CREATE TABLE "Confession" (
     "id" TEXT NOT NULL,
@@ -84,6 +87,7 @@ CREATE TABLE "GuildSetting" (
     "guildId" TEXT NOT NULL,
     "serviceForumChannelId" TEXT,
     "notificationForumChannelId" TEXT,
+    "vipTutorialThreadId" TEXT,
     "errorNotificationThreadId" TEXT,
     "ticketCategoryId" TEXT,
     "ticketTutorialThreadId" TEXT,
@@ -98,6 +102,9 @@ CREATE TABLE "GuildSetting" (
     "englishWordChainChannelId" TEXT,
     "tempVoiceCreateChannelId" TEXT,
     "tempVoiceCategoryId" TEXT,
+    "ichartSongId" TEXT,
+    "ichartSongName" TEXT,
+    "vipAnchorRoleId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -110,7 +117,6 @@ CREATE TABLE "TempVoiceProfile" (
     "guildId" TEXT NOT NULL,
     "ownerId" TEXT NOT NULL,
     "channelId" TEXT,
-    "sourceChannelId" TEXT,
     "name" TEXT NOT NULL,
     "limit" INTEGER NOT NULL DEFAULT 0,
     "locked" BOOLEAN NOT NULL DEFAULT false,
@@ -129,6 +135,17 @@ CREATE TABLE "TempVoiceTrustedMember" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "TempVoiceTrustedMember_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TempVoiceTrustedRole" (
+    "id" TEXT NOT NULL,
+    "guildId" TEXT NOT NULL,
+    "profileId" TEXT NOT NULL,
+    "roleId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "TempVoiceTrustedRole_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -166,6 +183,32 @@ CREATE TABLE "GuildMember" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "GuildMember_pkey" PRIMARY KEY ("guildId","userId")
+);
+
+-- CreateTable
+CREATE TABLE "VipStatus" (
+    "id" TEXT NOT NULL,
+    "guildId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "type" "VipType" NOT NULL,
+    "expireAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "VipStatus_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CustomRole" (
+    "id" TEXT NOT NULL,
+    "guildId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "roleId" TEXT NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "CustomRole_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -271,6 +314,15 @@ CREATE INDEX "TempVoiceTrustedMember_userId_idx" ON "TempVoiceTrustedMember"("us
 CREATE UNIQUE INDEX "TempVoiceTrustedMember_profileId_userId_key" ON "TempVoiceTrustedMember"("profileId", "userId");
 
 -- CreateIndex
+CREATE INDEX "TempVoiceTrustedRole_profileId_idx" ON "TempVoiceTrustedRole"("profileId");
+
+-- CreateIndex
+CREATE INDEX "TempVoiceTrustedRole_roleId_idx" ON "TempVoiceTrustedRole"("roleId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "TempVoiceTrustedRole_profileId_roleId_key" ON "TempVoiceTrustedRole"("profileId", "roleId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Ticket_channelId_key" ON "Ticket"("channelId");
 
 -- CreateIndex
@@ -293,6 +345,27 @@ CREATE INDEX "GuildMember_guildId_idx" ON "GuildMember"("guildId");
 
 -- CreateIndex
 CREATE INDEX "GuildMember_userId_idx" ON "GuildMember"("userId");
+
+-- CreateIndex
+CREATE INDEX "VipStatus_guildId_idx" ON "VipStatus"("guildId");
+
+-- CreateIndex
+CREATE INDEX "VipStatus_expireAt_idx" ON "VipStatus"("expireAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "VipStatus_guildId_userId_key" ON "VipStatus"("guildId", "userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CustomRole_roleId_key" ON "CustomRole"("roleId");
+
+-- CreateIndex
+CREATE INDEX "CustomRole_guildId_idx" ON "CustomRole"("guildId");
+
+-- CreateIndex
+CREATE INDEX "CustomRole_deletedAt_idx" ON "CustomRole"("deletedAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CustomRole_guildId_userId_key" ON "CustomRole"("guildId", "userId");
 
 -- CreateIndex
 CREATE INDEX "WordChainSession_guildId_idx" ON "WordChainSession"("guildId");
@@ -355,6 +428,12 @@ ALTER TABLE "TempVoiceTrustedMember" ADD CONSTRAINT "TempVoiceTrustedMember_guil
 ALTER TABLE "TempVoiceTrustedMember" ADD CONSTRAINT "TempVoiceTrustedMember_guildId_userId_fkey" FOREIGN KEY ("guildId", "userId") REFERENCES "GuildMember"("guildId", "userId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "TempVoiceTrustedRole" ADD CONSTRAINT "TempVoiceTrustedRole_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES "TempVoiceProfile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TempVoiceTrustedRole" ADD CONSTRAINT "TempVoiceTrustedRole_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Ticket" ADD CONSTRAINT "Ticket_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -368,6 +447,12 @@ ALTER TABLE "GuildMember" ADD CONSTRAINT "GuildMember_guildId_fkey" FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE "GuildMember" ADD CONSTRAINT "GuildMember_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "VipStatus" ADD CONSTRAINT "VipStatus_guildId_userId_fkey" FOREIGN KEY ("guildId", "userId") REFERENCES "GuildMember"("guildId", "userId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomRole" ADD CONSTRAINT "CustomRole_guildId_userId_fkey" FOREIGN KEY ("guildId", "userId") REFERENCES "GuildMember"("guildId", "userId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "WordChainSession" ADD CONSTRAINT "WordChainSession_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild"("id") ON DELETE CASCADE ON UPDATE CASCADE;
