@@ -3,7 +3,7 @@ model WordChainSession {
 
   guildId   String
   channelId String // channel chơi game
-  guild     Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  guild     Guild  @relation(fields: [guildId], references: [id], onDelete: Cascade)
 
   winnerId String? // người chiến thắng ván chơi này
 
@@ -25,14 +25,13 @@ model WordChainSessionPlayer {
   guildId String
   userId  String
 
-  score       Int @default(0) // số từ người X đã nối
+  score Int @default(0) // số từ người X đã nối
 
   session WordChainSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   guildMember GuildMember @relation(fields: [guildId, userId], references: [guildId, userId], onDelete: Cascade)
 
   @@id([sessionId, guildId, userId])
-
   @@index([guildId, userId])
 }
 

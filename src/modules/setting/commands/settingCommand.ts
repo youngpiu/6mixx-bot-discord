@@ -72,7 +72,7 @@ export class SettingCommand extends Command {
         row.addComponents(
           new ButtonBuilder()
             .setCustomId(CUSTOM_ID.BTN_SETTING_TEMPVOICE_CHANNEL)
-            .setLabel('Cài đặt temp voice')
+            .setLabel('Cài đặt phòng thoại tạm thời')
             .setStyle(ButtonStyle.Secondary)
         )
       )

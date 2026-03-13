@@ -1,7 +1,7 @@
 import { Identifiers, Precondition } from '@sapphire/framework'
 import type { ChatInputCommandInteraction } from 'discord.js'
 
-import { TempVoiceChannelRepository } from '~/modules/voice/repositories/tempVoiceChannelRepository'
+import { TempVoiceProfileRepository } from '~/modules/voice/repositories/tempVoiceProfileRepository'
 
 /**
  * Precondition that ensures the user is the owner of the temporary voice channel they are currently in.
@@ -17,15 +17,19 @@ export class TempVoiceOwnerOnlyPrecondition extends Precondition {
   public override async chatInputRun(interaction: ChatInputCommandInteraction) {
     const member = interaction.member
     if (!member || !('voice' in member) || !member.voice.channelId) {
-      return this.makeSharedError('Bạn không phải chủ phòng.')
+      return this.makeSharedError(
+        'Bạn không phải chủ phòng thoại tạm thời này.'
+      )
     }
 
-    const record = await TempVoiceChannelRepository.findByChannelId(
+    const record = await TempVoiceProfileRepository.findByChannelId(
       member.voice.channelId
     )
 
     if (!record || record.ownerId !== interaction.user.id) {
-      return this.makeSharedError('Bạn không phải chủ phòng.')
+      return this.makeSharedError(
+        'Bạn không phải chủ phòng thoại tạm thời này.'
+      )
     }
 
     return this.ok()

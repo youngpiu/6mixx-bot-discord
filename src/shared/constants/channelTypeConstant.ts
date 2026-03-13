@@ -7,7 +7,7 @@ import { ChannelType } from 'discord.js'
 export const CHANNEL_TYPE_NAMES: Record<ChannelType, string> = {
   [ChannelType.GuildText]: 'Kênh chữ',
   [ChannelType.DM]: 'Tin nhắn riêng (DM)',
-  [ChannelType.GuildVoice]: 'Kênh thoại',
+  [ChannelType.GuildVoice]: 'phòng thoại',
   [ChannelType.GroupDM]: 'Tin nhắn nhóm',
   [ChannelType.GuildCategory]: 'Danh mục kênh',
   [ChannelType.GuildAnnouncement]: 'Kênh thông báo',

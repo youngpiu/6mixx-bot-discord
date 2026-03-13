@@ -6,14 +6,15 @@ model Guild {
   updatedAt DateTime @updatedAt
 
   /// --- Relations ---
-  setting           GuildSetting?
-  guildMembers      GuildMember[]
-  tickets           Ticket[]
-  autoIncrements    AutoIncrement[]
-  donations         Donation[]
-  disbursements     Disbursement[]
-  confessions       Confession[]
-  wordChainSessions WordChainSession[]
-  tempVoiceProfiles TempVoiceProfile[]
+  setting                 GuildSetting?
+  guildMembers            GuildMember[]
+  tickets                 Ticket[]
+  autoIncrements          AutoIncrement[]
+  donations               Donation[]
+  disbursements           Disbursement[]
+  confessions             Confession[]
+  wordChainSessions       WordChainSession[]
+  tempVoiceProfiles       TempVoiceProfile[]
   tempVoiceTrustedMembers TempVoiceTrustedMember[]
+  tempVoiceTrustedRoles   TempVoiceTrustedRole[]
 }

@@ -32,8 +32,8 @@ model Confession {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([guildId, code])
   @@index([guildId])
   @@index([guildId, status])
   @@index([guildId, authorId])
-  @@unique([guildId, code])
 }

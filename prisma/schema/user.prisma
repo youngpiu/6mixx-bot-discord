@@ -9,7 +9,6 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
-
 /// User membership inside a guild
 model GuildMember {
   guildId String
@@ -31,7 +30,7 @@ model GuildMember {
 
   wonWordChainSessions WordChainSession[] @relation("WordChainWinner")
 
-  tempVoiceProfiles TempVoiceProfile[] @relation("TempVoiceOwner")
+  tempVoiceProfiles  TempVoiceProfile[]       @relation("TempVoiceOwner")
   tempVoiceTrustedIn TempVoiceTrustedMember[] @relation("TempVoiceTrustedUser")
 
   createdAt DateTime @default(now())

@@ -122,5 +122,13 @@ export const CUSTOM_ID = {
   INPUT_WORDCHAIN_PHRASES: 'input-wordchain-phrases',
 
   // Utility
-  MODAL_COMMENT_PREFIX: 'modal-comment:'
+  MODAL_COMMENT_PREFIX: 'modal-comment:',
+
+  // Voice
+  MODAL_VOICE_TRUST_USER: 'modal-voice-trust-user',
+  SELECT_VOICE_TRUST_USER: 'select-voice-trust-user',
+  MODAL_VOICE_TRUST_ROLE: 'modal-voice-trust-role',
+  SELECT_VOICE_TRUST_ROLE: 'select-voice-trust-role',
+  SELECT_VOICE_KICK: 'select-voice-kick',
+  SELECT_VOICE_INVITE: 'select-voice-invite'
 } as const

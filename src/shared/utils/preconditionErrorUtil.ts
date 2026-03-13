@@ -46,6 +46,11 @@ const formatAllowedChannels = (types: ChannelType[]): string =>
 
 // ─── Identifier Sets (chỉ dùng Set khi có nhiều identifier trong cùng nhóm) ──
 
+const COMMAND_COOLDOWN_IDENTIFIERS = new Set<string>([
+  Identifiers.PreconditionCooldown,
+  'subcommandPreconditionCooldown' // SubcommandIdentifiers.SubcommandPreconditionCooldown
+])
+
 const USER_PERMISSION_IDENTIFIERS = new Set<string>([
   Identifiers.PreconditionUserPermissions,
   Identifiers.PreconditionUserPermissionsNoPermissions,
@@ -77,8 +82,17 @@ export function mapDeniedError(error: UserError): ErrorResponseCore {
   const isCustomMessage = ctx?.isCustomMessage
 
   // ── Cooldown ──────────────────────────────────────────────────────────────
-  if (id === Identifiers.PreconditionCooldown) {
+  if (COMMAND_COOLDOWN_IDENTIFIERS.has(id)) {
     if (isCustomMessage) return new RateLimitError(error.message)
+
+    const remaining = ctx?.remaining as number | undefined
+    if (remaining && remaining > 0) {
+      const expiresAt = Math.floor((Date.now() + remaining) / 1000)
+      return new RateLimitError(
+        `Bạn đang thao tác quá nhanh, vui lòng thử lại vào <t:${expiresAt}:R>.`
+      )
+    }
+
     return new RateLimitError(
       `Bạn đang thao tác quá nhanh, vui lòng sống chậm lại.`
     )

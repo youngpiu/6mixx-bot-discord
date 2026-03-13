@@ -2,10 +2,9 @@
 model TempVoiceProfile {
   id String @id @default(cuid())
 
-  guildId String
-  ownerId String
+  guildId   String
+  ownerId   String
   channelId String? @unique
-  sourceChannelId String?
 
   name   String
   limit  Int     @default(0)
@@ -14,14 +13,15 @@ model TempVoiceProfile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  guild Guild       @relation(fields: [guildId], references: [id], onDelete: Cascade)
   owner GuildMember @relation("TempVoiceOwner", fields: [guildId, ownerId], references: [guildId, userId], onDelete: Cascade)
 
   trustedMembers TempVoiceTrustedMember[]
+  trustedRoles   TempVoiceTrustedRole[]
 
+  @@unique([guildId, ownerId])
   @@index([guildId])
   @@index([ownerId])
-  @@unique([guildId, ownerId])
 }
 
 /// Trusted users for a temp voice profile
@@ -41,4 +41,22 @@ model TempVoiceTrustedMember {
   @@unique([profileId, userId])
   @@index([profileId])
   @@index([userId])
+}
+
+/// Trusted roles for a temp voice profile
+model TempVoiceTrustedRole {
+  id String @id @default(cuid())
+
+  guildId   String
+  profileId String
+  roleId    String
+
+  createdAt DateTime @default(now())
+
+  profile TempVoiceProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  guild   Guild            @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, roleId])
+  @@index([profileId])
+  @@index([roleId])
 }

@@ -39,9 +39,9 @@ model Ticket {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([guildId, code])
   @@index([guildId, type])
   @@index([guildId, status])
   @@index([guildId, createdAt(sort: Desc)])
   @@index([guildId, requesterId])
-  @@unique([guildId, code])
 }

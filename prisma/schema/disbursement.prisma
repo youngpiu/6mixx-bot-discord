@@ -13,6 +13,6 @@ model Disbursement {
 
   createdAt DateTime @default(now())
 
-  @@index([guildId, createdAt(sort: Desc)])
   @@unique([guildId, code])
+  @@index([guildId, createdAt(sort: Desc)])
 }

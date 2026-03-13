@@ -1,7 +1,7 @@
 import { Identifiers, Precondition } from '@sapphire/framework'
 import type { ChatInputCommandInteraction } from 'discord.js'
 
-import { TempVoiceChannelRepository } from '~/modules/voice/repositories/tempVoiceChannelRepository'
+import { TempVoiceProfileRepository } from '~/modules/voice/repositories/tempVoiceProfileRepository'
 
 /**
  * Precondition that ensures the user is currently in a recognized temporary voice channel.
@@ -18,17 +18,17 @@ export class TempVoiceChannelOnlyPrecondition extends Precondition {
     const member = interaction.member
     if (!member || !('voice' in member) || !member.voice.channelId) {
       return this.makeSharedError(
-        'Bạn phải ở trong phòng thoại tạm để dùng lệnh này.'
+        'Bạn phải ở trong phòng thoại để dùng lệnh này.'
       )
     }
 
-    const record = await TempVoiceChannelRepository.findByChannelId(
+    const record = await TempVoiceProfileRepository.findByChannelId(
       member.voice.channelId
     )
 
     if (!record) {
       return this.makeSharedError(
-        'Bạn phải ở trong phòng thoại tạm để dùng lệnh này.'
+        'Bạn phải ở trong phòng thoại tạm thời để dùng lệnh này.'
       )
     }
 
