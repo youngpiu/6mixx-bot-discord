@@ -11,7 +11,11 @@ import { WordChainService } from '~/modules/word-chain/services/WordChainService
 
 /**
  * Listener that executes once when the client has finished logging in and is ready.
- * Handles initial setup tasks like preloading scripts and initializing dictionaries.
+ * Handles initial setup tasks like preloading scripts, initializing dictionaries,
+ * syncing guild members, and running VIP checks.
+ *
+ * NOTE: Guild member sync must complete before VIP booster sync to satisfy
+ * foreign key constraints (VipStatus requires GuildMember to exist).
  */
 @ApplyOptions<Listener.Options>({
   once: true,
@@ -19,8 +23,7 @@ import { WordChainService } from '~/modules/word-chain/services/WordChainService
 })
 export class ReadyListener extends Listener {
   /**
-   * Executes initial startup logic, including preloading WordChain Lua scripts
-   * and loading the Vietnamese and English dictionaries.
+   * Executes initial startup logic.
    *
    * @param client - The connected Discord client.
    */
@@ -28,6 +31,7 @@ export class ReadyListener extends Listener {
     const { username, id } = client.user
     this.container.logger.info(`Successfully logged in as ${username} (${id})`)
 
+    // Step 1: Tasks that don't depend on guild members being in the DB
     await Promise.all([
       WordChainRedisService.preloadSubmitScripts().catch((err) => {
         this.container.logger.error(
@@ -47,17 +51,25 @@ export class ReadyListener extends Listener {
           err
         )
       }),
+      // Sync guild members first so FK constraints are satisfied for VIP sync
+      GuildMemberSyncService.syncAllGuilds(client).catch((err) => {
+        this.container.logger.error(
+          '[Ready] Failed to sync guild members:',
+          err
+        )
+      })
+    ])
+
+    // Step 2: VIP tasks run after guild members are synced to DB
+    await Promise.all([
       VipSchedulerService.runChecks().catch((err) => {
         this.container.logger.error(
           '[Ready] Failed to run VIP startup checks:',
           err
         )
       }),
-      GuildMemberSyncService.syncAllGuilds(client).catch((err) => {
-        this.container.logger.error(
-          '[Ready] Failed to sync guild members:',
-          err
-        )
+      VipSchedulerService.syncBoosters(client).catch((err) => {
+        this.container.logger.error('[Ready] Failed to sync booster VIPs:', err)
       })
     ])
   }

@@ -4,6 +4,8 @@ import { ColorResolvable, Guild, GuildMember, Role } from 'discord.js'
 import { VipType } from 'generated/prisma/enums'
 
 import { TIME } from '~/shared/constants/timeConstant'
+import { GuildMemberRepository } from '~/shared/repositories/guildMemberRepository'
+import { GuildRepository } from '~/shared/repositories/guildRepository'
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 
 import { VipRepository } from '~/modules/vip/repositories/vipRepository'
@@ -45,7 +47,11 @@ export class VipService {
       expireAt.setDate(expireAt.getDate() + durationDays)
     }
 
-    // 2. Update VIP Status in DB
+    // 2. Ensure Guild and GuildMember records exist (satisfies FK constraints)
+    await GuildRepository.upsert(guildId)
+    await GuildMemberRepository.create({ guildId, userId })
+
+    // 3. Update VIP Status in DB
     await VipRepository.upsertStatus(guildId, userId, type, expireAt)
 
     // Cancel any existing expiration task before scheduling a new one
