@@ -1,7 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
-import type { Client } from 'discord.js'
-import { ChannelType } from 'discord.js'
+import { ChannelType, type Client, Events } from 'discord.js'
 
 import { TempVoiceProfileRepository } from '~/modules/voice/repositories/tempVoiceProfileRepository'
 
@@ -11,9 +10,9 @@ import { TempVoiceProfileRepository } from '~/modules/voice/repositories/tempVoi
  */
 @ApplyOptions<Listener.Options>({
   once: true,
-  event: 'clientReady'
+  event: Events.ClientReady
 })
-export class ReadyTempVoiceListener extends Listener {
+export class ClientReadyListener extends Listener {
   /**
    * Checks and cleans up all active temporary voice channels on startup.
    * @param client The ready client.

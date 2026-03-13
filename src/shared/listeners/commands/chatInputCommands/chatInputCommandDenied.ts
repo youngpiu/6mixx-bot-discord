@@ -1,6 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators'
-import type { ChatInputCommandDeniedPayload, Events } from '@sapphire/framework'
-import { Listener, type UserError } from '@sapphire/framework'
+import type { ChatInputCommandDeniedPayload } from '@sapphire/framework'
+import { Events, Listener, type UserError } from '@sapphire/framework'
 
 import { handleError } from '~/shared/utils/errorUtil'
 import { mapDeniedError } from '~/shared/utils/preconditionErrorUtil'
@@ -10,9 +10,11 @@ import { mapDeniedError } from '~/shared/utils/preconditionErrorUtil'
  * Maps precondition failures to user-friendly messages and reports them.
  */
 @ApplyOptions<Listener.Options>({
-  event: 'chatInputCommandDenied'
+  event: Events.ChatInputCommandDenied
 })
-export class UserEvent extends Listener<typeof Events.ChatInputCommandDenied> {
+export class ChatInputCommandDeniedListener extends Listener<
+  typeof Events.ChatInputCommandDenied
+> {
   /**
    * Responds to denied commands by mapping the error and notifying the user.
    *

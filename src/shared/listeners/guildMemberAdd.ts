@@ -1,7 +1,7 @@
 // Listener executed when a new member joins; creates or verifies their record in the DB
 import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
-import type { GuildMember } from 'discord.js'
+import { Events, type GuildMember } from 'discord.js'
 
 import { GuildMemberRepository } from '~/shared/repositories/guildMemberRepository'
 
@@ -10,7 +10,7 @@ import { GuildMemberRepository } from '~/shared/repositories/guildMemberReposito
  * It ensures a record for the user and their guild membership exists in the database.
  */
 @ApplyOptions<Listener.Options>({
-  event: 'guildMemberAdd'
+  event: Events.GuildMemberAdd
 })
 export class GuildMemberAddListener extends Listener {
   /**

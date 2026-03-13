@@ -11,7 +11,7 @@ import { mapDeniedError } from '~/shared/utils/preconditionErrorUtil'
 @ApplyOptions<Listener.Options>({
   event: SubcommandPluginEvents.ChatInputSubcommandDenied
 })
-export class UserEvent extends Listener<
+export class ChatInputSubcommandDeniedListener extends Listener<
   typeof SubcommandPluginEvents.ChatInputSubcommandDenied
 > {
   public override async run(

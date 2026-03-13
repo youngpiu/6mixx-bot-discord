@@ -15,7 +15,7 @@ import { mapDeniedError } from '~/shared/utils/preconditionErrorUtil'
 @ApplyOptions<Listener.Options>({
   event: SubcommandPluginEvents.MessageSubcommandDenied
 })
-export class UserEvent extends Listener<
+export class MessageSubcommandDeniedListener extends Listener<
   typeof SubcommandPluginEvents.MessageSubcommandDenied
 > {
   /**

@@ -16,7 +16,7 @@ import { logSuccessCommand } from '~/shared/utils/loggerUtil'
 @ApplyOptions<Listener.Options>({
   enabled: (container.logger as Logger).level <= LogLevel.Debug
 })
-export class UserEvent extends Listener {
+export class MessageCommandSuccessListener extends Listener {
   /**
    * Logs details of the successfully executed message command.
    *

@@ -1,6 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
-import type { Client } from 'discord.js'
+import { type Client, Events } from 'discord.js'
 
 import { VipSchedulerService } from '~/modules/vip/services/VipSchedulerService'
 
@@ -10,9 +10,9 @@ import { VipSchedulerService } from '~/modules/vip/services/VipSchedulerService'
  */
 @ApplyOptions<Listener.Options>({
   once: true,
-  event: 'clientReady'
+  event: Events.ClientReady
 })
-export class ReadyVipListener extends Listener {
+export class ClientReadyListener extends Listener {
   /**
    * Scans all guilds for active boosters and grants VIP to those without an existing status.
    * @param client The ready client.

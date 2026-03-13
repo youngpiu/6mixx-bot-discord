@@ -1,7 +1,7 @@
 // Listener executed when the bot is ready and logged in
 import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
-import type { Client } from 'discord.js'
+import { type Client, Events } from 'discord.js'
 
 import { GuildMemberSyncService } from '~/shared/services/guildMemberSyncService'
 
@@ -15,7 +15,7 @@ import { WordChainService } from '~/modules/word-chain/services/WordChainService
  */
 @ApplyOptions<Listener.Options>({
   once: true,
-  event: 'clientReady'
+  event: Events.ClientReady
 })
 export class ReadyListener extends Listener {
   /**

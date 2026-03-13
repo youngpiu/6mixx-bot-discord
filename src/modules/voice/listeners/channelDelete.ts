@@ -1,6 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
-import { Channel } from 'discord.js'
+import { Channel, Events } from 'discord.js'
 
 import { TempVoiceProfileRepository } from '~/modules/voice/repositories/tempVoiceProfileRepository'
 
@@ -9,9 +9,9 @@ import { TempVoiceProfileRepository } from '~/modules/voice/repositories/tempVoi
  * Clears the active channel record if the deleted channel was a temporary voice channel.
  */
 @ApplyOptions<Listener.Options>({
-  event: 'channelDelete'
+  event: Events.ChannelDelete
 })
-export class ChannelDeleteTempVoiceListener extends Listener {
+export class ChannelDeleteListener extends Listener {
   /**
    * Cleans up database records when a voice channel is deleted.
    * @param channel The channel that was deleted.

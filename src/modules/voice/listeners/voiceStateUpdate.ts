@@ -1,6 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
-import { ChannelType, VoiceState } from 'discord.js'
+import { ChannelType, Events, VoiceState } from 'discord.js'
 
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 
@@ -12,9 +12,9 @@ import { TempVoiceTrustedMemberRepository } from '~/modules/voice/repositories/t
  * Creates channels when users join the 'create' room and cleans up empty ones.
  */
 @ApplyOptions<Listener.Options>({
-  event: 'voiceStateUpdate'
+  event: Events.VoiceStateUpdate
 })
-export class VoiceStateTempVoiceListener extends Listener {
+export class VoiceStateUpdateListener extends Listener {
   /**
    * Main entry point for voice state updates.
    * @param oldState The previous voice state.

@@ -1,6 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators'
-import type { Events, MessageCommandDeniedPayload } from '@sapphire/framework'
-import { Listener, type UserError } from '@sapphire/framework'
+import type { MessageCommandDeniedPayload } from '@sapphire/framework'
+import { Events, Listener, type UserError } from '@sapphire/framework'
 
 import { handleError } from '~/shared/utils/errorUtil'
 import { mapDeniedError } from '~/shared/utils/preconditionErrorUtil'
@@ -10,9 +10,11 @@ import { mapDeniedError } from '~/shared/utils/preconditionErrorUtil'
  * Maps precondition failures to user-friendly messages and reports them.
  */
 @ApplyOptions<Listener.Options>({
-  event: 'messageCommandDenied'
+  event: Events.MessageCommandDenied
 })
-export class UserEvent extends Listener<typeof Events.MessageCommandDenied> {
+export class MessageCommandDeniedListener extends Listener<
+  typeof Events.MessageCommandDenied
+> {
   /**
    * Responds to denied message commands by mapping the error and notifying the user.
    *

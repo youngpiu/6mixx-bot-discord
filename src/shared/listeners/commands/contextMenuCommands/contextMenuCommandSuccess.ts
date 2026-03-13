@@ -15,7 +15,7 @@ import { logSuccessCommand } from '~/shared/utils/loggerUtil'
 @ApplyOptions<Listener.Options>(({ container }) => ({
   enabled: (container.logger as Logger).level <= LogLevel.Debug
 }))
-export class UserListener extends Listener {
+export class ContextMenuCommandSuccessListener extends Listener {
   /**
    * Logs details of the successfully executed context menu command.
    *

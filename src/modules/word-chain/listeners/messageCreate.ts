@@ -1,6 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
-import { Message } from 'discord.js'
+import { Events, Message } from 'discord.js'
 
 import { STATIC_EMOJI } from '~/shared/constants/emojiConstant'
 import { TIME } from '~/shared/constants/timeConstant'
@@ -15,20 +15,9 @@ import {
 import { WordChainService } from '~/modules/word-chain/services/WordChainService'
 
 @ApplyOptions<Listener.Options>({
-  event: 'messageCreate'
+  event: Events.MessageCreate
 })
-export class MessageWordChainListener extends Listener {
-  private static readonly SETTING_CACHE_TTL_MS = 30_000
-
-  private static readonly settingCache = new Map<
-    string,
-    {
-      expiresAt: number
-      viChannelId: string | null
-      enChannelId: string | null
-    }
-  >()
-
+export class MessageCreateListener extends Listener {
   public async run(message: Message) {
     // Ignore bots
     if (message.author.bot) return
@@ -52,22 +41,8 @@ export class MessageWordChainListener extends Listener {
     guildId: string,
     channelId: string
   ): Promise<WordChainMode | null> {
-    const now = Date.now()
-    const cached = MessageWordChainListener.settingCache.get(guildId)
-    if (cached && cached.expiresAt > now) {
-      if (channelId === cached.viChannelId) return 'vi'
-      if (channelId === cached.enChannelId) return 'en'
-      return null
-    }
-
     const setting = await SettingRepository.find(guildId)
     if (!setting) return null
-
-    MessageWordChainListener.settingCache.set(guildId, {
-      expiresAt: now + MessageWordChainListener.SETTING_CACHE_TTL_MS,
-      viChannelId: setting.vietnameseWordChainChannelId,
-      enChannelId: setting.englishWordChainChannelId
-    })
 
     if (channelId === setting.vietnameseWordChainChannelId) return 'vi'
     if (channelId === setting.englishWordChainChannelId) return 'en'

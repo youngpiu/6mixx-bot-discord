@@ -1,6 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators'
-import type { Events, MessageCommandErrorPayload } from '@sapphire/framework'
-import { Listener } from '@sapphire/framework'
+import type { MessageCommandErrorPayload } from '@sapphire/framework'
+import { Events, Listener } from '@sapphire/framework'
 
 import { handleError } from '~/shared/utils/errorUtil'
 
@@ -9,7 +9,7 @@ import { handleError } from '~/shared/utils/errorUtil'
  * Reports the error using the centralized `handleError` utility.
  */
 @ApplyOptions<Listener.Options>({
-  event: 'messageCommandError'
+  event: Events.MessageCommandError
 })
 export class MessageCommandErrorListener extends Listener<
   typeof Events.MessageCommandError

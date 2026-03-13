@@ -1,9 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators'
-import type {
-  ContextMenuCommandErrorPayload,
-  Events
-} from '@sapphire/framework'
-import { Listener } from '@sapphire/framework'
+import type { ContextMenuCommandErrorPayload } from '@sapphire/framework'
+import { Events, Listener } from '@sapphire/framework'
 import type { RepliableInteraction } from 'discord.js'
 
 import { handleError } from '~/shared/utils/errorUtil'
@@ -13,7 +10,7 @@ import { handleError } from '~/shared/utils/errorUtil'
  * Reports the error using the centralized `handleError` utility.
  */
 @ApplyOptions<Listener.Options>({
-  event: 'contextMenuCommandError'
+  event: Events.ContextMenuCommandError
 })
 export class ContextMenuCommandErrorListener extends Listener<
   typeof Events.ContextMenuCommandError

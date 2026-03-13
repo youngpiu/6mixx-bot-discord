@@ -1,7 +1,7 @@
 // Listener executed when the bot joins a new guild; synchronizes guild and members to DB
 import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
-import { Guild } from 'discord.js'
+import { Events, Guild } from 'discord.js'
 
 import { GuildMemberRepository } from '~/shared/repositories/guildMemberRepository'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
@@ -11,7 +11,7 @@ import { GuildRepository } from '~/shared/repositories/guildRepository'
  * It ensures the guild record exists in the database and synchronizes all non-bot members.
  */
 @ApplyOptions<Listener.Options>({
-  event: 'guildCreate'
+  event: Events.GuildCreate
 })
 export class GuildCreateListener extends Listener {
   /**

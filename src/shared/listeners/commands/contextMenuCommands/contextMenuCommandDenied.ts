@@ -1,9 +1,6 @@
 import { ApplyOptions } from '@sapphire/decorators'
-import type {
-  ContextMenuCommandDeniedPayload,
-  Events
-} from '@sapphire/framework'
-import { Listener, type UserError } from '@sapphire/framework'
+import type { ContextMenuCommandDeniedPayload } from '@sapphire/framework'
+import { Events, Listener, type UserError } from '@sapphire/framework'
 
 import { handleError } from '~/shared/utils/errorUtil'
 import type { RepliableInteraction } from '~/shared/utils/messageUtil'
@@ -14,9 +11,9 @@ import { mapDeniedError } from '~/shared/utils/preconditionErrorUtil'
  * Maps precondition failures to user-friendly messages and reports them.
  */
 @ApplyOptions<Listener.Options>({
-  event: 'contextMenuCommandDenied'
+  event: Events.ContextMenuCommandDenied
 })
-export class UserEvent extends Listener<
+export class ContextMenuCommandDeniedListener extends Listener<
   typeof Events.ContextMenuCommandDenied
 > {
   /**
