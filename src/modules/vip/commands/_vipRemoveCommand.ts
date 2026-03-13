@@ -14,7 +14,7 @@ export class VipRemoveCommand {
 
     await InteractionUtil.replyWithContainer(
       interaction,
-      `Đã thu hồi quyền VIP của ${user.toString()}. Role sẽ được xóa hoàn toàn sau 7 ngày nếu không được cấp lại.`
+      `Đã thu hồi vai trò VIP của <@${user.id}>`
     )
   }
 }

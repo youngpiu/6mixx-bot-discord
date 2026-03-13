@@ -3,11 +3,7 @@ import {
   InteractionHandler,
   InteractionHandlerTypes
 } from '@sapphire/framework'
-import {
-  ChatInputCommandInteraction,
-  ModalSubmitInteraction,
-  roleMention
-} from 'discord.js'
+import { ModalSubmitInteraction, roleMention } from 'discord.js'
 
 import { NormalError } from '~/core/errorResponse'
 
@@ -33,9 +29,7 @@ export class ModalVoiceTrustRole extends InteractionHandler {
     if (interaction.customId !== CUSTOM_ID.MODAL_VOICE_TRUST_ROLE)
       return this.none()
 
-    const { profile } = await TempVoiceContextService.get(
-      interaction as unknown as ChatInputCommandInteraction
-    )
+    const { profile, channel } = await TempVoiceContextService.get(interaction)
 
     const trustedList = await TempVoiceTrustedRoleRepository.listByOwner(
       interaction.guildId!,
@@ -43,7 +37,11 @@ export class ModalVoiceTrustRole extends InteractionHandler {
     )
     const previouslyTrustedRoles = trustedList.map((t) => t.roleId)
 
-    return this.some({ previouslyTrustedRoles, ownerId: profile.ownerId })
+    return this.some({
+      previouslyTrustedRoles,
+      ownerId: profile.ownerId,
+      channel
+    })
   }
 
   /**
@@ -58,7 +56,7 @@ export class ModalVoiceTrustRole extends InteractionHandler {
   ) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    const { previouslyTrustedRoles, ownerId } = result
+    const { previouslyTrustedRoles, ownerId, channel } = result
 
     const selectedRolesCollection = interaction.fields.getSelectedRoles(
       CUSTOM_ID.SELECT_VOICE_TRUST_ROLE
@@ -87,10 +85,6 @@ export class ModalVoiceTrustRole extends InteractionHandler {
     if (toRemove.length === 0 && toAdd.length === 0) {
       throw new NormalError('Không có thay đổi nào được thực hiện.')
     }
-
-    const { channel } = await TempVoiceContextService.get(
-      interaction as unknown as ChatInputCommandInteraction
-    )
 
     // Handle removal of trusted roles and their permission overwrites
     const removePromises = toRemove.map(async (roleId) => {

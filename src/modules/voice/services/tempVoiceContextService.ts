@@ -1,10 +1,14 @@
 import {
+  ChannelType,
   ChatInputCommandInteraction,
   GuildMember,
+  ModalSubmitInteraction,
   VoiceChannel
 } from 'discord.js'
 
 import { TempVoiceProfile } from 'generated/prisma/client'
+
+import { NormalError } from '~/core/errorResponse'
 
 import { TempVoiceProfileRepository } from '~/modules/voice/repositories/tempVoiceProfileRepository'
 
@@ -14,21 +18,33 @@ import { TempVoiceProfileRepository } from '~/modules/voice/repositories/tempVoi
 export class TempVoiceContextService {
   /**
    * Retrieves the voice channel and associated profile from the interaction.
-   * @param interaction The command interaction.
+   * @param interaction The command or modal submit interaction.
    * @throws {NormalError} If the user is not in a temporary voice channel or profile is not found.
    * @returns The voice channel and profile.
    */
-  public static async get(interaction: ChatInputCommandInteraction): Promise<{
+  public static async get(
+    interaction: ChatInputCommandInteraction | ModalSubmitInteraction
+  ): Promise<{
     channel: VoiceChannel
     profile: TempVoiceProfile
   }> {
     const member = interaction.member as GuildMember
-    const channel = member.voice!.channel as VoiceChannel
+    const voiceChannel = member.voice?.channel
 
-    const profile = (await TempVoiceProfileRepository.findByChannelId(
-      channel.id
-    ))!
+    if (!voiceChannel || voiceChannel.type !== ChannelType.GuildVoice) {
+      throw new NormalError(
+        'Bạn phải ở trong phòng thoại tạm thời để dùng lệnh này.'
+      )
+    }
 
-    return { channel, profile }
+    const profile = await TempVoiceProfileRepository.findByChannelId(
+      voiceChannel.id
+    )
+
+    if (!profile) {
+      throw new NormalError('Không tìm thấy thông tin phòng thoại tạm thời.')
+    }
+
+    return { channel: voiceChannel as VoiceChannel, profile }
   }
 }

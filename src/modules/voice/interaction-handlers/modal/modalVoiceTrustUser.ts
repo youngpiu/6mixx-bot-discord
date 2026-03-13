@@ -3,11 +3,7 @@ import {
   InteractionHandler,
   InteractionHandlerTypes
 } from '@sapphire/framework'
-import {
-  ChatInputCommandInteraction,
-  ModalSubmitInteraction,
-  userMention
-} from 'discord.js'
+import { ModalSubmitInteraction, userMention } from 'discord.js'
 
 import { NormalError } from '~/core/errorResponse'
 
@@ -33,9 +29,7 @@ export class ModalVoiceTrustUser extends InteractionHandler {
     if (interaction.customId !== CUSTOM_ID.MODAL_VOICE_TRUST_USER)
       return this.none()
 
-    const { profile } = await TempVoiceContextService.get(
-      interaction as unknown as ChatInputCommandInteraction
-    )
+    const { profile, channel } = await TempVoiceContextService.get(interaction)
 
     const trustedList = await TempVoiceTrustedMemberRepository.listByOwner(
       interaction.guildId!,
@@ -43,7 +37,11 @@ export class ModalVoiceTrustUser extends InteractionHandler {
     )
     const previouslyTrustedUsers = trustedList.map((t) => t.userId)
 
-    return this.some({ previouslyTrustedUsers, ownerId: profile.ownerId })
+    return this.some({
+      previouslyTrustedUsers,
+      ownerId: profile.ownerId,
+      channel
+    })
   }
 
   /**
@@ -58,7 +56,7 @@ export class ModalVoiceTrustUser extends InteractionHandler {
   ) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    const { previouslyTrustedUsers, ownerId } = result
+    const { previouslyTrustedUsers, ownerId, channel } = result
 
     const selectedUsersCollection = interaction.fields.getSelectedUsers(
       CUSTOM_ID.SELECT_VOICE_TRUST_USER
@@ -83,10 +81,6 @@ export class ModalVoiceTrustUser extends InteractionHandler {
     if (toRemove.length === 0 && toAdd.length === 0) {
       throw new NormalError('Không có thay đổi nào được thực hiện.')
     }
-
-    const { channel } = await TempVoiceContextService.get(
-      interaction as unknown as ChatInputCommandInteraction
-    )
 
     // Handle removal of trusted members and their permission overwrites
     const removePromises = toRemove.map(async (userId) => {

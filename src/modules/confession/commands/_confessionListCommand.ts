@@ -5,7 +5,7 @@ import {
   type ChatInputCommandInteraction
 } from 'discord.js'
 
-import { Confession } from 'generated/prisma/client'
+import { Prisma } from 'generated/prisma/client'
 import { ConfessionStatus } from 'generated/prisma/enums'
 
 import { ListBuilder } from '~/shared/components/ListBuilder'
@@ -125,8 +125,7 @@ export class ConfessionListCommand {
   }
 
   public static createListResponse(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    confessions: (Confession & { author?: any })[],
+    confessions: Prisma.ConfessionGetPayload<{ include: { author: true } }>[],
     meta: ConfessionListMeta
   ) {
     const statusText = !meta.status
@@ -152,7 +151,7 @@ export class ConfessionListCommand {
       if (!cfs.isAnonymous) {
         fieldList.push([
           'Người gửi',
-          cfs.author ? `<@${cfs.author.id}>` : 'Không rõ'
+          cfs.author ? `<@${cfs.author.userId}>` : 'Không rõ'
         ])
       }
 

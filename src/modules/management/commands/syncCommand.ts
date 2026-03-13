@@ -1,9 +1,9 @@
 import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Command } from '@sapphire/framework'
-import { ChatInputCommandInteraction, GuildMember } from 'discord.js'
+import { ChatInputCommandInteraction } from 'discord.js'
 
-import { GuildMemberRepository } from '~/shared/repositories/guildMemberRepository'
 import { GuildRepository } from '~/shared/repositories/guildRepository'
+import { GuildMemberSyncService } from '~/shared/services/guildMemberSyncService'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 
 @RegisterChatInputCommand((builder) =>
@@ -24,46 +24,17 @@ export class SyncCommand extends Command {
 
     await GuildRepository.upsert(guild.id)
 
-    let after: string | undefined
-    const allMembers: GuildMember[] = []
-
-    while (true) {
-      const chunk = await guild.members.list({
-        limit: 100,
-        after
-      })
-
-      if (chunk.size === 0) break
-
-      const users = chunk.filter((m) => !m.user.bot)
-
-      allMembers.push(...users.values())
-
-      after = chunk.last()?.id
-    }
-
-    if (allMembers.length === 0) {
-      await InteractionUtil.replySuccess(
-        interaction,
-        'Đồng bộ hoàn tất, không có thành viên nào cần đồng bộ.'
-      )
-      return
-    }
-
-    const membersData = allMembers.map((m) => ({
-      guildId: guild.id,
-      userId: m.id
-    }))
-
-    const result = await GuildMemberRepository.createMany(membersData)
+    const totalSynced = await GuildMemberSyncService.syncGuild(guild)
 
     this.container.logger.info(
-      `[Sync Command] Synced ${result.count} members for guild ${guild.name}`
+      `[Sync Command] Synced ${totalSynced} members for guild ${guild.name}`
     )
 
     await InteractionUtil.replySuccess(
       interaction,
-      `Đồng bộ hoàn tất, đã đồng bộ **${result.count}** thành viên vào cơ sở dữ liệu.`
+      totalSynced === 0
+        ? 'Đồng bộ hoàn tất, không có thành viên nào cần đồng bộ.'
+        : `Đồng bộ hoàn tất, đã đồng bộ **${totalSynced}** thành viên vào cơ sở dữ liệu.`
     )
   }
 }

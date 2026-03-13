@@ -101,8 +101,9 @@ export class VoiceStateTempVoiceListener extends Listener {
         : (createChannel.parentId ?? undefined)
 
     const defaultName = `Phòng của ${member.displayName || member.user.username}`
+    // Reuse the `existing` variable from the earlier lookup to avoid a duplicate DB query
     const profile =
-      (await TempVoiceProfileRepository.findByOwnerId(guild.id, member.id)) ??
+      existing ??
       (await TempVoiceProfileRepository.upsertProfile({
         guildId: guild.id,
         ownerId: member.id,

@@ -4,9 +4,16 @@ import { VipType } from 'generated/prisma/client'
 
 import { TIME } from '~/shared/constants/timeConstant'
 
+/**
+ * Repository for managing VIP statuses and custom roles.
+ * Handles persistence for VIP membership types and member-owned custom roles.
+ */
 export class VipRepository {
   /**
-   * Find VIP status for a member
+   * Finds the VIP status for a specific guild member.
+   * @param guildId The ID of the guild.
+   * @param userId The ID of the member.
+   * @returns The VIP status record if found, otherwise null.
    */
   public static async findStatus(guildId: string, userId: string) {
     return container.prisma.vipStatus.findUnique({
@@ -15,7 +22,12 @@ export class VipRepository {
   }
 
   /**
-   * Upsert VIP status
+   * Creates or updates the VIP status for a guild member.
+   * @param guildId The ID of the guild.
+   * @param userId The ID of the member.
+   * @param type The type of VIP membership.
+   * @param [expireAt] The expiration date for LIMITED VIP types.
+   * @returns The upserted VIP status record.
    */
   public static async upsertStatus(
     guildId: string,
@@ -31,7 +43,10 @@ export class VipRepository {
   }
 
   /**
-   * Remove VIP status
+   * Removes the VIP status for a specific guild member.
+   * @param guildId The ID of the guild.
+   * @param userId The ID of the member.
+   * @returns The deleted record, or null if the record did not exist.
    */
   public static async removeStatus(guildId: string, userId: string) {
     return container.prisma.vipStatus
@@ -42,7 +57,10 @@ export class VipRepository {
   }
 
   /**
-   * Find custom role for a member
+   * Finds the custom role record for a guild member.
+   * @param guildId The ID of the guild.
+   * @param userId The ID of the member.
+   * @returns The custom role record if found, otherwise null.
    */
   public static async findCustomRole(guildId: string, userId: string) {
     return container.prisma.customRole.findUnique({
@@ -51,7 +69,13 @@ export class VipRepository {
   }
 
   /**
-   * Upsert custom role info
+   * Creates or updates a custom role record for a member.
+   * @param guildId The ID of the guild.
+   * @param userId The ID of the member.
+   * @param data The custom role data.
+   * @param data.roleId The Discord Snowflake ID of the custom role.
+   * @param [data.deletedAt] Optional date for scheduled deletion (Grace Period).
+   * @returns The upserted custom role record.
    */
   public static async upsertCustomRole(
     guildId: string,
@@ -69,7 +93,10 @@ export class VipRepository {
   }
 
   /**
-   * Mark custom role for deletion (Grace Period)
+   * Marks a custom role for deletion by setting a grace period expiration.
+   * @param guildId The ID of the guild.
+   * @param userId The ID of the member.
+   * @returns The updated record with the deletion date set, or null if the record did not exist.
    */
   public static async markRoleForDeletion(guildId: string, userId: string) {
     const deletedAt = new Date(Date.now() + TIME.D7)
@@ -83,7 +110,9 @@ export class VipRepository {
   }
 
   /**
-   * Find all expired VIPs
+   * Finds all VIP statuses that have expired.
+   * Only checks for 'LIMITED' type memberships.
+   * @returns A list of expired VIP status records.
    */
   public static async findExpiredVips() {
     return container.prisma.vipStatus.findMany({
@@ -95,7 +124,8 @@ export class VipRepository {
   }
 
   /**
-   * Find all roles marked for deletion that have passed the grace period
+   * Finds all custom roles whose grace period for deletion has expired.
+   * @returns A list of custom role records ready for cleanup.
    */
   public static async findRolesToCleanup() {
     return container.prisma.customRole.findMany({
@@ -106,7 +136,10 @@ export class VipRepository {
   }
 
   /**
-   * Permanently delete a custom role from DB
+   * Permanently deletes a custom role record from the database.
+   * @param guildId The ID of the guild.
+   * @param userId The ID of the member.
+   * @returns The deleted record, or null if it did not exist.
    */
   public static async deleteCustomRole(guildId: string, userId: string) {
     return container.prisma.customRole
@@ -114,17 +147,5 @@ export class VipRepository {
         where: { guildId_userId: { guildId, userId } }
       })
       .catch(() => null)
-  }
-
-  /**
-   * Finds a custom role by its Discord role ID.
-   *
-   * @param roleId - The Discord Snowflake ID of the role.
-   * @returns A promise resolving to the custom role record or null.
-   */
-  public static async findCustomRoleByRoleId(roleId: string) {
-    return container.prisma.customRole.findUnique({
-      where: { roleId }
-    })
   }
 }

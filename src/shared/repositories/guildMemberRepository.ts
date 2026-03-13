@@ -1,6 +1,5 @@
 // Shared repository for managing guild member data
 import { container } from '@sapphire/pieces'
-import type { Client } from 'discord.js'
 
 import { Prisma } from 'generated/prisma/client'
 
@@ -55,27 +54,5 @@ export class GuildMemberRepository {
       update: {},
       create: data
     })
-  }
-
-  /**
-   * Syncs all non-bot members across all guilds the bot is in.
-   * Used at startup to catch any members who joined while the bot was offline.
-   *
-   * @param client - The connected Discord client.
-   */
-  public static async syncAllGuilds(client: Client<true>) {
-    for (const guild of client.guilds.cache.values()) {
-      const members = await guild.members.fetch()
-
-      const data = members
-        .filter((m) => !m.user.bot)
-        .map((m) => ({ guildId: guild.id, userId: m.id }))
-
-      const result = await this.createMany(data)
-
-      container.logger.info(
-        `[Ready] Synced ${result.count} members for guild ${guild.name}`
-      )
-    }
   }
 }

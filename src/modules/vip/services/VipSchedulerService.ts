@@ -1,4 +1,5 @@
 import { container } from '@sapphire/pieces'
+import type { Client } from 'discord.js'
 
 import { VipRepository } from '~/modules/vip/repositories/vipRepository'
 
@@ -11,6 +12,35 @@ export class VipSchedulerService {
   public static async runChecks() {
     await this.checkExpirations()
     await this.cleanupRoles()
+  }
+
+  /**
+   * Sync booster VIP for all members currently boosting across all guilds.
+   * Grants BOOSTER VIP to anyone who is boosting but has no existing VIP status.
+   * Should be called on bot ready to catch boosts that happened while bot was offline.
+   */
+  public static async syncBoosters(client: Client<true>) {
+    for (const guild of client.guilds.cache.values()) {
+      const members = await guild.members.fetch().catch(() => null)
+      if (!members) continue
+
+      for (const member of members.values()) {
+        if (!member.premiumSince) continue
+
+        const vipStatus = await VipRepository.findStatus(guild.id, member.id)
+        if (!vipStatus) {
+          await VipService.grantVip(member, 'BOOSTER').catch((err) => {
+            container.logger.error(
+              `[VipSchedulerService] Failed to sync BOOSTER VIP for ${member.user.tag} in ${guild.name}:`,
+              err
+            )
+          })
+          container.logger.info(
+            `[VipSchedulerService] Synced BOOSTER VIP for ${member.user.tag} (${member.id}) in ${guild.name}`
+          )
+        }
+      }
+    }
   }
 
   /**

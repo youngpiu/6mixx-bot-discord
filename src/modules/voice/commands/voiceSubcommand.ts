@@ -195,6 +195,7 @@ import { VoiceUnlockCommand } from '~/modules/voice/commands/_voiceUnlockCommand
     {
       name: 'invite',
       chatInputRun: 'chatInputInvite',
+      preconditions: ['TempVoiceChannelOnly'],
       cooldownDelay: TIME.S15,
       cooldownLimit: 1
     },

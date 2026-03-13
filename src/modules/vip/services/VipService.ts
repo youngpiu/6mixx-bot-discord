@@ -8,6 +8,24 @@ import { SettingRepository } from '~/shared/repositories/settingRepository'
 
 import { VipRepository } from '~/modules/vip/repositories/vipRepository'
 
+/**
+ * Cancel any pending vipExpire scheduled task for a specific user.
+ * Used before rescheduling to avoid duplicate tasks in the queue.
+ */
+async function cancelVipExpireTask(guildId: string, userId: string) {
+  const jobs = await container.tasks.list({ types: ['delayed', 'waiting'] })
+  for (const job of jobs) {
+    const data = job.data as { guildId?: string; userId?: string }
+    if (
+      job.name === 'vipExpire' &&
+      data?.guildId === guildId &&
+      data?.userId === userId
+    ) {
+      await job.remove().catch(() => null)
+    }
+  }
+}
+
 export class VipService {
   /**
    * Grant VIP status to a member
@@ -29,6 +47,9 @@ export class VipService {
 
     // 2. Update VIP Status in DB
     await VipRepository.upsertStatus(guildId, userId, type, expireAt)
+
+    // Cancel any existing expiration task before scheduling a new one
+    await cancelVipExpireTask(guildId, userId)
 
     // Schedule expiration task if it's LIMITED
     if (type === 'LIMITED' && expireAt) {
@@ -110,6 +131,9 @@ export class VipService {
     // 1. Remove VIP Status from DB
     await VipRepository.removeStatus(guildId, userId)
 
+    // Cancel any pending expiration task
+    await cancelVipExpireTask(guildId, userId)
+
     // 2. Remove role from member if they are still in server
     const member = await guild.members.fetch(userId).catch(() => null)
     const customRole = await VipRepository.findCustomRole(guildId, userId)
@@ -155,17 +179,6 @@ export class VipService {
 
     if (data.icon) {
       await role.setIcon(data.icon)
-    }
-
-    // Update DB
-    const guildId = role.guild.id
-    // We need to find which user this role belongs to
-    const customRoleEntry = await VipRepository.findCustomRoleByRoleId(role.id)
-
-    if (customRoleEntry) {
-      await VipRepository.upsertCustomRole(guildId, customRoleEntry.userId, {
-        roleId: role.id
-      })
     }
   }
 }

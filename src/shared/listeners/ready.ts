@@ -3,7 +3,7 @@ import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
 import type { Client } from 'discord.js'
 
-import { GuildMemberRepository } from '~/shared/repositories/guildMemberRepository'
+import { GuildMemberSyncService } from '~/shared/services/guildMemberSyncService'
 
 import { VipSchedulerService } from '~/modules/vip/services/VipSchedulerService'
 import { WordChainRedisService } from '~/modules/word-chain/services/WordChainRedisService'
@@ -53,7 +53,7 @@ export class ReadyListener extends Listener {
           err
         )
       }),
-      GuildMemberRepository.syncAllGuilds(client).catch((err) => {
+      GuildMemberSyncService.syncAllGuilds(client).catch((err) => {
         this.container.logger.error(
           '[Ready] Failed to sync guild members:',
           err

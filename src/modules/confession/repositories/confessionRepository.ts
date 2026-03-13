@@ -2,7 +2,7 @@ import { container } from '@sapphire/pieces'
 
 import { Prisma } from 'generated/prisma/client'
 import { ConfessionStatus } from 'generated/prisma/enums'
-import type { ConfessionUncheckedCreateInput } from 'generated/prisma/models/Confession'
+import { ConfessionUncheckedCreateInput } from 'generated/prisma/models'
 
 import { TIME } from '~/shared/constants/timeConstant'
 import { CounterRepository } from '~/shared/repositories/counterRepository'
@@ -111,12 +111,13 @@ export class ConfessionRepository {
 
     // Reconstruct Date objects from cached JSON string
     return {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      confessions: cached.confessions.map((cfs: any) => ({
-        ...cfs,
-        createdAt: new Date(cfs.createdAt),
-        updatedAt: new Date(cfs.updatedAt)
-      })),
+      confessions: cached.confessions.map(
+        (cfs: Prisma.ConfessionGetPayload<{ include: { author: true } }>) => ({
+          ...cfs,
+          createdAt: new Date(cfs.createdAt),
+          updatedAt: new Date(cfs.updatedAt)
+        })
+      ),
       total: cached.total
     }
   }

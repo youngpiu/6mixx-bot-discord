@@ -1,8 +1,9 @@
 // Repository for managing donation records and statistics in the database
 import { container } from '@sapphire/pieces'
 
+import { Prisma } from 'generated/prisma/client'
 import { DonationStatus } from 'generated/prisma/enums'
-import type { DonationUncheckedCreateInput } from 'generated/prisma/models/Donation'
+import { DonationUncheckedCreateInput } from 'generated/prisma/models'
 
 import { TIME } from '~/shared/constants/timeConstant'
 import { CounterRepository } from '~/shared/repositories/counterRepository'
@@ -26,7 +27,10 @@ export class DonateRepository {
 
         const donation = await container.prisma.donation.create({
           data: {
-            ...data,
+            guildId: data.guildId,
+            donorId: data.donorId,
+            amount: data.amount,
+            message: data.message,
             code
           },
           include: {
@@ -38,8 +42,10 @@ export class DonateRepository {
         return donation
       } catch (error: unknown) {
         // Unique constraint failed on the fields: (`code`) (Prisma error P2002)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((error as any).code === 'P2002') {
+        if (
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === 'P2002'
+        ) {
           retries--
           continue
         }
