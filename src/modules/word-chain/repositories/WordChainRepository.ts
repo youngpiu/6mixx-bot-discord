@@ -95,4 +95,50 @@ export class WordChainRepository {
       skipDuplicates: true
     })
   }
+
+  /**
+   * Retrieves all Vietnamese phrases from the database.
+   */
+  public static async findAllViPhrases() {
+    return container.prisma.vietnamesePhrase.findMany()
+  }
+
+  /**
+   * Retrieves all English words from the database.
+   */
+  public static async findAllEnWords() {
+    return container.prisma.englishWord.findMany()
+  }
+
+  /**
+   * Counts the total number of Vietnamese phrases.
+   */
+  public static async countViPhrases() {
+    return container.prisma.vietnamesePhrase.count()
+  }
+
+  /**
+   * Finds a random Vietnamese phrase using skip.
+   */
+  public static async findRandomViPhrase(skip: number) {
+    return container.prisma.vietnamesePhrase.findFirst({
+      skip
+    })
+  }
+
+  /**
+   * Counts the total number of English words.
+   */
+  public static async countEnWords() {
+    return container.prisma.englishWord.count()
+  }
+
+  /**
+   * Finds a random English word using skip.
+   */
+  public static async findRandomEnWord(skip: number) {
+    return container.prisma.englishWord.findFirst({
+      skip
+    })
+  }
 }

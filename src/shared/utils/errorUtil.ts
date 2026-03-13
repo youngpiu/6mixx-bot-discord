@@ -10,7 +10,6 @@ import {
   SystemError
 } from '~/core/errorResponse'
 
-import { LoggerBuilder } from '~/shared/components/LoggerBuilder'
 import { env } from '~/shared/config/env'
 import { TIME } from '~/shared/constants/timeConstant'
 import { SettingRepository } from '~/shared/repositories/settingRepository'
@@ -19,6 +18,7 @@ import {
   MessageUtil,
   type RepliableInteraction
 } from '~/shared/utils/messageUtil'
+import { formatFields, lines } from '~/shared/utils/textUtil'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -93,21 +93,21 @@ const buildErrorEmbed = (
     error instanceof Error ? (error.stack ?? error.message) : String(error)
   const { user } = context
 
-  const logger = new LoggerBuilder({ title }).addFields([
-    ['Time', timestamp],
-    ...(user?.tag ? [['User', `<@${user.id}>`] as [string, string]] : []),
-    ...(context.commandName
-      ? [['Command', `\`${context.commandName}\``] as [string, string]]
-      : [])
-  ])
+  const fields: [string, string][] = [['Time', timestamp]]
+  if (user?.tag) fields.push(['User', `<@${user.id}>`])
+  if (context.commandName)
+    fields.push(['Command', `\`${context.commandName}\``])
 
-  const container = logger.getContainer()
-  container.addSeparatorComponents((s) => s)
-  container.addTextDisplayComponents((t) =>
-    t.setContent('```js\n' + errorDetails.slice(0, 3800) + '\n```')
-  )
-
-  return container
+  return new ContainerBuilder()
+    .addTextDisplayComponents((t) => t.setContent(`### ${title}`))
+    .addSeparatorComponents((s) => s)
+    .addTextDisplayComponents((t) =>
+      t.setContent(lines(...formatFields(fields, '- ')))
+    )
+    .addSeparatorComponents((s) => s)
+    .addTextDisplayComponents((t) =>
+      t.setContent('```js\n' + errorDetails.slice(0, 3800) + '\n```')
+    )
 }
 
 // ─── Notification ─────────────────────────────────────────────────────────────

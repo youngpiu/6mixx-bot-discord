@@ -1,6 +1,8 @@
 import { ApplyOptions } from '@sapphire/decorators'
 import { ScheduledTask } from '@sapphire/plugin-scheduled-tasks'
 
+import { SettingRepository } from '~/shared/repositories/settingRepository'
+
 import { IChartService } from '~/modules/status/services/IChartService'
 
 /**
@@ -24,14 +26,7 @@ export class IChartFetchTask extends ScheduledTask {
     // For now, we fetch for all guilds that have an ichartSongId set.
     // In a real production bot with many guilds, this might need a more optimized approach
     // such as a single global song list or a more efficient queue.
-    const guilds = await this.container.prisma.guildSetting.findMany({
-      where: {
-        ichartSongId: { not: null }
-      },
-      select: {
-        ichartSongId: true
-      }
-    })
+    const guilds = await SettingRepository.findManyWithIChart()
 
     const songIds = [...new Set(guilds.map((g) => g.ichartSongId!))]
 

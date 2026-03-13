@@ -2,6 +2,8 @@ import { ApplyOptions } from '@sapphire/decorators'
 import { ScheduledTask } from '@sapphire/plugin-scheduled-tasks'
 import { ActivityType } from 'discord.js'
 
+import { SettingRepository } from '~/shared/repositories/settingRepository'
+
 import { IChartService } from '~/modules/status/services/IChartService'
 
 /**
@@ -25,16 +27,7 @@ export class StatusRotationTask extends ScheduledTask {
    * and updates the bot's presence.
    */
   public override async run() {
-    const guilds = await this.container.prisma.guildSetting.findMany({
-      where: {
-        ichartSongId: { not: null },
-        ichartSongName: { not: null }
-      },
-      select: {
-        ichartSongId: true,
-        ichartSongName: true
-      }
-    })
+    const guilds = await SettingRepository.findManyWithIChart()
 
     const config = guilds[0]
     if (!config) return

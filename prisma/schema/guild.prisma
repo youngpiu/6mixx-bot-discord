@@ -29,6 +29,7 @@ model GuildSetting {
   /// --- General Config ---
   serviceForumChannelId      String?
   notificationForumChannelId String?
+  vipTutorialThreadId        String?
   errorNotificationThreadId  String?
 
   /// --- Ticket Config ---
@@ -57,6 +58,9 @@ model GuildSetting {
   /// --- iChart Config ---
   ichartSongId   String?
   ichartSongName String?
+
+  /// --- VIP Config ---
+  vipAnchorRoleId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

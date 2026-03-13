@@ -86,6 +86,14 @@ export class SettingCommand extends Command {
             .setStyle(ButtonStyle.Secondary)
         )
       )
+      .addActionRowComponents((row) =>
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_SETTING_VIP_ANCHOR)
+            .setLabel('Cài đặt vai trò neo')
+            .setStyle(ButtonStyle.Secondary)
+        )
+      )
 
     await InteractionUtil.editReply(interaction, {
       components: [container],

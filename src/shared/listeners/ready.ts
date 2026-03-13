@@ -3,6 +3,7 @@ import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
 import type { Client } from 'discord.js'
 
+import { VipSchedulerService } from '~/modules/vip/services/VipSchedulerService'
 import { WordChainRedisService } from '~/modules/word-chain/services/WordChainRedisService'
 import { WordChainService } from '~/modules/word-chain/services/WordChainService'
 
@@ -41,6 +42,12 @@ export class ReadyListener extends Listener {
       WordChainService.initEnDictionary().catch((err) => {
         this.container.logger.error(
           '[Ready] Failed to load English dictionary:',
+          err
+        )
+      }),
+      VipSchedulerService.runChecks().catch((err) => {
+        this.container.logger.error(
+          '[Ready] Failed to run VIP startup checks:',
           err
         )
       })

@@ -32,6 +32,9 @@ model GuildMember {
 
   tempVoiceProfiles  TempVoiceProfile[]       @relation("TempVoiceOwner")
   tempVoiceTrustedIn TempVoiceTrustedMember[] @relation("TempVoiceTrustedUser")
+  
+  vipStatus  VipStatus?
+  customRole CustomRole?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

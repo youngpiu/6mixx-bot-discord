@@ -1,0 +1,87 @@
+import { container } from '@sapphire/pieces'
+
+import { VipRepository } from '~/modules/vip/repositories/vipRepository'
+
+import { VipService } from './VipService'
+
+export class VipSchedulerService {
+  /**
+   * Run background checks for expired VIPs and cleanup roles (Startup/Manual)
+   */
+  public static async runChecks() {
+    await this.checkExpirations()
+    await this.cleanupRoles()
+  }
+
+  /**
+   * Handle single VIP expiration (Task-based)
+   */
+  public static async handleExpiration(guildId: string, userId: string) {
+    const guild = await container.client.guilds.fetch(guildId).catch(() => null)
+    if (!guild) return
+
+    // Verify if it's still expired (in case of manual renewal)
+    const vip = await VipRepository.findStatus(guildId, userId)
+    if (
+      vip &&
+      vip.type === 'LIMITED' &&
+      vip.expireAt &&
+      vip.expireAt <= new Date()
+    ) {
+      await VipService.revokeVip(guild, userId)
+      container.logger.info(
+        `[VipSchedulerService] Revoked expired VIP for user ${userId} in guild ${guildId} via task`
+      )
+    }
+  }
+
+  /**
+   * Handle single role cleanup (Task-based)
+   */
+  public static async handleCleanup(guildId: string, userId: string) {
+    const customRole = await VipRepository.findCustomRole(guildId, userId)
+    if (
+      !customRole ||
+      !customRole.deletedAt ||
+      customRole.deletedAt > new Date()
+    )
+      return
+
+    const guild = await container.client.guilds.fetch(guildId).catch(() => null)
+    if (guild) {
+      const role = await guild.roles.fetch(customRole.roleId).catch(() => null)
+      if (role) {
+        await role
+          .delete(`VIP Grace Period (7 days) expired. Permanent deletion.`)
+          .catch(() => null)
+      }
+    }
+
+    await VipRepository.deleteCustomRole(guildId, userId)
+    container.logger.info(
+      `[VipSchedulerService] Permanently deleted custom role ${customRole.roleId} for user ${userId} via task`
+    )
+  }
+
+  /**
+   * Check for expired LIMITED VIPs (Recovery)
+   */
+  private static async checkExpirations() {
+    const expiredVips = await VipRepository.findExpiredVips()
+
+    for (const vip of expiredVips) {
+      await this.handleExpiration(vip.guildId, vip.userId)
+    }
+  }
+
+  /**
+   * Cleanup roles that passed the 7-day grace period (Recovery)
+   */
+  private static async cleanupRoles() {
+    const rolesToCleanup = await VipRepository.findRolesToCleanup()
+
+    for (const roleData of rolesToCleanup) {
+      await this.handleCleanup(roleData.guildId, roleData.userId)
+    }
+  }
+}

@@ -1,0 +1,38 @@
+enum VipType {
+  PERMANENT
+  LIMITED
+  BOOSTER
+}
+
+/// Trạng thái VIP của người dùng trong server
+model VipStatus {
+  id        String    @id @default(cuid())
+  guildId   String
+  userId    String
+  type      VipType
+  expireAt  DateTime? // Dùng cho loại LIMITED
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  member GuildMember @relation(fields: [guildId, userId], references: [guildId, userId], onDelete: Cascade)
+
+  @@unique([guildId, userId])
+  @@index([guildId])
+  @@index([expireAt])
+}
+
+model CustomRole {
+  id             String    @id @default(cuid())
+  guildId        String
+  userId         String
+  roleId         String    @unique
+  deletedAt      DateTime? // Đánh dấu xóa (Grace Period 7 ngày)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  member GuildMember @relation(fields: [guildId, userId], references: [guildId, userId], onDelete: Cascade)
+
+  @@unique([guildId, userId])
+  @@index([guildId])
+  @@index([deletedAt])
+}

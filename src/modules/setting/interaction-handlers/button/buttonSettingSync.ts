@@ -56,6 +56,11 @@ const GUIDE_CONFIGS = [
     threadIdKey: 'donationTutorialThreadId',
     threadName: '💝 NƠI GÓP GẠCH NUÔI BOT 💝',
     generatorButtonId: 'btn-donation-send'
+  },
+  {
+    threadIdKey: 'vipTutorialThreadId',
+    threadName: '✨ NƠI TUỲ CHỈNH VAI TRÒ ✨',
+    generatorButtonId: 'btn-vip-send'
   }
 ] as const
 
@@ -200,9 +205,60 @@ export class ButtonSettingSync extends InteractionHandler {
         return this.createTicketGuide()
       case 'btn-donation-send':
         return this.createDonationGuide()
+      case 'btn-vip-send':
+        return this.createVipGuide()
       default:
         return new ContainerBuilder()
     }
+  }
+
+  private createVipGuide(): ContainerBuilder {
+    return new ContainerBuilder()
+      .addTextDisplayComponents((text) =>
+        text.setContent(
+          lines(
+            `### ${ANIMATED_EMOJI.WING_LEFT} **NƠI TUỲ CHỈNH VAI TRÒ** ${ANIMATED_EMOJI.WING_RIGHT}`,
+            `-# Tại đây, bạn có thể **tự do thay đổi** các thuộc tính cho **vai trò đặc biệt** của mình.`
+          )
+        )
+      )
+      .addSeparatorComponents((sep) => sep)
+      .addTextDisplayComponents((text) =>
+        text.setContent(
+          lines(
+            '- **Bạn có thể thay đổi:**',
+            '  - **Tên vai trò:** Hiển thị trên danh sách thành viên.',
+            '  - **Màu sắc:** Sử dụng mã màu HEX.',
+            '  - **Biểu tượng:** Một biểu tượng nhỏ hiển thị ngay cạnh tên của bạn.'
+          )
+        )
+      )
+      .addSeparatorComponents((sep) => sep)
+      .addTextDisplayComponents((text) =>
+        text.setContent(
+          lines(
+            '- **Lưu ý:**',
+            '  - Tên vai trò không được **vi phạm nội quy** máy chủ.'
+          )
+        )
+      )
+      .addSeparatorComponents((sep) => sep)
+      .addActionRowComponents((row) =>
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_VIP_EDIT_NAME)
+            .setLabel('Đổi tên')
+            .setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_VIP_EDIT_COLOR)
+            .setLabel('Đổi màu')
+            .setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_VIP_EDIT_ICON)
+            .setLabel('Đổi biểu tượng')
+            .setStyle(ButtonStyle.Secondary)
+        )
+      )
   }
 
   private createConfessionGuide(): ContainerBuilder {
@@ -232,7 +288,7 @@ export class ButtonSettingSync extends InteractionHandler {
         text.setContent(
           lines(
             '- **Cam kết:**',
-            '  - Mọi confession được gửi **dưới dạng ẩn danh** sẽ **không tiết lộ danh tính người gửi**, kể cả **Ban quản lý**.'
+            '  - Mọi confession được gửi **ẩn danh** sẽ **không tiết lộ danh tính người gửi** cho bất kỳ ai, kể cả **Ban quản lý**.'
           )
         )
       )

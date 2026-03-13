@@ -136,5 +136,20 @@ export const CUSTOM_ID = {
   MODAL_VOICE_TRUST_ROLE: 'modal-voice-trust-role',
   SELECT_VOICE_TRUST_ROLE: 'select-voice-trust-role',
   SELECT_VOICE_KICK: 'select-voice-kick',
-  SELECT_VOICE_INVITE: 'select-voice-invite'
+  SELECT_VOICE_INVITE: 'select-voice-invite',
+
+  // VIP
+  BTN_VIP_EDIT_NAME: 'btn-vip-edit-name',
+  BTN_VIP_EDIT_COLOR: 'btn-vip-edit-color',
+  BTN_VIP_EDIT_ICON: 'btn-vip-edit-icon',
+  MODAL_VIP_ADD: 'modal-vip-add',
+  MODAL_VIP_EDIT_NAME: 'modal-vip-edit-name',
+  MODAL_VIP_EDIT_COLOR: 'modal-vip-edit-color',
+  MODAL_VIP_EDIT_ICON: 'modal-vip-edit-icon',
+  SELECT_VIP_ADD_USER: 'select-vip-add-user',
+  SELECT_VIP_ADD_TYPE: 'select-vip-add-type',
+  SELECT_VIP_ADD_DURATION: 'select-vip-add-duration',
+  BTN_SETTING_VIP_ANCHOR: 'btn-setting-vip-anchor',
+  MODAL_SETTING_VIP_ANCHOR: 'modal-setting-vip-anchor',
+  SELECT_SETTING_VIP_ANCHOR_ROLE: 'select-setting-vip-anchor-role'
 } as const

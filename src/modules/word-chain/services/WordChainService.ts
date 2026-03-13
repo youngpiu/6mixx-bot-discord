@@ -41,7 +41,7 @@ export class WordChainService {
     let totalCount = 0
 
     if (isVi) {
-      const phrases = await container.prisma.vietnamesePhrase.findMany()
+      const phrases = await WordChainRepository.findAllViPhrases()
       totalCount = phrases.length
       for (const p of phrases) {
         const list = grouped.get(p.firstWord) ?? []
@@ -49,7 +49,7 @@ export class WordChainService {
         grouped.set(p.firstWord, list)
       }
     } else {
-      const words = await container.prisma.englishWord.findMany()
+      const words = await WordChainRepository.findAllEnWords()
       totalCount = words.length
       for (const w of words) {
         const list = grouped.get(w.firstLetter) ?? []
@@ -97,19 +97,17 @@ export class WordChainService {
     let usedWordGroupKey: string // firstWord (vi) or firstLetter (en)
 
     if (mode === 'vi') {
-      const count = await container.prisma.vietnamesePhrase.count()
+      const count = await WordChainRepository.countViPhrases()
       if (count === 0) return false
 
       // Retry until we find a start phrase whose lastWord has continuations
       const MAX_START_ATTEMPTS = 20
       let startPhrase: Awaited<
-        ReturnType<typeof container.prisma.vietnamesePhrase.findFirst>
+        ReturnType<typeof WordChainRepository.findRandomViPhrase>
       > = null
       for (let i = 0; i < MAX_START_ATTEMPTS; i++) {
         const skip = Math.floor(Math.random() * count)
-        const candidate = await container.prisma.vietnamesePhrase.findFirst({
-          skip
-        })
+        const candidate = await WordChainRepository.findRandomViPhrase(skip)
         if (!candidate) continue
         const continuations = await WordChainRedisService.countViStartingWith(
           candidate.lastWord
@@ -125,11 +123,11 @@ export class WordChainService {
       currentLastWord = startPhrase.lastWord
       usedWordGroupKey = startPhrase.firstWord
     } else {
-      const count = await container.prisma.englishWord.count()
+      const count = await WordChainRepository.countEnWords()
       if (count === 0) return false
 
       const skip = Math.floor(Math.random() * count)
-      const word = await container.prisma.englishWord.findFirst({ skip })
+      const word = await WordChainRepository.findRandomEnWord(skip)
       if (!word) return false
 
       startWord = word.word
@@ -188,18 +186,11 @@ export class WordChainService {
     // 2. Sort players by score DESC
     const sorted = Object.entries(playersScore).sort(([, a], [, b]) => b - a)
 
-    // 3. Bulk fetch members to avoid rate limits for leaderboard
-    const userIds = sorted.map(([id]) => id)
-    const members = await guild.members
-      .fetch({ user: userIds })
-      .catch(() => null)
-
     const medals = ['🥇', '🥈', '🥉']
     const wordUnit = 'từ'
     const leaderboardLines = sorted.map(([userId, score], index) => {
       const rank = medals[index] ?? `**${index + 1}.**`
-      const member = members?.get(userId)
-      const displayName = member?.displayName ?? `<@${userId}>`
+      const displayName = `<@${userId}>`
       return `${rank} ${displayName} - **${score}** ${wordUnit}`
     })
 

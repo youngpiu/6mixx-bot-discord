@@ -58,4 +58,22 @@ export class SettingRepository {
     await CacheService.invalidate(CACHE_KEY(guildId))
     return setting
   }
+
+  /**
+   * Retrieves all guild settings that have an iChart song configured.
+   *
+   * @returns A promise resolving to an array of guild settings with iChart info.
+   */
+  public static async findManyWithIChart() {
+    return container.prisma.guildSetting.findMany({
+      where: {
+        ichartSongId: { not: null },
+        ichartSongName: { not: null }
+      },
+      select: {
+        ichartSongId: true,
+        ichartSongName: true
+      }
+    })
+  }
 }
