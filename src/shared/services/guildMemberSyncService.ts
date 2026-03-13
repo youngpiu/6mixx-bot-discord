@@ -2,6 +2,7 @@ import { container } from '@sapphire/pieces'
 import type { Client, Guild } from 'discord.js'
 
 import { GuildMemberRepository } from '~/shared/repositories/guildMemberRepository'
+import { GuildRepository } from '~/shared/repositories/guildRepository'
 
 /**
  * Service for syncing guild members to the database via REST API.
@@ -11,12 +12,15 @@ import { GuildMemberRepository } from '~/shared/repositories/guildMemberReposito
 export class GuildMemberSyncService {
   /**
    * Syncs all non-bot members of a single guild to the database.
+   * Ensures the Guild record exists before inserting members to satisfy FK constraints.
    * Paginates through the full member list using REST API (limit 1000 per page).
    *
    * @param guild - The guild to sync.
    * @returns The total number of newly inserted member records.
    */
   public static async syncGuild(guild: Guild): Promise<number> {
+    await GuildRepository.upsert(guild.id)
+
     let after: string | undefined = undefined
     let totalSynced = 0
 
