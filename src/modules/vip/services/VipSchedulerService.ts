@@ -29,6 +29,7 @@ export class VipSchedulerService {
 
         const vipStatus = await VipRepository.findStatus(guild.id, member.id)
         if (!vipStatus) {
+          // Chưa có VIP status → grant mới
           await VipService.grantVip(member, 'BOOSTER').catch((err) => {
             container.logger.error(
               `[VipSchedulerService] Failed to sync BOOSTER VIP for ${member.user.tag} in ${guild.name}:`,
@@ -38,6 +39,30 @@ export class VipSchedulerService {
           container.logger.info(
             `[VipSchedulerService] Synced BOOSTER VIP for ${member.user.tag} (${member.id}) in ${guild.name}`
           )
+        } else {
+          // Đã có VIP status → kiểm tra custom role trên Discord còn tồn tại không
+          const customRole = await VipRepository.findCustomRole(
+            guild.id,
+            member.id
+          )
+          if (customRole) {
+            const roleExists = await guild.roles
+              .fetch(customRole.roleId)
+              .catch(() => null)
+
+            if (!roleExists) {
+              // Role bị xóa khỏi Discord (khi bot offline) → tạo lại
+              await VipService.grantVip(member, vipStatus.type).catch((err) => {
+                container.logger.error(
+                  `[VipSchedulerService] Failed to recreate VIP role for ${member.user.tag} in ${guild.name}:`,
+                  err
+                )
+              })
+              container.logger.info(
+                `[VipSchedulerService] Recreated missing VIP role for ${member.user.tag} (${member.id}) in ${guild.name}`
+              )
+            }
+          }
         }
       }
     }
