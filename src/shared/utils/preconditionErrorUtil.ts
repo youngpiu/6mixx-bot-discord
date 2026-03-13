@@ -134,6 +134,17 @@ export function mapDeniedError(error: UserError): ErrorResponseCore {
     )
   }
 
+  // ── Guild / DM Only (Legacy) ──────────────────────────────────────────────
+  if (id === 'preconditionGuildOnly') {
+    if (isCustomMessage) return new BannedError(error.message)
+    return new BannedError('Lệnh này chỉ có thể sử dụng trong máy chủ.')
+  }
+
+  if (id === 'preconditionDmOnly') {
+    if (isCustomMessage) return new BannedError(error.message)
+    return new BannedError('Lệnh này chỉ có thể sử dụng trong tin nhắn riêng.')
+  }
+
   // ── NSFW ──────────────────────────────────────────────────────────────────
   if (id === Identifiers.PreconditionNSFW) {
     if (isCustomMessage) return new BannedError(error.message)
