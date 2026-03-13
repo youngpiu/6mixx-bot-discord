@@ -72,8 +72,10 @@ export class VipButtonCustomizationHandler extends InteractionHandler {
       case CUSTOM_ID.BTN_VIP_EDIT_COLOR:
         return this.handleEditColor(
           interaction,
-          String(role.colors?.primaryColor || role.hexColor || '#FFFFFF'),
-          String(role.colors?.secondaryColor || '#000000')
+          this.toHexColor(role.colors?.primaryColor) ??
+            role.hexColor ??
+            '#FFFFFF',
+          this.toHexColor(role.colors?.secondaryColor) ?? '#000000'
         )
       case CUSTOM_ID.BTN_VIP_EDIT_ICON:
         return this.handleEditIcon(interaction)
@@ -105,13 +107,18 @@ export class VipButtonCustomizationHandler extends InteractionHandler {
     await interaction.showModal(modal)
   }
 
+  private toHexColor(color: number | null | undefined): string | null {
+    if (color == null || color === 0) return null
+    return `#${color.toString(16).padStart(6, '0').toUpperCase()}`
+  }
+
   private async handleEditColor(
     interaction: ButtonInteraction,
     currentP: string,
     currentS: string
   ) {
     const hasEnhanced = (interaction.guild?.features as string[]).includes(
-      'EnhancedRoleColors'
+      'ENHANCED_ROLE_COLORS'
     )
 
     const modal = new ModalBuilder()
@@ -125,7 +132,7 @@ export class VipButtonCustomizationHandler extends InteractionHandler {
       .setRequired(true)
       .setMinLength(7)
       .setMaxLength(7)
-      .setValue(currentP || '#')
+      .setValue(currentP)
 
     const primaryLabel = new LabelBuilder()
       .setLabel('Màu chính (Primary)')
@@ -142,7 +149,7 @@ export class VipButtonCustomizationHandler extends InteractionHandler {
         .setRequired(false)
         .setMinLength(7)
         .setMaxLength(7)
-        .setValue(currentS || '#')
+        .setValue(currentS)
 
       const secondaryLabel = new LabelBuilder()
         .setLabel('Màu phụ (Secondary)')
@@ -157,7 +164,7 @@ export class VipButtonCustomizationHandler extends InteractionHandler {
 
   private async handleEditIcon(interaction: ButtonInteraction) {
     const hasIcons = (interaction.guild?.features as string[]).includes(
-      'RoleIcons'
+      'ROLE_ICONS'
     )
     if (!hasIcons) {
       return InteractionUtil.replyError(
