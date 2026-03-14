@@ -2,6 +2,7 @@ import {
   ChatInputCommandInteraction,
   LabelBuilder,
   ModalBuilder,
+  RoleSelectMenuBuilder,
   StringSelectMenuBuilder,
   UserSelectMenuBuilder
 } from 'discord.js'
@@ -31,7 +32,8 @@ export class VipAddCommand {
       .setPlaceholder('Chọn loại vai trò VIP...')
       .addOptions(
         { label: 'Vĩnh viễn', value: 'PERMANENT' },
-        { label: 'Giới hạn', value: 'LIMITED' }
+        { label: 'Giới hạn', value: 'LIMITED' },
+        { label: 'Booster', value: 'BOOSTER' }
       )
 
     const typeLabel = new LabelBuilder()
@@ -58,7 +60,18 @@ export class VipAddCommand {
       .setLabel('Thời hạn')
       .setStringSelectMenuComponent(durationSelect)
 
-    modal.addLabelComponents(userLabel, typeLabel, durationLabel)
+    // 4. Role Select
+    const roleSelect = new RoleSelectMenuBuilder()
+      .setCustomId(CUSTOM_ID.SELECT_VIP_ADD_ROLE)
+      .setPlaceholder('Chọn vai trò đã có (Tuỳ chọn)')
+      .setMinValues(0)
+      .setMaxValues(1)
+
+    const roleLabel = new LabelBuilder()
+      .setLabel('Vai trò VIP (Bỏ qua nếu muốn bot tạo mới)')
+      .setRoleSelectMenuComponent(roleSelect)
+
+    modal.addLabelComponents(userLabel, typeLabel, durationLabel, roleLabel)
 
     await interaction.showModal(modal)
   }

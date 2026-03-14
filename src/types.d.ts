@@ -11,3 +11,9 @@ declare module '@sapphire/pieces' {
     redis: Redis
   }
 }
+declare module '@sapphire/plugin-scheduled-tasks' {
+  interface ScheduledTasks {
+    lastFmChart: import('~/modules/lastfm/scheduled-tasks/LastFmChartTask').ChartTaskPayload
+    lastFmSync: never // No payload
+  }
+}

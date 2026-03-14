@@ -37,7 +37,7 @@ export class VipButtonCustomizationHandler extends InteractionHandler {
 
     // Check if user has a VIP status or custom role
     const customRole = await VipRepository.findCustomRole(guildId, userId)
-    if (!customRole) {
+    if (!customRole || !customRole.roleId) {
       return this.some({
         error: 'Bạn không sở hữu vai trò đặc biệt nào để chỉnh sửa.'
       })

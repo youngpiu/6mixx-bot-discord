@@ -16,7 +16,7 @@ export class VipRepository {
    * @returns The VIP status record if found, otherwise null.
    */
   public static async findStatus(guildId: string, userId: string) {
-    return container.prisma.vipStatus.findUnique({
+    return container.prisma.vipRole.findUnique({
       where: { guildId_userId: { guildId, userId } }
     })
   }
@@ -27,18 +27,18 @@ export class VipRepository {
    * @param userId The ID of the member.
    * @param type The type of VIP membership.
    * @param [expireAt] The expiration date for LIMITED VIP types.
-   * @returns The upserted VIP status record.
+   * @returns The upserted VIP role record.
    */
   public static async upsertStatus(
     guildId: string,
     userId: string,
     type: VipType,
-    expireAt?: Date
+    expireAt?: Date | null
   ) {
-    return container.prisma.vipStatus.upsert({
+    return container.prisma.vipRole.upsert({
       where: { guildId_userId: { guildId, userId } },
-      create: { guildId, userId, type, expireAt },
-      update: { type, expireAt }
+      create: { guildId, userId, type, expireAt: expireAt ?? null },
+      update: { type, expireAt: expireAt ?? null }
     })
   }
 
@@ -49,7 +49,7 @@ export class VipRepository {
    * @returns The deleted record, or null if the record did not exist.
    */
   public static async removeStatus(guildId: string, userId: string) {
-    return container.prisma.vipStatus
+    return container.prisma.vipRole
       .delete({
         where: { guildId_userId: { guildId, userId } }
       })
@@ -63,7 +63,7 @@ export class VipRepository {
    * @returns The custom role record if found, otherwise null.
    */
   public static async findCustomRole(guildId: string, userId: string) {
-    return container.prisma.customRole.findUnique({
+    return container.prisma.vipRole.findUnique({
       where: { guildId_userId: { guildId, userId } }
     })
   }
@@ -75,7 +75,7 @@ export class VipRepository {
    * @param data The custom role data.
    * @param data.roleId The Discord Snowflake ID of the custom role.
    * @param [data.deletedAt] Optional date for scheduled deletion (Grace Period).
-   * @returns The upserted custom role record.
+   * @returns The updated custom role record.
    */
   public static async upsertCustomRole(
     guildId: string,
@@ -85,10 +85,14 @@ export class VipRepository {
       deletedAt?: Date | null
     }
   ) {
-    return container.prisma.customRole.upsert({
+    // Note: Since VipRole merges VipStatus and CustomRole,
+    // the user must have already been granted VIP. So we only update.
+    return container.prisma.vipRole.update({
       where: { guildId_userId: { guildId, userId } },
-      create: { guildId, userId, ...data },
-      update: data
+      data: {
+        roleId: data.roleId,
+        deletedAt: data.deletedAt ?? null
+      }
     })
   }
 
@@ -101,7 +105,7 @@ export class VipRepository {
   public static async markRoleForDeletion(guildId: string, userId: string) {
     const deletedAt = new Date(Date.now() + TIME.D7)
 
-    return container.prisma.customRole
+    return container.prisma.vipRole
       .update({
         where: { guildId_userId: { guildId, userId } },
         data: { deletedAt }
@@ -115,7 +119,7 @@ export class VipRepository {
    * @returns A list of expired VIP status records.
    */
   public static async findExpiredVips() {
-    return container.prisma.vipStatus.findMany({
+    return container.prisma.vipRole.findMany({
       where: {
         type: 'LIMITED',
         expireAt: { lte: new Date() }
@@ -128,25 +132,11 @@ export class VipRepository {
    * @returns A list of custom role records ready for cleanup.
    */
   public static async findRolesToCleanup() {
-    return container.prisma.customRole.findMany({
+    return container.prisma.vipRole.findMany({
       where: {
         deletedAt: { lte: new Date() }
       }
     })
-  }
-
-  /**
-   * Permanently deletes a custom role record from the database.
-   * @param guildId The ID of the guild.
-   * @param userId The ID of the member.
-   * @returns The deleted record, or null if it did not exist.
-   */
-  public static async deleteCustomRole(guildId: string, userId: string) {
-    return container.prisma.customRole
-      .delete({
-        where: { guildId_userId: { guildId, userId } }
-      })
-      .catch(() => null)
   }
 
   /**
@@ -155,20 +145,22 @@ export class VipRepository {
    * @returns The custom role record if found, otherwise null.
    */
   public static async findCustomRoleByRoleId(roleId: string) {
-    return container.prisma.customRole.findUnique({
+    return container.prisma.vipRole.findUnique({
       where: { roleId }
     })
   }
 
   /**
    * Deletes a custom role record by its Discord role ID.
+   * This effectively removes the custom role data.
    * @param roleId The Discord role ID.
-   * @returns The deleted record, or null if it did not exist.
+   * @returns The updated record, or null if it did not exist.
    */
   public static async deleteCustomRoleByRoleId(roleId: string) {
-    return container.prisma.customRole
-      .delete({
-        where: { roleId }
+    return container.prisma.vipRole
+      .update({
+        where: { roleId },
+        data: { roleId: null, deletedAt: null }
       })
       .catch(() => null)
   }

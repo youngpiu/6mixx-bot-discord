@@ -10,7 +10,7 @@ export class VipRemoveCommand {
 
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    await VipService.revokeVip(interaction.guild!, user.id)
+    await VipService.deleteVipInstant(interaction.guild!, user.id)
 
     await InteractionUtil.replyWithContainer(
       interaction,

@@ -12,10 +12,7 @@ import { WordChainService } from '~/modules/word-chain/services/WordChainService
 /**
  * Listener that executes once when the client has finished logging in and is ready.
  * Handles initial setup tasks like preloading scripts, initializing dictionaries,
- * syncing guild members, and running VIP checks.
- *
- * NOTE: Guild member sync must complete before VIP booster sync to satisfy
- * foreign key constraints (VipStatus requires GuildMember to exist).
+ * syncing guild members, and running VIP expiration/cleanup checks.
  */
 @ApplyOptions<Listener.Options>({
   event: Events.ClientReady
@@ -51,7 +48,7 @@ export class SharedClientReadyListener extends Listener {
           err
         )
       }),
-      // Sync guild members first so FK constraints are satisfied for VIP sync
+      // Sync guild members to satisfy FK constraints for other modules
       GuildMemberSyncService.syncAllGuilds(client).catch((err) => {
         this.container.logger.error(
           '[Ready] Failed to sync guild members:',
@@ -60,17 +57,12 @@ export class SharedClientReadyListener extends Listener {
       })
     ])
 
-    // Step 2: VIP tasks run after guild members are synced to DB
-    await Promise.all([
-      VipSchedulerService.runChecks().catch((err) => {
-        this.container.logger.error(
-          '[Ready] Failed to run VIP startup checks:',
-          err
-        )
-      }),
-      VipSchedulerService.syncBoosters(client).catch((err) => {
-        this.container.logger.error('[Ready] Failed to sync booster VIPs:', err)
-      })
-    ])
+    // Step 2: Recover any VIP expirations/cleanups that happened while bot was offline
+    await VipSchedulerService.runChecks().catch((err) => {
+      this.container.logger.error(
+        '[Ready] Failed to run VIP startup checks:',
+        err
+      )
+    })
   }
 }

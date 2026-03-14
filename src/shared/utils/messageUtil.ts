@@ -244,6 +244,33 @@ export class MessageUtil {
   }
 
   /**
+   * Replies to a message using multiple components.
+   *
+   * @param message - The message to reply to.
+   * @param components - The components to reply with.
+   * @param timeoutDeleteMessage - Optional timeout in milliseconds to delete the reply.
+   * @param deleteTrigger - Whether to also delete the trigger message.
+   * @returns The replied message or null if replying failed.
+   */
+  static async replyWithComponents(
+    message: Message,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    components: any[],
+    timeoutDeleteMessage?: number,
+    deleteTrigger: boolean = true
+  ): Promise<Message | null> {
+    return this.reply(
+      message,
+      {
+        components: components,
+        flags: ['IsComponentsV2', 'SuppressNotifications']
+      },
+      timeoutDeleteMessage,
+      deleteTrigger
+    )
+  }
+
+  /**
    * Replies to a message with a success status, prefixed by a success emoji.
    *
    * @param message - The message to reply to.
@@ -322,6 +349,32 @@ export class MessageUtil {
       channel,
       {
         components: [container],
+        flags: ['IsComponentsV2', 'SuppressNotifications']
+      },
+      timeoutDeleteMessage
+    )
+  }
+
+  /**
+   * Sends a message to a channel using multiple components.
+   *
+   * @param channel - The channel to send to.
+   * @param components - The components to send.
+   * @param timeoutDeleteMessage - Optional timeout in milliseconds to delete the message.
+   * @returns The sent message or null.
+   */
+  static async sendWithComponents(
+    channel: ChannelInput,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    components: any[],
+    timeoutDeleteMessage?: number
+  ): Promise<Message | null> {
+    if (!channel) return null
+
+    return MessageUtil.sendToChannel(
+      channel,
+      {
+        components: components,
         flags: ['IsComponentsV2', 'SuppressNotifications']
       },
       timeoutDeleteMessage
@@ -495,15 +548,34 @@ export class InteractionUtil {
           )
         : containerOrText
 
+    return this.replyWithComponents(interaction, [container], ephemeral)
+  }
+
+  /**
+   * Replies to an interaction using multiple components.
+   *
+   * @param interaction - The interaction to respond to.
+   * @param components - The components to respond with.
+   * @param ephemeral - Whether the response should be ephemeral (default: true).
+   * @returns The reply message or response or null.
+   */
+  static async replyWithComponents(
+    interaction: OptionalRepliableInteraction,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    components: any[],
+    ephemeral: boolean = true
+  ): Promise<Message | InteractionResponse | null> {
+    if (!interaction) return null
+
     if (interaction.deferred || interaction.replied) {
       return this.editReply(interaction, {
-        components: [container],
+        components,
         flags: ['IsComponentsV2']
       })
     }
 
     return this.reply(interaction, {
-      components: [container],
+      components,
       flags: ephemeral ? ['IsComponentsV2', 'Ephemeral'] : ['IsComponentsV2']
     })
   }

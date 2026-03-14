@@ -36,12 +36,16 @@ export class VipModalAddHandler extends InteractionHandler {
     const durationValues = interaction.fields.getStringSelectValues(
       CUSTOM_ID.SELECT_VIP_ADD_DURATION
     )
+    const selectedRoles = interaction.fields.getSelectedRoles(
+      CUSTOM_ID.SELECT_VIP_ADD_ROLE
+    )
 
     const userId = selectedUsers?.first()?.id
     const type = typeValues[0] as VipType
     const durationDays = durationValues[0]
       ? parseInt(durationValues[0])
       : undefined
+    const selectedRoleId = selectedRoles?.first()?.id
 
     if (!userId) {
       return InteractionUtil.replyError(
@@ -67,12 +71,15 @@ export class VipModalAddHandler extends InteractionHandler {
     const { expireAt, roleId } = await VipService.grantVip(
       member,
       type,
-      durationDays
+      durationDays,
+      selectedRoleId
     )
 
     let successMessage = `Đã cấp quyền VIP cho ${member.toString()} thành công!`
     if (type === 'LIMITED' && expireAt) {
       successMessage += `\n- Hết hạn vào: <t:${Math.floor(expireAt.getTime() / 1000)}:F>`
+    } else if (type === 'BOOSTER') {
+      successMessage += `\n- Loại: Booster (hết khi người dùng ngừng boost)`
     }
     successMessage += `\n- Role ID: \`${roleId}\``
 

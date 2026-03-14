@@ -4,35 +4,27 @@ enum VipType {
   BOOSTER
 }
 
-/// Trạng thái VIP của người dùng trong server
-model VipStatus {
-  id        String    @id @default(cuid())
-  guildId   String
-  userId    String
-  type      VipType
-  expireAt  DateTime? // Dùng cho loại LIMITED
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+/// Thông tin VIP và Custom Role của người dùng trong server
+model VipRole {
+  id      String @id @default(cuid())
+  guildId String
+  userId  String
+
+  // Thông tin trạng thái VIP
+  type     VipType
+  expireAt DateTime? // Dùng cho loại LIMITED
+
+  // Thông tin về Custom Role
+  roleId    String?   @unique
+  deletedAt DateTime? // Đánh dấu xóa Role (Grace Period 7 ngày)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   member GuildMember @relation(fields: [guildId, userId], references: [guildId, userId], onDelete: Cascade)
 
   @@unique([guildId, userId])
   @@index([guildId])
   @@index([expireAt])
-}
-
-model CustomRole {
-  id             String    @id @default(cuid())
-  guildId        String
-  userId         String
-  roleId         String    @unique
-  deletedAt      DateTime? // Đánh dấu xóa (Grace Period 7 ngày)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  member GuildMember @relation(fields: [guildId, userId], references: [guildId, userId], onDelete: Cascade)
-
-  @@unique([guildId, userId])
-  @@index([guildId])
   @@index([deletedAt])
 }

@@ -147,6 +147,7 @@ export const CUSTOM_ID = {
   MODAL_VIP_EDIT_COLOR: 'modal-vip-edit-color',
   MODAL_VIP_EDIT_ICON: 'modal-vip-edit-icon',
   SELECT_VIP_ADD_USER: 'select-vip-add-user',
+  SELECT_VIP_ADD_ROLE: 'select-vip-add-role',
   SELECT_VIP_ADD_TYPE: 'select-vip-add-type',
   SELECT_VIP_ADD_DURATION: 'select-vip-add-duration',
   BTN_SETTING_VIP_ANCHOR: 'btn-setting-vip-anchor',

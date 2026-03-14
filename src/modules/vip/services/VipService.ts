@@ -1,7 +1,7 @@
 import { container } from '@sapphire/pieces'
 import { ColorResolvable, Guild, GuildMember, Role } from 'discord.js'
 
-import { VipType } from 'generated/prisma/enums'
+import { VipType } from 'generated/prisma/client'
 
 import { TIME } from '~/shared/constants/timeConstant'
 import { GuildMemberRepository } from '~/shared/repositories/guildMemberRepository'
@@ -12,7 +12,6 @@ import { VipRepository } from '~/modules/vip/repositories/vipRepository'
 
 /**
  * Cancel any pending vipExpire scheduled task for a specific user.
- * Used before rescheduling to avoid duplicate tasks in the queue.
  */
 async function cancelVipExpireTask(guildId: string, userId: string) {
   const jobs = await container.tasks.list({ types: ['delayed', 'waiting'] })
@@ -35,30 +34,74 @@ export class VipService {
   public static async grantVip(
     member: GuildMember,
     type: VipType,
-    durationDays?: number
+    durationDays?: number,
+    selectedRoleId?: string
   ) {
-    const guildId = member.guild.id
-    const userId = member.id
+    const { guild, id: userId } = member
+    const guildId = guild.id
 
-    // 1. Calculate expiration
-    let expireAt: Date | undefined
-    if (type === 'LIMITED' && durationDays) {
-      expireAt = new Date()
-      expireAt.setDate(expireAt.getDate() + durationDays)
+    // 1. Check existing VIP DB status
+    const existingVip = await VipRepository.findStatus(guildId, userId)
+    if (existingVip?.roleId) {
+      throw new Error(
+        'Người dùng này đã sở hữu một vai trò VIP! Hãy dùng lệnh `/vip remove` để thu hồi trước khi cấp mới.'
+      )
     }
 
-    // 2. Ensure Guild and GuildMember records exist (satisfies FK constraints)
+    // 2. Resolve or Create Role
+    let role = selectedRoleId
+      ? await guild.roles.fetch(selectedRoleId).catch(() => null)
+      : null
+
+    if (!role) {
+      role = await guild.roles.create({
+        name: `VIP - ${member.user.username}`,
+        reason: `Custom VIP role for ${member.user.tag}`
+      })
+
+      const setting = await SettingRepository.find(guildId)
+      if (setting?.vipAnchorRoleId) {
+        const anchorRole = await guild.roles
+          .fetch(setting.vipAnchorRoleId)
+          .catch(() => null)
+
+        if (anchorRole) {
+          await role
+            .setPosition(anchorRole.position + 1)
+            .catch((err) =>
+              container.logger.error(
+                `[VipService] Failed to set role position for ${role!.id}:`,
+                err
+              )
+            )
+        }
+      }
+    }
+
+    // 3. Optional timeframe
+    let expireAt: Date | undefined
+    if (type === 'LIMITED' && durationDays) {
+      expireAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000)
+    }
+
+    // 4. Update Database
     await GuildRepository.upsert(guildId)
     await GuildMemberRepository.create({ guildId, userId })
 
-    // 3. Update VIP Status in DB
-    await VipRepository.upsertStatus(guildId, userId, type, expireAt)
+    await container.prisma.vipRole.upsert({
+      where: { guildId_userId: { guildId, userId } },
+      create: { guildId, userId, type, expireAt, roleId: role.id },
+      update: { type, expireAt, roleId: role.id, deletedAt: null }
+    })
 
-    // Cancel any existing expiration task before scheduling a new one
+    // 5. Add role to member
+    if (!member.roles.cache.has(role.id)) {
+      await member.roles.add(role.id).catch(() => null)
+    }
+
+    // 6. Setup Task expiration
     await cancelVipExpireTask(guildId, userId)
-
-    // Schedule expiration task if it's LIMITED
-    if (type === 'LIMITED' && expireAt) {
+    if (expireAt) {
       const delay = expireAt.getTime() - Date.now()
       if (delay > 0) {
         await container.tasks.create(
@@ -68,96 +111,34 @@ export class VipService {
       }
     }
 
-    // 3. Handle Custom Role
-    const customRole = await VipRepository.findCustomRole(guildId, userId)
-    let role: Role | null = null
-
-    if (customRole) {
-      // Role exists, check if it was marked for deletion
-      role = await member.guild.roles.fetch(customRole.roleId).catch(() => null)
-
-      if (role) {
-        // If role was marked for deletion, restore it
-        if (customRole.deletedAt) {
-          await VipRepository.upsertCustomRole(guildId, userId, {
-            roleId: role.id,
-            deletedAt: null
-          })
-        }
-      }
-    }
-
-    if (!role) {
-      // Role doesn't exist or was deleted from Discord, create new one
-      role = await member.guild.roles.create({
-        name: `VIP - ${member.user.username}`,
-        reason: `Custom VIP role for ${member.user.tag}`
-      })
-
-      // Try to position it below anchor role if configured
-      const setting = await SettingRepository.find(guildId)
-
-      if (setting?.vipAnchorRoleId) {
-        const anchorRole = await member.guild.roles
-          .fetch(setting.vipAnchorRoleId)
-          .catch(() => null)
-        if (anchorRole) {
-          // Add error handling for permissions
-          try {
-            await role.setPosition(anchorRole.position + 1)
-          } catch (error) {
-            container.logger.error(
-              `[VipService] Failed to set role position for ${role.id}:`,
-              error
-            )
-          }
-        }
-      }
-
-      await VipRepository.upsertCustomRole(guildId, userId, {
-        roleId: role.id,
-        deletedAt: null
-      })
-    }
-
-    // 4. Assign role to member
-    if (!member.roles.cache.has(role.id)) {
-      await member.roles.add(role.id)
-    }
-
     return { type, expireAt, roleId: role.id }
   }
 
   /**
-   * Revoke VIP status (start grace period)
+   * Tước vai trò VIP và đưa người dùng vào giai đoạn Grace Period (7 ngày chờ xóa Role)
    */
   public static async revokeVip(guild: Guild, userId: string) {
     const guildId = guild.id
 
-    // 1. Remove VIP Status from DB
-    await VipRepository.removeStatus(guildId, userId)
+    const vipRole = await VipRepository.findStatus(guildId, userId)
+    if (!vipRole) return
 
-    // Cancel any pending expiration task
     await cancelVipExpireTask(guildId, userId)
 
-    // 2. Remove role from member if they are still in server
-    const member = await guild.members.fetch(userId).catch(() => null)
-    const customRole = await VipRepository.findCustomRole(guildId, userId)
+    await VipRepository.markRoleForDeletion(guildId, userId)
 
-    if (customRole) {
-      if (member && member.roles.cache.has(customRole.roleId)) {
-        await member.roles.remove(customRole.roleId)
-      }
+    await container.tasks.create(
+      { name: 'vipCleanup', payload: { guildId, userId } },
+      { delay: TIME.D7, repeated: false }
+    )
+  }
 
-      // 3. Mark role for deletion (Grace Period)
-      await VipRepository.markRoleForDeletion(guildId, userId)
-
-      // Schedule cleanup task for 7 days later
-      await container.tasks.create(
-        { name: 'vipCleanup', payload: { guildId, userId } },
-        { delay: TIME.D7, repeated: false }
-      )
-    }
+  /**
+   * Xóa vĩnh viễn và lập tức mọi thông tin VIP của một người dùng
+   */
+  public static async deleteVipInstant(guild: Guild, userId: string) {
+    await cancelVipExpireTask(guild.id, userId)
+    await VipRepository.removeStatus(guild.id, userId)
   }
 
   /**
@@ -174,17 +155,8 @@ export class VipService {
       icon?: string
     }
   ) {
-    if (data.name) {
-      await role.setName(data.name)
-    }
-
-    if (data.colors) {
-      // Use standard setColors method from the library
-      await role.setColors(data.colors)
-    }
-
-    if (data.icon) {
-      await role.setIcon(data.icon)
-    }
+    if (data.name) await role.setName(data.name)
+    if (data.colors) await role.setColors(data.colors)
+    if (data.icon) await role.setIcon(data.icon)
   }
 }

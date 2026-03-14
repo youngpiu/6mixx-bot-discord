@@ -35,7 +35,7 @@ export class VipModalCustomizationHandler extends InteractionHandler {
     const userId = interaction.user.id
 
     const customRoleEntry = await VipRepository.findCustomRole(guildId, userId)
-    if (!customRoleEntry) {
+    if (!customRoleEntry || !customRoleEntry.roleId) {
       return InteractionUtil.replyError(
         interaction,
         'Không tìm thấy thông tin vai trò của bạn.'

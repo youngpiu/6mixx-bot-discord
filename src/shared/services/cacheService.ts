@@ -65,6 +65,35 @@ export class CacheService {
   }
 
   /**
+   * Retrieves a raw string from the cache.
+   *
+   * @param key - The Redis key to retrieve.
+   * @returns The raw string if found, otherwise null.
+   */
+  public static async getRaw(key: string): Promise<string | null> {
+    return container.redis.get(key)
+  }
+
+  /**
+   * Stores a raw string in the cache.
+   *
+   * @param key - The Redis key to store the value under.
+   * @param value - The string to cache.
+   * @param ttlSeconds - Optional time-to-live in seconds.
+   */
+  public static async setRaw(
+    key: string,
+    value: string,
+    ttlSeconds?: number
+  ): Promise<void> {
+    if (ttlSeconds) {
+      await container.redis.set(key, value, 'EX', ttlSeconds)
+    } else {
+      await container.redis.set(key, value)
+    }
+  }
+
+  /**
    * Removes a single key from the cache.
    *
    * @param key - The Redis key to delete.
