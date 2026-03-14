@@ -1,20 +1,4 @@
-import dotenv from 'dotenv'
-import { existsSync } from 'node:fs'
-import { join } from 'node:path'
-
-const envPath = join(process.cwd(), '.env')
-if (existsSync(envPath)) {
-  const result = dotenv.config({ path: envPath })
-  if (result.error) {
-    console.error(`[Env] Error loading .env from ${envPath}:`, result.error)
-  } else {
-    console.log(`[Env] Loaded .env from ${envPath}`)
-  }
-} else {
-  console.warn(
-    `[Env] .env file not found at ${envPath}. Using existing process.env.`
-  )
-}
+import 'dotenv/config'
 
 /**
  * Fetches an environment variable by its key and optionally throws an error if it's missing.
@@ -27,17 +11,6 @@ if (existsSync(envPath)) {
 function getEnvVar(key: string, required = true): string {
   const value = process.env[key]
   if (required && !value) {
-    const availableKeys = Object.keys(process.env)
-      .filter(
-        (k) =>
-          !k.includes('TOKEN') &&
-          !k.includes('KEY') &&
-          !k.includes('PASSWORD') &&
-          !k.includes('SECRET')
-      )
-      .join(', ')
-    console.error(`[EnvError] Missing required environment variable: ${key}`)
-    console.error(`[EnvError] Available non-sensitive keys: ${availableKeys}`)
     throw new Error(`Missing required environment variable: ${key}`)
   }
   return value ?? ''
