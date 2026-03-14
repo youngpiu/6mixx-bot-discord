@@ -155,6 +155,9 @@ export class WordChainMessageCreateListener extends Listener {
           `Từ phải bắt đầu bằng chữ cái \`${result.expected.toUpperCase()}\`.`
         )
         return
+      case 'same_word':
+        await this.reject(message, 'Từ tiếp theo không được giống từ vừa rồi.')
+        return
       case 'not_in_dictionary':
         await this.reject(message, 'Từ này không có trong từ điển.')
         return

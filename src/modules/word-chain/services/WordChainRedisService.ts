@@ -11,6 +11,7 @@ export interface WordChainState {
   sessionId: string // BigInt serialized as string
   mode: WordChainMode
   startWord: string
+  currentWord?: string // the word currently at the "tip" (last word played)
   currentLastWord: string // Vietnamese: last word of 2-word phrase; English: last letter of single word
   usedWordIndex: Record<string, Record<string, true>> // O(1) membership index by firstWord/firstLetter
   usedWordCountByGroup: Record<string, number> // O(1) used-word count by firstWord/firstLetter
@@ -70,7 +71,7 @@ type ViSubmitResult =
   | { status: 'ok'; totalWords: number; remainingCount: number }
 
 type EnSubmitResult =
-  | { status: 'no_state' | 'paused' | 'not_in_dictionary' }
+  | { status: 'no_state' | 'paused' | 'not_in_dictionary' | 'same_word' }
   | { status: 'invalid_chain'; expected: string }
   | {
       status: 'ok'
@@ -342,6 +343,7 @@ export class WordChainRedisService {
       currentLastWord: state.currentLastWord,
       status: state.status,
       totalWords: state.totalWords.toString(),
+      ...(state.currentWord ? { currentWord: state.currentWord } : {}),
       ...(state.lastPlayerId ? { lastPlayerId: state.lastPlayerId } : {})
     })
 
@@ -582,6 +584,7 @@ export class WordChainRedisService {
 
     if (code === 'PAUSED') return { status: 'paused' }
     if (code === 'NOT_IN_DICTIONARY') return { status: 'not_in_dictionary' }
+    if (code === 'SAME_WORD') return { status: 'same_word' }
     return { status: 'no_state' }
   }
 }

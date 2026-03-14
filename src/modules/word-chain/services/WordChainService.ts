@@ -146,6 +146,7 @@ export class WordChainService {
       sessionId: sessionId.toString(),
       mode,
       startWord,
+      currentWord: startWord,
       currentLastWord,
       usedWordIndex: { [usedWordGroupKey]: { [startWord]: true } },
       usedWordCountByGroup: { [usedWordGroupKey]: 1 },
