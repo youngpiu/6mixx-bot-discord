@@ -16,7 +16,7 @@ import { VipService } from '~/modules/vip/services/VipService'
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
 })
-export class VipModalCustomizationHandler extends InteractionHandler {
+export class ModalVipCustomizationRole extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
     if (
       interaction.customId !== CUSTOM_ID.MODAL_VIP_EDIT_NAME &&
@@ -36,18 +36,14 @@ export class VipModalCustomizationHandler extends InteractionHandler {
 
     const customRoleEntry = await VipRepository.findCustomRole(guildId, userId)
     if (!customRoleEntry || !customRoleEntry.roleId) {
-      return InteractionUtil.replyError(
-        interaction,
-        'Không tìm thấy thông tin vai trò của bạn.'
-      )
+      throw new NormalError('Không tìm thấy thông tin vai trò của bạn.')
     }
 
     const role = await interaction.guild?.roles
       .fetch(customRoleEntry.roleId)
       .catch(() => null)
     if (!role) {
-      return InteractionUtil.replyError(
-        interaction,
+      throw new NormalError(
         'Vai trò của bạn không tồn tại trong máy chủ. Có thể nó đã bị xóa.'
       )
     }
@@ -95,10 +91,7 @@ export class VipModalCustomizationHandler extends InteractionHandler {
         secondaryColor !== '#' &&
         !hexRegex.test(secondaryColor))
     ) {
-      return InteractionUtil.replyError(
-        interaction,
-        'Mã màu HEX không hợp lệ (Ví dụ: #FFFFFF).'
-      )
+      throw new NormalError('Mã màu HEX không hợp lệ (Ví dụ: #FFFFFF).')
     }
 
     await VipService.updateRoleStyle(role, {
@@ -121,10 +114,7 @@ export class VipModalCustomizationHandler extends InteractionHandler {
   ) {
     const files = interaction.fields.getUploadedFiles(CUSTOM_ID.INPUT_CONTENT)
     if (!files || files.size === 0) {
-      return InteractionUtil.replyError(
-        interaction,
-        'Vui lòng tải lên một tệp tin hình ảnh.'
-      )
+      throw new NormalError('Vui lòng tải lên một tệp tin hình ảnh.')
     }
 
     const firstFile = files.first()
@@ -147,11 +137,7 @@ export class VipModalCustomizationHandler extends InteractionHandler {
     }
 
     const iconUrl = firstFile.url || firstFile.proxyURL
-    if (!iconUrl)
-      return InteractionUtil.replyError(
-        interaction,
-        'Không thể lấy URL hình ảnh.'
-      )
+    if (!iconUrl) throw new NormalError('Không thể lấy URL hình ảnh.')
 
     await VipService.updateRoleStyle(role, { icon: iconUrl })
     await InteractionUtil.replySuccess(

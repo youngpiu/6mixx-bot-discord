@@ -13,7 +13,7 @@ import { formatFields } from '~/shared/utils/textUtil'
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
 })
-export class ModalSettingTempVoice extends InteractionHandler {
+export class ModalVoiceSettingTemp extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
     if (interaction.customId !== CUSTOM_ID.MODAL_SETTING_TEMPVOICE_CHANNEL)
       return this.none()

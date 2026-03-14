@@ -14,7 +14,7 @@ import { ConfessionRepository } from '~/modules/confession/repositories/confessi
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
 })
-export class ModalConfession extends InteractionHandler {
+export class ModalConfessionCreate extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
     if (
       interaction.customId !== CUSTOM_ID.MODAL_CONFESSION_ANONYMOUS &&

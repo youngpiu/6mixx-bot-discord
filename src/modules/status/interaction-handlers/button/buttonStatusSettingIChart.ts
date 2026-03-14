@@ -21,7 +21,7 @@ import { SettingRepository } from '~/shared/repositories/settingRepository'
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button
 })
-export class ButtonSettingIChart extends InteractionHandler {
+export class ButtonStatusSettingIChart extends InteractionHandler {
   /**
    * Checks if this handler should process the given button interaction.
    * @param interaction - The button interaction to parse.

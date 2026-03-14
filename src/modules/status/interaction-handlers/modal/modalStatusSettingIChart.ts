@@ -19,7 +19,7 @@ import { IChartService } from '~/modules/status/services/IChartService'
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
 })
-export class ModalSettingIChart extends InteractionHandler {
+export class ModalStatusSettingIChart extends InteractionHandler {
   /**
    * Checks if this handler should process the given modal submission.
    * @param interaction - The modal submit interaction to parse.

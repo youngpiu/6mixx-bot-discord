@@ -67,7 +67,7 @@ const GUIDE_CONFIGS = [
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button
 })
-export class ButtonSettingSync extends InteractionHandler {
+export class ButtonSettingSyncServer extends InteractionHandler {
   public override parse(interaction: ButtonInteraction) {
     if (interaction.customId === CUSTOM_ID.BTN_SETTING_SYNC_GUIDES) {
       return this.some({ syncType: 'guides' as SyncType })

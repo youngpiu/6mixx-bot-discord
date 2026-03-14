@@ -20,7 +20,7 @@ type ActionType = 'CONFIRMED' | 'CANCELED'
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button
 })
-export class ButtonDonationDonorUpdateStatusHandler extends InteractionHandler {
+export class ButtonDonationDonorUpdateStatus extends InteractionHandler {
   public override parse(interaction: ButtonInteraction) {
     const { customId } = interaction
     let type: ActionType | undefined

@@ -16,7 +16,7 @@ import { SettingRepository } from '~/shared/repositories/settingRepository'
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button
 })
-export class ButtonSettingVipAnchor extends InteractionHandler {
+export class ButtonVipSettingAnchorRole extends InteractionHandler {
   public override parse(interaction: ButtonInteraction) {
     if (interaction.customId !== CUSTOM_ID.BTN_SETTING_VIP_ANCHOR) {
       return this.none()

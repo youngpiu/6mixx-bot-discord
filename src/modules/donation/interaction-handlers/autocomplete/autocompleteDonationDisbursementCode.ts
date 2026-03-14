@@ -5,13 +5,12 @@ import {
 } from '@sapphire/framework'
 import type { AutocompleteInteraction } from 'discord.js'
 
-import { TicketHelper } from '~/modules/ticket/helpers/TicketHelper'
-import { TicketRepository } from '~/modules/ticket/repositories/ticketRepository'
+import { DisbursementRepository } from '~/modules/donation/repositories/disbursementRepository'
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Autocomplete
 })
-export class AutocompleteTicketHandler extends InteractionHandler {
+export class AutocompleteDonationDisbursementCode extends InteractionHandler {
   public override async run(
     interaction: AutocompleteInteraction,
     result: InteractionHandler.ParseResult<this>
@@ -20,21 +19,21 @@ export class AutocompleteTicketHandler extends InteractionHandler {
   }
 
   public override async parse(interaction: AutocompleteInteraction) {
-    if (interaction.commandName !== 'ticket') return this.none()
+    if (interaction.commandName !== 'disbursement') return this.none()
     const focusedOption = interaction.options.getFocused(true)
 
     if (focusedOption.name !== 'code') return this.none()
     if (!interaction.guild) return this.none()
 
-    const searchedTickets = await TicketRepository.searchByCode({
+    const searchedDisbursements = await DisbursementRepository.searchByCode({
       guildId: interaction.guild.id,
       search: focusedOption.value
     })
 
     return this.some(
-      searchedTickets.map((ticket) => ({
-        name: `${ticket.code} - ${TicketHelper.getStatusText(ticket.status)}`,
-        value: ticket.code
+      searchedDisbursements.map((d) => ({
+        name: `${d.code} - ${d.amount.toLocaleString('vi-VN')}đ`,
+        value: d.code
       }))
     )
   }

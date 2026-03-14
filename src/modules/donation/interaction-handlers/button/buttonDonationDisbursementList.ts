@@ -16,7 +16,7 @@ import {
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button
 })
-export class ButtonDisbursementList extends InteractionHandler {
+export class ButtonDonationDisbursementList extends InteractionHandler {
   public override parse(interaction: ButtonInteraction) {
     if (interaction.customId === CUSTOM_ID.BTN_DISBURSEMENT_LIST) {
       return this.some({ page: 1 })

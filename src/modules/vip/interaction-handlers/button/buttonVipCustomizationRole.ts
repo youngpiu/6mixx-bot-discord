@@ -5,6 +5,7 @@ import {
 } from '@sapphire/framework'
 import {
   ButtonInteraction,
+  FileUploadBuilder,
   LabelBuilder,
   ModalBuilder,
   Role,
@@ -15,14 +16,13 @@ import {
 import { NormalError } from '~/core/errorResponse'
 
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
-import { InteractionUtil } from '~/shared/utils/messageUtil'
 
 import { VipRepository } from '~/modules/vip/repositories/vipRepository'
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button
 })
-export class VipButtonCustomizationHandler extends InteractionHandler {
+export class ButtonVipCustomizationRole extends InteractionHandler {
   public override async parse(interaction: ButtonInteraction) {
     if (
       interaction.customId !== CUSTOM_ID.BTN_VIP_EDIT_NAME &&
@@ -39,7 +39,7 @@ export class VipButtonCustomizationHandler extends InteractionHandler {
     const customRole = await VipRepository.findCustomRole(guildId, userId)
     if (!customRole || !customRole.roleId) {
       return this.some({
-        error: 'Bạn không sở hữu vai trò đặc biệt nào để chỉnh sửa.'
+        error: 'Vui lòng sở hữu vai trò VIP trước khi sử dụng chức năng này.'
       })
     }
 
@@ -48,7 +48,8 @@ export class VipButtonCustomizationHandler extends InteractionHandler {
       .catch(() => null)
     if (!role) {
       return this.some({
-        error: 'Vai trò của bạn không tồn tại trong máy chủ.'
+        error:
+          'Vai trò VIP của bạn không tồn tại, vui lòng liên hệ **Ban quản lý**.'
       })
     }
 
@@ -88,7 +89,7 @@ export class VipButtonCustomizationHandler extends InteractionHandler {
   ) {
     const modal = new ModalBuilder()
       .setCustomId(CUSTOM_ID.MODAL_VIP_EDIT_NAME)
-      .setTitle('Đổi tên vai trò')
+      .setTitle('Đổi tên vai trò VIP')
 
     const input = new TextInputBuilder()
       .setCustomId(CUSTOM_ID.INPUT_CONTENT)
@@ -100,7 +101,7 @@ export class VipButtonCustomizationHandler extends InteractionHandler {
 
     const label = new LabelBuilder()
       .setLabel('Tên vai trò mới')
-      .setDescription('Tên hiển thị của vai trò đặc biệt của bạn.')
+      .setDescription('Tên hiển thị của vai trò VIP của bạn.')
       .setTextInputComponent(input)
 
     modal.addLabelComponents(label)
@@ -123,7 +124,7 @@ export class VipButtonCustomizationHandler extends InteractionHandler {
 
     const modal = new ModalBuilder()
       .setCustomId(CUSTOM_ID.MODAL_VIP_EDIT_COLOR)
-      .setTitle('Đổi màu vai trò')
+      .setTitle('Đổi màu vai trò VIP')
 
     const primaryInput = new TextInputBuilder()
       .setCustomId('primary')
@@ -135,7 +136,7 @@ export class VipButtonCustomizationHandler extends InteractionHandler {
       .setValue(currentP)
 
     const primaryLabel = new LabelBuilder()
-      .setLabel('Màu chính (Primary)')
+      .setLabel('Màu chính')
       .setDescription('Mã màu HEX (ví dụ: #FFFFFF)')
       .setTextInputComponent(primaryInput)
 
@@ -152,8 +153,8 @@ export class VipButtonCustomizationHandler extends InteractionHandler {
         .setValue(currentS)
 
       const secondaryLabel = new LabelBuilder()
-        .setLabel('Màu phụ (Secondary)')
-        .setDescription('Sử dụng cho Gradient (nếu có)')
+        .setLabel('Màu phụ')
+        .setDescription('Kết hợp với màu chính để tạo ra màu gradient.')
         .setTextInputComponent(secondaryInput)
 
       modal.addLabelComponents(secondaryLabel)
@@ -167,13 +168,11 @@ export class VipButtonCustomizationHandler extends InteractionHandler {
       'ROLE_ICONS'
     )
     if (!hasIcons) {
-      return InteractionUtil.replyError(
-        interaction,
+      throw new NormalError(
         'Máy chủ của bạn chưa hỗ trợ biểu tượng vai trò (Yêu cầu Level 2 Boost).'
       )
     }
 
-    const { FileUploadBuilder } = await import('discord.js')
     const iconUpload = new FileUploadBuilder()
       .setCustomId(CUSTOM_ID.INPUT_CONTENT)
       .setMinValues(1)
@@ -182,11 +181,13 @@ export class VipButtonCustomizationHandler extends InteractionHandler {
 
     const modal = new ModalBuilder()
       .setCustomId(CUSTOM_ID.MODAL_VIP_EDIT_ICON)
-      .setTitle('Đổi biểu tượng vai trò')
+      .setTitle('Đổi biểu tượng vai trò VIP')
 
     const label = new LabelBuilder()
-      .setLabel('Biểu tượng (Icon)')
-      .setDescription('Tải lên tệp tin hình ảnh làm biểu tượng.')
+      .setLabel('Biểu tượng')
+      .setDescription(
+        'Tải lên tệp tin hình ảnh làm biểu tượng (ảnh có dung lượng tối đa 2MB).'
+      )
       .setFileUploadComponent(iconUpload)
 
     modal.addLabelComponents(label)

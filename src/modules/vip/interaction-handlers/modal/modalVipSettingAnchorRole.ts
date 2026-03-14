@@ -5,6 +5,8 @@ import {
 } from '@sapphire/framework'
 import { ModalSubmitInteraction } from 'discord.js'
 
+import { NormalError } from '~/core/errorResponse'
+
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
@@ -12,7 +14,7 @@ import { InteractionUtil } from '~/shared/utils/messageUtil'
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
 })
-export class ModalSettingVipAnchor extends InteractionHandler {
+export class ModalVipSettingAnchorRole extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
     if (interaction.customId !== CUSTOM_ID.MODAL_SETTING_VIP_ANCHOR) {
       return this.none()
@@ -29,10 +31,7 @@ export class ModalSettingVipAnchor extends InteractionHandler {
     const roleId = roles?.firstKey()
 
     if (!roleId) {
-      return InteractionUtil.replyError(
-        interaction,
-        'Vui lòng chọn một vai trò.'
-      )
+      throw new NormalError('Vui lòng chọn một vai trò.')
     }
 
     const guildId = interaction.guildId!

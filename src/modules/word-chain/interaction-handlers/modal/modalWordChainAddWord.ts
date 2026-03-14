@@ -17,7 +17,7 @@ import { WordChainService } from '~/modules/word-chain/services/WordChainService
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
 })
-export class ModalWordChainAdd extends InteractionHandler {
+export class ModalWordChainAddWord extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
     if (
       interaction.customId !== CUSTOM_ID.MODAL_WORDCHAIN_ADD_VI &&

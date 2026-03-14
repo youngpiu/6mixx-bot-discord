@@ -13,7 +13,7 @@ import { SettingHelper } from '~/modules/setting/helpers/SettingHelper'
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button
 })
-export class ButtonSettingChannel extends InteractionHandler {
+export class ButtonSettingChannelSelect extends InteractionHandler {
   public override async parse(interaction: ButtonInteraction) {
     if (interaction.customId !== CUSTOM_ID.BTN_SETTING_CHANNEL_CONFIG)
       return this.none()

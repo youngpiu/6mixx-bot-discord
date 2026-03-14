@@ -7,6 +7,8 @@ import { ModalSubmitInteraction } from 'discord.js'
 
 import { VipType } from 'generated/prisma/client'
 
+import { NormalError } from '~/core/errorResponse'
+
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 
@@ -15,7 +17,7 @@ import { VipService } from '~/modules/vip/services/VipService'
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
 })
-export class VipModalAddHandler extends InteractionHandler {
+export class ModalVipAddRole extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
     if (interaction.customId !== CUSTOM_ID.MODAL_VIP_ADD) {
       return this.none()
@@ -48,24 +50,18 @@ export class VipModalAddHandler extends InteractionHandler {
     const selectedRoleId = selectedRoles?.first()?.id
 
     if (!userId) {
-      return InteractionUtil.replyError(
-        interaction,
-        'Vui lòng chọn người dùng.'
-      )
+      throw new NormalError('Vui lòng chọn người dùng.')
     }
 
     if (!type) {
-      return InteractionUtil.replyError(interaction, 'Vui lòng chọn loại VIP.')
+      throw new NormalError('Vui lòng chọn loại VIP.')
     }
 
     const guild = interaction.guild!
     const member = await guild.members.fetch(userId).catch(() => null)
 
     if (!member) {
-      return InteractionUtil.replyError(
-        interaction,
-        'Không tìm thấy người dùng trong máy chủ.'
-      )
+      throw new NormalError('Không tìm thấy người dùng trong máy chủ.')
     }
 
     const { expireAt, roleId } = await VipService.grantVip(

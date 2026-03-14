@@ -13,7 +13,7 @@ import { MessageUtil } from '~/shared/utils/messageUtil'
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
 })
-export class ModalComment extends InteractionHandler {
+export class ModalConfessionComment extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
     if (!interaction.customId.startsWith(CUSTOM_ID.MODAL_COMMENT_PREFIX)) {
       return this.none()

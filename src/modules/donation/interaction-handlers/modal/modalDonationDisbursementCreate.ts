@@ -16,7 +16,7 @@ import { DisbursementRepository } from '~/modules/donation/repositories/disburse
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
 })
-export class ModalDisbursementCreate extends InteractionHandler {
+export class ModalDonationDisbursementCreate extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
     if (interaction.customId !== CUSTOM_ID.MODAL_DISBURSEMENT_CREATE) {
       return this.none()

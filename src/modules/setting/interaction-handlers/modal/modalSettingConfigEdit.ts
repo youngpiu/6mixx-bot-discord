@@ -14,7 +14,7 @@ import { formatFields } from '~/shared/utils/textUtil'
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
 })
-export class ModalSettingConfig extends InteractionHandler {
+export class ModalSettingConfigEdit extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
     if (interaction.customId !== CUSTOM_ID.MODAL_SETTING_CHANNEL_CONFIG)
       return this.none()

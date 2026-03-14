@@ -15,7 +15,7 @@ import { DisbursementRepository } from '~/modules/donation/repositories/disburse
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button
 })
-export class ButtonDisbursementDelete extends InteractionHandler {
+export class ButtonDonationDisbursementDelete extends InteractionHandler {
   public override parse(interaction: ButtonInteraction) {
     if (
       interaction.customId.startsWith(CUSTOM_ID.BTN_DISBURSEMENT_DELETE_PREFIX)

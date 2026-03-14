@@ -20,7 +20,7 @@ import { DonateRepository } from '~/modules/donation/repositories/donateReposito
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button
 })
-export class ButtonDonationChangeStatusHandler extends InteractionHandler {
+export class ButtonDonationChangeStatus extends InteractionHandler {
   public override parse(interaction: ButtonInteraction) {
     if (
       !interaction.customId.startsWith(

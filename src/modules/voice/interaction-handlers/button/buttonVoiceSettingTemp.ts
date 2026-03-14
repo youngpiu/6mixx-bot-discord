@@ -13,7 +13,7 @@ import { SettingHelper } from '~/modules/setting/helpers/SettingHelper'
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button
 })
-export class ButtonSettingTempVoice extends InteractionHandler {
+export class ButtonVoiceSettingTemp extends InteractionHandler {
   public override async parse(interaction: ButtonInteraction) {
     if (interaction.customId !== CUSTOM_ID.BTN_SETTING_TEMPVOICE_CHANNEL)
       return this.none()
