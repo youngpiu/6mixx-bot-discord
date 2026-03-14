@@ -34,6 +34,6 @@ export class LastFmSetCommand {
           )
     )
 
-    return InteractionUtil.replyWithContainer(interaction, container, false)
+    return InteractionUtil.replyWithContainer(interaction, container)
   }
 }

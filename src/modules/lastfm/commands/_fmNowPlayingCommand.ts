@@ -54,6 +54,6 @@ export class LastFmNowPlayingCommand {
       containers.push(milestoneContainer)
     }
 
-    return InteractionUtil.replyWithComponents(interaction, containers, false)
+    return InteractionUtil.replyWithComponents(interaction, containers)
   }
 }

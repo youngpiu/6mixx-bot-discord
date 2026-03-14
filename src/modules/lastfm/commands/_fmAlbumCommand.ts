@@ -107,7 +107,7 @@ export class LastFmAlbumCommand {
           .addSeparatorComponents((s) => s)
           .addTextDisplayComponents((t) => t.setContent(list))
 
-        return InteractionUtil.replyWithContainer(interaction, container, false)
+        return InteractionUtil.replyWithContainer(interaction, container)
       }
 
       // Default: Overview
@@ -138,7 +138,7 @@ export class LastFmAlbumCommand {
           return t.setContent(content)
         })
 
-      return InteractionUtil.replyWithContainer(interaction, container, false)
+      return InteractionUtil.replyWithContainer(interaction, container)
     } catch (e) {
       if (e instanceof NormalError) throw e
       console.error(e)

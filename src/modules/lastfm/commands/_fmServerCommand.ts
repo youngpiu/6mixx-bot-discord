@@ -73,7 +73,7 @@ export class LastFmServerCommand {
         t.setContent(`### Đang nghe trong server\n${list}`)
       )
 
-      return InteractionUtil.replyWithContainer(interaction, container, false)
+      return InteractionUtil.replyWithContainer(interaction, container)
     } catch (e) {
       if (e instanceof NormalError) throw e
       console.error(e)
@@ -151,7 +151,7 @@ export class LastFmServerCommand {
         t.setContent(`### Lượt nghe gần đây trong server\n${list}`)
       )
 
-      return InteractionUtil.replyWithContainer(interaction, container, false)
+      return InteractionUtil.replyWithContainer(interaction, container)
     } catch (e) {
       if (e instanceof NormalError) throw e
       console.error(e)
@@ -195,7 +195,7 @@ export class LastFmServerCommand {
         t.setContent(`### Bảng xếp hạng Last.fm server\n${list}`)
       )
 
-      return InteractionUtil.replyWithContainer(interaction, container, false)
+      return InteractionUtil.replyWithContainer(interaction, container)
     } catch (e) {
       if (e instanceof NormalError) throw e
       console.error(e)

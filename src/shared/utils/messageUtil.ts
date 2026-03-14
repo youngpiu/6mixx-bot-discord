@@ -389,6 +389,62 @@ export class MessageUtil {
  */
 export class InteractionUtil {
   /**
+   * Internal delay function using setTimeout.
+   *
+   * @param ms - Milliseconds to delay.
+   * @returns A promise that resolves after the delay.
+   */
+  private static delay(ms: number): Promise<void> {
+    return new Promise<void>((res) => setTimeout(res, ms))
+  }
+
+  /**
+   * Schedules an interaction reply to be deleted after a specified timeout.
+   *
+   * @param interaction - The interaction whose reply should be deleted.
+   * @param timeout - The delay in milliseconds before deletion.
+   */
+  private static scheduleDelete(
+    interaction: RepliableInteraction,
+    timeout?: number
+  ): void {
+    if (!timeout || timeout <= 0 || interaction.ephemeral) return
+    this.deleteAfter(interaction, timeout)
+  }
+
+  /**
+   * Deletes an interaction's reply immediately.
+   *
+   * @param interaction - The interaction whose reply should be deleted.
+   * @returns True if the reply was successfully deleted.
+   */
+  static async deleteNow(interaction: RepliableInteraction): Promise<boolean> {
+    if (!interaction || interaction.ephemeral) return false
+    try {
+      await interaction.deleteReply()
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  /**
+   * Deletes an interaction's reply after a specified delay.
+   *
+   * @param interaction - The interaction whose reply should be deleted.
+   * @param timeout - The delay in milliseconds before deletion.
+   * @returns A promise that resolves when deletion is attempted.
+   */
+  static async deleteAfter(
+    interaction: RepliableInteraction,
+    timeout: number
+  ): Promise<boolean> {
+    if (!interaction || interaction.ephemeral) return false
+    await this.delay(timeout)
+    return this.deleteNow(interaction)
+  }
+
+  /**
    * Initial reply to an interaction. Defaults to ephemeral.
    *
    * @param interaction - The interaction to reply to.
@@ -487,15 +543,21 @@ export class InteractionUtil {
    * @param interaction - The interaction to reply to.
    * @param content - The error message content.
    * @param type - The type of error for emoji selection.
+   * @param timeout - Optional timeout in milliseconds to delete the reply.
    * @returns The reply message or response or null.
    */
   static async replyError(
     interaction: OptionalRepliableInteraction,
     content: string,
-    type: ErrorType = 'NORMAL'
+    type: ErrorType = 'NORMAL',
+    timeout?: number
   ): Promise<Message | InteractionResponse | null> {
     const errorEmoji = getEmojiForErrorType(type)
-    return this.replyWithContainer(interaction, `${errorEmoji} ${content}`)
+    return this.replyWithContainer(
+      interaction,
+      `${errorEmoji} ${content}`,
+      timeout
+    )
   }
 
   /**
@@ -505,13 +567,14 @@ export class InteractionUtil {
    * @param content - The success message title/content.
    * @param description - Optional detailed description.
    * @param ephemeral - Whether the reply should be ephemeral (default: true).
+   * @param timeout - Optional timeout in milliseconds to delete the reply.
    * @returns The reply message or response or null.
    */
   static async replySuccess(
     interaction: OptionalRepliableInteraction,
     content: string,
     description?: string,
-    ephemeral?: boolean
+    timeout?: number
   ): Promise<Message | InteractionResponse | null> {
     const successContainerr = new ContainerBuilder().addTextDisplayComponents(
       (t) => t.setContent(`${STATIC_EMOJI.SUCCESS} ${content}`)
@@ -522,7 +585,7 @@ export class InteractionUtil {
         .addSeparatorComponents((s) => s)
         .addTextDisplayComponents((t) => t.setContent(description))
 
-    return this.replyWithContainer(interaction, successContainerr, ephemeral)
+    return this.replyWithContainer(interaction, successContainerr, timeout)
   }
 
   /**
@@ -532,12 +595,13 @@ export class InteractionUtil {
    * @param interaction - The interaction to respond to.
    * @param containerOrText - The content to respond with.
    * @param ephemeral - Whether the response should be ephemeral (default: true).
+   * @param timeout - Optional timeout in milliseconds to delete the reply.
    * @returns The reply message or response or null.
    */
   static async replyWithContainer(
     interaction: OptionalRepliableInteraction,
     containerOrText: ContainerBuilder | string,
-    ephemeral: boolean = true
+    timeout?: number
   ): Promise<Message | InteractionResponse | null> {
     if (!interaction) return null
 
@@ -548,7 +612,7 @@ export class InteractionUtil {
           )
         : containerOrText
 
-    return this.replyWithComponents(interaction, [container], ephemeral)
+    return this.replyWithComponents(interaction, [container], timeout)
   }
 
   /**
@@ -557,27 +621,34 @@ export class InteractionUtil {
    * @param interaction - The interaction to respond to.
    * @param components - The components to respond with.
    * @param ephemeral - Whether the response should be ephemeral (default: true).
+   * @param timeout - Optional timeout in milliseconds to delete the reply.
    * @returns The reply message or response or null.
    */
   static async replyWithComponents(
     interaction: OptionalRepliableInteraction,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     components: any[],
-    ephemeral: boolean = true
+    timeout?: number
   ): Promise<Message | InteractionResponse | null> {
     if (!interaction) return null
 
+    let response: Message | InteractionResponse | null = null
+
     if (interaction.deferred || interaction.replied) {
-      return this.editReply(interaction, {
+      response = await this.editReply(interaction, {
+        components,
+        flags: ['IsComponentsV2']
+      })
+    } else {
+      response = await this.reply(interaction, {
         components,
         flags: ['IsComponentsV2']
       })
     }
 
-    return this.reply(interaction, {
-      components,
-      flags: ephemeral ? ['IsComponentsV2', 'Ephemeral'] : ['IsComponentsV2']
-    })
+    this.scheduleDelete(interaction, timeout)
+
+    return response
   }
 }
 

@@ -77,7 +77,7 @@ export class LastFmTopCommand {
         t.setContent(`### ${title}\n${list || 'Không có dữ liệu.'}`)
       )
 
-      return InteractionUtil.replyWithContainer(interaction, container, false)
+      return InteractionUtil.replyWithContainer(interaction, container)
     } catch (e) {
       if (e instanceof NormalError) throw e
       console.error(e)

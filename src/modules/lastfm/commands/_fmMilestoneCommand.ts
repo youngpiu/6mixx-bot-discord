@@ -114,7 +114,7 @@ export class LastFmMilestoneCommand {
             .setThumbnailAccessory((thumb) => thumb.setURL(imageUrl || ''))
       )
 
-      return InteractionUtil.replyWithContainer(interaction, container, false)
+      return InteractionUtil.replyWithContainer(interaction, container)
     } catch (e) {
       if (e instanceof NormalError) throw e
       console.error(e)

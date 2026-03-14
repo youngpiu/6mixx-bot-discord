@@ -96,7 +96,7 @@ export class LastFmArtistCommand {
           )
         )
 
-        return InteractionUtil.replyWithContainer(interaction, container, false)
+        return InteractionUtil.replyWithContainer(interaction, container)
       }
 
       // Default: Overview
@@ -123,7 +123,7 @@ export class LastFmArtistCommand {
           )
         })
 
-      return InteractionUtil.replyWithContainer(interaction, container, false)
+      return InteractionUtil.replyWithContainer(interaction, container)
     } catch (e) {
       if (e instanceof NormalError) throw e
       console.error(e)

@@ -204,7 +204,8 @@ export async function handleError(
     await InteractionUtil.replyError(
       target,
       errorResponse.content,
-      errorResponse.type
+      errorResponse.type,
+      TIME.S15
     )
   }
 }
