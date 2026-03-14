@@ -186,12 +186,10 @@ export class WordChainService {
     // 2. Sort players by score DESC
     const sorted = Object.entries(playersScore).sort(([, a], [, b]) => b - a)
 
-    const medals = ['🥇', '🥈', '🥉']
     const wordUnit = 'từ'
     const leaderboardLines = sorted.map(([userId, score], index) => {
-      const rank = medals[index] ?? `**${index + 1}.**`
       const displayName = `<@${userId}>`
-      return `${rank} ${displayName} - **${score}** ${wordUnit}`
+      return `**${index + 1}.** ${displayName} - **${score}** ${wordUnit}`
     })
 
     // 4. Save results to DB

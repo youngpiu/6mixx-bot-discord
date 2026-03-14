@@ -7,11 +7,6 @@ if status == 'paused' then
   return {'PAUSED'}
 end
 
-local lastPlayerId = redis.call('HGET', KEYS[1], 'lastPlayerId')
-if lastPlayerId and lastPlayerId == ARGV[1] then
-  return {'SAME_PLAYER'}
-end
-
 local currentLastWord = redis.call('HGET', KEYS[1], 'currentLastWord')
 if currentLastWord ~= ARGV[2] then
   return {'INVALID_CHAIN', tostring(currentLastWord)}
@@ -30,7 +25,7 @@ end
 
 redis.call('HINCRBY', KEYS[6], ARGV[1], 1)
 local totalWords = redis.call('HINCRBY', KEYS[1], 'totalWords', 1)
-redis.call('HSET', KEYS[1], 'lastPlayerId', ARGV[1], 'currentLastWord', ARGV[4])
+redis.call('HSET', KEYS[1], 'currentLastWord', ARGV[4])
 
 local remaining = redis.call('SCARD', KEYS[3])
 return {'OK', tostring(totalWords), tostring(remaining), tostring(isRepeat)}

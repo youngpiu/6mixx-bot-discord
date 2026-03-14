@@ -70,7 +70,7 @@ type ViSubmitResult =
   | { status: 'ok'; totalWords: number; remainingCount: number }
 
 type EnSubmitResult =
-  | { status: 'no_state' | 'paused' | 'same_player' | 'not_in_dictionary' }
+  | { status: 'no_state' | 'paused' | 'not_in_dictionary' }
   | { status: 'invalid_chain'; expected: string }
   | {
       status: 'ok'
@@ -581,7 +581,6 @@ export class WordChainRedisService {
     }
 
     if (code === 'PAUSED') return { status: 'paused' }
-    if (code === 'SAME_PLAYER') return { status: 'same_player' }
     if (code === 'NOT_IN_DICTIONARY') return { status: 'not_in_dictionary' }
     return { status: 'no_state' }
   }

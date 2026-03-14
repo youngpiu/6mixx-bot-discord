@@ -149,12 +149,6 @@ export class WordChainMessageCreateListener extends Listener {
       case 'no_state':
       case 'paused':
         return
-      case 'same_player':
-        await this.reject(
-          message,
-          'Bạn không thể nối 2 lần liên tiếp, hãy đợi người chơi khác.'
-        )
-        return
       case 'invalid_chain':
         await this.reject(
           message,
