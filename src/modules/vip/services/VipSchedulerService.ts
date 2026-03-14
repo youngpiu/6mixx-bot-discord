@@ -45,23 +45,22 @@ export class VipSchedulerService {
             guild.id,
             member.id
           )
-          if (customRole) {
-            const roleExists = await guild.roles
-              .fetch(customRole.roleId)
-              .catch(() => null)
 
-            if (!roleExists) {
-              // Role bị xóa khỏi Discord (khi bot offline) → tạo lại
-              await VipService.grantVip(member, vipStatus.type).catch((err) => {
-                container.logger.error(
-                  `[VipSchedulerService] Failed to recreate VIP role for ${member.user.tag} in ${guild.name}:`,
-                  err
-                )
-              })
-              container.logger.info(
-                `[VipSchedulerService] Recreated missing VIP role for ${member.user.tag} (${member.id}) in ${guild.name}`
+          const roleExists = customRole
+            ? await guild.roles.fetch(customRole.roleId).catch(() => null)
+            : null
+
+          if (!customRole || !roleExists) {
+            // CustomRole record bị mất trong DB, hoặc role bị xóa khỏi Discord → tạo lại
+            await VipService.grantVip(member, vipStatus.type).catch((err) => {
+              container.logger.error(
+                `[VipSchedulerService] Failed to recreate VIP role for ${member.user.tag} in ${guild.name}:`,
+                err
               )
-            }
+            })
+            container.logger.info(
+              `[VipSchedulerService] Recreated missing VIP role for ${member.user.tag} (${member.id}) in ${guild.name}`
+            )
           }
         }
       }
