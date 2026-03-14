@@ -172,9 +172,6 @@ export class LastFmApiService {
     }
 
     const apiKey = env.LASTFM_API_KEY
-    if (!apiKey) {
-      throw new Error('Last.fm API key is not configured in .env')
-    }
 
     const searchParams = new URLSearchParams({
       method,

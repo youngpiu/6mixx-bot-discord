@@ -1,3 +1,5 @@
+import 'dotenv/config'
+
 /**
  * Fetches an environment variable by its key and optionally throws an error if it's missing.
  *
@@ -32,7 +34,7 @@ export const env = {
   BANK_NAME: getEnvVar('BANK_NAME'),
   BANK_ACCOUNT_NAME: getEnvVar('BANK_ACCOUNT_NAME'),
 
-  LASTFM_API_KEY: getEnvVar('LASTFM_API_KEY', false),
-  LASTFM_BOT_USERNAME: getEnvVar('LASTFM_BOT_USERNAME', false),
-  LASTFM_BOT_PASSWORD: getEnvVar('LASTFM_BOT_PASSWORD', false)
+  LASTFM_API_KEY: getEnvVar('LASTFM_API_KEY'),
+  LASTFM_BOT_USERNAME: getEnvVar('LASTFM_BOT_USERNAME'),
+  LASTFM_BOT_PASSWORD: getEnvVar('LASTFM_BOT_PASSWORD')
 }
