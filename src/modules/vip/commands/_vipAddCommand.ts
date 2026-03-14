@@ -64,8 +64,8 @@ export class VipAddCommand {
     const roleSelect = new RoleSelectMenuBuilder()
       .setCustomId(CUSTOM_ID.SELECT_VIP_ADD_ROLE)
       .setPlaceholder('Chọn vai trò đã có (Tuỳ chọn)')
-      .setMinValues(0)
       .setMaxValues(1)
+      .setRequired(false)
 
     const roleLabel = new LabelBuilder()
       .setLabel('Vai trò VIP (Bỏ qua nếu muốn bot tạo mới)')
