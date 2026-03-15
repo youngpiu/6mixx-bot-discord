@@ -17,7 +17,11 @@ const DEV_STATIC_EMOJI = {
   FIRST: '<:first:1479126628977086716>',
   PREVIOUS: '<:prevous:1479126630738956299>',
   NEXT: '<:next:1479126632500301993>',
-  LAST: '<:last:1479126635306553344>'
+  LAST: '<:last:1479126635306553344>',
+
+  TWITTER: '<:twitter:1482541195837050913>',
+  INSTAGRAM: '<:instagram:1482541111112368189>',
+  TIKTOK: '<:tiktok:1482541108755038248>'
 } as const
 
 // Static and animated custom emojis used in UI components — Production
@@ -37,7 +41,11 @@ const PROD_STATIC_EMOJI = {
   FIRST: '<:first:1481571029531758612>',
   PREVIOUS: '<:prevous:1481571033654886493>',
   NEXT: '<:next:1481571035622150144>',
-  LAST: '<:last:1481571037778018334>'
+  LAST: '<:last:1481571037778018334>',
+
+  TWITTER: '<:twitter:1482541350586028144>',
+  INSTAGRAM: '<:instagram:1482541352989229187>',
+  TIKTOK: '<:tiktok:1482541356256596129>'
 } as const
 
 const DEV_NUMBER_EMOJI = {
