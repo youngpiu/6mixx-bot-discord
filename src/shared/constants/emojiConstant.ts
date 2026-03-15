@@ -21,7 +21,8 @@ const DEV_STATIC_EMOJI = {
 
   TWITTER: '<:twitter:1482541195837050913>',
   INSTAGRAM: '<:instagram:1482541111112368189>',
-  TIKTOK: '<:tiktok:1482541108755038248>'
+  TIKTOK: '<:tiktok:1482541108755038248>',
+  THREADS: '<:threads:1482541108755038248>' // Placeholder for dev
 } as const
 
 // Static and animated custom emojis used in UI components — Production
@@ -45,7 +46,8 @@ const PROD_STATIC_EMOJI = {
 
   TWITTER: '<:twitter:1482541350586028144>',
   INSTAGRAM: '<:instagram:1482541352989229187>',
-  TIKTOK: '<:tiktok:1482541356256596129>'
+  TIKTOK: '<:tiktok:1482541356256596129>',
+  THREADS: '<:threads:1482541356256596129>' // Placeholder for prod
 } as const
 
 const DEV_NUMBER_EMOJI = {
