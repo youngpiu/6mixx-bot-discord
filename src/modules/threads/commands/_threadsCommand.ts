@@ -23,7 +23,7 @@ export class ThreadsCommand {
     const container = new ContainerBuilder().addTextDisplayComponents(
       (textDisplay) =>
         textDisplay.setContent(
-          `${STATIC_EMOJI.THREADS || '🧵'} **[@${threadsData.username}](https://www.threads.net/@${threadsData.username})**`
+          `${STATIC_EMOJI.THREADS} **[@${threadsData.username}](https://www.threads.net/@${threadsData.username})**`
         )
     )
 
