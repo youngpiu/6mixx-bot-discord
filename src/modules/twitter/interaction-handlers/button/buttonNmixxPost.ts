@@ -85,6 +85,16 @@ export class ButtonNmixxPost extends InteractionHandler {
         .setLabel('Thông tin người đăng (Twitter/X)')
         .setTextInputComponent(userInput)
 
+      const dateInput = new TextInputBuilder()
+        .setCustomId(CUSTOM_ID.INPUT_NMIXX_MANUAL_DATE)
+        .setStyle(TextInputStyle.Short)
+        .setPlaceholder('VD: 15.03.2026 hoặc 15/03/2026 (Để trống nếu lấy hôm nay)')
+        .setRequired(false)
+
+      const dateLabel = new LabelBuilder()
+        .setLabel('Ngày đăng (Tùy chọn)')
+        .setTextInputComponent(dateInput)
+
       const mediaUpload = new FileUploadBuilder()
         .setCustomId(CUSTOM_ID.UPLOAD_NMIXX_MANUAL_MEDIA)
         .setMinValues(1)
@@ -111,7 +121,7 @@ export class ButtonNmixxPost extends InteractionHandler {
         .setLabel(isOtp ? 'Chọn các thành viên' : 'Chọn thành viên')
         .setStringSelectMenuComponent(memberSelect)
 
-      modal.addLabelComponents(userLabel, mediaLabel, memberLabel)
+      modal.addLabelComponents(userLabel, dateLabel, mediaLabel, memberLabel)
     } else {
       const urlInput = new TextInputBuilder()
         .setCustomId(CUSTOM_ID.INPUT_NMIXX_TWEET_URL)

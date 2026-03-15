@@ -5,6 +5,7 @@ import {
 } from '@sapphire/framework'
 import { ModalSubmitInteraction, channelMention } from 'discord.js'
 
+import { NormalError } from '~/core/errorResponse'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 
@@ -53,6 +54,17 @@ export class ModalNmixxPost extends InteractionHandler {
       const user = interaction.fields.getTextInputValue(
         CUSTOM_ID.INPUT_NMIXX_MANUAL_USER
       )
+      const dateStr = interaction.fields.getTextInputValue(
+        CUSTOM_ID.INPUT_NMIXX_MANUAL_DATE
+      )
+
+      // Validate date format if provided
+      if (dateStr && !/^\d{1,2}[./]\d{1,2}[./]\d{4}$/.test(dateStr)) {
+        throw new NormalError(
+          'Định dạng ngày không hợp lệ. Vui lòng dùng dd.mm.yyyy hoặc dd/mm/yyyy.'
+        )
+      }
+
       const attachmentCollection = interaction.fields.getUploadedFiles(
         CUSTOM_ID.UPLOAD_NMIXX_MANUAL_MEDIA
       )
@@ -63,6 +75,7 @@ export class ModalNmixxPost extends InteractionHandler {
       thread = await NmixxForumService.postManualToForum({
         guild: interaction.guild!,
         user,
+        date: dateStr || undefined,
         attachments,
         members,
         isOtp

@@ -114,11 +114,12 @@ export class NmixxForumService {
   public static async postManualToForum(options: {
     guild: Guild
     user: string
+    date?: string
     attachments: Attachment[]
     members: readonly string[]
     isOtp: boolean
   }) {
-    const { guild, user, attachments, members, isOtp } = options
+    const { guild, user, date, attachments, members, isOtp } = options
 
     // 1. Get Guild Config
     const config = await SettingRepository.find(guild.id)
@@ -164,7 +165,20 @@ export class NmixxForumService {
           user.match(/(?:x|twitter)\.com\/(\w+)/) || user.match(/@?(\w+)/)
         if (usernameMatch && usernameMatch[1]) {
           const screenName = usernameMatch[1]
-          displayContent = `**[@${screenName}](https://x.com/${screenName})** - <t:${Math.floor(Date.now() / 1000)}:d>`
+
+          let timestamp = Math.floor(Date.now() / 1000)
+          if (date) {
+            const parts = date.split(/[./]/)
+            const day = parseInt(parts[0], 10)
+            const month = parseInt(parts[1], 10) - 1
+            const year = parseInt(parts[2], 10)
+            const parsedDate = new Date(year, month, day, 12, 0, 0)
+            if (!isNaN(parsedDate.getTime())) {
+              timestamp = Math.floor(parsedDate.getTime() / 1000)
+            }
+          }
+
+          displayContent = `**[@${screenName}](https://x.com/${screenName})** - <t:${timestamp}:d>`
         }
 
         return text.setContent(displayContent)
