@@ -29,13 +29,12 @@ export class TikTokCommand {
     try {
       const tiktokData = await TikTokService.fetchTikTokData(videoId)
 
-      const container = new ContainerBuilder()
-        .setAccentColor(0xff0050) // TikTok Pinkish-Red
-        .addTextDisplayComponents((textDisplay) =>
+      const container = new ContainerBuilder().addTextDisplayComponents(
+        (textDisplay) =>
           textDisplay.setContent(
             `${STATIC_EMOJI.TIKTOK} **[@${tiktokData.author.nickname}](https://www.tiktok.com/@${tiktokData.author.unique_id})** <t:${tiktokData.create_time}:s>`
           )
-        )
+      )
 
       const shouldShowCaption = showCaption || !tiktokData.play
 

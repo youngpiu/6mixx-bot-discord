@@ -61,6 +61,11 @@ const GUIDE_CONFIGS = [
     threadIdKey: 'vipTutorialThreadId',
     threadName: '✨ NƠI TUỲ CHỈNH VAI TRÒ ✨',
     generatorButtonId: 'btn-vip-send'
+  },
+  {
+    threadIdKey: 'nmixxTutorialThreadId',
+    threadName: '🌟 NƠI ĐĂNG ẢNH NMIXX TỪ TWITTER 🌟',
+    generatorButtonId: 'btn-nmixx-forum-send'
   }
 ] as const
 
@@ -207,6 +212,8 @@ export class ButtonSettingSyncServer extends InteractionHandler {
         return this.createDonationGuide()
       case 'btn-vip-send':
         return this.createVipGuide()
+      case 'btn-nmixx-forum-send':
+        return this.createNmixxGuide()
       default:
         return new ContainerBuilder()
     }
@@ -449,6 +456,31 @@ export class ButtonSettingSyncServer extends InteractionHandler {
             .setCustomId(CUSTOM_ID.BTN_DISBURSEMENT_LIST)
             .setLabel('Danh sách các khoản chi')
             .setStyle(ButtonStyle.Secondary)
+        )
+      )
+  }
+
+  private createNmixxGuide(): ContainerBuilder {
+    return new ContainerBuilder()
+      .addTextDisplayComponents((text) =>
+        text.setContent(
+          `### 🌟 **NƠI ĐĂNG ẢNH NMIXX TỪ TWITTER**\n` +
+            `Chào mừng bạn! Tại đây bạn có thể chia sẻ những tấm ảnh lung linh của NMIXX từ Twitter/X vào các kênh Forum tương ứng.\n\n` +
+            `- **Đăng ảnh đơn**: Dành cho bài viết chỉ có một thành viên.\n` +
+            `- **Đăng ảnh OTP**: Dành cho các cặp đôi hoặc nhóm thành viên.`
+        )
+      )
+      .addSeparatorComponents((sep) => sep)
+      .addActionRowComponents((row) =>
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_SINGLE)
+            .setLabel('Đăng ảnh đơn')
+            .setStyle(ButtonStyle.Primary),
+          new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_OTP)
+            .setLabel('Đăng ảnh OTP')
+            .setStyle(ButtonStyle.Success)
         )
       )
   }

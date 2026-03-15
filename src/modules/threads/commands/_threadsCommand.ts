@@ -20,13 +20,12 @@ export class ThreadsCommand {
 
     const threadsData = await ThreadsService.fetchThreadsData(url)
 
-    const container = new ContainerBuilder()
-      .setAccentColor(0x000000) // Threads Black
-      .addTextDisplayComponents((textDisplay) =>
+    const container = new ContainerBuilder().addTextDisplayComponents(
+      (textDisplay) =>
         textDisplay.setContent(
           `${STATIC_EMOJI.THREADS || '🧵'} **[@${threadsData.username}](https://www.threads.net/@${threadsData.username})**`
         )
-      )
+    )
 
     if (showCaption && threadsData.caption) {
       container

@@ -94,6 +94,14 @@ export class SettingCommand extends Command {
             .setStyle(ButtonStyle.Secondary)
         )
       )
+      .addActionRowComponents((row) =>
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_SETTING_NMIXX_FORUM)
+            .setLabel('Cài đặt kênh đăng tải ảnh NMIXX')
+            .setStyle(ButtonStyle.Secondary)
+        )
+      )
 
     await InteractionUtil.editReply(interaction, {
       components: [container],

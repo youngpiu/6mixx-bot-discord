@@ -152,5 +152,18 @@ export const CUSTOM_ID = {
   SELECT_VIP_ADD_DURATION: 'select-vip-add-duration',
   BTN_SETTING_VIP_ANCHOR: 'btn-setting-vip-anchor',
   MODAL_SETTING_VIP_ANCHOR: 'modal-setting-vip-anchor',
-  SELECT_SETTING_VIP_ANCHOR_ROLE: 'select-setting-vip-anchor-role'
+  SELECT_SETTING_VIP_ANCHOR_ROLE: 'select-setting-vip-anchor-role',
+  // Nmixx Forum Settings
+  BTN_SETTING_NMIXX_FORUM: 'btn-setting-nmixx-forum',
+  MODAL_SETTING_NMIXX_FORUM: 'modal-setting-nmixx-forum',
+  SELECT_SETTING_NMIXX_SINGLE_FORUM: 'select-setting-nmixx-single-forum',
+  SELECT_SETTING_NMIXX_OTP_FORUM: 'select-setting-nmixx-otp-forum',
+  // Nmixx Forum Post
+  BTN_NMIXX_POST_SINGLE: 'btn-nmixx-post-single',
+  BTN_NMIXX_POST_OTP: 'btn-nmixx-post-otp',
+  MODAL_NMIXX_POST_SINGLE: 'modal-nmixx-post-single',
+  MODAL_NMIXX_POST_OTP: 'modal-nmixx-post-otp',
+  INPUT_NMIXX_TWEET_URL: 'input-nmixx-tweet-url',
+  SELECT_NMIXX_MEMBER_SINGLE: 'select-nmixx-member-single',
+  SELECT_NMIXX_MEMBER_OTP: 'select-nmixx-member-otp'
 } as const

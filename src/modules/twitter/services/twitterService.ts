@@ -59,7 +59,10 @@ export class TwitterService {
       // Extract specific fields
       const mediaList: TwitterMedia[] = medias.map((m) => ({
         type: m.type,
-        url: m.url
+        url:
+          m.type === 'photo' || m.type === 'image'
+            ? this.optimizeImageUrl(m.url)
+            : m.url
       }))
 
       // Screen name / Username
@@ -102,5 +105,22 @@ export class TwitterService {
     }
 
     return text
+  }
+
+  /**
+   * Transforms a Twitter image URL to use the highest available resolution (?name=orig).
+   */
+  public static optimizeImageUrl(url: string): string {
+    if (!url.includes('pbs.twimg.com/media/')) return url
+
+    try {
+      const urlObj = new URL(url)
+      // Remove format parameter if present to let Discord handle it or keep it clean
+      // Actually, format is usually needed (jpg/png), but name is the size.
+      urlObj.searchParams.set('name', 'orig')
+      return urlObj.toString()
+    } catch {
+      return url
+    }
   }
 }
