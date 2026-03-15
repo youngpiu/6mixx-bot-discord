@@ -50,7 +50,7 @@ export class ButtonNmixxPostCollection extends InteractionHandler {
     const thumbnailLabel = new LabelBuilder()
       .setLabel('Ảnh đại diện kênh')
       .setDescription(
-        'Ảnh này sẽ hiển thị bên ngoài danh sách kênh, vì vậy hãy chọn một ảnh đẹp nhất và nên là ảnh có tỉ lệ 1/1.'
+        'Ảnh này sẽ hiển thị bên ngoài danh sách kênh, vì vậy hãy chọn một ảnh đẹp nhất có tỉ lệ 1/1.'
       )
       .setFileUploadComponent(thumbnailUpload)
 
