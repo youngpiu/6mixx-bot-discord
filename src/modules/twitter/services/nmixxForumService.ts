@@ -150,7 +150,7 @@ export class NmixxForumService {
       thread = await forum.threads.create({
         name: threadName,
         message: {
-          content: `Tiểu sử ảnh: **${threadName}**`
+          content: `<t:${Math.floor(Date.now() / 1000)}:d>`
         }
       })
     }
