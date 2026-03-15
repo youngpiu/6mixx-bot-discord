@@ -630,7 +630,7 @@ export class InteractionUtil {
     components: any[],
     timeout?: number
   ): Promise<Message | InteractionResponse | null> {
-    if (!interaction) return null
+    if (!interaction || !interaction.isRepliable()) return null
 
     let response: Message | InteractionResponse | null = null
 

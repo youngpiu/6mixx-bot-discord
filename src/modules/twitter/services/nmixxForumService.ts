@@ -144,7 +144,6 @@ export class NmixxForumService {
     const thread = await forum.threads.create({
       name: threadName,
       message: {
-        content: `<t:${Math.floor(Date.now() / 1000)}:d>`,
         files: [thumbnail]
       }
     })

@@ -95,9 +95,12 @@ export function formatWhoknowsContainer(
           )
       )
 
-      if (thumbnail) {
-        section.setThumbnailAccessory((thumb) => thumb.setURL(thumbnail))
-      }
+      section.setThumbnailAccessory((thumb) =>
+        thumb.setURL(
+          thumbnail ||
+            'https://www.last.fm/static/images/lastfm_logo_facebook.1a98059635f1.png'
+        )
+      )
       return section
     })
     .addSeparatorComponents((s) => s)

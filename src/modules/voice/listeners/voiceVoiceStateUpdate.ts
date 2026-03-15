@@ -140,6 +140,16 @@ export class VoiceVoiceStateUpdateListener extends Listener {
       )
     }
 
+    setupPromises.push(
+      tempChannel.permissionOverwrites
+        .edit(member.id, {
+          Connect: true,
+          Speak: true,
+          SendMessages: true
+        })
+        .catch(() => null)
+    )
+
     const trusted = await TempVoiceTrustedMemberRepository.listByOwner(
       guild.id,
       member.id

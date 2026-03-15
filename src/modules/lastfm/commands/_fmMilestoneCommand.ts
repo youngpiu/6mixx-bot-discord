@@ -111,7 +111,9 @@ export class LastFmMilestoneCommand {
                 ),
               (t) => t.setContent(`Nghe vào lúc ${date}`)
             )
-            .setThumbnailAccessory((thumb) => thumb.setURL(imageUrl || ''))
+            .setThumbnailAccessory((thumb) =>
+              thumb.setURL(imageUrl || targetUser.displayAvatarURL())
+            )
       )
 
       return InteractionUtil.replyWithContainer(interaction, container)

@@ -22,6 +22,11 @@ export class VoiceLockCommand {
       channel.permissionOverwrites.edit(channel.guild.roles.everyone.id, {
         Connect: false
       }),
+      channel.permissionOverwrites.edit(profile.ownerId, {
+        Connect: true,
+        Speak: true,
+        SendMessages: true
+      }),
       TempVoiceProfileRepository.updateProfile(
         interaction.guildId!,
         profile.ownerId,

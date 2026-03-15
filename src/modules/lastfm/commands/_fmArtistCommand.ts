@@ -114,7 +114,9 @@ export class LastFmArtistCommand {
                 `### [${artist.name}](https://www.last.fm/music/${encodeURIComponent(artist.name)})\n${bio || 'Không có tiểu sử.'}`
               )
             )
-            .setThumbnailAccessory((thumb) => thumb.setURL(imageUrl || ''))
+            .setThumbnailAccessory((thumb) =>
+              thumb.setURL(imageUrl || targetUser.displayAvatarURL())
+            )
         )
         .addSeparatorComponents((s) => s)
         .addTextDisplayComponents((t) => {

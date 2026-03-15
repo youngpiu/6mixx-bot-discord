@@ -47,9 +47,10 @@ export class LastFmProfileCommand {
 
           const thumbnailUrl =
             user.image.find((i) => i.size === 'extralarge')?.['#text'] || null
-          if (thumbnailUrl) {
-            section.setThumbnailAccessory((thumb) => thumb.setURL(thumbnailUrl))
-          }
+
+          section.setThumbnailAccessory((thumb) =>
+            thumb.setURL(thumbnailUrl || targetUser.displayAvatarURL())
+          )
           return section
         })
         .addSeparatorComponents((s) => s)

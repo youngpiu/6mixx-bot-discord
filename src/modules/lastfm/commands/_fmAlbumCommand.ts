@@ -102,7 +102,9 @@ export class LastFmAlbumCommand {
               .addTextDisplayComponents((t) =>
                 t.setContent(`### Tracklist: ${album.name}\n**${artistName}**`)
               )
-              .setThumbnailAccessory((thumb) => thumb.setURL(imageUrl || ''))
+              .setThumbnailAccessory((thumb) =>
+                thumb.setURL(imageUrl || targetUser.displayAvatarURL())
+              )
           )
           .addSeparatorComponents((s) => s)
           .addTextDisplayComponents((t) => t.setContent(list))
@@ -120,7 +122,9 @@ export class LastFmAlbumCommand {
                 `### [${album.name}](${album.url})\n**${artistName}**`
               )
             )
-            .setThumbnailAccessory((thumb) => thumb.setURL(imageUrl || ''))
+            .setThumbnailAccessory((thumb) =>
+              thumb.setURL(imageUrl || targetUser.displayAvatarURL())
+            )
         )
         .addSeparatorComponents((s) => s)
         .addTextDisplayComponents((t) => {

@@ -21,7 +21,8 @@ export class LastFmNowPlayingCommand {
       track.album?.title || track.album?.['#text'] || 'Unknown Album'
     const imageUrl =
       track.image.find((i) => i.size === 'extralarge')?.['#text'] ||
-      track.image.find((i) => i.size === 'large')?.['#text']
+      track.image.find((i) => i.size === 'large')?.['#text'] ||
+      targetUser.displayAvatarURL()
 
     const containers: ContainerBuilder[] = []
 
