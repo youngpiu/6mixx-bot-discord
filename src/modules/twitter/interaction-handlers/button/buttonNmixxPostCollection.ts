@@ -28,11 +28,11 @@ export class ButtonNmixxPostCollection extends InteractionHandler {
   public async run(interaction: ButtonInteraction) {
     const modal = new ModalBuilder()
       .setCustomId(CUSTOM_ID.MODAL_NMIXX_POST_COLLECTION)
-      .setTitle('Tạo bộ sưu tập (Thread) mới')
+      .setTitle('Tạo bộ sưu tập mới')
 
     const memberSelect = new StringSelectMenuBuilder()
       .setCustomId(CUSTOM_ID.SELECT_NMIXX_MEMBER_OTP)
-      .setPlaceholder('Chọn thành viên hoặc nhóm NMIXX...')
+      .setPlaceholder('Chọn một hoặc nhiều thành viên')
       .addOptions(NMIXX_MEMBERS)
       .setMinValues(1)
       .setMaxValues(NMIXX_MEMBERS.length)
@@ -48,8 +48,10 @@ export class ButtonNmixxPostCollection extends InteractionHandler {
       .setRequired(true)
 
     const thumbnailLabel = new LabelBuilder()
-      .setLabel('Ảnh đại diện (Thumbnail)')
-      .setDescription('Ảnh này sẽ hiển thị bên ngoài danh sách Forum.')
+      .setLabel('Ảnh đại diện kênh')
+      .setDescription(
+        'Ảnh này sẽ hiển thị bên ngoài danh sách kênh, vì vậy hãy chọn một ảnh đẹp nhất và nên là ảnh có tỉ lệ 1/1.'
+      )
       .setFileUploadComponent(thumbnailUpload)
 
     modal.addLabelComponents(memberLabel, thumbnailLabel)

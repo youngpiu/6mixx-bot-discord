@@ -466,7 +466,7 @@ export class ButtonSettingSyncServer extends InteractionHandler {
         text.setContent(
           lines(
             `### ${ANIMATED_EMOJI.WING_LEFT} NƠI ĐĂNG ẢNH/VIDEO FANSITE NMIXX ${ANIMATED_EMOJI.WING_RIGHT}`,
-            `-# Tại đây bạn có thể chia sẻ những tấm ảnh lung linh của NMIXX vào **kho ảnh** của máy chủ **VNMIXX**.`
+            `-# Tại đây bạn có thể chia sẻ những tấm ảnh lung linh của **NMIXX** vào **kho ảnh** của máy chủ **VNMIXX**.`
           )
         )
       )
@@ -474,16 +474,19 @@ export class ButtonSettingSyncServer extends InteractionHandler {
       .addTextDisplayComponents((t) =>
         t.setContent(
           lines(
-            `- **Các loại kênh:**`,
-            `  - **Đăng đơn**: Chỉ đăng ảnh có một thành viên.`,
-            `  - **Đăng OTP**: Chỉ đăng ảnh có từ 2 thành viên trở lên.`,
-            `- **Các loại nút:**`,
-            `  - **Đăng qua X**: Đăng ảnh/video bằng cách nhập đường dẫn X/Twiter dẫn tới bài viết của fansite.`,
-            `  - **Đăng thủ công**: Đăng ảnh/video bằng cách tải các tệp ảnh/video thủ công từ máy của bạn.`,
-            `- **Lưu ý:**`,
-            `  - Khuyến khích đăng ảnh/video bằng cách nhập đường dẫn X/Twiter.`,
-            `  - Không nên đăng ảnh/video thủ công nếu không cần thiết.`,
-            `  - Khi đăng ảnh/video thủ công, hãy đảm bảo rằng tệp ảnh/video của bạn có kích thước phù hợp và không chứa nội dung vi phạm`
+            `- **Loại kênh:**`,
+            `  - **Kênh đơn:** Chỉ đăng ảnh/video của **một thành viên**.`,
+            `  - **Kênh OTP:** Chỉ đăng ảnh/video có **từ hai thành viên trở lên**.`,
+            `- **Phương thức đăng bài:**`,
+            `  - **Đăng qua X (Twitter):** Dán đường dẫn bài viết từ fansite trên X/Twitter để bot tự lấy ảnh/video.`,
+            `  - **Đăng thủ công:** Tải trực tiếp ảnh/video từ máy của bạn lên.`,
+            `- **Chức năng khác:**`,
+            `  - **Tạo bộ sưu tập:** Tạo kênh mới để lưu trữ ảnh/video theo thành viên hoặc OTP.`,
+            `- **Quy định:**`,
+            `  - Chỉ đăng ảnh/video từ **fansite chính thống**.`,
+            `  - Ưu tiên sử dụng **đăng qua X (Twitter)** để giữ nguồn gốc bài viết.`,
+            `  - Hạn chế đăng thủ công nếu không cần thiết.`,
+            `  - Khi đăng thủ công, đảm bảo tệp **đúng định dạng, kích thước hợp lý và không chứa nội dung vi phạm**.`
           )
         )
       )
@@ -493,11 +496,11 @@ export class ButtonSettingSyncServer extends InteractionHandler {
           new ButtonBuilder()
             .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_X)
             .setLabel('Đăng qua X')
-            .setStyle(ButtonStyle.Primary),
+            .setStyle(ButtonStyle.Success),
           new ButtonBuilder()
             .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_MANUAL)
             .setLabel('Đăng thủ công')
-            .setStyle(ButtonStyle.Success),
+            .setStyle(ButtonStyle.Danger),
           new ButtonBuilder()
             .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_COLLECTION)
             .setLabel('Tạo bộ sưu tập')

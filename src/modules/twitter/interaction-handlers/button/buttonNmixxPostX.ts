@@ -43,13 +43,16 @@ export class ButtonNmixxPostX extends InteractionHandler {
 
     const memberSelect = new StringSelectMenuBuilder()
       .setCustomId(CUSTOM_ID.SELECT_NMIXX_MEMBER_OTP)
-      .setPlaceholder('Chọn thành viên hoặc nhóm NMIXX...')
+      .setPlaceholder('Chọn một hoặc nhiều thành viên')
       .addOptions(NMIXX_MEMBERS)
       .setMinValues(1)
       .setMaxValues(NMIXX_MEMBERS.length)
 
     const memberLabel = new LabelBuilder()
       .setLabel('Thành viên')
+      .setDescription(
+        'Nếu chọn nhiều hơn 1 thành viên, bài viết sẽ được đăng vào kênh OTP.'
+      )
       .setStringSelectMenuComponent(memberSelect)
 
     modal.addLabelComponents(urlLabel, memberLabel)

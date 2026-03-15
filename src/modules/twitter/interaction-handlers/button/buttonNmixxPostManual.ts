@@ -45,11 +45,11 @@ export class ButtonNmixxPostManual extends InteractionHandler {
     const dateInput = new TextInputBuilder()
       .setCustomId(CUSTOM_ID.INPUT_NMIXX_MANUAL_DATE)
       .setStyle(TextInputStyle.Short)
-      .setPlaceholder('VD: 15.03.2026 (Để trống nếu lấy hôm nay)')
+      .setPlaceholder('VD: 15.03.2026 hoặc 15/03/2026')
       .setRequired(false)
 
     const dateLabel = new LabelBuilder()
-      .setLabel('Ngày đăng (Tùy chọn)')
+      .setLabel('Ngày đăng (Không bắt buộc)')
       .setTextInputComponent(dateInput)
 
     const mediaUpload = new FileUploadBuilder()
@@ -65,13 +65,16 @@ export class ButtonNmixxPostManual extends InteractionHandler {
 
     const memberSelect = new StringSelectMenuBuilder()
       .setCustomId(CUSTOM_ID.SELECT_NMIXX_MEMBER_OTP)
-      .setPlaceholder('Chọn thành viên hoặc nhóm NMIXX...')
+      .setPlaceholder('Chọn một hoặc nhiều thành viên')
       .addOptions(NMIXX_MEMBERS)
       .setMinValues(1)
       .setMaxValues(NMIXX_MEMBERS.length)
 
     const memberLabel = new LabelBuilder()
       .setLabel('Thành viên')
+      .setDescription(
+        'Nếu chọn nhiều hơn 1 thành viên, bài viết sẽ được đăng vào kênh OTP.'
+      )
       .setStringSelectMenuComponent(memberSelect)
 
     modal.addLabelComponents(userLabel, dateLabel, mediaLabel, memberLabel)
