@@ -88,7 +88,9 @@ export class ButtonNmixxPost extends InteractionHandler {
       const dateInput = new TextInputBuilder()
         .setCustomId(CUSTOM_ID.INPUT_NMIXX_MANUAL_DATE)
         .setStyle(TextInputStyle.Short)
-        .setPlaceholder('VD: 15.03.2026 hoặc 15/03/2026 (Để trống nếu lấy hôm nay)')
+        .setPlaceholder(
+          'VD: 15.03.2026 hoặc 15/03/2026 (Để trống nếu lấy hôm nay)'
+        )
         .setRequired(false)
 
       const dateLabel = new LabelBuilder()

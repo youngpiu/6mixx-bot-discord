@@ -165,8 +165,8 @@ export class NmixxForumService {
           user.match(/(?:x|twitter)\.com\/(\w+)/) || user.match(/@?(\w+)/)
         if (usernameMatch && usernameMatch[1]) {
           const screenName = usernameMatch[1]
+          displayContent = `**[@${screenName}](https://x.com/${screenName})**`
 
-          let timestamp = Math.floor(Date.now() / 1000)
           if (date) {
             const parts = date.split(/[./]/)
             const day = parseInt(parts[0], 10)
@@ -174,11 +174,10 @@ export class NmixxForumService {
             const year = parseInt(parts[2], 10)
             const parsedDate = new Date(year, month, day, 12, 0, 0)
             if (!isNaN(parsedDate.getTime())) {
-              timestamp = Math.floor(parsedDate.getTime() / 1000)
+              const timestamp = Math.floor(parsedDate.getTime() / 1000)
+              displayContent += ` - <t:${timestamp}:d>`
             }
           }
-
-          displayContent = `**[@${screenName}](https://x.com/${screenName})** - <t:${timestamp}:d>`
         }
 
         return text.setContent(displayContent)
