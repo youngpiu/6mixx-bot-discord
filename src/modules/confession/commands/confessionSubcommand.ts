@@ -1,10 +1,6 @@
 import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Subcommand } from '@sapphire/plugin-subcommands'
-import {
-  ChannelType,
-  ChatInputCommandInteraction,
-  PermissionFlagsBits
-} from 'discord.js'
+import { ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js'
 
 import { ConfessionDetailCommand } from '~/modules/confession/commands/_confessionDetailCommand'
 import { ConfessionListCommand } from '~/modules/confession/commands/_confessionListCommand'
@@ -36,7 +32,7 @@ import { ConfessionListCommand } from '~/modules/confession/commands/_confession
   name: 'confession',
   description: 'Quản lý hệ thống confession.',
   requiredUserPermissions: ['Administrator'],
-  runIn: [ChannelType.GuildText],
+  preconditions: ['GuildOnly'],
   subcommands: [
     {
       name: 'list',

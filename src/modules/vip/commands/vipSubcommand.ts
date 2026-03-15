@@ -1,10 +1,6 @@
 import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Subcommand } from '@sapphire/plugin-subcommands'
-import {
-  ChannelType,
-  ChatInputCommandInteraction,
-  PermissionFlagsBits
-} from 'discord.js'
+import { ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js'
 
 import { VipAddCommand } from '~/modules/vip/commands/_vipAddCommand'
 import { VipRemoveCommand } from '~/modules/vip/commands/_vipRemoveCommand'
@@ -34,8 +30,7 @@ import { VipRemoveCommand } from '~/modules/vip/commands/_vipRemoveCommand'
 @ApplyOptions<Subcommand.Options>({
   name: 'vip',
   description: 'Quản lý hệ thống vai trò VIP.',
-  runIn: [ChannelType.GuildText, ChannelType.GuildVoice],
-  preconditions: ['OwnerOnly'],
+  preconditions: ['GuildOnly', 'OwnerOnly'],
   subcommands: [
     {
       name: 'add',

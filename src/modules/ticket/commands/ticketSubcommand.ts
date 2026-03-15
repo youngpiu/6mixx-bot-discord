@@ -1,11 +1,7 @@
 // Main ticket command router
 import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Subcommand } from '@sapphire/plugin-subcommands'
-import {
-  ChannelType,
-  ChatInputCommandInteraction,
-  PermissionFlagsBits
-} from 'discord.js'
+import { ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js'
 
 import { TicketCloseCommand } from '~/modules/ticket/commands/_ticketCloseCommand'
 import { TicketDetailCommand } from '~/modules/ticket/commands/_ticketDetailCommand'
@@ -50,7 +46,7 @@ import { TicketListCommand } from '~/modules/ticket/commands/_ticketListCommand'
   description: 'Hệ thống hỗ trợ thành viên.',
   enabled: true,
   requiredUserPermissions: ['Administrator'],
-  runIn: [ChannelType.GuildText],
+  preconditions: ['GuildOnly'],
   subcommands: [
     {
       name: 'close',

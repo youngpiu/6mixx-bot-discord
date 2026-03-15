@@ -1,6 +1,6 @@
 import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Subcommand } from '@sapphire/plugin-subcommands'
-import { ChannelType, ChatInputCommandInteraction } from 'discord.js'
+import { ChatInputCommandInteraction } from 'discord.js'
 
 import { WordChainAddCommand } from '~/modules/word-chain/commands/_wordChainAddCommand'
 import { WordChainHintCommand } from '~/modules/word-chain/commands/_wordChainHintCommand'
@@ -31,7 +31,7 @@ import { WordChainUnpauseCommand } from '~/modules/word-chain/commands/_wordChai
 @ApplyOptions<Subcommand.Options>({
   name: 'wordchain',
   description: 'Quản lý trò chơi nối từ.',
-  runIn: [ChannelType.GuildText],
+  preconditions: ['GuildOnly'],
   subcommands: [
     {
       name: 'start',

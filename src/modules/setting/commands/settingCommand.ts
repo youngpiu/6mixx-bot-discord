@@ -3,7 +3,6 @@ import { Command } from '@sapphire/framework'
 import {
   ButtonBuilder,
   ButtonStyle,
-  ChannelType,
   ChatInputCommandInteraction,
   ContainerBuilder
 } from 'discord.js'
@@ -19,8 +18,7 @@ import { lines } from '~/shared/utils/textUtil'
 @ApplyOptions<Command.Options>({
   name: 'setting',
   description: '[OWNER] Cài đặt máy chủ VNMIXX',
-  runIn: [ChannelType.GuildText, ChannelType.GuildVoice],
-  preconditions: ['OwnerOnly']
+  preconditions: ['GuildOnly', 'OwnerOnly']
 })
 export class SettingCommand extends Command {
   public override async chatInputRun(interaction: ChatInputCommandInteraction) {

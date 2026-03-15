@@ -1,6 +1,6 @@
 import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Subcommand } from '@sapphire/plugin-subcommands'
-import { ChannelType, ChatInputCommandInteraction } from 'discord.js'
+import { ChatInputCommandInteraction } from 'discord.js'
 
 import { TIME } from '~/shared/constants/timeConstant'
 
@@ -127,8 +127,7 @@ import { VoiceUnlockCommand } from '~/modules/voice/commands/_voiceUnlockCommand
 @ApplyOptions<Subcommand.Options>({
   name: 'voice',
   description: 'Quản lý phòng voice tạm.',
-  runIn: [ChannelType.GuildText, ChannelType.GuildVoice],
-  preconditions: ['TempVoiceChannelOnly'],
+  preconditions: ['GuildOnly', 'TempVoiceChannelOnly'],
   subcommands: [
     {
       name: 'rename',
