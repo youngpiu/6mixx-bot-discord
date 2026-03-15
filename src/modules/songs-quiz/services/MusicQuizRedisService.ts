@@ -9,6 +9,8 @@ export interface MusicQuizState {
   currentSongId?: number
   roundStartTime?: number
   isEnding: boolean
+  isRoundEnded?: boolean
+  isPlaying?: boolean
 }
 
 const STATE_KEY = (guildId: string) => `musicQuiz:state:guild:${guildId}`

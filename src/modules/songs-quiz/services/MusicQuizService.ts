@@ -8,15 +8,19 @@ import {
   AttachmentBuilder,
   EmbedBuilder,
   Guild,
+  Message,
   TextChannel,
   VoiceChannel
 } from 'discord.js'
 import fs from 'node:fs'
 import path from 'node:path'
 
+import { MusicQuizSong } from 'generated/prisma/client'
+
 import { NormalError } from '~/core/errorResponse'
 
 import { SettingRepository } from '~/shared/repositories/settingRepository'
+import { formatFields, lines } from '~/shared/utils/textUtil'
 
 import { AudioProcessor } from '../helpers/AudioProcessor'
 import { MusicQuizSongRepository } from '../repositories/MusicQuizSongRepository'
@@ -79,9 +83,6 @@ export class MusicQuizService {
 
     // Listeners for Timing and Cleanup
     connection.on(VoiceConnectionStatus.Disconnected, () => {
-      container.logger.info(
-        `[MusicQuiz] Voice disconnected from guild ${guild.id}`
-      )
       this.stopSession(guild.id)
     })
 
@@ -93,23 +94,12 @@ export class MusicQuizService {
     })
 
     player.on(AudioPlayerStatus.Playing, async () => {
-      container.logger.debug(
-        `[MusicQuiz] Player is PLAYING in guild ${guild.id}`
-      )
       await MusicQuizRedisService.updateState(guild.id, {
         roundStartTime: Date.now()
       })
     })
 
-    player.on(AudioPlayerStatus.Buffering, () => {
-      container.logger.debug(
-        `[MusicQuiz] Player is BUFFERING in guild ${guild.id}`
-      )
-    })
-
-    player.on(AudioPlayerStatus.Idle, () => {
-      container.logger.debug(`[MusicQuiz] Player is IDLE in guild ${guild.id}`)
-    })
+    player.on(AudioPlayerStatus.Idle, () => {})
 
     player.on('error', (error) => {
       container.logger.error(
@@ -123,15 +113,9 @@ export class MusicQuizService {
   }
 
   public static async nextRound(guildId: string) {
-    container.logger.debug(
-      `[MusicQuiz] Attempting nextRound for guild ${guildId}`
-    )
     const state = await MusicQuizRedisService.getState(guildId)
     const handles = MusicQuizSessionManager.getHandles(guildId)
     if (!state || state.isEnding || !handles) {
-      container.logger.warn(
-        `[MusicQuiz] nextRound aborted: state=${!!state}, isEnding=${state?.isEnding}, handles=${!!handles}`
-      )
       return
     }
 
@@ -139,23 +123,13 @@ export class MusicQuizService {
 
     const song = await MusicQuizSongRepository.getRandom()
     if (!song) {
-      container.logger.error(
-        `[MusicQuiz] No songs found in repository for guild ${guildId}`
-      )
       await this.stopSession(guildId)
       throw new NormalError(
         'Không tìm thấy bài hát nào trong dữ liệu! Hãy thêm bài hát trước khi bắt đầu.'
       )
     }
 
-    container.logger.info(
-      `[MusicQuiz] Picked song: ${song.title} (ID: ${song.id}) for guild ${guildId}`
-    )
-
     if (!song.opusUrl || song.opusUrl.trim() === '') {
-      container.logger.error(
-        `[MusicQuiz] Song ID ${song.id} has empty opusUrl! Skipping to next...`
-      )
       const textChannel = (await container.client.channels.fetch(
         state.textChannelId
       )) as TextChannel
@@ -166,7 +140,11 @@ export class MusicQuizService {
       return
     }
 
-    await MusicQuizRedisService.updateState(guildId, { currentSongId: song.id })
+    await MusicQuizRedisService.updateState(guildId, {
+      currentSongId: song.id,
+      isRoundEnded: false,
+      isPlaying: false
+    })
 
     const textChannel = (await container.client.channels.fetch(
       state.textChannelId
@@ -181,31 +159,22 @@ export class MusicQuizService {
       name: 'question.png'
     })
     // Calculate Display Stats for Question
-    const totalAttempts = song.totalAttempts
-    const correctRatio =
-      totalAttempts > 0
-        ? ((song.correctAttempts / totalAttempts) * 100).toFixed(1)
-        : '0.0'
-    const avgTime = song.avgGuessTime.toFixed(1)
-    let bestDisplay = 'No Record'
-    if (song.bestGuessTime) {
-      bestDisplay = `${song.bestGuessTime.toFixed(1)}s`
+    const revealStats = {
+      correctRatio:
+        song.totalAttempts > 0
+          ? ((song.correctAttempts / song.totalAttempts) * 100).toFixed(1)
+          : '0.0',
+      avgTime: song.avgGuessTime.toFixed(1),
+      bestDisplay: song.bestGuessTime
+        ? `${song.bestGuessTime.toFixed(1)}s`
+        : '???'
     }
 
     const startEmbed = new EmbedBuilder()
-      .setTitle('What song do you think is on right now?')
+      .setTitle('Đoán xem bài hát hiện tại là bài gì?')
       .setColor('#2ecc71')
       .setThumbnail('attachment://question.png')
-      .setDescription(
-        '```\n' +
-          `📀 Song Title: ???\n` +
-          `🎤 Singer: ??\n` +
-          `🖼️ Album: ??\n` +
-          `✅ Correct: ${correctRatio}%\n` +
-          `⏱️ Avg Time: ${avgTime}s\n` +
-          `🏅 Record: ${bestDisplay}\n` +
-          '```'
-      )
+      .setDescription(this.renderQuizDescription(song, revealStats, false))
 
     await textChannel.send({ embeds: [startEmbed], files: [placeholderImg] })
 
@@ -221,14 +190,12 @@ export class MusicQuizService {
         const maxStart = Math.max(0, duration - 70)
         const startTime = Math.floor(Math.random() * maxStart)
 
-        container.logger.debug(
-          `[MusicQuiz] Playing segment: ${song.opusUrl} from ${startTime}s`
-        )
         const resource = AudioProcessor.createRandomSegmentResource(
           song.opusUrl,
           startTime
         )
         currentHandles.player.play(resource)
+        await MusicQuizRedisService.updateState(guildId, { isPlaying: true })
 
         // 1m timer starts when music starts
         if (currentHandles.timeoutId) clearTimeout(currentHandles.timeoutId)
@@ -244,7 +211,13 @@ export class MusicQuizService {
   private static async handleTimeout(guildId: string) {
     const state = await MusicQuizRedisService.getState(guildId)
     const handles = MusicQuizSessionManager.getHandles(guildId)
-    if (!state || state.isEnding || !handles) return
+    if (!state || state.isEnding || state.isRoundEnded || !handles) return
+
+    // Lock the round
+    await MusicQuizRedisService.updateState(guildId, {
+      isRoundEnded: true,
+      isPlaying: false
+    })
 
     const song = state.currentSongId
       ? await MusicQuizSongRepository.getById(state.currentSongId)
@@ -265,15 +238,7 @@ export class MusicQuizService {
       state.textChannelId
     )) as TextChannel
 
-    // Calculate Stats
-    const totalAttempts = song.totalAttempts + 1
-    const correctRatio =
-      totalAttempts > 0
-        ? ((song.correctAttempts / totalAttempts) * 100).toFixed(1)
-        : '0.0'
-    const avgTime = song.avgGuessTime.toFixed(1)
-
-    let bestDisplay = 'No Record'
+    let bestDisplay = '???'
     if (song.bestGuessTime) {
       bestDisplay = `${song.bestGuessTime.toFixed(1)}s`
       if (song.bestGuesserId) {
@@ -282,19 +247,21 @@ export class MusicQuizService {
     }
 
     const thumbAttachment = this.resolveThumbAttachment(song.thumbUrl)
+    const revealStats = {
+      correctRatio:
+        song.totalAttempts + 1 > 0
+          ? ((song.correctAttempts / (song.totalAttempts + 1)) * 100).toFixed(1)
+          : '0.0',
+      avgTime: song.avgGuessTime.toFixed(1),
+      bestDisplay: bestDisplay
+    }
+
     const timeoutEmbed = new EmbedBuilder()
-      .setTitle('No one seems to have the answer just yet')
+      .setTitle('Không có một ai trả lời đúng :(')
       .setColor('#f1c40f') // Yellowish like image 2
       .setDescription(
-        `**To hear more:** [Click Me](${song.songUrl ?? 'https://www.youtube.com'})\n` +
-          '```\n' +
-          `📀 Song Title: ${song.title}\n` +
-          `🎤 Singer: ${song.singer}\n` +
-          `🖼️ Album: ${song.album ?? '--'}\n` +
-          `✅ Correct: ${correctRatio}%\n` +
-          `⏱️ Avg Time: ${avgTime}s\n` +
-          `🏅 Record: ${bestDisplay}\n` +
-          '```'
+        `**[Nhấn vào đây để nghe thêm...](${song.songUrl ?? 'https://www.youtube.com'})**\n\n` +
+          this.renderQuizDescription(song, revealStats, true)
       )
 
     if (thumbAttachment) timeoutEmbed.setThumbnail('attachment://thumbnail.jpg')
@@ -311,11 +278,18 @@ export class MusicQuizService {
   public static async handleGuess(
     guildId: string,
     guess: string,
-    userId: string
+    userId: string,
+    message?: Message
   ): Promise<boolean> {
     const state = await MusicQuizRedisService.getState(guildId)
     const handles = MusicQuizSessionManager.getHandles(guildId)
-    if (!state || !state.currentSongId || state.isEnding || !handles)
+    if (
+      !state ||
+      !state.currentSongId ||
+      state.isEnding ||
+      state.isRoundEnded ||
+      !handles
+    )
       return false
 
     const song = await MusicQuizSongRepository.getById(state.currentSongId)
@@ -331,6 +305,12 @@ export class MusicQuizService {
     )) as TextChannel
 
     if (isCorrect) {
+      // Atomic-ish lock: set isRoundEnded to true in Redis immediately
+      await MusicQuizRedisService.updateState(guildId, {
+        isRoundEnded: true,
+        isPlaying: false
+      })
+
       if (handles.timeoutId) clearTimeout(handles.timeoutId)
 
       // Stop music immediately
@@ -349,17 +329,8 @@ export class MusicQuizService {
       const displayName = song.title
       const thumbAttachment = this.resolveThumbAttachment(song.thumbUrl)
 
-      // Calculate Stats
-      const totalAttempts = song.totalAttempts + 1
-      const correctAttempts = song.correctAttempts + 1
-      const correctRatio =
-        totalAttempts > 0
-          ? ((correctAttempts / totalAttempts) * 100).toFixed(1)
-          : '100.0'
-      const avgTime = song.avgGuessTime.toFixed(1)
-
       // Best record handling
-      let bestDisplay = 'No Record'
+      let bestDisplay = '???'
       if (song.bestGuessTime) {
         bestDisplay = `${song.bestGuessTime.toFixed(1)}s`
         if (song.bestGuesserId) {
@@ -367,38 +338,49 @@ export class MusicQuizService {
         }
       }
 
+      const revealStats = {
+        correctRatio:
+          song.totalAttempts + 1 > 0
+            ? (
+                ((song.correctAttempts + 1) / (song.totalAttempts + 1)) *
+                100
+              ).toFixed(1)
+            : '100.0',
+        avgTime: song.avgGuessTime.toFixed(1),
+        bestDisplay: bestDisplay
+      }
+
       const successEmbed = new EmbedBuilder()
-        .setTitle(`<@${userId}>, You guessed it right!`)
+        .setTitle(`Bạn đoán đúng rồi!`)
         .setColor('#3498db') // Blue like your screenshot
         .setDescription(
-          `Yay! You got it in **${timeTaken.toFixed(1)}s**! 🥳 You've gained **1** points! 🎶\n\n` +
-            `**To hear more:** [Click Me](${song.songUrl ?? 'https://www.youtube.com'})\n` +
-            '```\n' +
-            `📀 Song Title: ${displayName}\n` +
-            `🎤 Singer: ${song.singer}\n` +
-            `🖼️ Album: ${song.album ?? '--'}\n` +
-            `✅ Correct: ${correctRatio}%\n` +
-            `⏱️ Avg Time: ${avgTime}s\n` +
-            `🏅 Record: ${bestDisplay}\n` +
-            '```'
+          `Yay! Bạn đoán đúng sau **${timeTaken.toFixed(1)}s**.\n\n` +
+            `**[Nhấn vào đây để nghe thêm...](${song.songUrl ?? 'https://www.youtube.com'})**\n\n` +
+            this.renderQuizDescription(song, revealStats, true, displayName)
         )
 
       if (thumbAttachment)
         successEmbed.setThumbnail('attachment://thumbnail.jpg')
 
-      await textChannel.send({
-        embeds: [successEmbed],
-        files: thumbAttachment ? [thumbAttachment] : []
-      })
+      if (message) {
+        await message.reply({
+          embeds: [successEmbed],
+          files: thumbAttachment ? [thumbAttachment] : [],
+          allowedMentions: { repliedUser: false }
+        })
+      } else {
+        await textChannel.send({
+          embeds: [successEmbed],
+          files: thumbAttachment ? [thumbAttachment] : []
+        })
+      }
 
       // 3-second delay before next round
       setTimeout(() => this.nextRound(guildId), 3000)
       return true
-    } else {
-      // Incorrect guess
-      await textChannel.send(`<@${userId}> bạn đoán sai rồi!`)
-      return false
     }
+
+    return false
   }
 
   public static async stopSession(guildId: string) {
@@ -408,6 +390,56 @@ export class MusicQuizService {
 
     await MusicQuizRedisService.updateState(guildId, { isEnding: true })
     if (handles?.timeoutId) clearTimeout(handles.timeoutId)
+
+    // Reveal answer if there's an ongoing round
+    if (state.currentSongId && !state.isRoundEnded) {
+      const song = await MusicQuizSongRepository.getById(state.currentSongId)
+      if (song) {
+        // Persist failed attempt
+        await MusicQuizSongRepository.updateStats(song.id, { correct: false })
+
+        const textChannel = (await container.client.channels.fetch(
+          state.textChannelId
+        )) as TextChannel
+
+        let bestDisplay = '???'
+        if (song.bestGuessTime) {
+          bestDisplay = `${song.bestGuessTime.toFixed(1)}s`
+          if (song.bestGuesserId) {
+            bestDisplay += ` (<@${song.bestGuesserId}>)`
+          }
+        }
+
+        const thumbAttachment = this.resolveThumbAttachment(song.thumbUrl)
+        const revealStats = {
+          correctRatio:
+            song.totalAttempts + 1 > 0
+              ? (
+                  (song.correctAttempts / (song.totalAttempts + 1)) *
+                  100
+                ).toFixed(1)
+              : '0.0',
+          avgTime: song.avgGuessTime.toFixed(1),
+          bestDisplay: bestDisplay
+        }
+
+        const timeoutEmbed = new EmbedBuilder()
+          .setTitle('Không có một ai trả lời đúng :(')
+          .setColor('#f1c40f')
+          .setDescription(
+            `**[Nhấn vào đây để nghe thêm...](${song.songUrl ?? 'https://www.youtube.com'})**\n\n` +
+              this.renderQuizDescription(song, revealStats, true)
+          )
+
+        if (thumbAttachment)
+          timeoutEmbed.setThumbnail('attachment://thumbnail.jpg')
+
+        await textChannel.send({
+          embeds: [timeoutEmbed],
+          files: thumbAttachment ? [thumbAttachment] : []
+        })
+      }
+    }
 
     handles?.player.stop()
 
@@ -421,5 +453,28 @@ export class MusicQuizService {
     }
 
     await MusicQuizSessionManager.clearSession(guildId)
+  }
+
+  private static renderQuizDescription(
+    song: MusicQuizSong,
+    stats: { correctRatio: string; avgTime: string; bestDisplay: string },
+    reveal: boolean,
+    overrideTitle?: string
+  ): string {
+    const fieldsData: [string, string | null | undefined][] = [
+      ['📀 Tên bài hát', reveal ? (overrideTitle ?? song.title) : '???'],
+      ['🎤 Nghệ sĩ:', reveal ? song.singer : '???'],
+
+      ...(song.album
+        ? [['🖼️ Album', reveal ? song.album : '???'] as [string, string]]
+        : []),
+
+      ['✅ Tỉ lệ đúng', `${stats.correctRatio}%`],
+      ['⏱️ Trung bình', `${stats.avgTime}s`],
+      ['🏅 Kỷ lục', stats.bestDisplay]
+    ]
+
+    const fields = formatFields(fieldsData, '', false)
+    return lines(...fields)
   }
 }

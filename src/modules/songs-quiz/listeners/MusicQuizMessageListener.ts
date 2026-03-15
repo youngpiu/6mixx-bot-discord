@@ -17,10 +17,19 @@ export class MusicQuizMessageListener extends Listener {
     const state = await MusicQuizRedisService.getState(message.guild.id)
     if (!state || message.channel.id !== state.textChannelId) return
 
+    // Auto-delete messages sent when music is NOT playing (during loading or between rounds)
+    if (!state.isPlaying) {
+      if (message.deletable) {
+        await message.delete().catch(() => {})
+      }
+      return
+    }
+
     const isCorrect = await MusicQuizService.handleGuess(
       message.guild.id,
       message.content,
-      message.author.id
+      message.author.id,
+      message
     )
 
     if (!isCorrect) {
@@ -31,10 +40,6 @@ export class MusicQuizMessageListener extends Listener {
         'NORMAL',
         false
       )
-    } else {
-      // Delete the correct guess message to keep channel clean?
-      // Or let it stay. The service already sends a success embed.
-      await message.delete().catch(() => null)
     }
   }
 }

@@ -31,15 +31,19 @@ type Field = [key: string, value: string | null | undefined]
  * @param prefix - Prefix to add to each line (default: '- ').
  * @returns An array of formatted strings.
  */
-export function formatFields(fields: Field[], prefix = '- '): string[] {
+export function formatFields(
+  fields: Field[],
+  prefix = '- ',
+  align = true
+): string[] {
   const valid = fields.filter(([, v]) => v != null)
 
-  const maxKeyLength = Math.max(...valid.map(([k]) => k.length), 0)
+  const maxKeyLength = align ? Math.max(...valid.map(([k]) => k.length), 0) : 0
 
-  return valid.map(
-    ([key, value]) =>
-      `${prefix}${inlineCode(key.padEnd(maxKeyLength, ' ') + ':')} ${value}`
-  )
+  return valid.map(([key, value]) => {
+    const formattedKey = align ? key.padEnd(maxKeyLength, ' ') : key
+    return `${prefix}${inlineCode(formattedKey + ':')} ${value}`
+  })
 }
 
 /**

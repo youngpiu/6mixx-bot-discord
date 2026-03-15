@@ -91,13 +91,11 @@ export class BotClient extends SapphireClient {
         .map((dirent) => dirent.name)
 
       for (const module of modules) {
-        this.logger.info(`Registering module paths for: ${module}`)
         this.stores.registerPath(join(modulesDir, module))
       }
     }
 
     // Register shared pieces (listeners, preconditions)
-    this.logger.info('Registering shared pieces path')
     this.stores.registerPath(join(this.runtimeRoot, 'shared'))
   }
 

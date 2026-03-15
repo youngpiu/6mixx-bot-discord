@@ -35,12 +35,12 @@ export class MusicQuizVoiceStateUpdateListener extends Listener {
       }
     }
 
-    // 2. User Leaves the Voice channel
-    if (oldState.channelId && !newState.channelId) {
+    // 2. User Leaves the Quiz Voice channel (or moves to another)
+    if (oldState.channelId && oldState.channelId !== newState.channelId) {
       const state = await MusicQuizRedisService.getState(guild.id)
       if (state && oldState.channelId === state.voiceChannelId) {
-        // Check if the channel is empty (excluding bot)
-        const channel = oldState.channel
+        // Check if the channel is empty (excluding bots)
+        const channel = oldState.channel as VoiceChannel
         if (channel && channel.members.filter((m) => !m.user.bot).size === 0) {
           await MusicQuizService.stopSession(guild.id)
         }
