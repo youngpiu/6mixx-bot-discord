@@ -464,10 +464,14 @@ export class ButtonSettingSyncServer extends InteractionHandler {
     return new ContainerBuilder()
       .addTextDisplayComponents((text) =>
         text.setContent(
-          `### 🌟 **NƠI ĐĂNG ẢNH NMIXX TỪ TWITTER**\n` +
-            `Chào mừng bạn! Tại đây bạn có thể chia sẻ những tấm ảnh lung linh của NMIXX từ Twitter/X vào các kênh Forum tương ứng.\n\n` +
-            `- **Đăng ảnh đơn**: Dành cho bài viết chỉ có một thành viên.\n` +
-            `- **Đăng ảnh OTP**: Dành cho các cặp đôi hoặc nhóm thành viên.`
+          `### 🌟 **CÁC CÔNG CỤ ĐĂNG ẢNH NMIXX**\n` +
+            `Chào mừng bạn! Tại đây bạn có thể chia sẻ những tấm ảnh lung linh của NMIXX vào các kênh Forum tương ứng thông qua Link Twitter hoặc tải trực tiếp.\n\n` +
+            `**1. Đăng qua Link Twitter/X** (Tự động lấy ảnh cực nét)\n` +
+            `- **Đăng ảnh đơn**: Bài viết chỉ có một thành viên.\n` +
+            `- **Đăng ảnh OTP**: Bài viết có từ 2 thành viên trở lên.\n\n` +
+            `**2. Đăng thủ công** (Tự tải ảnh/video từ máy lên)\n` +
+            `- **Đăng đơn thủ công**: Tải ảnh một thành viên.\n` +
+            `- **Đăng OTP thủ công**: Tải ảnh cặp đôi/nhóm.`
         )
       )
       .addSeparatorComponents((sep) => sep)
@@ -481,6 +485,18 @@ export class ButtonSettingSyncServer extends InteractionHandler {
             .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_OTP)
             .setLabel('Đăng ảnh OTP')
             .setStyle(ButtonStyle.Success)
+        )
+      )
+      .addActionRowComponents((row) =>
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_SINGLE_MANUAL)
+            .setLabel('Đăng đơn thủ công')
+            .setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_OTP_MANUAL)
+            .setLabel('Đăng OTP thủ công')
+            .setStyle(ButtonStyle.Secondary)
         )
       )
   }

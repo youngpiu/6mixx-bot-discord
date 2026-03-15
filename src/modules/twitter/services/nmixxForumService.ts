@@ -1,4 +1,5 @@
 import {
+  Attachment,
   ButtonBuilder,
   ButtonStyle,
   ChannelType,
@@ -99,6 +100,76 @@ export class NmixxForumService {
     // ThreadChannel.send works with standard discord.js.
     // To use ComponentsV2 features, we rely on the bot's custom send if exists,
     // but here we can just use the standard send with flags if supported.
+    await thread.send({
+      components: [container],
+      flags: [MessageFlags.IsComponentsV2]
+    })
+
+    return thread
+  }
+
+  /**
+   * Processes manual file uploads and posts to the appropriate thread.
+   */
+  public static async postManualToForum(options: {
+    guild: Guild
+    user: string
+    attachments: Attachment[]
+    members: readonly string[]
+    isOtp: boolean
+  }) {
+    const { guild, user, attachments, members, isOtp } = options
+
+    // 1. Get Guild Config
+    const config = await SettingRepository.find(guild.id)
+    const forumId = isOtp
+      ? config?.nmixxOtpForumChannelId
+      : config?.nmixxSingleForumChannelId
+
+    if (!forumId) {
+      throw new NormalError(
+        `Kênh Forum ${isOtp ? 'OTP' : 'đơn'} chưa được cấu hình. Vui lòng liên hệ Admin.`
+      )
+    }
+
+    const forum = await guild.channels.fetch(forumId)
+    if (!forum || forum.type !== ChannelType.GuildForum) {
+      throw new NormalError('Không tìm thấy kênh Forum cấu hình hợp lệ.')
+    }
+
+    // 2. Determine Thread Name
+    const threadName = isOtp
+      ? [...members].sort().join(' x ')
+      : members[0] || 'NMIXX'
+
+    // 3. Find or Create Thread
+    let thread = await this.findThread(forum, threadName)
+
+    if (!thread) {
+      thread = await forum.threads.create({
+        name: threadName,
+        message: {
+          content: `Tiểu sử ảnh: **${threadName}**`
+        }
+      })
+    }
+
+    // 4. Post Media to Thread
+    const container = new ContainerBuilder()
+      .addTextDisplayComponents((text) =>
+        text.setContent(
+          user.startsWith('http')
+            ? `**[Người đăng](${user})**`
+            : `**Người đăng**: ${user}`
+        )
+      )
+      .addMediaGalleryComponents((gallery) => {
+        attachments.forEach((a) => {
+          gallery.addItems((item) => item.setURL(a.url))
+        })
+        return gallery
+      })
+
     await thread.send({
       components: [container],
       flags: [MessageFlags.IsComponentsV2]

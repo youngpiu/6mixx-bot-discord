@@ -165,5 +165,11 @@ export const CUSTOM_ID = {
   MODAL_NMIXX_POST_OTP: 'modal-nmixx-post-otp',
   INPUT_NMIXX_TWEET_URL: 'input-nmixx-tweet-url',
   SELECT_NMIXX_MEMBER_SINGLE: 'select-nmixx-member-single',
-  SELECT_NMIXX_MEMBER_OTP: 'select-nmixx-member-otp'
+  SELECT_NMIXX_MEMBER_OTP: 'select-nmixx-member-otp',
+  BTN_NMIXX_POST_SINGLE_MANUAL: 'btn-nmixx-post-single-manual',
+  BTN_NMIXX_POST_OTP_MANUAL: 'btn-nmixx-post-otp-manual',
+  MODAL_NMIXX_POST_SINGLE_MANUAL: 'modal-nmixx-post-single-manual',
+  MODAL_NMIXX_POST_OTP_MANUAL: 'modal-nmixx-post-otp-manual',
+  INPUT_NMIXX_MANUAL_USER: 'input-nmixx-manual-user',
+  UPLOAD_NMIXX_MANUAL_MEDIA: 'upload-nmixx-manual-media'
 } as const
