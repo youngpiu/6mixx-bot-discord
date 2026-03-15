@@ -10,7 +10,7 @@ import { NormalError } from '~/core/errorResponse'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 
-import { NmixxForumService } from '../../services/nmixxForumService'
+import { NmixxForumService } from '~/modules/twitter/services/nmixxForumService'
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
