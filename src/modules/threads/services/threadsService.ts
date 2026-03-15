@@ -19,50 +19,12 @@ export class ThreadsService {
       throw new NormalError('Đường link Threads không hợp lệ.')
     }
 
-    // Attempt to extract username from URL
+    // Attempt to extract username from URL as a placeholder
     const urlUsernameMatch = url.match(
       /(?:threads\.net|threads\.com)\/@([\w.]+)/
     )
     let username = urlUsernameMatch ? urlUsernameMatch[1]! : 'threads_user'
     let caption = ''
-
-    // 1. Fetch metadata from threads.net main page
-    try {
-      const mainResp = await fetch(`https://www.threads.net/t/${shortcode}`, {
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-      })
-      if (mainResp.ok) {
-        const mainHtml = await mainResp.text()
-
-        // Extract caption
-        const descMatch = mainHtml.match(
-          /<meta\s+property="og:description"\s+content="(.*?)"\s*\/?>/
-        )
-        if (descMatch) {
-          caption = descMatch[1]!
-            .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(dec))
-            .replace(/&quot;/g, '"')
-            .replace(/&amp;/g, '&')
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-        }
-
-        // Extract username from title if not already found
-        if (username === 'threads_user') {
-          const titleMatch = mainHtml.match(
-            /<meta\s+property="og:title"\s+content="&#064;(.*?)\s+on\s+Threads"\s*\/?>/
-          )
-          if (titleMatch) username = titleMatch[1]!
-        }
-      }
-    } catch (e) {
-      container.logger.debug(
-        `[ThreadsService] Failed to fetch metadata from threads.net: ${e}`
-      )
-    }
 
     const apiUrl = 'https://savethr.com/process'
 
@@ -98,6 +60,21 @@ export class ThreadsService {
 
       const html = await response.text()
       const $ = cheerio.load(html)
+
+      // Extract username from result container
+      const extractedUsername = $('.font-semibold.text-gray-900.text-sm')
+        .first()
+        .text()
+        .trim()
+        .replace('@', '')
+      if (extractedUsername) username = extractedUsername
+
+      // Extract caption from result container
+      const extractedCaption = $('.mb-4 p.text-sm.text-gray-700')
+        .first()
+        .text()
+        .trim()
+      if (extractedCaption) caption = extractedCaption
 
       const media: ThreadsMedia[] = []
 
