@@ -78,7 +78,7 @@ export class NmixxForumService {
     const container = new ContainerBuilder()
       .addTextDisplayComponents((text) =>
         text.setContent(
-          `**[@${tweetData.screenName}](https://x.com/${tweetData.screenName})**`
+          `**[@${tweetData.screenName}](https://x.com/${tweetData.screenName})** - <t:${tweetData.timestamp}:d>`
         )
       )
       .addMediaGalleryComponents((gallery) => {
@@ -160,10 +160,11 @@ export class NmixxForumService {
         let displayContent = `**Người đăng**: ${user}`
 
         // Try to extract username if it's a URL or @username
-        const usernameMatch = user.match(/(?:x|twitter)\.com\/(\w+)/) || user.match(/@?(\w+)/)
+        const usernameMatch =
+          user.match(/(?:x|twitter)\.com\/(\w+)/) || user.match(/@?(\w+)/)
         if (usernameMatch && usernameMatch[1]) {
           const screenName = usernameMatch[1]
-          displayContent = `**[@${screenName}](https://x.com/${screenName})**`
+          displayContent = `**[@${screenName}](https://x.com/${screenName})** - <t:${Math.floor(Date.now() / 1000)}:d>`
         }
 
         return text.setContent(displayContent)
