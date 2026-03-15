@@ -172,5 +172,8 @@ export const CUSTOM_ID = {
   MODAL_NMIXX_POST_OTP_MANUAL: 'modal-nmixx-post-otp-manual',
   INPUT_NMIXX_MANUAL_USER: 'input-nmixx-manual-user',
   INPUT_NMIXX_MANUAL_DATE: 'input-nmixx-manual-date',
-  UPLOAD_NMIXX_MANUAL_MEDIA: 'upload-nmixx-manual-media'
+  UPLOAD_NMIXX_MANUAL_MEDIA: 'upload-nmixx-manual-media',
+  BTN_NMIXX_COLLECTION_CREATE: 'btn-nmixx-collection-create',
+  MODAL_NMIXX_COLLECTION_CREATE: 'modal-nmixx-collection-create',
+  INPUT_NMIXX_COLLECTION_THUMBNAIL: 'input-nmixx-collection-thumbnail'
 } as const

@@ -21,7 +21,8 @@ export class ModalNmixxPost extends InteractionHandler {
       interaction.customId === CUSTOM_ID.MODAL_NMIXX_POST_SINGLE ||
       interaction.customId === CUSTOM_ID.MODAL_NMIXX_POST_OTP ||
       interaction.customId === CUSTOM_ID.MODAL_NMIXX_POST_SINGLE_MANUAL ||
-      interaction.customId === CUSTOM_ID.MODAL_NMIXX_POST_OTP_MANUAL
+      interaction.customId === CUSTOM_ID.MODAL_NMIXX_POST_OTP_MANUAL ||
+      interaction.customId === CUSTOM_ID.MODAL_NMIXX_COLLECTION_CREATE
     ) {
       return this.some({
         isOtp:
@@ -29,7 +30,9 @@ export class ModalNmixxPost extends InteractionHandler {
           interaction.customId === CUSTOM_ID.MODAL_NMIXX_POST_OTP_MANUAL,
         isManual:
           interaction.customId === CUSTOM_ID.MODAL_NMIXX_POST_SINGLE_MANUAL ||
-          interaction.customId === CUSTOM_ID.MODAL_NMIXX_POST_OTP_MANUAL
+          interaction.customId === CUSTOM_ID.MODAL_NMIXX_POST_OTP_MANUAL,
+        isCollectionCreate:
+          interaction.customId === CUSTOM_ID.MODAL_NMIXX_COLLECTION_CREATE
       })
     }
     return this.none()
@@ -40,18 +43,32 @@ export class ModalNmixxPost extends InteractionHandler {
     result: InteractionHandler.ParseResult<this>
   ) {
     if (!result) return
-    const { isOtp, isManual } = result
+    const { isOtp, isManual, isCollectionCreate } = result
 
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
     const members = interaction.fields.getStringSelectValues(
-      isOtp
+      isOtp || isCollectionCreate
         ? CUSTOM_ID.SELECT_NMIXX_MEMBER_OTP
         : CUSTOM_ID.SELECT_NMIXX_MEMBER_SINGLE
     )
 
     let thread
-    if (isManual) {
+    if (isCollectionCreate) {
+      const thumbnailCollection = interaction.fields.getUploadedFiles(
+        CUSTOM_ID.INPUT_NMIXX_COLLECTION_THUMBNAIL
+      )
+      const thumbnail = thumbnailCollection?.first()
+      if (!thumbnail) {
+        throw new NormalError('Bạn cần upload ít nhất một ảnh làm thumbnail.')
+      }
+
+      thread = await NmixxForumService.createCollection({
+        guild: interaction.guild!,
+        members,
+        thumbnail
+      })
+    } else if (isManual) {
       const user = interaction.fields.getTextInputValue(
         CUSTOM_ID.INPUT_NMIXX_MANUAL_USER
       )

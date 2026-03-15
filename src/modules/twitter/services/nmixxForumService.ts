@@ -62,16 +62,13 @@ export class NmixxForumService {
       ? [...members].sort().join(' x ')
       : members[0] || 'NMIXX'
 
-    // 4. Find or Create Thread
-    let thread = await this.findThread(forum, threadName)
+    // 4. Find Thread (MUST EXIST)
+    const thread = await this.findThread(forum, threadName)
 
     if (!thread) {
-      thread = await forum.threads.create({
-        name: threadName,
-        message: {
-          content: `<t:${Math.floor(Date.now() / 1000)}:d>`
-        }
-      })
+      throw new NormalError(
+        `Bộ sưu tập **${threadName}** chưa được khởi tạo. Vui lòng nhấn nút **Tạo bộ sưu tập** trước.`
+      )
     }
 
     // 5. Post Media to Thread
@@ -96,13 +93,60 @@ export class NmixxForumService {
         )
       )
 
-    // Note: Since we are using ComponentsV2, we need to handle the send properly.
-    // ThreadChannel.send works with standard discord.js.
-    // To use ComponentsV2 features, we rely on the bot's custom send if exists,
-    // but here we can just use the standard send with flags if supported.
     await thread.send({
       components: [container],
       flags: [MessageFlags.IsComponentsV2]
+    })
+
+    return thread
+  }
+
+  /**
+   * Creates a new collection (thread) in the forum channel.
+   */
+  public static async createCollection(options: {
+    guild: Guild
+    members: readonly string[]
+    thumbnail: Attachment
+  }) {
+    const { guild, members, thumbnail } = options
+    const isOtp = members.length > 1
+
+    // 1. Get Guild Config
+    const config = await SettingRepository.find(guild.id)
+    const forumId = isOtp
+      ? config?.nmixxOtpForumChannelId
+      : config?.nmixxSingleForumChannelId
+
+    if (!forumId) {
+      throw new NormalError(
+        `Kênh Forum ${isOtp ? 'OTP' : 'đơn'} chưa được cấu hình. Vui lòng liên hệ Admin.`
+      )
+    }
+
+    const forum = await guild.channels.fetch(forumId)
+    if (!forum || forum.type !== ChannelType.GuildForum) {
+      throw new NormalError('Không tìm thấy kênh Forum cấu hình hợp lệ.')
+    }
+
+    // 2. Determine Thread Name
+    const threadName = isOtp
+      ? [...members].sort().join(' x ')
+      : members[0] || 'NMIXX'
+
+    // 3. Check if already exists
+    const existingThread = await this.findThread(forum, threadName)
+    if (existingThread) {
+      throw new NormalError(`Bộ sưu tập **${threadName}** đã tồn tại.`)
+    }
+
+    // 4. Create Thread with Thumbnail
+    const thread = await forum.threads.create({
+      name: threadName,
+      message: {
+        content: `<t:${Math.floor(Date.now() / 1000)}:d>`,
+        files: [thumbnail]
+      }
     })
 
     return thread
@@ -143,16 +187,13 @@ export class NmixxForumService {
       ? [...members].sort().join(' x ')
       : members[0] || 'NMIXX'
 
-    // 3. Find or Create Thread
-    let thread = await this.findThread(forum, threadName)
+    // 3. Find Thread (MUST EXIST)
+    const thread = await this.findThread(forum, threadName)
 
     if (!thread) {
-      thread = await forum.threads.create({
-        name: threadName,
-        message: {
-          content: `<t:${Math.floor(Date.now() / 1000)}:d>`
-        }
-      })
+      throw new NormalError(
+        `Bộ sưu tập **${threadName}** chưa được khởi tạo. Vui lòng nhấn nút **Tạo bộ sưu tập** trước.`
+      )
     }
 
     // 4. Post Media to Thread

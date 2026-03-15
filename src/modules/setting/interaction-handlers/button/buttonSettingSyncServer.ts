@@ -64,7 +64,7 @@ const GUIDE_CONFIGS = [
   },
   {
     threadIdKey: 'nmixxTutorialThreadId',
-    threadName: '🌟 NƠI ĐĂNG ẢNH NMIXX TỪ TWITTER 🌟',
+    threadName: '🌟 NƠI ĐĂNG ẢNH/VIDEO FANSITE NMIXX 🌟',
     generatorButtonId: 'btn-nmixx-forum-send'
   }
 ] as const
@@ -464,38 +464,51 @@ export class ButtonSettingSyncServer extends InteractionHandler {
     return new ContainerBuilder()
       .addTextDisplayComponents((text) =>
         text.setContent(
-          `### 🌟 **CÁC CÔNG CỤ ĐĂNG ẢNH NMIXX**\n` +
-            `Chào mừng bạn! Tại đây bạn có thể chia sẻ những tấm ảnh lung linh của NMIXX vào các kênh Forum tương ứng thông qua Link Twitter hoặc tải trực tiếp.\n\n` +
-            `**1. Đăng qua Link Twitter/X** (Tự động lấy ảnh cực nét)\n` +
-            `- **Đăng ảnh đơn**: Bài viết chỉ có một thành viên.\n` +
-            `- **Đăng ảnh OTP**: Bài viết có từ 2 thành viên trở lên.\n\n` +
-            `**2. Đăng thủ công** (Tự tải ảnh/video từ máy lên)\n` +
-            `- **Đăng đơn thủ công**: Tải ảnh một thành viên.\n` +
-            `- **Đăng OTP thủ công**: Tải ảnh cặp đôi/nhóm.`
+          lines(
+            `### ${ANIMATED_EMOJI.WING_LEFT} NƠI ĐĂNG ẢNH/VIDEO FANSITE NMIXX ${ANIMATED_EMOJI.WING_RIGHT}`,
+            `-# Tại đây bạn có thể chia sẻ những tấm ảnh lung linh của NMIXX vào **kho ảnh** của máy chủ **VNMIXX**.`
+          )
+        )
+      )
+      .addSeparatorComponents((s) => s)
+      .addTextDisplayComponents((t) =>
+        t.setContent(
+          lines(
+            `- **Các loại kênh:**`,
+            `  - **Đăng đơn**: Chỉ đăng ảnh có một thành viên.`,
+            `  - **Đăng OTP**: Chỉ đăng ảnh có từ 2 thành viên trở lên.`,
+            `- **Các loại nút:**`,
+            `  - **Đăng qua X**: Đăng ảnh/video bằng cách nhập đường dẫn X/Twiter dẫn tới bài viết của fansite.`,
+            `  - **Đăng thủ công**: Đăng ảnh/video bằng cách tải các tệp ảnh/video thủ công từ máy của bạn.`,
+            `- **Lưu ý:**`,
+            `  - Khuyến khích đăng ảnh/video bằng cách nhập đường dẫn X/Twiter.`,
+            `  - Không nên đăng ảnh/video thủ công nếu không cần thiết.`,
+            `  - Khi đăng ảnh/video thủ công, hãy đảm bảo rằng tệp ảnh/video của bạn có kích thước phù hợp và không chứa nội dung vi phạm`
+          )
         )
       )
       .addSeparatorComponents((sep) => sep)
       .addActionRowComponents((row) =>
         row.addComponents(
           new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_NMIXX_COLLECTION_CREATE)
+            .setLabel('Tạo bộ sưu tập')
+            .setStyle(ButtonStyle.Primary),
+          new ButtonBuilder()
             .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_SINGLE)
-            .setLabel('Đăng ảnh đơn')
+            .setLabel('Đơn qua X')
             .setStyle(ButtonStyle.Primary),
           new ButtonBuilder()
             .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_OTP)
-            .setLabel('Đăng ảnh OTP')
-            .setStyle(ButtonStyle.Success)
-        )
-      )
-      .addActionRowComponents((row) =>
-        row.addComponents(
+            .setLabel('OTP qua X')
+            .setStyle(ButtonStyle.Success),
           new ButtonBuilder()
             .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_SINGLE_MANUAL)
-            .setLabel('Đăng đơn thủ công')
+            .setLabel('Đơn thủ công')
             .setStyle(ButtonStyle.Secondary),
           new ButtonBuilder()
             .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_OTP_MANUAL)
-            .setLabel('Đăng OTP thủ công')
+            .setLabel('OTP thủ công')
             .setStyle(ButtonStyle.Secondary)
         )
       )

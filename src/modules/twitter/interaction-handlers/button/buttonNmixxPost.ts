@@ -33,7 +33,8 @@ export class ButtonNmixxPost extends InteractionHandler {
       interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_SINGLE ||
       interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_OTP ||
       interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_SINGLE_MANUAL ||
-      interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_OTP_MANUAL
+      interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_OTP_MANUAL ||
+      interaction.customId === CUSTOM_ID.BTN_NMIXX_COLLECTION_CREATE
     ) {
       return this.some({
         isOtp:
@@ -41,7 +42,9 @@ export class ButtonNmixxPost extends InteractionHandler {
           interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_OTP_MANUAL,
         isManual:
           interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_SINGLE_MANUAL ||
-          interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_OTP_MANUAL
+          interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_OTP_MANUAL,
+        isCollectionCreate:
+          interaction.customId === CUSTOM_ID.BTN_NMIXX_COLLECTION_CREATE
       })
     }
     return this.none()
@@ -52,7 +55,39 @@ export class ButtonNmixxPost extends InteractionHandler {
     result: InteractionHandler.ParseResult<this>
   ) {
     if (!result) return
-    const { isOtp, isManual } = result
+    const { isOtp, isManual, isCollectionCreate } = result
+
+    if (isCollectionCreate) {
+      const modal = new ModalBuilder()
+        .setCustomId(CUSTOM_ID.MODAL_NMIXX_COLLECTION_CREATE)
+        .setTitle('Tạo bộ sưu tập (Thread) mới')
+
+      const memberSelect = new StringSelectMenuBuilder()
+        .setCustomId(CUSTOM_ID.SELECT_NMIXX_MEMBER_OTP)
+        .setPlaceholder('Chọn thành viên hoặc nhóm NMIXX...')
+        .addOptions(NMIXX_MEMBERS)
+        .setMinValues(1)
+        .setMaxValues(NMIXX_MEMBERS.length)
+
+      const memberLabel = new LabelBuilder()
+        .setLabel('Thành viên của bộ sưu tập')
+        .setStringSelectMenuComponent(memberSelect)
+
+      const thumbnailUpload = new FileUploadBuilder()
+        .setCustomId(CUSTOM_ID.INPUT_NMIXX_COLLECTION_THUMBNAIL)
+        .setMinValues(1)
+        .setMaxValues(1)
+        .setRequired(true)
+
+      const thumbnailLabel = new LabelBuilder()
+        .setLabel('Ảnh đại diện cho bộ sưu tập')
+        .setDescription('Ảnh này sẽ làm thumbnail cho thread trong Forum.')
+        .setFileUploadComponent(thumbnailUpload)
+
+      modal.addLabelComponents(memberLabel, thumbnailLabel)
+      await interaction.showModal(modal)
+      return
+    }
 
     const modal = new ModalBuilder()
       .setCustomId(
