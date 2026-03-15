@@ -491,24 +491,16 @@ export class ButtonSettingSyncServer extends InteractionHandler {
       .addActionRowComponents((row) =>
         row.addComponents(
           new ButtonBuilder()
-            .setCustomId(CUSTOM_ID.BTN_NMIXX_COLLECTION_CREATE)
-            .setLabel('Tạo bộ sưu tập')
+            .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_X)
+            .setLabel('Đăng qua X')
             .setStyle(ButtonStyle.Primary),
           new ButtonBuilder()
-            .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_SINGLE)
-            .setLabel('Đơn qua X')
-            .setStyle(ButtonStyle.Primary),
-          new ButtonBuilder()
-            .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_OTP)
-            .setLabel('OTP qua X')
+            .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_MANUAL)
+            .setLabel('Đăng thủ công')
             .setStyle(ButtonStyle.Success),
           new ButtonBuilder()
-            .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_SINGLE_MANUAL)
-            .setLabel('Đơn thủ công')
-            .setStyle(ButtonStyle.Secondary),
-          new ButtonBuilder()
-            .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_OTP_MANUAL)
-            .setLabel('OTP thủ công')
+            .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_COLLECTION)
+            .setLabel('Tạo bộ sưu tập')
             .setStyle(ButtonStyle.Secondary)
         )
       )

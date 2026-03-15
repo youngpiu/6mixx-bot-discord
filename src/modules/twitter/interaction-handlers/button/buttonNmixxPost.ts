@@ -30,21 +30,12 @@ const NMIXX_MEMBERS = [
 export class ButtonNmixxPost extends InteractionHandler {
   public override async parse(interaction: ButtonInteraction) {
     if (
-      interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_SINGLE ||
-      interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_OTP ||
-      interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_SINGLE_MANUAL ||
-      interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_OTP_MANUAL ||
-      interaction.customId === CUSTOM_ID.BTN_NMIXX_COLLECTION_CREATE
+      interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_X ||
+      interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_MANUAL ||
+      interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_COLLECTION
     ) {
       return this.some({
-        isOtp:
-          interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_OTP ||
-          interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_OTP_MANUAL,
-        isManual:
-          interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_SINGLE_MANUAL ||
-          interaction.customId === CUSTOM_ID.BTN_NMIXX_POST_OTP_MANUAL,
-        isCollectionCreate:
-          interaction.customId === CUSTOM_ID.BTN_NMIXX_COLLECTION_CREATE
+        action: interaction.customId
       })
     }
     return this.none()
@@ -55,61 +46,45 @@ export class ButtonNmixxPost extends InteractionHandler {
     result: InteractionHandler.ParseResult<this>
   ) {
     if (!result) return
-    const { isOtp, isManual, isCollectionCreate } = result
+    const { action } = result
 
-    if (isCollectionCreate) {
-      const modal = new ModalBuilder()
-        .setCustomId(CUSTOM_ID.MODAL_NMIXX_COLLECTION_CREATE)
-        .setTitle('Tạo bộ sưu tập (Thread) mới')
+    // 1. Create Modal
+    const modal = new ModalBuilder()
+    
+    // 2. Member Select (Common for all)
+    const memberSelect = new StringSelectMenuBuilder()
+      .setCustomId(CUSTOM_ID.SELECT_NMIXX_MEMBER_OTP)
+      .setPlaceholder('Chọn thành viên hoặc nhóm NMIXX...')
+      .addOptions(NMIXX_MEMBERS)
+      .setMinValues(1)
+      .setMaxValues(NMIXX_MEMBERS.length)
 
-      const memberSelect = new StringSelectMenuBuilder()
-        .setCustomId(CUSTOM_ID.SELECT_NMIXX_MEMBER_OTP)
-        .setPlaceholder('Chọn thành viên hoặc nhóm NMIXX...')
-        .addOptions(NMIXX_MEMBERS)
-        .setMinValues(1)
-        .setMaxValues(NMIXX_MEMBERS.length)
+    const memberLabel = new LabelBuilder()
+      .setLabel('Thành viên')
+      .setStringSelectMenuComponent(memberSelect)
 
-      const memberLabel = new LabelBuilder()
-        .setLabel('Thành viên của bộ sưu tập')
-        .setStringSelectMenuComponent(memberSelect)
+    // 3. Customize based on Action
+    if (action === CUSTOM_ID.BTN_NMIXX_POST_X) {
+      modal
+        .setCustomId(CUSTOM_ID.MODAL_NMIXX_POST_X)
+        .setTitle('Đăng ảnh qua link X (Twitter)')
 
-      const thumbnailUpload = new FileUploadBuilder()
-        .setCustomId(CUSTOM_ID.INPUT_NMIXX_COLLECTION_THUMBNAIL)
-        .setMinValues(1)
-        .setMaxValues(1)
+      const urlInput = new TextInputBuilder()
+        .setCustomId(CUSTOM_ID.INPUT_NMIXX_TWEET_URL)
+        .setStyle(TextInputStyle.Short)
+        .setPlaceholder('https://x.com/...')
         .setRequired(true)
 
-      const thumbnailLabel = new LabelBuilder()
-        .setLabel('Ảnh đại diện cho bộ sưu tập')
-        .setDescription('Ảnh này sẽ làm thumbnail cho thread trong Forum.')
-        .setFileUploadComponent(thumbnailUpload)
+      const urlLabel = new LabelBuilder()
+        .setLabel('Đường dẫn bài viết')
+        .setTextInputComponent(urlInput)
 
-      modal.addLabelComponents(memberLabel, thumbnailLabel)
-      await interaction.showModal(modal)
-      return
-    }
+      modal.addLabelComponents(urlLabel, memberLabel)
+    } else if (action === CUSTOM_ID.BTN_NMIXX_POST_MANUAL) {
+      modal
+        .setCustomId(CUSTOM_ID.MODAL_NMIXX_POST_MANUAL)
+        .setTitle('Đăng ảnh thủ công')
 
-    const modal = new ModalBuilder()
-      .setCustomId(
-        isManual
-          ? isOtp
-            ? CUSTOM_ID.MODAL_NMIXX_POST_OTP_MANUAL
-            : CUSTOM_ID.MODAL_NMIXX_POST_SINGLE_MANUAL
-          : isOtp
-            ? CUSTOM_ID.MODAL_NMIXX_POST_OTP
-            : CUSTOM_ID.MODAL_NMIXX_POST_SINGLE
-      )
-      .setTitle(
-        isManual
-          ? isOtp
-            ? 'Đăng ảnh OTP thủ công'
-            : 'Đăng đơn thủ công'
-          : isOtp
-            ? 'Đăng ảnh OTP'
-            : 'Đăng ảnh một thành viên'
-      )
-
-    if (isManual) {
       const userInput = new TextInputBuilder()
         .setCustomId(CUSTOM_ID.INPUT_NMIXX_MANUAL_USER)
         .setStyle(TextInputStyle.Short)
@@ -117,15 +92,13 @@ export class ButtonNmixxPost extends InteractionHandler {
         .setRequired(true)
 
       const userLabel = new LabelBuilder()
-        .setLabel('Thông tin người đăng (Twitter/X)')
+        .setLabel('Người đăng (Twitter/X)')
         .setTextInputComponent(userInput)
 
       const dateInput = new TextInputBuilder()
         .setCustomId(CUSTOM_ID.INPUT_NMIXX_MANUAL_DATE)
         .setStyle(TextInputStyle.Short)
-        .setPlaceholder(
-          'VD: 15.03.2026 hoặc 15/03/2026 (Để trống nếu lấy hôm nay)'
-        )
+        .setPlaceholder('VD: 15.03.2026 (Để trống nếu lấy hôm nay)')
         .setRequired(false)
 
       const dateLabel = new LabelBuilder()
@@ -140,52 +113,27 @@ export class ButtonNmixxPost extends InteractionHandler {
 
       const mediaLabel = new LabelBuilder()
         .setLabel('Tải ảnh hoặc video')
-        .setDescription('Bạn có thể chọn tối đa 10 file.')
+        .setDescription('Tối đa 10 file.')
         .setFileUploadComponent(mediaUpload)
 
-      const memberSelect = new StringSelectMenuBuilder()
-        .setCustomId(
-          isOtp
-            ? CUSTOM_ID.SELECT_NMIXX_MEMBER_OTP
-            : CUSTOM_ID.SELECT_NMIXX_MEMBER_SINGLE
-        )
-        .setPlaceholder('Chọn thành viên...')
-        .addOptions(NMIXX_MEMBERS)
-        .setMinValues(isOtp ? 2 : 1)
-        .setMaxValues(isOtp ? NMIXX_MEMBERS.length : 1)
-
-      const memberLabel = new LabelBuilder()
-        .setLabel(isOtp ? 'Chọn các thành viên' : 'Chọn thành viên')
-        .setStringSelectMenuComponent(memberSelect)
-
       modal.addLabelComponents(userLabel, dateLabel, mediaLabel, memberLabel)
-    } else {
-      const urlInput = new TextInputBuilder()
-        .setCustomId(CUSTOM_ID.INPUT_NMIXX_TWEET_URL)
-        .setStyle(TextInputStyle.Short)
-        .setPlaceholder('https://x.com/...')
+    } else if (action === CUSTOM_ID.BTN_NMIXX_POST_COLLECTION) {
+      modal
+        .setCustomId(CUSTOM_ID.MODAL_NMIXX_POST_COLLECTION)
+        .setTitle('Tạo bộ sưu tập (Thread) mới')
+
+      const thumbnailUpload = new FileUploadBuilder()
+        .setCustomId(CUSTOM_ID.INPUT_NMIXX_COLLECTION_THUMBNAIL)
+        .setMinValues(1)
+        .setMaxValues(1)
         .setRequired(true)
 
-      const urlLabel = new LabelBuilder()
-        .setLabel('Đường dẫn tới bài viết Twitter/X')
-        .setTextInputComponent(urlInput)
+      const thumbnailLabel = new LabelBuilder()
+        .setLabel('Ảnh đại diện (Thumbnail)')
+        .setDescription('Ảnh này sẽ hiển thị bên ngoài danh sách Forum.')
+        .setFileUploadComponent(thumbnailUpload)
 
-      const memberSelect = new StringSelectMenuBuilder()
-        .setCustomId(
-          isOtp
-            ? CUSTOM_ID.SELECT_NMIXX_MEMBER_OTP
-            : CUSTOM_ID.SELECT_NMIXX_MEMBER_SINGLE
-        )
-        .setPlaceholder('Chọn thành viên...')
-        .addOptions(NMIXX_MEMBERS)
-        .setMinValues(isOtp ? 2 : 1)
-        .setMaxValues(isOtp ? NMIXX_MEMBERS.length : 1)
-
-      const memberLabel = new LabelBuilder()
-        .setLabel(isOtp ? 'Chọn các thành viên' : 'Chọn thành viên')
-        .setStringSelectMenuComponent(memberSelect)
-
-      modal.addLabelComponents(urlLabel, memberLabel)
+      modal.addLabelComponents(memberLabel, thumbnailLabel)
     }
 
     await interaction.showModal(modal)
