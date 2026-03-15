@@ -56,7 +56,9 @@ export class ModalNmixxPost extends InteractionHandler {
       const attachmentCollection = interaction.fields.getUploadedFiles(
         CUSTOM_ID.UPLOAD_NMIXX_MANUAL_MEDIA
       )
-      const attachments = attachmentCollection ? Array.from(attachmentCollection.values()) : []
+      const attachments = attachmentCollection
+        ? Array.from(attachmentCollection.values())
+        : []
 
       thread = await NmixxForumService.postManualToForum({
         guild: interaction.guild!,

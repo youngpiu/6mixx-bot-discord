@@ -156,13 +156,18 @@ export class NmixxForumService {
 
     // 4. Post Media to Thread
     const container = new ContainerBuilder()
-      .addTextDisplayComponents((text) =>
-        text.setContent(
-          user.startsWith('http')
-            ? `**[Người đăng](${user})**`
-            : `**Người đăng**: ${user}`
-        )
-      )
+      .addTextDisplayComponents((text) => {
+        let displayContent = `**Người đăng**: ${user}`
+
+        // Try to extract username if it's a URL or @username
+        const usernameMatch = user.match(/(?:x|twitter)\.com\/(\w+)/) || user.match(/@?(\w+)/)
+        if (usernameMatch && usernameMatch[1]) {
+          const screenName = usernameMatch[1]
+          displayContent = `**[@${screenName}](https://x.com/${screenName})**`
+        }
+
+        return text.setContent(displayContent)
+      })
       .addMediaGalleryComponents((gallery) => {
         attachments.forEach((a) => {
           gallery.addItems((item) => item.setURL(a.url))
