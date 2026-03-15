@@ -13,61 +13,79 @@ const adapter = new PrismaPg(pool)
 
 const prisma = new PrismaClient({ adapter })
 
-async function seedEnglish() {
-  const filePath = path.join(process.cwd(), 'data', 'english_words.txt')
+// async function seedEnglish() {
+//   const filePath = path.join(process.cwd(), 'data', 'english_words.txt')
+//
+//   const words = fs
+//     .readFileSync(filePath, 'utf8')
+//     .split('\n')
+//     .map((w) => w.trim().toLowerCase())
+//     .filter(Boolean)
+//
+//   const data = words.map((word) => ({
+//     word,
+//     firstLetter: word[0],
+//     lastLetter: word[word.length - 1]
+//   }))
+//
+//   await prisma.englishWord.createMany({
+//     data,
+//     skipDuplicates: true
+//   })
+//
+//   console.log(`English words inserted: ${data.length}`)
+// }
 
-  const words = fs
-    .readFileSync(filePath, 'utf8')
-    .split('\n')
-    .map((w) => w.trim().toLowerCase())
-    .filter(Boolean)
+// async function seedVietnamese() {
+//   const filePath = path.join(process.cwd(), 'data', 'vietnamese_words.txt')
+//
+//   const phrases = fs
+//     .readFileSync(filePath, 'utf8')
+//     .split('\n')
+//     .map((p) => p.trim().toLowerCase())
+//     .filter(Boolean)
+//
+//   const data = phrases.map((phrase) => {
+//     const parts = phrase.split(/\s+/)
+//
+//     return {
+//       phrase,
+//       firstWord: parts[0],
+//       lastWord: parts[parts.length - 1]
+//     }
+//   })
+//
+//   await prisma.vietnamesePhrase.createMany({
+//     data,
+//     skipDuplicates: true
+//   })
+//
+//   console.log(`Vietnamese phrases inserted: ${data.length}`)
+// }
 
-  const data = words.map((word) => ({
-    word,
-    firstLetter: word[0],
-    lastLetter: word[word.length - 1]
-  }))
+async function seedMusicQuizSongs() {
+  const filePath = path.join(process.cwd(), 'data', 'music_quiz_songs.json')
+  if (!fs.existsSync(filePath)) {
+    console.log('music_quiz_songs.json not found, skipping...')
+    return
+  }
 
-  await prisma.englishWord.createMany({
-    data,
+  const songs = JSON.parse(fs.readFileSync(filePath, 'utf8'))
+
+  await prisma.musicQuizSong.createMany({
+    data: songs,
     skipDuplicates: true
   })
 
-  console.log(`English words inserted: ${data.length}`)
-}
-
-async function seedVietnamese() {
-  const filePath = path.join(process.cwd(), 'data', 'vietnamese_words.txt')
-
-  const phrases = fs
-    .readFileSync(filePath, 'utf8')
-    .split('\n')
-    .map((p) => p.trim().toLowerCase())
-    .filter(Boolean)
-
-  const data = phrases.map((phrase) => {
-    const parts = phrase.split(/\s+/)
-
-    return {
-      phrase,
-      firstWord: parts[0],
-      lastWord: parts[parts.length - 1]
-    }
-  })
-
-  await prisma.vietnamesePhrase.createMany({
-    data,
-    skipDuplicates: true
-  })
-
-  console.log(`Vietnamese phrases inserted: ${data.length}`)
+  console.log(`Music Quiz songs inserted: ${songs.length}`)
 }
 
 async function main() {
   console.log('Start seeding...')
 
-  await seedEnglish()
-  await seedVietnamese()
+  // await seedEnglish()
+  // await seedVietnamese()
+  await seedMusicQuizSongs()
 
   console.log('Seed completed.')
 }

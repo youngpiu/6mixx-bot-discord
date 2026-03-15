@@ -39,6 +39,7 @@
     "typescript-eslint": "^8.52.0"
   },
   "dependencies": {
+    "@discordjs/voice": "^0.19.1",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "@sapphire/decorators": "^6.2.0",

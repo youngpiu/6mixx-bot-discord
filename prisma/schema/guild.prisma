@@ -67,6 +67,9 @@ model GuildSetting {
   nmixxOtpForumChannelId    String?
   nmixxTutorialThreadId     String?
 
+  nmixxQuizAnswerChannelId   String?
+  nmixxQuizVoiceChannelId    String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

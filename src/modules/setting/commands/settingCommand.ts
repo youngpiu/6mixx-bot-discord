@@ -100,6 +100,14 @@ export class SettingCommand extends Command {
             .setStyle(ButtonStyle.Secondary)
         )
       )
+      .addActionRowComponents((row) =>
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_SETTING_NMIXX_QUIZ)
+            .setLabel('Cài đặt kênh quiz song')
+            .setStyle(ButtonStyle.Secondary)
+        )
+      )
 
     await InteractionUtil.editReply(interaction, {
       components: [container],

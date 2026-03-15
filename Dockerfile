@@ -5,7 +5,7 @@ FROM node:22-alpine AS base
 
 # Prisma engines on Alpine commonly require OpenSSL + CA certificates.
 # Fontconfig and fonts are required for Sharp to render text on images.
-RUN apk add --no-cache openssl ca-certificates fontconfig ttf-dejavu font-noto font-noto-cjk
+RUN apk add --no-cache openssl ca-certificates fontconfig ttf-dejavu font-noto font-noto-cjk ffmpeg
 
 RUN corepack enable && corepack prepare pnpm@10.27.0 --activate
 
@@ -28,6 +28,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY package.json pnpm-lock.yaml tsconfig.json prisma.config.ts ./
 COPY prisma ./prisma
 COPY src ./src
+COPY data/images ./data/images
 
 # Generate Prisma client
 RUN pnpm exec prisma generate --config ./prisma.config.ts
@@ -66,6 +67,7 @@ RUN pnpm install --prod --frozen-lockfile
 # Copy build artifacts
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/generated ./generated
+COPY --from=build /app/data ./data
 
 # Keep Prisma schema/config for runtime Prisma client compatibility.
 COPY prisma ./prisma

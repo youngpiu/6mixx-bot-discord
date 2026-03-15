@@ -90,6 +90,9 @@ services:
       LASTFM_BOT_PASSWORD: ${LASTFM_BOT_PASSWORD}
       DEFAULT_PREFIX: ${DEFAULT_PREFIX:-.}
       NODE_ENV: production
+      MUSIC_QUIZ_BASE_PATH: ${MUSIC_QUIZ_BASE_PATH:-/var/data/6mixx-music-quiz}
+    volumes:
+      - ${MUSIC_QUIZ_BASE_PATH}:${MUSIC_QUIZ_BASE_PATH}:ro
     networks:
       - bot-network
 

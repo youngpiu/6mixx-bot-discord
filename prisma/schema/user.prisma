@@ -9,6 +9,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   lastfmAccount LastFmAccount?
+  musicQuizBestGuesses MusicQuizSong[] @relation("BestGuesser")
 }
 
 /// User membership inside a guild

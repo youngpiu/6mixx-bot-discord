@@ -1,25 +1,25 @@
-# Deployment Guide (Debian VPS)
+# Hướng dẫn Triển khai (Debian VPS)
 
-Tai lieu nay huong dan deploy du an len VPS Debian bang Docker Compose, va cau hinh CI/CD voi GitHub Actions.
+Tài liệu này hướng dẫn triển khai dự án lên VPS Debian bằng Docker Compose, và cấu hình CI/CD với GitHub Actions.
 
-## 1. Tong quan luong deploy
+## 1. Tổng quan luồng triển khai
 
-1. Push code len `main`.
-2. GitHub Actions chay CI (`lint`, `prettier --check`, `build`, `docker build`).
-3. Neu CI pass, workflow `deploy.yml` SSH vao VPS:
-4. `git pull origin main`
-5. `docker compose --profile prod build --no-cache bot migrate`
-6. `docker compose --profile prod run --rm migrate`
-7. `docker compose --profile prod up -d bot`
-8. Health check container `bot`.
+1.  Push code lên nhánh `main`.
+2.  GitHub Actions chạy CI (`lint`, `prettier --check`, `build`, `docker build`).
+3.  Nếu CI vượt qua, workflow `deploy.yml` sẽ kết nối SSH vào VPS:
+4.  Thực hiện `git pull origin main`.
+5.  Build lại image: `docker compose --profile prod build --no-cache bot migrate`.
+6.  Chạy migration: `docker compose --profile prod run --rm migrate`.
+7.  Khởi động Bot: `docker compose --profile prod up -d bot`.
+8.  Kiểm tra trạng thái hoạt động của container `bot`.
 
-## 2. Chuan bi VPS Debian
+## 2. Chuẩn bị VPS Debian
 
-### 2.1 Cai Docker + Compose plugin
+### 2.1 Cài đặt Docker + Compose plugin
 
 ```bash
 sudo apt update
-sudo apt install -y ca-certificates curl gnupg jq git
+sudo apt install -y ca-certificates curl gnupg jq git rsync
 
 sudo install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
@@ -34,16 +34,17 @@ sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-### 2.2 Cho phep user hien tai dung Docker
+### 2.2 Cho phép người dùng hiện tại sử dụng Docker
 
 ```bash
 sudo usermod -aG docker $USER
+# Cần đăng nhập lại hoặc chạy lệnh sau để áp dụng thay đổi
 newgrp docker
 docker --version
 docker compose version
 ```
 
-## 3. Chuan bi source tren VPS
+## 3. Chuẩn bị mã nguồn trên VPS
 
 ```bash
 mkdir -p ~/6mixx-bot-discord
@@ -51,34 +52,35 @@ cd ~/6mixx-bot-discord
 git clone https://github.com/yngpiu/6mixx-bot-discord.git .
 ```
 
-Neu la private repo, dung deploy key hoac PAT de server co quyen `git pull`.
+Nếu là repository riêng tư, hãy sử dụng deploy key hoặc Personal Access Token (PAT) để server có quyền `git pull`.
 
-## 4. Cau hinh bien moi truong
+## 4. Cấu hình biến môi trường
 
-1. Tao file `.env` trong `~/6mixx-bot-discord` (tham khao `.env.example`).
-2. Cac bien bat buoc:
-3. `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
-4. `DISCORD_TOKEN`, `TEST_GUILDS_ID`, `OWNER_BOT_ID`
-5. `BANK_ACCOUNT_NUMBER`, `BANK_NAME`, `BANK_ACCOUNT_NAME`
-6. `DEFAULT_PREFIX` (neu khong co se mac dinh `.`)
+1.  Tạo file `.env` trong thư mục `~/6mixx-bot-discord` (tham khảo `.env.example`).
+2.  Các biến bắt buộc:
+    - `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
+    - `DISCORD_TOKEN`, `TEST_GUILDS_ID`, `OWNER_BOT_ID`
+    - `BANK_ACCOUNT_NUMBER`, `BANK_NAME`, `BANK_ACCOUNT_NAME`
+    - `DEFAULT_PREFIX` (nếu không có sẽ mặc định là `.`)
+    - `MUSIC_QUIZ_BASE_PATH` (Đường dẫn gốc cho Music Quiz - Xem phần 11)
 
-## 5. Khoi dong lan dau (manual)
+## 5. Khởi động lần đầu (thủ công)
 
-### 5.1 Chay database va redis
+### 5.1 Chạy Database và Redis
 
 ```bash
 cd ~/6mixx-bot-discord
 docker compose up -d postgres redis
 ```
 
-### 5.2 Build va migrate
+### 5.2 Build và chạy Migration
 
 ```bash
 docker compose --profile prod build --no-cache bot migrate
 docker compose --profile prod run --rm migrate
 ```
 
-### 5.3 Chay bot
+### 5.3 Chạy Bot
 
 ```bash
 docker compose --profile prod up -d bot
@@ -86,9 +88,7 @@ docker compose --profile prod ps
 docker compose --profile prod logs -f bot
 ```
 
-## 6. Seed du lieu `data/` (chay 1 lan)
-
-`prisma/seed.ts` doc file tu `/app/data`, vi vay can mount thu muc `data` cua host vao container khi seed.
+## 6. Seed dữ liệu `data/` (chạy 1 lần)
 
 ```bash
 cd ~/6mixx-bot-discord
@@ -97,34 +97,34 @@ docker compose --profile prod run --rm \
   migrate pnpm exec prisma db seed --config ./prisma.config.ts
 ```
 
-Ghi chu:
+Lưu ý:
 
-1. Script seed dang dung `skipDuplicates: true`, nen chay lai se khong insert trung.
-2. Van nen coi seed la thao tac thu cong co kiem soat.
+1. Script seed đang dùng `skipDuplicates: true`, nên chạy lại sẽ không bị trùng lặp dữ liệu.
+2. Vẫn nên coi seed là thao tác thủ công có kiểm soát.
 
-## 7. Cau hinh GitHub Actions CI/CD
+## 7. Cấu hình GitHub Actions CI/CD
 
-Repository da co:
+Repository đã có sẵn:
 
 1. `.github/workflows/ci.yml`
 2. `.github/workflows/deploy.yml`
 
-Can set cac GitHub Secrets:
+Cần thiết lập các Secrets trên GitHub:
 
 1. `SSH_HOST`
 2. `SSH_PORT`
 3. `SSH_USERNAME`
 4. `SSH_PRIVATE_KEY`
 
-Khuyen nghi:
+Khuyến nghị:
 
-1. Tao user rieng cho deploy (vi du `deploy`).
-2. Chi mo SSH key auth, tat password auth neu co the.
-3. Gan workflow deploy vao GitHub Environment `production` de co approval rule neu can.
+1. Tạo người dùng riêng cho việc deploy (ví dụ: `deploy`).
+2. Chỉ mở xác thực bằng SSH key, tắt xác thực bằng mật khẩu nếu có thể.
+3. Gán workflow deploy vào GitHub Environment `production` để có quy tắc phê duyệt nếu cần.
 
-## 8. Van hanh thuong ngay
+## 8. Vận hành thường ngày
 
-### 8.1 Deploy thu cong tren VPS
+### 8.1 Triển khai thủ công trên VPS
 
 ```bash
 cd ~/6mixx-bot-discord
@@ -135,7 +135,7 @@ docker compose --profile prod up -d bot
 docker image prune -f
 ```
 
-### 8.2 Kiem tra trang thai
+### 8.2 Kiểm tra trạng thái
 
 ```bash
 docker compose --profile prod ps
@@ -146,19 +146,82 @@ docker compose --profile prod logs --tail 100 redis
 
 ## 9. Troubleshooting nhanh
 
-1. Bot khong len sau deploy:
-2. Kiem tra `docker compose --profile prod logs --tail 200 bot`.
-3. Neu loi DB schema, chay lai `docker compose --profile prod run --rm migrate`.
+1. **Bot không khởi động sau khi triển khai**:
+   Kiểm tra logs: `docker compose --profile prod logs --tail 200 bot`.
+2. **Lỗi DB schema**:
+   Chạy lại migration: `docker compose --profile prod run --rm migrate`.
+3. **Lỗi seed không tìm thấy file dữ liệu**:
+   Đảm bảo đã mount thư mục dữ liệu: `-v ~/6mixx-bot-discord/data:/app/data`.
+4. **CI pass nhưng deploy thất bại qua SSH**:
+   Kiểm tra IP whitelist, cổng SSH, và định dạng của Private Key trong GitHub Secrets.
 
-4. Loi seed khong tim thay file data:
-5. Dam bao mount `-v ~/6mixx-bot-discord/data:/app/data`.
+## 10. Bảo mật cơ bản
 
-6. CI pass nhung deploy fail SSH:
-7. Kiem tra IP whitelist, port SSH, va format private key trong GitHub Secrets.
+1. Không bao giờ commit file `.env`.
+2. Sử dụng SSH key riêng cho CI/CD, có passphrase nếu hệ thống hỗ trợ.
+3. Hạn chế quyền hạn của người dùng thực hiện deploy trên VPS.
+4. Cập nhật image và các gói hệ thống định kỳ.
 
-## 10. Bao mat co ban
+---
 
-1. Khong commit file `.env`.
-2. Dung SSH key rieng cho CI/CD, co passphrase neu he thong ho tro.
-3. Han che quyen user deploy tren VPS.
-4. Cap nhat image va package dinh ky.
+## 11. Hướng dẫn Triển khai Music Quiz (Local Files)
+
+Đây là tính năng cho phép phát nhạc từ file `.opus` lưu trữ trực tiếp trên VPS để đạt tốc độ cao nhất.
+
+### 11.1 Chuẩn bị thư mục trên VPS
+
+```bash
+# Đăng nhập VPS
+ssh root@<vps-ip>
+
+# Tạo thư mục chứa dữ liệu âm thanh độc lập với mã nguồn
+sudo mkdir -p /var/data/6mixx-music-quiz
+sudo chown -R $USER:$USER /var/data/6mixx-music-quiz
+```
+
+### 11.2 Đồng bộ dữ liệu âm thanh từ máy cá nhân
+
+Chạy lệnh này **tại máy cá nhân** của bạn để upload thư mục `opus` lên VPS:
+
+```bash
+# Thay đổi đường dẫn /home/yngpiu/Downloads/opus nếu cần thiết
+rsync -avzP /home/yngpiu/Downloads/opus/ root@<vps-ip>:/var/data/6mixx-music-quiz/
+```
+
+Cấu trúc thư mục mong muốn trên VPS:
+
+```
+/var/data/6mixx-music-quiz/
+├── folder_album/
+│   ├── folder_song/
+│   │   ├── song.opus
+│   │   └── thumbnail.jpg
+```
+
+### 11.3 Cấu hình Biến môi trường
+
+Thêm dòng sau vào file `.env` trên VPS:
+
+```env
+# Đường dẫn thư mục gốc chứa dữ liệu âm thanh và ảnh
+MUSIC_QUIZ_BASE_PATH="/var/data/6mixx-music-quiz"
+```
+
+> **Lưu ý quan trọng**: Docker Compose sẽ tự động ánh xạ (mount) đường dẫn này từ VPS vào bên trong container tại cùng một vị trí. Bot sẽ đọc file dựa trên biến này, đảm bảo tính nhất quán giữa môi trường Dev và Prod.
+
+### 11.4 Cập nhật Database (Seed bài hát)
+
+Sử dụng lệnh sau để cập nhật các đường dẫn bài hát trong database (chuyển từ link URL cũ sang đường dẫn file local):
+
+```bash
+cd ~/6mixx-bot-discord
+docker compose --profile prod exec bot pnpm exec prisma db seed
+```
+
+### 11.5 Lưu ý về Ảnh Thumbnail
+
+Bot sử dụng cơ chế **Attachment** để gửi ảnh thumbnail trực tiếp từ ổ đĩa lên Discord.
+
+- Không cần cấu hình Public URL hay Nginx cho ảnh.
+- Ảnh sẽ được lấy từ cùng thư mục `MUSIC_QUIZ_BASE_PATH`.
+- Đảm bảo file ảnh có định dạng `.jpg` hoặc `.png` như khai báo trong dữ liệu bài hát.

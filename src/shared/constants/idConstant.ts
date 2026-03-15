@@ -172,5 +172,13 @@ export const CUSTOM_ID = {
   INPUT_NMIXX_MANUAL_USER: 'input-nmixx-manual-user',
   INPUT_NMIXX_MANUAL_DATE: 'input-nmixx-manual-date',
   UPLOAD_NMIXX_MANUAL_MEDIA: 'upload-nmixx-manual-media',
-  INPUT_NMIXX_COLLECTION_THUMBNAIL: 'input-nmixx-collection-thumbnail'
+  INPUT_NMIXX_COLLECTION_THUMBNAIL: 'input-nmixx-collection-thumbnail',
+
+  // Nmixx Music Quiz Settings
+  BTN_SETTING_NMIXX_QUIZ: 'btn-setting-nmixx-quiz',
+  MODAL_SETTING_NMIXX_QUIZ: 'modal-setting-nmixx-quiz',
+  SELECT_SETTING_NMIXX_QUIZ_ANSWER_CHANNEL:
+    'select-setting-nmixx-quiz-answer-channel',
+  SELECT_SETTING_NMIXX_QUIZ_VOICE_CHANNEL:
+    'select-setting-nmixx-quiz-voice-channel'
 } as const

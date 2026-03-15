@@ -1,0 +1,465 @@
+[
+  {
+    "title": "Phoenix",
+    "aliases": ["phoenix"],
+    "singer": "NMIXX",
+    "album": "Blue Valentine",
+    "opusUrl": "blue-valentine/phoenix/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=dgeH9vxwYss",
+    "thumbUrl": "blue-valentine/phoenix/thumbnail.jpg",
+    "duration": 164
+  },
+  {
+    "title": "RICO",
+    "aliases": ["rico"],
+    "singer": "NMIXX",
+    "album": "Blue Valentine",
+    "opusUrl": "blue-valentine/rico/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=Ns0S-fnoBYQ",
+    "thumbUrl": "blue-valentine/rico/thumbnail.jpg",
+    "duration": 152
+  },
+  {
+    "title": "PODIUM",
+    "aliases": ["podium"],
+    "singer": "NMIXX",
+    "album": "Blue Valentine",
+    "opusUrl": "blue-valentine/podium/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=htpM--gDJEw",
+    "thumbUrl": "blue-valentine/podium/thumbnail.jpg",
+    "duration": 181
+  },
+  {
+    "title": "Blue Valentine",
+    "aliases": ["blue valentine"],
+    "singer": "NMIXX",
+    "album": "Blue Valentine",
+    "opusUrl": "blue-valentine/blue-valentine/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=k1WbiVmq3-U",
+    "thumbUrl": "blue-valentine/blue-valentine/thumbnail.jpg",
+    "duration": 186
+  },
+  {
+    "title": "Crush On You",
+    "aliases": ["crush on you"],
+    "singer": "NMIXX",
+    "album": "Blue Valentine",
+    "opusUrl": "blue-valentine/crush-on-you/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=sdDY6tSJjFg",
+    "thumbUrl": "blue-valentine/crush-on-you/thumbnail.jpg",
+    "duration": 159
+  },
+  {
+    "title": "Game Face",
+    "aliases": ["game face"],
+    "singer": "NMIXX",
+    "album": "Blue Valentine",
+    "opusUrl": "blue-valentine/game-face/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=O4Sp0fxR_pE",
+    "thumbUrl": "blue-valentine/game-face/thumbnail.jpg",
+    "duration": 163
+  },
+  {
+    "title": "Reality Hurts",
+    "aliases": ["reality hurts"],
+    "singer": "NMIXX",
+    "album": "Blue Valentine",
+    "opusUrl": "blue-valentine/reality-hurts/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=y4LlcShv9xs",
+    "thumbUrl": "blue-valentine/reality-hurts/thumbnail.jpg",
+    "duration": 167
+  },
+  {
+    "title": "SPINNIN' ON IT",
+    "aliases": ["spinnin on it", "spinnin' on it"],
+    "singer": "NMIXX",
+    "album": "Blue Valentine",
+    "opusUrl": "blue-valentine/spinnin-on-it/song.opus",
+    "songUrl": "",
+    "thumbUrl": "blue-valentine/spinnin-on-it/thumbnail.jpg",
+    "duration": 196
+  },
+  {
+    "title": "ADORE U",
+    "aliases": ["adore u"],
+    "singer": "NMIXX",
+    "album": "Blue Valentine",
+    "opusUrl": "blue-valentine/adore-u/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=gUSdNGgO7wE",
+    "thumbUrl": "blue-valentine/adore-u/thumbnail.jpg",
+    "duration": 183
+  },
+  {
+    "title": "Shape Of Love",
+    "aliases": ["shape of love"],
+    "singer": "NMIXX",
+    "album": "Blue Valentine",
+    "opusUrl": "blue-valentine/shape-of-love/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=GrrMUB9D12g",
+    "thumbUrl": "blue-valentine/shape-of-love/thumbnail.jpg",
+    "duration": 173
+  },
+  {
+    "title": "Slingshot (＜★)",
+    "aliases": ["slingshot"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Forward",
+    "opusUrl": "fe3o4-forward/slingshot/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=m-ds3t1QkKc",
+    "thumbUrl": "fe3o4-forward/slingshot/thumbnail.jpg",
+    "duration": 142
+  },
+  {
+    "title": "Golden Recipe",
+    "aliases": ["golden recipe"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Forward",
+    "opusUrl": "fe3o4-forward/golden-recipe/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=Ay8wCtL3b-s",
+    "thumbUrl": "fe3o4-forward/golden-recipe/thumbnail.jpg",
+    "duration": 181
+  },
+  {
+    "title": "Papillon",
+    "aliases": ["papillon"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Forward",
+    "opusUrl": "fe3o4-forward/papillon/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=qQhEwaHszKo",
+    "thumbUrl": "fe3o4-forward/papillon/thumbnail.jpg",
+    "duration": 158
+  },
+  {
+    "title": "Ocean",
+    "aliases": ["ocean"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Forward",
+    "opusUrl": "fe3o4-forward/ocean/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=JLUqbQJswyA",
+    "thumbUrl": "fe3o4-forward/ocean/thumbnail.jpg",
+    "duration": 170
+  },
+  {
+    "title": "High Horse",
+    "aliases": ["high horse"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Forward",
+    "opusUrl": "fe3o4-forward/high-horse/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=dixyMxnPuoA",
+    "thumbUrl": "fe3o4-forward/high-horse/thumbnail.jpg",
+    "duration": 203
+  },
+  {
+    "title": "KNOW ABOUT ME",
+    "aliases": ["know about me"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Forward",
+    "opusUrl": "fe3o4-forward/know-about-me/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=ewJBkYws3AA",
+    "thumbUrl": "fe3o4-forward/know-about-me/thumbnail.jpg",
+    "duration": 165
+  },
+  {
+    "title": "SICKUHH",
+    "aliases": ["sickuhh"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Stick Out",
+    "opusUrl": "fe3o4-stick-out/sickuhh/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=auLcAboA-eE",
+    "thumbUrl": "fe3o4-stick-out/sickuhh/thumbnail.jpg",
+    "duration": 134
+  },
+  {
+    "title": "Red light sign, but we go",
+    "aliases": [
+      "red light sign but we go",
+      "red light sign, but we go",
+      "red light sign,but we go"
+    ],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Stick Out",
+    "opusUrl": "fe3o4-stick-out/red-light-sign-but-we-go/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=PtL6nkdYQtQ",
+    "thumbUrl": "fe3o4-stick-out/red-light-sign-but-we-go/thumbnail.jpg",
+    "duration": 137
+  },
+  {
+    "title": "BEAT BEAT",
+    "aliases": ["beat beat"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Stick Out",
+    "opusUrl": "fe3o4-stick-out/beat-beat/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=VBIDBjBoD8I",
+    "thumbUrl": "fe3o4-stick-out/beat-beat/thumbnail.jpg",
+    "duration": 177
+  },
+  {
+    "title": "Moving On",
+    "aliases": ["moving on"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Stick Out",
+    "opusUrl": "fe3o4-stick-out/moving-on/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=N5C8ofAOLiM",
+    "thumbUrl": "fe3o4-stick-out/moving-on/thumbnail.jpg",
+    "duration": 210
+  },
+  {
+    "title": "Love Is Lonely",
+    "aliases": ["love is lonely"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Stick Out",
+    "opusUrl": "fe3o4-stick-out/love-is-lonely/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=zhrT1cmQ9zA",
+    "thumbUrl": "fe3o4-stick-out/love-is-lonely/thumbnail.jpg",
+    "duration": 225
+  },
+  {
+    "title": "별별별 (See that?)",
+    "aliases": ["see that", "별별별", "별별별!"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Stick Out",
+    "opusUrl": "fe3o4-stick-out/see-that/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=cWN7SD7kX5k",
+    "thumbUrl": "fe3o4-stick-out/see-that/thumbnail.jpg",
+    "duration": 182
+  },
+  {
+    "title": "DASH",
+    "aliases": ["dash"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Break",
+    "opusUrl": "fe3o4-break/dash/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=lgvM9exghpY",
+    "thumbUrl": "fe3o4-break/dash/thumbnail.jpg",
+    "duration": 167
+  },
+  {
+    "title": "Soñar (Breaker)",
+    "aliases": [
+      "sonar",
+      "soñar",
+      "breaker",
+      "soñar (breaker)",
+      "sonar (breaker)",
+      "sonar(breaker)",
+      "soñar(breaker)"
+    ],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Break",
+    "opusUrl": "fe3o4-break/sonar/song.opus",
+    "songUrl": "",
+    "thumbUrl": "fe3o4-break/sonar/thumbnail.jpg",
+    "duration": 173
+  },
+  {
+    "title": "Run For Roses",
+    "aliases": ["run for roses"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Break",
+    "opusUrl": "fe3o4-break/run-for-roses/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=j6tKIdt9K9M",
+    "thumbUrl": "fe3o4-break/run-for-roses/thumbnail.jpg",
+    "duration": 222
+  },
+  {
+    "title": "BOOM",
+    "aliases": ["boom"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Break",
+    "opusUrl": "fe3o4-break/boom/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=Vd3jAK_kA0o",
+    "thumbUrl": "fe3o4-break/boom/thumbnail.jpg",
+    "duration": 184
+  },
+  {
+    "title": "Passionfruit",
+    "aliases": ["passionfruit"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Break",
+    "opusUrl": "fe3o4-break/passionfruit/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=v7rfkLyeTzs",
+    "thumbUrl": "fe3o4-break/passionfruit/thumbnail.jpg",
+    "duration": 160
+  },
+  {
+    "title": "XOXO",
+    "aliases": ["xoxo"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Break",
+    "opusUrl": "fe3o4-break/xoxo/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=n6ZwJyS2Iec",
+    "thumbUrl": "fe3o4-break/xoxo/thumbnail.jpg",
+    "duration": 178
+  },
+  {
+    "title": "Break The Wall",
+    "aliases": ["break the wall"],
+    "singer": "NMIXX",
+    "album": "Fe3o4: Break",
+    "opusUrl": "fe3o4-break/break-the-wall/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=i5QFzaQbT6w",
+    "thumbUrl": "fe3o4-break/break-the-wall/thumbnail.jpg",
+    "duration": 204
+  },
+  {
+    "title": "Party O'Clock",
+    "aliases": ["party o clock", "party o'clock"],
+    "singer": "NMIXX",
+    "album": "A Midsummer Nmixx's Dream",
+    "opusUrl": "a-midsummer-nmixx-dream/party-o-clock/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=AzYxoB-Lm_U",
+    "thumbUrl": "a-midsummer-nmixx-dream/party-o-clock/thumbnail.jpg",
+    "duration": 183
+  },
+  {
+    "title": "Roller Coaster",
+    "aliases": ["roller coaster"],
+    "singer": "NMIXX",
+    "album": "A Midsummer Nmixx's Dream",
+    "opusUrl": "a-midsummer-nmixx-dream/roller-coaster/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=cr8SBb5cuoY",
+    "thumbUrl": "a-midsummer-nmixx-dream/roller-coaster/thumbnail.jpg",
+    "duration": 179
+  },
+  {
+    "title": "Love Me Like This",
+    "aliases": ["love me like this"],
+    "singer": "NMIXX",
+    "album": "Expergo",
+    "opusUrl": "expergo/love-me-like-this/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=FxuVJeeKK_4",
+    "thumbUrl": "expergo/love-me-like-this/thumbnail.jpg",
+    "duration": 188
+  },
+  {
+    "title": "Young, Dumb, Stupid",
+    "aliases": [
+      "young dumb stupid",
+      "young,dumb,stupid",
+      "young, dumb, stupid"
+    ],
+    "singer": "NMIXX",
+    "album": "Expergo",
+    "opusUrl": "expergo/young-dumb-stupid/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=Fmiu0L9XSVg",
+    "thumbUrl": "expergo/young-dumb-stupid/thumbnail.jpg",
+    "duration": 190
+  },
+  {
+    "title": "PAXXWORD",
+    "aliases": ["paxxword"],
+    "singer": "NMIXX",
+    "album": "Expergo",
+    "opusUrl": "expergo/paxxword/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=LDWPLxbCRcQ",
+    "thumbUrl": "expergo/paxxword/thumbnail.jpg",
+    "duration": 192
+  },
+  {
+    "title": "Just Did It",
+    "aliases": ["just did it"],
+    "singer": "NMIXX",
+    "album": "Expergo",
+    "opusUrl": "expergo/just-did-it/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=5uoCxrKNsVc",
+    "thumbUrl": "expergo/just-did-it/thumbnail.jpg",
+    "duration": 178
+  },
+  {
+    "title": "My Gosh",
+    "aliases": ["my gosh"],
+    "singer": "NMIXX",
+    "album": "Expergo",
+    "opusUrl": "expergo/my-gosh/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=fc7BBRW__Bc",
+    "thumbUrl": "expergo/my-gosh/thumbnail.jpg",
+    "duration": 216
+  },
+  {
+    "title": "HOME",
+    "aliases": ["home"],
+    "singer": "NMIXX",
+    "album": "Expergo",
+    "opusUrl": "expergo/home/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=A3CmKRfRO88",
+    "thumbUrl": "expergo/home/thumbnail.jpg",
+    "duration": 160
+  },
+  {
+    "title": "Funky Glitter Christmas",
+    "aliases": ["funky glitter christmas"],
+    "singer": "NMIXX",
+    "album": "Funky Glitter Christmas",
+    "opusUrl": "funky-glitter-christmas/funky-glitter-christmas/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=GPYTXt9WTWU",
+    "thumbUrl": "funky-glitter-christmas/funky-glitter-christmas/thumbnail.jpg",
+    "duration": 190
+  },
+  {
+    "title": "Dice",
+    "aliases": ["dice", "nmixx dice", "d.i.c.e"],
+    "singer": "NMIXX",
+    "album": "Entwurf",
+    "opusUrl": "entwurf/dice/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=WX-9EL7fqdg",
+    "thumbUrl": "entwurf/dice/thumbnail.jpg",
+    "duration": 165
+  },
+  {
+    "title": "Cool",
+    "aliases": ["cool"],
+    "singer": "NMIXX",
+    "album": "Entwurf",
+    "opusUrl": "entwurf/cool/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=PluoENBB_3s",
+    "thumbUrl": "entwurf/cool/thumbnail.jpg",
+    "duration": 170
+  },
+  {
+    "title": "안녕 개비! (Hey Gabby)",
+    "aliases": [
+      "hey gabby",
+      "안녕 개비",
+      "안녕개비",
+      "안녕개비!",
+      "안녕 개비!",
+      "hey gabby!"
+    ],
+    "singer": "NMIXX",
+    "album": "Dream Works",
+    "opusUrl": "dream-works/hey-gabby/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=7qRuG6D_D-I",
+    "thumbUrl": "dream-works/hey-gabby/thumbnail.jpg",
+    "duration": 119
+  },
+  {
+    "title": "Sprinkle Party (안녕 개비!)",
+    "aliases": ["sprinkle party", "안녕 개비", "안녕 개비!"],
+    "singer": "NMIXX",
+    "album": "Dream Works",
+    "opusUrl": "dream-works/sprinkle-party/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=k8QO3WsISoU",
+    "thumbUrl": "dream-works/sprinkle-party/thumbnail.jpg",
+    "duration": 136
+  },
+  {
+    "title": "O.O",
+    "aliases": ["o.o"],
+    "singer": "NMIXX",
+    "album": "Ad Mare",
+    "opusUrl": "admare/o-o/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=P8W4p5UIfqA",
+    "thumbUrl": "admare/o-o/thumbnail.jpg",
+    "duration": 172
+  },
+  {
+    "title": "TANK",
+    "aliases": ["tank"],
+    "singer": "NMIXX",
+    "album": "Ad Mare",
+    "opusUrl": "admare/tank/song.opus",
+    "songUrl": "https://www.youtube.com/watch?v=8wCuNnlk50k",
+    "thumbUrl": "admare/tank/thumbnail.jpg",
+    "duration": 168
+  }
+]
