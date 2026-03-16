@@ -50,6 +50,12 @@ import { MusicQuizTopCommand } from '~/modules/songs-quiz/commands/_quizTopComma
             .setDescription('Đường dẫn thư mục (vd: /album/ten-bai).')
             .setRequired(true)
         )
+        .addStringOption((option) =>
+          option
+            .setName('song-url')
+            .setDescription('Link bài hát (YouTube, Spotify, ...).')
+            .setRequired(true)
+        )
     )
     .addSubcommand((sub) =>
       sub

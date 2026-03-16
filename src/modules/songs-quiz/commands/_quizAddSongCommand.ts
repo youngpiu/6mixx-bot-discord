@@ -14,6 +14,7 @@ export class MusicQuizAddSongCommand {
     const aliasesRaw = interaction.options.getString('aliases', true)
     const duration = interaction.options.getInteger('duration', true)
     let folderPath = interaction.options.getString('path', true)
+    const songUrl = interaction.options.getString('song-url', true)
 
     // Chuẩn hóa path: bỏ dấu gạch chéo ở đầu nếu có
     if (folderPath.startsWith('/')) {
@@ -36,7 +37,8 @@ export class MusicQuizAddSongCommand {
       aliases,
       duration,
       opusUrl: `${folderPath}/song.opus`,
-      thumbUrl: `${folderPath}/thumbnail.jpg`
+      thumbUrl: `${folderPath}/thumbnail.jpg`,
+      songUrl
     })
 
     return InteractionUtil.replySuccess(
