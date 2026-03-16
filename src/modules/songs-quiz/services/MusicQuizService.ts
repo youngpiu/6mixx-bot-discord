@@ -518,9 +518,9 @@ export class MusicQuizService {
           ]
         : []),
 
-      ['✅ Tỉ lệ đúng', `**${stats.correctRatio}%**`],
-      ['⏱️ Trung bình', `**${stats.avgTime}s**`],
-      ['🏅 Kỷ lục', `**${stats.bestDisplay}**`]
+      ['✅ Tỉ lệ đúng', reveal ? `**${stats.correctRatio}%**` : '**???**'],
+      ['⏱️ Trung bình', reveal ? `**${stats.avgTime}s**` : '**???**'],
+      ['🏅 Kỷ lục', reveal ? `**${stats.bestDisplay}**` : '**???**']
     ]
 
     const fields = formatFields(fieldsData, '', false)
