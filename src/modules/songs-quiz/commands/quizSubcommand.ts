@@ -18,7 +18,7 @@ import { MusicQuizTopCommand } from '~/modules/songs-quiz/commands/_quizTopComma
           option
             .setName('album')
             .setDescription('Tên album của bài hát.')
-            .setRequired(true)
+            .setRequired(false)
         )
         .addStringOption((option) =>
           option
