@@ -9,50 +9,45 @@ import { MusicQuizTopCommand } from './_quizzTopCommand'
   builder
     .setName('quizz')
     .setDescription('Quản lý hệ thống Music Quiz.')
-    .addSubcommandGroup((group) =>
-      group
+    .addSubcommand((sub) =>
+      sub
         .setName('add')
-        .setDescription('Thêm dữ liệu cho Music Quiz.')
-        .addSubcommand((sub) =>
-          sub
-            .setName('song')
-            .setDescription('Thêm một bài hát mới vào Quiz.')
-            .addStringOption((option) =>
-              option
-                .setName('album')
-                .setDescription('Tên album của bài hát.')
-                .setRequired(true)
-            )
-            .addStringOption((option) =>
-              option
-                .setName('singer')
-                .setDescription('Nghệ sĩ thể hiện.')
-                .setRequired(true)
-            )
-            .addStringOption((option) =>
-              option
-                .setName('title')
-                .setDescription('Tên chính thức của bài hát.')
-                .setRequired(true)
-            )
-            .addStringOption((option) =>
-              option
-                .setName('aliases')
-                .setDescription('Các tên gọi khác (phân cách bằng dấu phẩy).')
-                .setRequired(true)
-            )
-            .addIntegerOption((option) =>
-              option
-                .setName('duration')
-                .setDescription('Độ dài bài hát (giây).')
-                .setRequired(true)
-            )
-            .addStringOption((option) =>
-              option
-                .setName('path')
-                .setDescription('Đường dẫn thư mục (vd: /album/ten-bai).')
-                .setRequired(true)
-            )
+        .setDescription('Thêm một bài hát mới vào Quiz.')
+        .addStringOption((option) =>
+          option
+            .setName('album')
+            .setDescription('Tên album của bài hát.')
+            .setRequired(true)
+        )
+        .addStringOption((option) =>
+          option
+            .setName('singer')
+            .setDescription('Nghệ sĩ thể hiện.')
+            .setRequired(true)
+        )
+        .addStringOption((option) =>
+          option
+            .setName('title')
+            .setDescription('Tên chính thức của bài hát.')
+            .setRequired(true)
+        )
+        .addStringOption((option) =>
+          option
+            .setName('aliases')
+            .setDescription('Các tên gọi khác (phân cách bằng dấu phẩy).')
+            .setRequired(true)
+        )
+        .addIntegerOption((option) =>
+          option
+            .setName('duration')
+            .setDescription('Độ dài bài hát (giây).')
+            .setRequired(true)
+        )
+        .addStringOption((option) =>
+          option
+            .setName('path')
+            .setDescription('Đường dẫn thư mục (vd: /album/ten-bai).')
+            .setRequired(true)
         )
     )
     .addSubcommand((sub) =>
@@ -66,14 +61,9 @@ import { MusicQuizTopCommand } from './_quizzTopCommand'
   description: 'Quản lý Music Quiz.',
   subcommands: [
     {
-      type: 'group',
       name: 'add',
-      entries: [
-        {
-          name: 'song',
-          chatInputRun: 'chatInputAddSong'
-        }
-      ]
+      chatInputRun: 'chatInputAddSong',
+      preconditions: ['OwnerOnly']
     },
     {
       name: 'top',

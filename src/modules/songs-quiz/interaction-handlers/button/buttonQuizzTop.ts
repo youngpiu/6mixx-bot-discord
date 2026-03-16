@@ -7,7 +7,10 @@ import { type ButtonInteraction } from 'discord.js'
 
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 
-import { MusicQuizTopCommand, decodeState } from '../commands/_quizzTopCommand'
+import {
+  MusicQuizTopCommand,
+  decodeState
+} from '~/modules/songs-quiz/commands/_quizzTopCommand'
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button

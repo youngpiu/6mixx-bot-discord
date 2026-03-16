@@ -69,14 +69,13 @@ export class MusicQuizTopCommand {
   ) {
     const listBuilder = new ListBuilder<MusicQuizTopMeta>({
       title: 'BẢNG XẾP HẠNG KỶ LỤC MUSIC QUIZ',
-      footer: `Trang ${meta.page}/${meta.totalPages || 1} • Tổng: ${meta.total} người dùng`,
       idPrefix: CUSTOM_ID.MUSIC_QUIZ_TOP_PREFIX,
       encodeState: encodeState
     })
 
     if (items.length === 0) {
       return {
-        content: 'Hiện tại chưa có ai giữ kỷ lục nào!'
+        content: 'Hiện tại chưa có ai giữ kỷ lục nào.'
       }
     }
 
