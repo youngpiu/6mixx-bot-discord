@@ -3,22 +3,20 @@ import { Command, container } from '@sapphire/framework'
 import {
   ChatInputCommandInteraction,
   ContainerBuilder,
-  SeparatorBuilder,
-  TextDisplayBuilder
+  SeparatorBuilder
 } from 'discord.js'
 import os from 'node:os'
 
-import { STATIC_EMOJI } from '~/shared/constants/emojiConstant'
-import { InteractionUtil } from '~/shared/utils/messageUtil'
+import { formatFields, lines } from '~/shared/utils/textUtil'
 
 @RegisterChatInputCommand((builder) =>
   builder
     .setName('ping')
-    .setDescription('Xem độ trễ và thông số kỹ thuật của bot')
+    .setDescription('Xem độ trễ và thông số kỹ thuật của bot.')
 )
 @ApplyOptions<Command.Options>({
   name: 'ping',
-  description: 'Xem độ trễ và thông số kỹ thuật của bot'
+  description: 'Xem độ trễ và thông số kỹ thuật của bot.'
 })
 export class PingCommand extends Command {
   public override async chatInputRun(interaction: ChatInputCommandInteraction) {
@@ -45,34 +43,35 @@ export class PingCommand extends Command {
     }
 
     const cpuLoad = os.loadavg()[0].toFixed(2)
-    const cpuModel = os.cpus()[0]?.model || 'Unknown CPU'
+    const cpuModel = os.cpus()[0]?.model
 
     const containerBuilder = new ContainerBuilder()
-      .setAccentColor(0x5865f2)
-      .addTextDisplayComponents((t) =>
-        t.setContent(`${STATIC_EMOJI.SUCCESS} **Pong!**`)
-      )
+      .addTextDisplayComponents((t) => t.setContent(`### Pong!`))
       .addSeparatorComponents(new SeparatorBuilder())
-      .addSectionComponents((s) =>
-        s.addTextDisplayComponents(
-          new TextDisplayBuilder().setContent(
-            `📡 **Heartbeat:** \`${heartbeat}ms\``
-          ),
-          new TextDisplayBuilder().setContent(
-            `📦 **RAM:** \`${formatBytes(usedMem)} / ${formatBytes(totalMem)}\``
-          ),
-          new TextDisplayBuilder().setContent(
-            `💻 **CPU:** \`${cpuLoad}\` (${cpuModel})`
-          ),
-          new TextDisplayBuilder().setContent(
-            `🕒 **Bot Uptime:** \`${formatUptime(botUptime)}\``
-          ),
-          new TextDisplayBuilder().setContent(
-            `🖥️ **Sys Uptime:** \`${formatUptime(systemUptime)}\``
+      .addTextDisplayComponents((t) =>
+        t.setContent(
+          lines(
+            ...formatFields(
+              [
+                ['📡 Heartbeat', `**${heartbeat}ms**`],
+                [
+                  '📦 RAM',
+                  `**${formatBytes(usedMem)} / ${formatBytes(totalMem)}**`
+                ],
+                ['💻 CPU', `**${cpuLoad}** (${cpuModel ? cpuModel : ''})`],
+                ['🕒 Bot Uptime', `**${formatUptime(botUptime)}**`],
+                ['🖥️ Sys Uptime', `**${formatUptime(systemUptime)}**`]
+              ],
+              '',
+              false
+            )
           )
         )
       )
 
-    await InteractionUtil.replyWithContainer(interaction, containerBuilder)
+    await interaction.editReply({
+      components: [containerBuilder],
+      flags: ['IsComponentsV2']
+    })
   }
 }

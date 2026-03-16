@@ -16,12 +16,6 @@ import { MusicQuizTopCommand } from '~/modules/songs-quiz/commands/_quizTopComma
         .setDescription('Thêm một bài hát mới vào Quiz.')
         .addStringOption((option) =>
           option
-            .setName('playlist')
-            .setDescription('Tên danh sách phát của bài hát.')
-            .setRequired(false)
-        )
-        .addStringOption((option) =>
-          option
             .setName('artists')
             .setDescription('Danh sách các nghệ sĩ thể hiện.')
             .setRequired(true)
@@ -55,6 +49,12 @@ import { MusicQuizTopCommand } from '~/modules/songs-quiz/commands/_quizTopComma
             .setName('song-url')
             .setDescription('Link bài hát (YouTube, Spotify, ...).')
             .setRequired(true)
+        )
+        .addStringOption((option) =>
+          option
+            .setName('playlist')
+            .setDescription('Tên danh sách phát của bài hát.')
+            .setRequired(false)
         )
     )
     .addSubcommand((sub) =>
