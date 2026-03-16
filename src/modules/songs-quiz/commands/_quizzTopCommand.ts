@@ -1,4 +1,8 @@
-import { ButtonInteraction, ChatInputCommandInteraction } from 'discord.js'
+import {
+  ButtonInteraction,
+  ChatInputCommandInteraction,
+  ContainerBuilder
+} from 'discord.js'
 
 import { ListBuilder } from '~/shared/components/ListBuilder'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
@@ -37,15 +41,23 @@ export class MusicQuizTopCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply()
 
-    const { items, meta } = await MusicQuizSongRepository.getTopLeaderboard(
-      1,
-      10
-    )
+    try {
+      const { items, meta } = await MusicQuizSongRepository.getTopLeaderboard(
+        1,
+        10
+      )
 
-    return await InteractionUtil.editReply(
-      interaction,
-      this.createTopResponse(items, meta)
-    )
+      return await InteractionUtil.replyWithComponents(
+        interaction,
+        this.createTopResponse(items, meta)
+      )
+    } catch (error) {
+      console.error('[MusicQuizTopCommand] Error:', error)
+      return await InteractionUtil.replyError(
+        interaction,
+        'Có lỗi xảy ra khi truy xuất bảng xếp hạng.'
+      )
+    }
   }
 
   public static async handleButton(
@@ -57,7 +69,7 @@ export class MusicQuizTopCommand {
       10
     )
 
-    await InteractionUtil.editReply(
+    await InteractionUtil.replyWithComponents(
       interaction,
       this.createTopResponse(items, meta)
     )
@@ -74,9 +86,12 @@ export class MusicQuizTopCommand {
     })
 
     if (items.length === 0) {
-      return {
-        content: 'Hiện tại chưa có ai giữ kỷ lục nào.'
-      }
+      // Return a text container for empty state
+      return [
+        new ContainerBuilder().addTextDisplayComponents((t) =>
+          t.setContent('Hiện tại chưa có ai giữ kỷ lục nào.')
+        )
+      ]
     }
 
     items.forEach((entry, index) => {
@@ -86,8 +101,6 @@ export class MusicQuizTopCommand {
 
     listBuilder.addPaginationRow(meta)
 
-    return {
-      components: listBuilder.build()
-    }
+    return listBuilder.build()
   }
 }

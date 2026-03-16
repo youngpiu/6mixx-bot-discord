@@ -59,6 +59,7 @@ import { MusicQuizTopCommand } from './_quizzTopCommand'
 @ApplyOptions<Subcommand.Options>({
   name: 'quizz',
   description: 'Quản lý Music Quiz.',
+  preconditions: ['GuildOnly'],
   subcommands: [
     {
       name: 'add',
