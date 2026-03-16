@@ -5,14 +5,19 @@ import { container } from '@sapphire/pieces'
  */
 export class MusicQuizSongRepository {
   /**
-   * Retrieves a random song from the database.
+   * Truy xuất một bài hát ngẫu nhiên, có thể loại trừ các bài đã chơi.
    */
-  public static async getRandom() {
-    const total = await container.prisma.musicQuizSong.count()
+  public static async getRandom(excludeIds: number[] = []) {
+    const where = {
+      id: { notIn: excludeIds }
+    }
+
+    const total = await container.prisma.musicQuizSong.count({ where })
     if (total === 0) return null
 
     const randomIndex = Math.floor(Math.random() * total)
     return container.prisma.musicQuizSong.findFirst({
+      where,
       skip: randomIndex
     })
   }
@@ -74,6 +79,29 @@ export class MusicQuizSongRepository {
         avgGuessTime,
         bestGuessTime,
         bestGuesserId
+      }
+    })
+  }
+
+  /**
+   * Adds a new song to the database.
+   */
+  public static async create(data: {
+    title: string
+    aliases: string[]
+    singer: string
+    album?: string
+    opusUrl: string
+    songUrl?: string
+    thumbUrl?: string
+    duration?: number
+  }) {
+    return container.prisma.musicQuizSong.create({
+      data: {
+        ...data,
+        totalAttempts: 0,
+        correctAttempts: 0,
+        avgGuessTime: 0
       }
     })
   }

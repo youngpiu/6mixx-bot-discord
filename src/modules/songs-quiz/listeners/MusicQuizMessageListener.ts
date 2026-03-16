@@ -35,10 +35,10 @@ export class MusicQuizMessageListener extends Listener {
     if (!isCorrect) {
       await MessageUtil.replyError(
         message,
-        'Đoán sai rồi bạng êi!',
-        5000,
+        'Đoán sai rồi bạn êi...',
+        3000,
         'NORMAL',
-        false
+        true
       )
     }
   }

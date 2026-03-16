@@ -29,8 +29,7 @@ export class MusicQuizVoiceStateUpdateListener extends Listener {
       if (!(await MusicQuizSessionManager.isSessionActive(guild.id))) {
         await MusicQuizService.startSession(
           guild,
-          newState.channel as VoiceChannel,
-          member!.id
+          newState.channel as VoiceChannel
         )
       }
     }
