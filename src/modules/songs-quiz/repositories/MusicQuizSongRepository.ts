@@ -86,7 +86,15 @@ export class MusicQuizSongRepository {
   /**
    * Truy xuất bảng xếp hạng những người có nhiều kỷ lục nhất.
    */
-  public static async getTopLeaderboard(limit: number = 10) {
+  public static async getTopLeaderboard(page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit
+
+    const total = await container.prisma.user.count({
+      where: {
+        musicQuizBestGuesses: { some: {} }
+      }
+    })
+
     const topUsers = await container.prisma.user.findMany({
       where: {
         musicQuizBestGuesses: {
@@ -104,13 +112,26 @@ export class MusicQuizSongRepository {
           _count: 'desc'
         }
       },
-      take: limit
+      take: limit,
+      skip
     })
 
-    return topUsers.map((u) => ({
-      userId: u.id,
-      count: u._count.musicQuizBestGuesses
-    }))
+    const totalPages = Math.ceil(total / limit)
+
+    return {
+      items: topUsers.map((u) => ({
+        userId: u.id,
+        count: u._count.musicQuizBestGuesses
+      })),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
+    }
   }
 
   /**
