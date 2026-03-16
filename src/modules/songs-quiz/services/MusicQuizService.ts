@@ -23,17 +23,32 @@ import { SettingRepository } from '~/shared/repositories/settingRepository'
 import { MessageUtil } from '~/shared/utils/messageUtil'
 import { formatFields, lines } from '~/shared/utils/textUtil'
 
-import { AudioProcessor } from '../helpers/AudioProcessor'
-import { MusicQuizSongRepository } from '../repositories/MusicQuizSongRepository'
-import { MusicQuizRedisService, MusicQuizState } from './MusicQuizRedisService'
-import { MusicQuizSessionManager } from './MusicQuizSessionManager'
-import { MusicQuizVoiceService } from './MusicQuizVoiceService'
+import { AudioProcessor } from '~/modules/songs-quiz/helpers/AudioProcessor'
+import { MusicQuizSongRepository } from '~/modules/songs-quiz/repositories/MusicQuizSongRepository'
+import {
+  MusicQuizRedisService,
+  MusicQuizState
+} from '~/modules/songs-quiz/services/MusicQuizRedisService'
+import { MusicQuizSessionManager } from '~/modules/songs-quiz/services/MusicQuizSessionManager'
+import { MusicQuizVoiceService } from '~/modules/songs-quiz/services/MusicQuizVoiceService'
 
 export class MusicQuizService {
   /**
    * Resolves a relative thumbUrl to an absolute local path, then returns an AttachmentBuilder.
    * Discord can render local files as thumbnails via attachment:// scheme.
    */
+  private static getBestGuessDisplay(song: {
+    bestGuessTime: number | null
+    bestGuesserId: string | null
+  }) {
+    if (!song.bestGuessTime) return '???'
+    let display = `${song.bestGuessTime.toFixed(1)}s`
+    if (song.bestGuesserId) {
+      display += ` (<@${song.bestGuesserId}>)`
+    }
+    return display
+  }
+
   private static resolveThumbAttachment(thumbUrl: string | null) {
     if (!thumbUrl) return null
 
@@ -205,13 +220,11 @@ export class MusicQuizService {
           ? ((song.correctAttempts / song.totalAttempts) * 100).toFixed(1)
           : '0.0',
       avgTime: song.avgGuessTime.toFixed(1),
-      bestDisplay: song.bestGuessTime
-        ? `${song.bestGuessTime.toFixed(1)}s`
-        : '???'
+      bestDisplay: this.getBestGuessDisplay(song)
     }
 
     const startEmbed = new EmbedBuilder()
-      .setTitle('Đoán xem bài hát hiện tại là bài gì?')
+      .setTitle('Đoán xem đây là là bài hát nào?')
       .setColor('#2ecc71')
       .setThumbnail('attachment://question.png')
       .setDescription(this.renderQuizDescription(song, revealStats, false))
@@ -281,14 +294,6 @@ export class MusicQuizService {
       state.textChannelId
     )) as TextChannel
 
-    let bestDisplay = '???'
-    if (updatedSong.bestGuessTime) {
-      bestDisplay = `${updatedSong.bestGuessTime.toFixed(1)}s`
-      if (updatedSong.bestGuesserId) {
-        bestDisplay += ` (<@${updatedSong.bestGuesserId}>)`
-      }
-    }
-
     const thumbAttachment = this.resolveThumbAttachment(updatedSong.thumbUrl)
     const revealStats = {
       correctRatio:
@@ -299,7 +304,7 @@ export class MusicQuizService {
             ).toFixed(1)
           : '0.0',
       avgTime: updatedSong.avgGuessTime.toFixed(1),
-      bestDisplay: bestDisplay
+      bestDisplay: this.getBestGuessDisplay(updatedSong)
     }
 
     const timeoutEmbed = new EmbedBuilder()
@@ -377,15 +382,6 @@ export class MusicQuizService {
       const displayName = updatedSong.title
       const thumbAttachment = this.resolveThumbAttachment(updatedSong.thumbUrl)
 
-      // Best record handling
-      let bestDisplay = '???'
-      if (updatedSong.bestGuessTime) {
-        bestDisplay = `${updatedSong.bestGuessTime.toFixed(1)}s`
-        if (updatedSong.bestGuesserId) {
-          bestDisplay += ` (<@${updatedSong.bestGuesserId}>)`
-        }
-      }
-
       const revealStats = {
         correctRatio:
           updatedSong.totalAttempts > 0
@@ -395,7 +391,7 @@ export class MusicQuizService {
               ).toFixed(1)
             : '0.0',
         avgTime: updatedSong.avgGuessTime.toFixed(1),
-        bestDisplay: bestDisplay
+        bestDisplay: this.getBestGuessDisplay(updatedSong)
       }
 
       const successEmbed = new EmbedBuilder()
@@ -453,14 +449,6 @@ export class MusicQuizService {
           state.textChannelId
         )) as TextChannel
 
-        let bestDisplay = '???'
-        if (updatedSong.bestGuessTime) {
-          bestDisplay = `${updatedSong.bestGuessTime.toFixed(1)}s`
-          if (updatedSong.bestGuesserId) {
-            bestDisplay += ` (<@${updatedSong.bestGuesserId}>)`
-          }
-        }
-
         const thumbAttachment = this.resolveThumbAttachment(
           updatedSong.thumbUrl
         )
@@ -473,7 +461,7 @@ export class MusicQuizService {
                 ).toFixed(1)
               : '0.0',
           avgTime: updatedSong.avgGuessTime.toFixed(1),
-          bestDisplay: bestDisplay
+          bestDisplay: this.getBestGuessDisplay(updatedSong)
         }
 
         const timeoutEmbed = new EmbedBuilder()

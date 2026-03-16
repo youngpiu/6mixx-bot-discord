@@ -4,8 +4,8 @@ import { Message } from 'discord.js'
 
 import { MessageUtil } from '~/shared/utils/messageUtil'
 
-import { MusicQuizRedisService } from '../services/MusicQuizRedisService'
-import { MusicQuizService } from '../services/MusicQuizService'
+import { MusicQuizRedisService } from '~/modules/songs-quiz/services/MusicQuizRedisService'
+import { MusicQuizService } from '~/modules/songs-quiz/services/MusicQuizService'
 
 @ApplyOptions<Listener.Options>({
   event: 'messageCreate'

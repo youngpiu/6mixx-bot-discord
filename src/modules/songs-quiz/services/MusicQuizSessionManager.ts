@@ -1,6 +1,9 @@
 import type { AudioPlayer, VoiceConnection } from '@discordjs/voice'
 
-import { MusicQuizRedisService, MusicQuizState } from './MusicQuizRedisService'
+import {
+  MusicQuizRedisService,
+  MusicQuizState
+} from '~/modules/songs-quiz/services/MusicQuizRedisService'
 
 /**
  * Stores active Discord handles that cannot be serialized for Redis.

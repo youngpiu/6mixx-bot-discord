@@ -8,7 +8,7 @@ import { ListBuilder } from '~/shared/components/ListBuilder'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 
-import { MusicQuizSongRepository } from '../repositories/MusicQuizSongRepository'
+import { MusicQuizSongRepository } from '~/modules/songs-quiz/repositories/MusicQuizSongRepository'
 
 // State for Music Quiz Leaderboard
 export interface MusicQuizTopState {

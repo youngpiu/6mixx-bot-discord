@@ -10,7 +10,7 @@ import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import {
   MusicQuizTopCommand,
   decodeState
-} from '~/modules/songs-quiz/commands/_quizzTopCommand'
+} from '~/modules/songs-quiz/commands/_quizTopCommand'
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button

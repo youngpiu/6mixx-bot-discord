@@ -2,13 +2,13 @@ import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChatInputCommandInteraction } from 'discord.js'
 
-import { MusicQuizAddSongCommand } from './_quizzAddSongCommand'
-import { MusicQuizSongsCommand } from './_quizzSongsCommand'
-import { MusicQuizTopCommand } from './_quizzTopCommand'
+import { MusicQuizAddSongCommand } from '~/modules/songs-quiz/commands/_quizAddSongCommand'
+import { MusicQuizSongsCommand } from '~/modules/songs-quiz/commands/_quizSongsCommand'
+import { MusicQuizTopCommand } from '~/modules/songs-quiz/commands/_quizTopCommand'
 
 @RegisterChatInputCommand((builder) =>
   builder
-    .setName('quizz')
+    .setName('quiz')
     .setDescription('Quản lý hệ thống Music Quiz.')
     .addSubcommand((sub) =>
       sub
@@ -63,7 +63,7 @@ import { MusicQuizTopCommand } from './_quizzTopCommand'
     )
 )
 @ApplyOptions<Subcommand.Options>({
-  name: 'quizz',
+  name: 'quiz',
   description: 'Quản lý Music Quiz.',
   preconditions: ['GuildOnly'],
   subcommands: [
@@ -82,7 +82,7 @@ import { MusicQuizTopCommand } from './_quizzTopCommand'
     }
   ]
 })
-export class QuizzSubcommand extends Subcommand {
+export class QuizSubcommand extends Subcommand {
   public async chatInputAddSong(interaction: ChatInputCommandInteraction) {
     return MusicQuizAddSongCommand.run(interaction)
   }

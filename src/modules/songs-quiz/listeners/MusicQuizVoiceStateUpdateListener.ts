@@ -4,9 +4,9 @@ import { VoiceChannel, VoiceState } from 'discord.js'
 
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 
-import { MusicQuizRedisService } from '../services/MusicQuizRedisService'
-import { MusicQuizService } from '../services/MusicQuizService'
-import { MusicQuizSessionManager } from '../services/MusicQuizSessionManager'
+import { MusicQuizRedisService } from '~/modules/songs-quiz/services/MusicQuizRedisService'
+import { MusicQuizService } from '~/modules/songs-quiz/services/MusicQuizService'
+import { MusicQuizSessionManager } from '~/modules/songs-quiz/services/MusicQuizSessionManager'
 
 @ApplyOptions<Listener.Options>({
   event: 'voiceStateUpdate'

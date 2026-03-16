@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction } from 'discord.js'
 
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 
-import { MusicQuizSongRepository } from '../repositories/MusicQuizSongRepository'
+import { MusicQuizSongRepository } from '~/modules/songs-quiz/repositories/MusicQuizSongRepository'
 
 export class MusicQuizAddSongCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
