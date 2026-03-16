@@ -21,9 +21,9 @@ export class ButtonMusicQuizTop extends InteractionHandler {
       return this.none()
 
     const parts = interaction.customId.split(':')
-    if (parts.length < 2) return this.none()
+    if (parts.length < 3) return this.none()
 
-    const [, encodedState] = parts
+    const [, , encodedState] = parts
     const state = decodeState(encodedState)
 
     return this.some({ state })

@@ -3,6 +3,7 @@ import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChatInputCommandInteraction } from 'discord.js'
 
 import { MusicQuizAddSongCommand } from './_quizzAddSongCommand'
+import { MusicQuizSongsCommand } from './_quizzSongsCommand'
 import { MusicQuizTopCommand } from './_quizzTopCommand'
 
 @RegisterChatInputCommand((builder) =>
@@ -55,6 +56,11 @@ import { MusicQuizTopCommand } from './_quizzTopCommand'
         .setName('top')
         .setDescription('Xem bảng xếp hạng những người có nhiều kỷ lục nhất.')
     )
+    .addSubcommand((sub) =>
+      sub
+        .setName('songs')
+        .setDescription('Xem danh sách kỷ lục của từng bài hát.')
+    )
 )
 @ApplyOptions<Subcommand.Options>({
   name: 'quizz',
@@ -69,6 +75,10 @@ import { MusicQuizTopCommand } from './_quizzTopCommand'
     {
       name: 'top',
       chatInputRun: 'chatInputTop'
+    },
+    {
+      name: 'songs',
+      chatInputRun: 'chatInputSongs'
     }
   ]
 })
@@ -79,5 +89,9 @@ export class QuizzSubcommand extends Subcommand {
 
   public async chatInputTop(interaction: ChatInputCommandInteraction) {
     return MusicQuizTopCommand.run(interaction)
+  }
+
+  public async chatInputSongs(interaction: ChatInputCommandInteraction) {
+    return MusicQuizSongsCommand.run(interaction)
   }
 }

@@ -182,5 +182,6 @@ export const CUSTOM_ID = {
   SELECT_SETTING_NMIXX_QUIZ_VOICE_CHANNEL:
     'select-setting-nmixx-quiz-voice-channel',
   // Music Quiz
-  MUSIC_QUIZ_TOP_PREFIX: 'music-quiz-top:'
+  MUSIC_QUIZ_TOP_PREFIX: 'music-quiz-top:',
+  MUSIC_QUIZ_SONGS_PREFIX: 'music-quiz-songs:'
 } as const

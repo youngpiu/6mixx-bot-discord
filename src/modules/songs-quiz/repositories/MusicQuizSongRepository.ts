@@ -135,6 +135,39 @@ export class MusicQuizSongRepository {
   }
 
   /**
+   * Truy xuất danh sách bài hát có kèm thông tin người giữ kỷ lục.
+   */
+  public static async findMany(page: number = 1, limit: number = 20) {
+    const skip = (page - 1) * limit
+    const where = {
+      bestGuessTime: { not: null }
+    }
+
+    const total = await container.prisma.musicQuizSong.count({ where })
+
+    const songs = await container.prisma.musicQuizSong.findMany({
+      where,
+      orderBy: { bestGuessTime: 'asc' },
+      take: limit,
+      skip
+    })
+
+    const totalPages = Math.ceil(total / limit)
+
+    return {
+      items: songs,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
+    }
+  }
+
+  /**
    * Adds a new song to the database.
    */
   public static async create(data: {
