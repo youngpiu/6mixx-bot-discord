@@ -2,8 +2,8 @@ model MusicQuizSong {
   id        Int      @id @default(autoincrement())
   title     String
   aliases   String[]
-  singer    String
-  album     String?
+  artists   String
+  playlist  String?
   opusUrl   String   @unique
   songUrl   String?  // Original link to the song (YouTube, Spotify, etc.)
   thumbUrl  String?  // Thumbnail image URL

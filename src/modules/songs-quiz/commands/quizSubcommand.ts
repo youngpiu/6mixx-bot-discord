@@ -16,14 +16,14 @@ import { MusicQuizTopCommand } from '~/modules/songs-quiz/commands/_quizTopComma
         .setDescription('Thêm một bài hát mới vào Quiz.')
         .addStringOption((option) =>
           option
-            .setName('album')
-            .setDescription('Tên album của bài hát.')
+            .setName('playlist')
+            .setDescription('Tên danh sách phát của bài hát.')
             .setRequired(false)
         )
         .addStringOption((option) =>
           option
-            .setName('singer')
-            .setDescription('Nghệ sĩ thể hiện.')
+            .setName('artists')
+            .setDescription('Danh sách các nghệ sĩ thể hiện.')
             .setRequired(true)
         )
         .addStringOption((option) =>
@@ -47,7 +47,7 @@ import { MusicQuizTopCommand } from '~/modules/songs-quiz/commands/_quizTopComma
         .addStringOption((option) =>
           option
             .setName('path')
-            .setDescription('Đường dẫn thư mục (vd: /album/ten-bai).')
+            .setDescription('Đường dẫn thư mục (vd: /playlist/ten-bai).')
             .setRequired(true)
         )
         .addStringOption((option) =>

@@ -507,14 +507,14 @@ export class MusicQuizService {
         '📀 Tên bài hát',
         reveal ? `**${overrideTitle ?? song.title}**` : '**???**'
       ],
-      ['🎤 Nghệ sĩ:', reveal ? `**${song.singer}**` : '**???**'],
+      ['🎤 Nghệ sĩ:', reveal ? `**${song.artists}**` : '**???**'],
 
-      ...(song.album
+      ...(song.playlist
         ? [
-            ['🖼️ Album', reveal ? `**${song.album}**` : '**???**'] as [
-              string,
-              string
-            ]
+            [
+              '🖼️ Danh sách phát',
+              reveal ? `**${song.playlist}**` : '**???**'
+            ] as [string, string]
           ]
         : []),
 

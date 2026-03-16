@@ -8,8 +8,8 @@ export class MusicQuizAddSongCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ ephemeral: true })
 
-    const album = interaction.options.getString('album', false)
-    const singer = interaction.options.getString('singer', true)
+    const playlist = interaction.options.getString('playlist', false)
+    const artists = interaction.options.getString('artists', true)
     const title = interaction.options.getString('title', true)
     const aliasesRaw = interaction.options.getString('aliases', true)
     const duration = interaction.options.getInteger('duration', true)
@@ -31,8 +31,8 @@ export class MusicQuizAddSongCommand {
       .filter((s) => s.length > 0)
 
     const song = await MusicQuizSongRepository.create({
-      album: album ?? undefined,
-      singer,
+      playlist: playlist ?? undefined,
+      artists,
       title,
       aliases,
       duration,
@@ -44,8 +44,8 @@ export class MusicQuizAddSongCommand {
     return InteractionUtil.replySuccess(
       interaction,
       `Đã thêm bài hát **${song.title}** thành công!`,
-      `• Album: ${song.album}\n` +
-        `• Singer: ${song.singer}\n` +
+      `• Danh sách phát: ${song.playlist}\n` +
+        `• Nghệ sĩ: ${song.artists}\n` +
         `• Path: \`${folderPath}\``
     )
   }

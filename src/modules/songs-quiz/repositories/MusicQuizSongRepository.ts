@@ -173,8 +173,8 @@ export class MusicQuizSongRepository {
   public static async create(data: {
     title: string
     aliases: string[]
-    singer: string
-    album?: string
+    artists: string
+    playlist?: string
     opusUrl: string
     songUrl?: string
     thumbUrl?: string
