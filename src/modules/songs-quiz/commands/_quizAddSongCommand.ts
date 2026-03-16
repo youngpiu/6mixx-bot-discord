@@ -8,7 +8,7 @@ export class MusicQuizAddSongCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ ephemeral: true })
 
-    const album = interaction.options.getString('album', true)
+    const album = interaction.options.getString('album', false)
     const singer = interaction.options.getString('singer', true)
     const title = interaction.options.getString('title', true)
     const aliasesRaw = interaction.options.getString('aliases', true)
@@ -31,7 +31,7 @@ export class MusicQuizAddSongCommand {
       .filter((s) => s.length > 0)
 
     const song = await MusicQuizSongRepository.create({
-      album,
+      album: album ?? undefined,
       singer,
       title,
       aliases,
