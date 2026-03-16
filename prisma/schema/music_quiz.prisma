@@ -20,4 +20,6 @@ model MusicQuizSong {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([bestGuesserId])
 }
