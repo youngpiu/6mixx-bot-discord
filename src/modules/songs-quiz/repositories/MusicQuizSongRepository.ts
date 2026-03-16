@@ -84,6 +84,36 @@ export class MusicQuizSongRepository {
   }
 
   /**
+   * Truy xuất bảng xếp hạng những người có nhiều kỷ lục nhất.
+   */
+  public static async getTopLeaderboard(limit: number = 10) {
+    const topUsers = await container.prisma.user.findMany({
+      where: {
+        musicQuizBestGuesses: {
+          some: {} // Có ít nhất 1 kỷ lục
+        }
+      },
+      select: {
+        id: true,
+        _count: {
+          select: { musicQuizBestGuesses: true }
+        }
+      },
+      orderBy: {
+        musicQuizBestGuesses: {
+          _count: 'desc'
+        }
+      },
+      take: limit
+    })
+
+    return topUsers.map((u) => ({
+      userId: u.id,
+      count: u._count.musicQuizBestGuesses
+    }))
+  }
+
+  /**
    * Adds a new song to the database.
    */
   public static async create(data: {

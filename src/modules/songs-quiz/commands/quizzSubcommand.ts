@@ -56,6 +56,11 @@ import { MusicQuizSongRepository } from '../repositories/MusicQuizSongRepository
             )
         )
     )
+    .addSubcommand((sub) =>
+      sub
+        .setName('top')
+        .setDescription('Xem bảng xếp hạng những người có nhiều kỷ lục nhất.')
+    )
 )
 @ApplyOptions<Subcommand.Options>({
   name: 'quizz',
@@ -70,10 +75,41 @@ import { MusicQuizSongRepository } from '../repositories/MusicQuizSongRepository
           chatInputRun: 'chatInputAddSong'
         }
       ]
+    },
+    {
+      name: 'top',
+      chatInputRun: 'chatInputTop'
     }
   ]
 })
 export class QuizzSubcommand extends Subcommand {
+  public async chatInputTop(interaction: ChatInputCommandInteraction) {
+    await interaction.deferReply()
+
+    const leaderboard = await MusicQuizSongRepository.getTopLeaderboard(10)
+
+    if (leaderboard.length === 0) {
+      return InteractionUtil.replyError(
+        interaction,
+        'Hiện tại chưa có ai giữ kỷ lục nào!'
+      )
+    }
+
+    const description = leaderboard
+      .map((entry, index) => {
+        const medal =
+          index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '👤'
+        return `${medal} **Rank ${index + 1}:** <@${entry.userId}> — **${entry.count}** kỷ lục`
+      })
+      .join('\n')
+
+    return InteractionUtil.replySuccess(
+      interaction,
+      '🏆 Bảng Xếp Hạng Kỷ Lục Music Quiz',
+      description
+    )
+  }
+
   public async chatInputAddSong(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({ ephemeral: true })
 
