@@ -27,12 +27,23 @@ export class YouTubeLinkListener extends Listener {
       return
     }
 
-    const videoId = YouTubeService.extractVideoId(message.content)
+    const content = message.content.trim()
+
+    // Required patterns: yt: link, YT: link, YOUTUBE: link, youtube: link, yt link, youtube link
+    const triggerRegex = /^(?:yt|youtube)(?::\s*|\s+)(https?:\/\/\S+)/i
+    const triggerMatch = content.match(triggerRegex)
+
+    // If not matching prefix + link, check if it's a raw link (if we still want to support that)
+    // The user said "phải có", so I will enforce the prefix.
+    if (!triggerMatch) return
+
+    const videoUrl = triggerMatch[1]
+    const videoId = YouTubeService.extractVideoId(videoUrl)
     if (!videoId) return
 
     try {
       // 1. Fetch video info
-      const videoInfo = await YouTubeService.getVideoInfo(message.content)
+      const videoInfo = await YouTubeService.getVideoInfo(videoUrl)
       if (!videoInfo) return
 
       // 2. Translate title
