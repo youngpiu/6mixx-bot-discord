@@ -73,7 +73,8 @@ model GuildSetting {
   /// --- Youtube Notification Config ---
   youtubeNotificationListenChannelId String?
   youtubeNotificationPostChannelId   String?
-  youtubeNotificationRoleId          String?
+  youtubeNotificationRoleId           String?
+  youtubeNotificationAllowedRoleIds   String[] @default([])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

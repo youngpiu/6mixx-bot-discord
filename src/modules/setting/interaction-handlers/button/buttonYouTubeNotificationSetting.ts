@@ -76,10 +76,33 @@ export class ButtonYouTubeNotificationSetting extends InteractionHandler {
       .setLabel('Role để ping ở kênh phát thông báo')
       .setRoleSelectMenuComponent(roleSelect)
 
+    const allowedRolesSelect = new RoleSelectMenuBuilder()
+      .setCustomId(CUSTOM_ID.SELECT_SETTING_YOUTUBE_ALLOWED_ROLES)
+      .setPlaceholder('Chọn các role được phép gửi link youtube...')
+      .setMinValues(0)
+      .setMaxValues(25)
+
+    if (guildConfig?.youtubeNotificationAllowedRoleIds?.length) {
+      allowedRolesSelect.setDefaultRoles(
+        guildConfig.youtubeNotificationAllowedRoleIds
+      )
+    }
+
+    const labelAllowedRoles = new LabelBuilder()
+      .setLabel(
+        'Role được phép gửi link youtube (để trống nếu cho phép tất cả)'
+      )
+      .setRoleSelectMenuComponent(allowedRolesSelect)
+
     const modal = new ModalBuilder()
       .setCustomId(CUSTOM_ID.MODAL_SETTING_YOUTUBE_NOTIFICATION)
       .setTitle('Cài đặt thông báo Youtube')
-      .addLabelComponents(labelListenChannel, labelPostChannel, labelRole)
+      .addLabelComponents(
+        labelListenChannel,
+        labelPostChannel,
+        labelRole,
+        labelAllowedRoles
+      )
 
     await interaction.showModal(modal)
   }

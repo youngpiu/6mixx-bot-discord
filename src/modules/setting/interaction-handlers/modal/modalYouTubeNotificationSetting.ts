@@ -36,10 +36,17 @@ export class ModalYouTubeNotificationSetting extends InteractionHandler {
       .getSelectedRoles(CUSTOM_ID.SELECT_SETTING_YOUTUBE_ROLE)
       ?.first()?.id
 
+    const youtubeNotificationAllowedRoleIds =
+      interaction.fields
+        .getSelectedRoles(CUSTOM_ID.SELECT_SETTING_YOUTUBE_ALLOWED_ROLES)
+        ?.filter((role) => !!role)
+        .map((role) => role!.id) || []
+
     await SettingRepository.update(interaction.guild.id, {
       youtubeNotificationListenChannelId,
       youtubeNotificationPostChannelId,
-      youtubeNotificationRoleId
+      youtubeNotificationRoleId,
+      youtubeNotificationAllowedRoleIds
     })
 
     const formattedFields = formatFields([
@@ -60,6 +67,14 @@ export class ModalYouTubeNotificationSetting extends InteractionHandler {
         youtubeNotificationRoleId
           ? roleMention(youtubeNotificationRoleId)
           : 'Không có'
+      ],
+      [
+        'Role được phép gửi link',
+        youtubeNotificationAllowedRoleIds.length > 0
+          ? youtubeNotificationAllowedRoleIds
+              .map((id) => roleMention(id))
+              .join(', ')
+          : 'Cho phép tất cả'
       ]
     ]).join('\n')
 

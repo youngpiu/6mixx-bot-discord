@@ -191,5 +191,6 @@ export const CUSTOM_ID = {
   SELECT_SETTING_YOUTUBE_LISTEN_CHANNEL:
     'select-setting-youtube-listen-channel',
   SELECT_SETTING_YOUTUBE_POST_CHANNEL: 'select-setting-youtube-post-channel',
-  SELECT_SETTING_YOUTUBE_ROLE: 'select-setting-youtube-role'
+  SELECT_SETTING_YOUTUBE_ROLE: 'select-setting-youtube-role',
+  SELECT_SETTING_YOUTUBE_ALLOWED_ROLES: 'select-setting-youtube-allowed-roles'
 } as const

@@ -27,6 +27,17 @@ export class YouTubeLinkListener extends Listener {
       return
     }
 
+    // Role restriction check
+    if (
+      guildConfig.youtubeNotificationAllowedRoleIds.length > 0 &&
+      (!message.member ||
+        !message.member.roles.cache.hasAny(
+          ...guildConfig.youtubeNotificationAllowedRoleIds
+        ))
+    ) {
+      return
+    }
+
     const content = message.content.trim()
 
     // Required patterns: yt: link, YT: link, YOUTUBE: link, youtube: link, yt link, youtube link
