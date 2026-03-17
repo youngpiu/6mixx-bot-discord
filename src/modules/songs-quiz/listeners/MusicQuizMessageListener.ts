@@ -2,6 +2,7 @@ import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
 import { Message } from 'discord.js'
 
+import { TIME } from '~/shared/constants/timeConstant'
 import { MessageUtil } from '~/shared/utils/messageUtil'
 
 import { MusicQuizRedisService } from '~/modules/songs-quiz/services/MusicQuizRedisService'
@@ -32,12 +33,13 @@ export class MusicQuizMessageListener extends Listener {
       message
     )
 
-    if (!isCorrect) {
-      await MessageUtil.replyError(
+    if (isCorrect === false) {
+      await MessageUtil.reply(
         message,
-        'Đoán sai rồi bạn êi...',
-        3000,
-        'NORMAL',
+        {
+          content: 'Đoán sai rồi bạn êi...'
+        },
+        TIME.S3,
         true
       )
     }

@@ -19,6 +19,7 @@ import { MusicQuizSong } from 'generated/prisma/client'
 
 import { NormalError } from '~/core/errorResponse'
 
+import { TIME } from '~/shared/constants/timeConstant'
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 import { MessageUtil } from '~/shared/utils/messageUtil'
 import { formatFields, lines } from '~/shared/utils/textUtil'
@@ -331,7 +332,7 @@ export class MusicQuizService {
     guess: string,
     userId: string,
     message?: Message
-  ): Promise<boolean> {
+  ): Promise<boolean | 'ignored'> {
     const state = await MusicQuizRedisService.getState(guildId)
     const handles = MusicQuizSessionManager.getHandles(guildId)
     if (
@@ -341,12 +342,97 @@ export class MusicQuizService {
       state.isRoundEnded ||
       !handles
     )
-      return false
-
-    const song = await MusicQuizSongRepository.getById(state.currentSongId)
-    if (!song) return false
+      return 'ignored'
 
     const normalizedGuess = guess.toLowerCase().trim()
+    const now = Date.now()
+
+    // 1. Check if user is muted
+    const isMuted = await MusicQuizRedisService.isUserMuted(guildId, userId)
+    if (isMuted) {
+      if (message?.deletable) {
+        await message.delete().catch(() => {})
+      }
+      return 'ignored'
+    }
+
+    // 2. Anti-Spam / Rate Limit & Consecutive Identical Guess Protection
+    const lastGuessData = await MusicQuizRedisService.getUserGuess(
+      guildId,
+      userId
+    )
+    if (lastGuessData) {
+      // Rate Limit: 0.5s
+      const timeDiff = now - lastGuessData.lastTimestamp
+      if (timeDiff < 500) return 'ignored'
+
+      // Consecutive Identical Guess
+      if (normalizedGuess === lastGuessData.lastGuess) {
+        const newCount = lastGuessData.count + 1
+        const timeFromFirst = now - lastGuessData.firstTimestamp
+
+        if (newCount >= 3) {
+          // If 3 identical messages happen within 2 seconds
+          if (timeFromFirst <= 2000) {
+            await MusicQuizRedisService.muteUser(guildId, userId, 30) // 30s
+            await MusicQuizRedisService.clearUserGuess(guildId, userId)
+
+            if (message) {
+              await MessageUtil.reply(
+                message,
+                {
+                  content:
+                    'Đừng có gian lận mà, chơi vui vẻ đi...đợi 30 giây nữa nhé!'
+                },
+                TIME.S10,
+                true
+              )
+            }
+            return 'ignored'
+          } else {
+            // If they are identical but took longer than 2s, reset the cycle
+            // but keep the current count at 1 for the "new" identical sequence
+            await MusicQuizRedisService.saveUserGuess(guildId, userId, {
+              lastGuess: normalizedGuess,
+              count: 1,
+              lastTimestamp: now,
+              firstTimestamp: now
+            })
+            // Should we delete identical messages even if not muted?
+            // User said "messages... after being flagged must be deleted".
+            // For now, let's delete identical ones to be safe against spam.
+            if (message?.deletable) {
+              await message.delete().catch(() => {})
+            }
+            return 'ignored'
+          }
+        }
+
+        await MusicQuizRedisService.saveUserGuess(guildId, userId, {
+          lastGuess: normalizedGuess,
+          count: newCount,
+          lastTimestamp: now,
+          firstTimestamp: lastGuessData.firstTimestamp
+        })
+        // Delete identical guesses (e.g., the 2nd one)
+        if (message?.deletable) {
+          await message.delete().catch(() => {})
+        }
+        return 'ignored' // Ignore identical guesses
+      }
+    }
+
+    // Update history for a different or first guess
+    await MusicQuizRedisService.saveUserGuess(guildId, userId, {
+      lastGuess: normalizedGuess,
+      count: 1,
+      lastTimestamp: now,
+      firstTimestamp: now
+    })
+
+    const song = await MusicQuizSongRepository.getById(state.currentSongId)
+    if (!song) return 'ignored'
+
     const isCorrect = song.aliases.some(
       (n) => n.toLowerCase().trim() === normalizedGuess
     )

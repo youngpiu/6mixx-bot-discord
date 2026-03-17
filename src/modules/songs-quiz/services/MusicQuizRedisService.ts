@@ -14,7 +14,18 @@ export interface MusicQuizState {
   playedSongIds: number[]
 }
 
+export interface UserGuessData {
+  lastGuess: string
+  count: number
+  lastTimestamp: number
+  firstTimestamp: number
+}
+
 const STATE_KEY = (guildId: string) => `musicQuiz:state:guild:${guildId}`
+const USER_GUESS_KEY = (guildId: string, userId: string) =>
+  `musicQuiz:userGuess:guild:${guildId}:user:${userId}`
+const MUTE_KEY = (guildId: string, userId: string) =>
+  `musicQuiz:mute:guild:${guildId}:user:${userId}`
 
 export class MusicQuizRedisService {
   /**
@@ -62,5 +73,43 @@ export class MusicQuizRedisService {
     if (state) {
       await this.saveState(guildId, { ...state, ...updates })
     }
+  }
+
+  public static async saveUserGuess(
+    guildId: string,
+    userId: string,
+    data: UserGuessData
+  ): Promise<void> {
+    await CacheService.set(USER_GUESS_KEY(guildId, userId), data, 600) // 10 mins cache
+  }
+
+  public static async getUserGuess(
+    guildId: string,
+    userId: string
+  ): Promise<UserGuessData | null> {
+    return CacheService.get<UserGuessData>(USER_GUESS_KEY(guildId, userId))
+  }
+
+  public static async muteUser(
+    guildId: string,
+    userId: string,
+    durationSeconds: number
+  ): Promise<void> {
+    await CacheService.set(MUTE_KEY(guildId, userId), true, durationSeconds)
+  }
+
+  public static async isUserMuted(
+    guildId: string,
+    userId: string
+  ): Promise<boolean> {
+    const muted = await CacheService.get<boolean>(MUTE_KEY(guildId, userId))
+    return !!muted
+  }
+
+  public static async clearUserGuess(
+    guildId: string,
+    userId: string
+  ): Promise<void> {
+    await CacheService.delete(USER_GUESS_KEY(guildId, userId))
   }
 }
