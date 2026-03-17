@@ -362,10 +362,6 @@ export class MusicQuizService {
       userId
     )
     if (lastGuessData) {
-      // Rate Limit: 0.5s
-      const timeDiff = now - lastGuessData.lastTimestamp
-      if (timeDiff < 500) return 'ignored'
-
       // Consecutive Identical Guess
       if (normalizedGuess === lastGuessData.lastGuess) {
         const newCount = lastGuessData.count + 1
@@ -373,7 +369,7 @@ export class MusicQuizService {
 
         if (newCount >= 3) {
           // If 3 identical messages happen within 2 seconds
-          if (timeFromFirst <= 2000) {
+          if (timeFromFirst <= TIME.S1) {
             await MusicQuizRedisService.muteUser(guildId, userId, 30) // 30s
             await MusicQuizRedisService.clearUserGuess(guildId, userId)
 

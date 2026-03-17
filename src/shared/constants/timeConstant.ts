@@ -9,6 +9,7 @@ const d = (v: number) => v * 86_400_000
  * S = Seconds, M = Minutes, H = Hours, D = Days.
  */
 export const TIME = {
+  S1: s(1),
   S2: s(2),
   S3: s(3),
   S5: s(5),
