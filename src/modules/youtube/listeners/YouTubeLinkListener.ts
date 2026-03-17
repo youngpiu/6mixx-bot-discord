@@ -12,7 +12,8 @@ import { YouTubeService } from '~/modules/youtube/services/YouTubeService'
 })
 export class YouTubeLinkListener extends Listener {
   public async run(message: Message) {
-    if (message.author.bot || !message.guild) return
+    if (!message.guild || message.author.id === this.container.client.user?.id)
+      return
 
     const guildConfig = await SettingRepository.find(message.guild.id)
     if (
@@ -37,8 +38,9 @@ export class YouTubeLinkListener extends Listener {
     // The user said "phải có", so I will enforce the prefix.
     if (!triggerMatch) return
 
-    // Role restriction check
+    // Role restriction check - bypass for other bots
     if (
+      !message.author.bot &&
       guildConfig.youtubeNotificationAllowedRoleIds.length > 0 &&
       (!message.member ||
         !message.member.roles.cache.hasAny(

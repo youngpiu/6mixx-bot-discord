@@ -73,7 +73,7 @@ export class ButtonYouTubeNotificationSetting extends InteractionHandler {
     }
 
     const labelRole = new LabelBuilder()
-      .setLabel('Role để ping ở kênh phát thông báo')
+      .setLabel('Role ping thông báo')
       .setRoleSelectMenuComponent(roleSelect)
 
     const allowedRolesSelect = new RoleSelectMenuBuilder()
@@ -81,6 +81,7 @@ export class ButtonYouTubeNotificationSetting extends InteractionHandler {
       .setPlaceholder('Chọn các role được phép gửi link youtube...')
       .setMinValues(0)
       .setMaxValues(25)
+      .setRequired(false)
 
     if (guildConfig?.youtubeNotificationAllowedRoleIds?.length) {
       allowedRolesSelect.setDefaultRoles(
@@ -89,9 +90,7 @@ export class ButtonYouTubeNotificationSetting extends InteractionHandler {
     }
 
     const labelAllowedRoles = new LabelBuilder()
-      .setLabel(
-        'Role được phép gửi link youtube (để trống nếu cho phép tất cả)'
-      )
+      .setLabel('Role được phép gửi link (Trống = Tất cả)')
       .setRoleSelectMenuComponent(allowedRolesSelect)
 
     const modal = new ModalBuilder()
