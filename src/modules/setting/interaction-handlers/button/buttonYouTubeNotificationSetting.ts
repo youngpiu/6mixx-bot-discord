@@ -52,7 +52,7 @@ export class ButtonYouTubeNotificationSetting extends InteractionHandler {
       guild: interaction.guild!,
       channelId: guildConfig?.youtubeNotificationPostChannelId,
       customId: CUSTOM_ID.SELECT_SETTING_YOUTUBE_POST_CHANNEL,
-      channelType: ChannelType.GuildText,
+      channelType: ChannelType.GuildAnnouncement,
       label: 'Kênh phát thông báo youtube',
       placeholders: {
         channelConfiguredAndExists: 'Chọn kênh phát thông báo youtube',
