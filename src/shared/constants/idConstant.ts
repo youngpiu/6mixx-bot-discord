@@ -183,5 +183,13 @@ export const CUSTOM_ID = {
     'select-setting-nmixx-quiz-voice-channel',
   // Music Quiz
   MUSIC_QUIZ_TOP_PREFIX: 'music-quiz-top:',
-  MUSIC_QUIZ_SONGS_PREFIX: 'music-quiz-songs:'
+  MUSIC_QUIZ_SONGS_PREFIX: 'music-quiz-songs:',
+
+  // Youtube Notification Settings
+  BTN_SETTING_YOUTUBE_NOTIFICATION: 'btn-setting-youtube-notification',
+  MODAL_SETTING_YOUTUBE_NOTIFICATION: 'modal-setting-youtube-notification',
+  SELECT_SETTING_YOUTUBE_LISTEN_CHANNEL:
+    'select-setting-youtube-listen-channel',
+  SELECT_SETTING_YOUTUBE_POST_CHANNEL: 'select-setting-youtube-post-channel',
+  SELECT_SETTING_YOUTUBE_ROLE: 'select-setting-youtube-role'
 } as const
