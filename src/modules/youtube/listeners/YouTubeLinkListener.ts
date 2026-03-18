@@ -1,11 +1,10 @@
 import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
-import { Message, TextChannel, roleMention } from 'discord.js'
+import { Message } from 'discord.js'
 
 import { SettingRepository } from '~/shared/repositories/settingRepository'
-import { GeminiService } from '~/shared/services/GeminiService'
 
-import { YouTubeService } from '~/modules/youtube/services/YouTubeService'
+import { YouTubeNotificationService } from '~/modules/youtube/services/YouTubeNotificationService'
 
 @ApplyOptions<Listener.Options>({
   event: 'messageCreate'
@@ -51,40 +50,9 @@ export class YouTubeLinkListener extends Listener {
     }
 
     const videoUrl = triggerMatch[1]
-    const videoId = YouTubeService.extractVideoId(videoUrl)
-    if (!videoId) return
-
-    try {
-      // 1. Fetch video info
-      const videoInfo = await YouTubeService.getVideoInfo(videoUrl)
-      if (!videoInfo) return
-
-      // 2. Translate title
-      const translatedTitle = await GeminiService.translateYouTubeTitle(
-        videoInfo.snippet.title
-      )
-
-      // 3. Prepare notification
-      const postChannel = (await message.guild.channels.fetch(
-        guildConfig.youtubeNotificationPostChannelId
-      )) as TextChannel
-      if (!postChannel || !postChannel.isTextBased()) return
-
-      const rolePing = guildConfig.youtubeNotificationRoleId
-        ? `${roleMention(guildConfig.youtubeNotificationRoleId)} `
-        : ''
-      const isLive = videoInfo.snippet.liveBroadcastContent === 'live'
-
-      const notificationMessage = `\`\`\`${isLive ? '🔴 LIVE: ' : ''}${translatedTitle}\`\`\`\n${rolePing}\n\nhttps://youtu.be/${videoId}`
-
-      await postChannel.send({
-        content: notificationMessage
-      })
-    } catch (error) {
-      this.container.logger.error(
-        '[YouTubeLinkListener] Error processing YouTube link:',
-        error
-      )
-    }
+    await YouTubeNotificationService.processAndNotify(
+      message.guild.id,
+      videoUrl
+    )
   }
 }
