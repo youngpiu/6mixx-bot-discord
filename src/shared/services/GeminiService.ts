@@ -101,6 +101,8 @@ ${title}`
 
       const data = (await body.json()) as GeminiResponse
 
+      container.logger.info('[GeminiService] Response:', JSON.stringify(data))
+
       const translatedText =
         data.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
 

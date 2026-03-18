@@ -46,12 +46,12 @@ export class YouTubeCommand extends Command {
       ) {
         return interaction.reply({
           content: 'Bạn không có quyền sử dụng lệnh này.',
-          ephemeral: true
+          flags: ['Ephemeral']
         })
       }
     }
 
-    await interaction.deferReply({ ephemeral: true })
+    await interaction.deferReply({ flags: ['Ephemeral'] })
 
     const success = await YouTubeNotificationService.processAndNotify(
       guildId,
