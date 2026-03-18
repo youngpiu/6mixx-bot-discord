@@ -71,26 +71,23 @@ Output: 'Taylor Swift - Enchanted' Được Cover Bởi NMIXX LILY | Lilcording
 ## Input
 ${title}`
 
-      const { body, statusCode } = await request(
-        `${this.BASE_URL}?key=${this.API_KEY}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: prompt
-                  }
-                ]
-              }
-            ]
-          })
-        }
-      )
+      const { body } = await request(`${this.BASE_URL}?key=${this.API_KEY}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt
+                }
+              ]
+            }
+          ]
+        })
+      })
 
       interface GeminiResponse {
         candidates?: {
@@ -103,32 +100,16 @@ ${title}`
       }
 
       const data = (await body.json()) as GeminiResponse
-      container.logger.debug(
-        `[GeminiService] API Response:`,
-        JSON.stringify(data)
-      )
-
-      if (statusCode !== 200) {
-        container.logger.error(
-          `[GeminiService] API Error (${statusCode}):`,
-          JSON.stringify(data)
-        )
-        return title
-      }
 
       const translatedText =
         data.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
 
-      if (!translatedText) {
-        container.logger.warn(
-          '[GeminiService] No translation found in response:',
-          JSON.stringify(data)
-        )
-      }
-
       return translatedText || title
     } catch (error) {
-      console.error('[GeminiService] Exception during translation:', error)
+      container.logger.error(
+        '[GeminiService] Exception during translation:',
+        error
+      )
       return title
     }
   }
