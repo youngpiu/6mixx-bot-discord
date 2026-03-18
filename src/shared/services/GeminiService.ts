@@ -1,3 +1,4 @@
+import { container } from '@sapphire/pieces'
 import { request } from 'undici'
 
 import { env } from '~/shared/config/env'
@@ -5,7 +6,7 @@ import { env } from '~/shared/config/env'
 export class GeminiService {
   private static readonly API_KEY = env.GEMINI_API_KEY
   private static readonly BASE_URL =
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent'
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent'
 
   public static async translateYouTubeTitle(title: string): Promise<string> {
     try {
@@ -70,25 +71,28 @@ Output: 'Taylor Swift - Enchanted' Được Cover Bởi NMIXX LILY | Lilcording
 ## Input
 ${title}`
 
-      const { body } = await request(`${this.BASE_URL}?key=${this.API_KEY}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: prompt
-                }
-              ]
-            }
-          ]
-        })
-      })
+      const { body, statusCode } = await request(
+        `${this.BASE_URL}?key=${this.API_KEY}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: prompt
+                  }
+                ]
+              }
+            ]
+          })
+        }
+      )
 
-      const data = (await body.json()) as {
+      interface GeminiResponse {
         candidates?: {
           content?: {
             parts?: {
@@ -97,12 +101,34 @@ ${title}`
           }
         }[]
       }
+
+      const data = (await body.json()) as GeminiResponse
+      container.logger.debug(
+        `[GeminiService] API Response:`,
+        JSON.stringify(data)
+      )
+
+      if (statusCode !== 200) {
+        container.logger.error(
+          `[GeminiService] API Error (${statusCode}):`,
+          JSON.stringify(data)
+        )
+        return title
+      }
+
       const translatedText =
         data.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
 
+      if (!translatedText) {
+        container.logger.warn(
+          '[GeminiService] No translation found in response:',
+          JSON.stringify(data)
+        )
+      }
+
       return translatedText || title
     } catch (error) {
-      console.error('[GeminiService] Error translating title:', error)
+      console.error('[GeminiService] Exception during translation:', error)
       return title
     }
   }
