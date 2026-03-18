@@ -2,8 +2,8 @@ import { container } from '@sapphire/pieces'
 import { TextChannel, roleMention } from 'discord.js'
 
 import { SettingRepository } from '~/shared/repositories/settingRepository'
-import { GeminiService } from '~/shared/services/GeminiService'
 
+import { OpenRouterService } from '~/modules/youtube/services/OpenRouterService'
 import { YouTubeService } from '~/modules/youtube/services/YouTubeService'
 
 export class YouTubeNotificationService {
@@ -34,7 +34,7 @@ export class YouTubeNotificationService {
       container.logger.info(
         `[YouTubeNotificationService] Original Title: "${videoInfo.snippet.title}"`
       )
-      const translatedTitle = await GeminiService.translateYouTubeTitle(
+      const translatedTitle = await OpenRouterService.translateYouTubeTitle(
         videoInfo.snippet.title
       )
       container.logger.info(

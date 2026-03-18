@@ -92,7 +92,7 @@ services:
       NODE_ENV: production
       MUSIC_QUIZ_BASE_PATH: ${MUSIC_QUIZ_BASE_PATH:-/var/data/6mixx-music-quiz}
       YOUTUBE_API_KEY: ${YOUTUBE_API_KEY}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
     volumes:
       - ${MUSIC_QUIZ_BASE_PATH}:${MUSIC_QUIZ_BASE_PATH}:ro
     networks:
