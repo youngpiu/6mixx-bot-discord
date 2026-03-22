@@ -182,7 +182,7 @@ export class VoiceVoiceStateUpdateListener extends Listener {
     const welcomeContainer = new ContainerBuilder()
       .addTextDisplayComponents((t) =>
         t.setContent(
-          `${ANIMATED_EMOJI.WING_LEFT} Hướng Dẫn Sử Dụng Phòng Thoại Tạm Thời`
+          `### ${ANIMATED_EMOJI.WING_LEFT} Hướng Dẫn Sử Dụng Phòng Thoại Tạm Thời ${ANIMATED_EMOJI.WING_RIGHT}`
         )
       )
       .addSeparatorComponents((s) => s)
