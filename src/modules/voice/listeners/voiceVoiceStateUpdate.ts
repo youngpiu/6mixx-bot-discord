@@ -1,8 +1,10 @@
 import { ApplyOptions } from '@sapphire/decorators'
 import { Listener } from '@sapphire/framework'
-import { ChannelType, Events, VoiceState } from 'discord.js'
+import { ChannelType, ContainerBuilder, Events, VoiceState } from 'discord.js'
 
+import { ANIMATED_EMOJI } from '~/shared/constants/emojiConstant'
 import { SettingRepository } from '~/shared/repositories/settingRepository'
+import { MessageUtil } from '~/shared/utils/messageUtil'
 
 import { TempVoiceProfileRepository } from '~/modules/voice/repositories/tempVoiceProfileRepository'
 import { TempVoiceTrustedMemberRepository } from '~/modules/voice/repositories/tempVoiceTrustedMemberRepository'
@@ -175,6 +177,32 @@ export class VoiceVoiceStateUpdateListener extends Listener {
     )
 
     await Promise.all(setupPromises)
+
+    // Send welcome message to the new temp channel
+    const welcomeContainer = new ContainerBuilder()
+      .addTextDisplayComponents((t) =>
+        t.setContent(
+          `${ANIMATED_EMOJI.WING_LEFT} Hướng Dẫn Sử Dụng Phòng Thoại Tạm Thời`
+        )
+      )
+      .addSeparatorComponents((s) => s)
+      .addTextDisplayComponents((t) =>
+        t.setContent(
+          `1. \`/voice rename\`: Đổi tên phòng\n` +
+            `2. \`/voice lock\`: Khóa phòng\n` +
+            `3. \`/voice unlock\`: Mở khóa phòng\n` +
+            `4. \`/voice limit\`: Giới hạn người tham gia\n` +
+            `5. \`/voice info\`: Xem thông tin phòng\n` +
+            `6. \`/voice trust user\`: Thêm người tin tưởng\n` +
+            `7. \`/voice trust role\`: Thêm vai trò tin tưởng\n` +
+            `8. \`/voice kick\`: Đuổi ai đó ra khỏi phòng\n` +
+            `9. \`/voice permission claim\`: Nhận quyền chủ phòng\n` +
+            `10. \`/voice permission transfer\`: Chuyển quyền chủ phòng\n` +
+            `11. \`/voice invite\`: Mời ai đó vào phòng`
+        )
+      )
+
+    await MessageUtil.sendWithContainer(tempChannel, welcomeContainer)
   }
 
   /**
