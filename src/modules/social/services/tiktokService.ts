@@ -10,7 +10,26 @@ export class TikTokService {
    * Extracts the video ID from a given TikTok URL.
    * Supports mobile links, desktop links, and direct video IDs.
    */
-  public static extractVideoIdFromUrl(url: string): string | null {
+  public static async extractVideoIdFromUrl(
+    url: string
+  ): Promise<string | null> {
+    // Standard short URL: https://vt.tiktok.com/ZSuv6a3db/
+    if (/^https?:\/\/(?:vt|vm)\.tiktok\.com\//.test(url)) {
+      try {
+        const response = await fetch(url, {
+          method: 'HEAD',
+          redirect: 'follow',
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+          }
+        })
+        url = response.url
+      } catch (e) {
+        console.error('Lỗi khi giải quyết URL TikTok rút gọn:', e)
+      }
+    }
+
     // Standard URL: https://www.tiktok.com/@user/video/7597295172971433234
     const match = url.match(/video\/(\d+)/)
     if (match) return match[1]!

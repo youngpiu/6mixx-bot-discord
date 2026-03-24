@@ -14,7 +14,7 @@ export class TikTokCommand {
     const spoiler = interaction.options.getBoolean('spoiler') ?? false
     const showStats = interaction.options.getBoolean('stats') ?? false
 
-    const videoId = TikTokService.extractVideoIdFromUrl(url)
+    const videoId = await TikTokService.extractVideoIdFromUrl(url)
     if (!videoId) {
       throw new NormalError('Đường link hoặc ID TikTok không hợp lệ.')
     }
