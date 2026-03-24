@@ -17,10 +17,17 @@ export class LastFmRepository {
    * Links a Last.fm username to a Discord user.
    */
   public static async upsertAccount(userId: string, lastfmUsername: string) {
-    return container.prisma.lastFmAccount.upsert({
-      where: { userId },
-      create: { userId, lastfmUsername },
-      update: { lastfmUsername }
+    return container.prisma.$transaction(async (tx) => {
+      // If this username is already linked to another Discord account, remove
+      // that old link first to avoid the unique constraint on lastfmUsername.
+      await tx.lastFmAccount.deleteMany({
+        where: { lastfmUsername, NOT: { userId } }
+      })
+      return tx.lastFmAccount.upsert({
+        where: { userId },
+        create: { userId, lastfmUsername },
+        update: { lastfmUsername }
+      })
     })
   }
 
