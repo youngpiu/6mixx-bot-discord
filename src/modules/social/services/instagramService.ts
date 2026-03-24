@@ -38,7 +38,7 @@ export class InstagramService {
   public static async fetchInstagramData(
     shortcode: string
   ): Promise<InstagramPostData> {
-    const igUrl = `https://www.instagram.com/p/${shortcode}/`
+    const igUrl = `https://www.instagram.com/p/${shortcode}//`
     let username = 'unknown'
     let caption = ''
     const mediaList: InstagramMedia[] = []
@@ -61,30 +61,30 @@ export class InstagramService {
         const vxHtml = await vxResponse.text()
         const $ = cheerio.load(vxHtml)
 
-        // Try to find all media items (for carousels)
-        const mediaContainers = $('.carousel-item, .media-container')
+        // Use a Set to track URLs and avoid duplicates
+        const seenUrls = new Set<string>()
 
-        if (mediaContainers.length > 0) {
-          mediaContainers.each((_, el) => {
-            const $el = $(el)
+        // Find all media items. .media-item is the class for img/video element itself.
+        $('.media-item').each((_, el) => {
+          const $el = $(el)
+          let type: 'image' | 'video' | undefined
+          let url: string | undefined
 
-            // Check for video first
-            const videoSrc =
-              $el.find('video source').attr('src') ||
-              $el.find('video').attr('src')
-            if (videoSrc) {
-              mediaList.push({ type: 'video', url: videoSrc })
-            } else {
-              // Check for image
-              const imgSrc = $el.find('img').attr('src')
-              if (imgSrc) {
-                mediaList.push({ type: 'image', url: imgSrc })
-              }
-            }
-          })
-        }
+          if ($el.is('video')) {
+            type = 'video'
+            url = $el.find('source').attr('src') || $el.attr('src')
+          } else if ($el.is('img')) {
+            type = 'image'
+            url = $el.attr('src')
+          }
 
-        // Fallback to meta tags if no containers found
+          if (type && url && !seenUrls.has(url)) {
+            seenUrls.add(url)
+            mediaList.push({ type, url })
+          }
+        })
+
+        // Fallback to meta tags if no items found in body
         if (mediaList.length === 0) {
           const ogVideo = $('meta[property="og:video"]').attr('content')
           const ogImage =
