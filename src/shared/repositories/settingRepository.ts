@@ -61,19 +61,34 @@ export class SettingRepository {
 
   /**
    * Retrieves all guild settings that have an iChart song configured.
+   * Cached in Redis for 5 minutes to avoid hitting the DB every 5 seconds
+   * (StatusRotationTask interval).
    *
    * @returns A promise resolving to an array of guild settings with iChart info.
    */
   public static async findManyWithIChart() {
-    return container.prisma.guildSetting.findMany({
-      where: {
-        ichartSongId: { not: null },
-        ichartSongName: { not: null }
-      },
-      select: {
-        ichartSongId: true,
-        ichartSongName: true
-      }
-    })
+    return CacheService.remember(
+      'guild_settings:ichart',
+      5 * 60 * 1000, // 5 minutes
+      () =>
+        container.prisma.guildSetting.findMany({
+          where: {
+            ichartSongId: { not: null },
+            ichartSongName: { not: null }
+          },
+          select: {
+            ichartSongId: true,
+            ichartSongName: true
+          }
+        })
+    )
+  }
+
+  /**
+   * Invalidates the iChart guild settings cache.
+   * Should be called when any guild updates its iChart configuration.
+   */
+  public static async invalidateIChartCache() {
+    await CacheService.invalidate('guild_settings:ichart')
   }
 }

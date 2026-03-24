@@ -61,6 +61,9 @@ export class ModalStatusSettingIChart extends InteractionHandler {
       ichartSongName: songName
     })
 
+    // Invalidate the iChart guild list cache so StatusRotationTask picks up the change
+    await SettingRepository.invalidateIChartCache()
+
     // Trigger immediate fetch to ensure status rotation can start immediately with data
     await IChartService.fetchRankings(songId)
 
