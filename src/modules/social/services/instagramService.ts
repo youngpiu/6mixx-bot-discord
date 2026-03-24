@@ -24,8 +24,6 @@ export class InstagramService {
   public static pkToTimestamp(pk: bigint): number {
     const igEpoch = 1314220021
     // IG ID is [41 bits timestamp since IG epoch][13 bits shard][10 bits sequence]
-    // Miso's logic: pk >> 23n (actually it depends on the ID version)
-    // But sticking to Miso patterns:
     const timestampMs = pk >> 23n
     const timestamp = Number(timestampMs) / 1000
     return Math.floor(igEpoch + timestamp)
@@ -34,116 +32,110 @@ export class InstagramService {
   public static extractShortcode(url: string): string | null {
     const regex = /(?:\/p\/|\/reel\/|\/reels\/|\/tv\/)([A-Za-z0-9_-]+)/
     const match = url.match(regex)
-    return match ? match[1] : null
+    return match ? match[1]! : null
   }
 
   public static async fetchInstagramData(
     shortcode: string
   ): Promise<InstagramPostData> {
     const igUrl = `https://www.instagram.com/p/${shortcode}/`
-    const embedUrl = `https://www.instagram.com/p/${shortcode}/embed/captioned/`
-
     let username = 'unknown'
     let caption = ''
-    const media: InstagramMedia[] = []
+    const mediaList: InstagramMedia[] = []
     let timestamp: number | undefined
 
-    // 1. Try to get metadata from direct Instagram embed page (Miso style)
-    try {
-      const resp = await fetch(embedUrl, {
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-      })
-      if (resp.ok) {
-        const html = await resp.text()
-
-        // Extract username
-        const usernameMatch = html.match(
-          /<span class="UsernameText">(.*?)<\/span>/
-        )
-        if (usernameMatch) username = usernameMatch[1]!.trim()
-
-        // Extract caption
-        const captionMatch = html.match(
-          /<div class="Caption">(.*?)(?:<div class="CaptionComments">|<\/div>)/s
-        )
-        if (captionMatch) {
-          let extractedCaption = captionMatch[1]!
-          extractedCaption = extractedCaption.replace(
-            /<a class="CaptionUsername".*?<\/a><br \/><br \/>/,
-            ''
-          )
-          extractedCaption = extractedCaption.replace(/<a[^>]*?>#.*?<\/a>/g, '')
-          extractedCaption = extractedCaption.replace(/<br \/>/g, '\n')
-          caption = extractedCaption.replace(/<[^>]*>?/gm, '').trim()
-        }
-      }
-    } catch {
-      // Ssssh...
+    const headers = {
+      'User-Agent':
+        'Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)'
     }
 
-    // 2. Fallback to fixers for media and stats
-    const fixers = [
-      `https://uuinstagram.com/p/${shortcode}/`,
-      `https://gginstagram.com/p/${shortcode}/`,
-      `https://fxig.seria.moe/p/${shortcode}/`,
-      `https://www.ddinstagram.com/p/${shortcode}/`,
-      `https://d.ddinstagram.com/p/${shortcode}/`,
-      `https://kkinstagram.com/p/${shortcode}/`,
-      `https://instagramez.com/p/${shortcode}/`,
-      `https://toinstagram.com/p/${shortcode}/`,
-      `https://vxtagram.com/p/${shortcode}/`
-    ]
-
-    for (const fixerUrl of fixers) {
-      if (media.length > 0 && username !== 'unknown') break
-
-      try {
-        const response = await fetch(fixerUrl, {
-          headers: {
-            'User-Agent':
-              'Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)'
-          }
-        })
-
-        if (response.ok) {
-          const html = await response.text()
-          const $ = cheerio.load(html)
-          const fixerOrigin = new URL(fixerUrl).origin
-
-          if (username === 'unknown') {
-            username =
-              $('meta[name="twitter:title"]')
-                .attr('content')
-                ?.replace('@', '') || username
-          }
-          if (!caption) {
-            caption = $('meta[property="og:description"]').attr('content') || ''
-          }
-
-          if (media.length === 0) {
-            const videoUrl = $('meta[property="og:video"]').attr('content')
-            const imageUrl = $('meta[property="og:image"]').attr('content')
-
-            const normalizeUrl = (url: string) =>
-              url.startsWith('/') ? `${fixerOrigin}${url}` : url
-
-            if (videoUrl) {
-              media.push({ type: 'video', url: normalizeUrl(videoUrl) })
-            } else if (imageUrl) {
-              media.push({ type: 'image', url: normalizeUrl(imageUrl) })
-            }
-          }
-
-          container.logger.info(
-            `[InstagramService] Successfully fetched data from ${fixerUrl} for ${shortcode}`
-          )
+    // 1. Fetch media from vxinstagram
+    try {
+      const vxResponse = await fetch(
+        `https://vxinstagram.com/p/${shortcode}/`,
+        {
+          headers
         }
-      } catch {
-        // Continue
+      )
+      if (vxResponse.ok) {
+        const vxHtml = await vxResponse.text()
+        const $ = cheerio.load(vxHtml)
+
+        // Try to find all media items (for carousels)
+        const mediaContainers = $('.carousel-item, .media-container')
+
+        if (mediaContainers.length > 0) {
+          mediaContainers.each((_, el) => {
+            const $el = $(el)
+
+            // Check for video first
+            const videoSrc =
+              $el.find('video source').attr('src') ||
+              $el.find('video').attr('src')
+            if (videoSrc) {
+              mediaList.push({ type: 'video', url: videoSrc })
+            } else {
+              // Check for image
+              const imgSrc = $el.find('img').attr('src')
+              if (imgSrc) {
+                mediaList.push({ type: 'image', url: imgSrc })
+              }
+            }
+          })
+        }
+
+        // Fallback to meta tags if no containers found
+        if (mediaList.length === 0) {
+          const ogVideo = $('meta[property="og:video"]').attr('content')
+          const ogImage =
+            $('meta[property="og:image"]').attr('content') ||
+            $('meta[name="twitter:image"]').attr('content')
+
+          if (ogVideo) {
+            mediaList.push({ type: 'video', url: ogVideo })
+          } else if (ogImage) {
+            mediaList.push({ type: 'image', url: ogImage })
+          }
+        }
       }
+    } catch (error) {
+      container.logger.error(
+        `[InstagramService] Error fetching from vxinstagram for ${shortcode}:`,
+        error
+      )
+    }
+
+    // 2. Fetch username and description from uuinstagram
+    try {
+      const uuResponse = await fetch(
+        `https://uuinstagram.com/p/${shortcode}/`,
+        {
+          headers
+        }
+      )
+      if (uuResponse.ok) {
+        const uuHtml = await uuResponse.text()
+        const $ = cheerio.load(uuHtml)
+
+        const extractedUsername =
+          $('meta[name="twitter:title"]').attr('content') ||
+          $('meta[property="og:title"]').attr('content')
+        if (extractedUsername) {
+          username = extractedUsername.replace('@', '').trim()
+        }
+
+        const extractedCaption =
+          $('meta[property="og:description"]').attr('content') ||
+          $('meta[name="twitter:description"]').attr('content')
+        if (extractedCaption) {
+          caption = extractedCaption.trim()
+        }
+      }
+    } catch (error) {
+      container.logger.error(
+        `[InstagramService] Error fetching from uuinstagram for ${shortcode}:`,
+        error
+      )
     }
 
     // Calculate timestamp as fallback
@@ -154,17 +146,23 @@ export class InstagramService {
       // Ignored
     }
 
-    if (username === 'unknown' && media.length === 0) {
+    if (username === 'unknown' && mediaList.length === 0) {
       throw new Error(
         'Không thể lấy dữ liệu từ Instagram. Vui lòng thử lại sau.'
       )
     }
 
+    // Final normalization: ensure URLs are absolute if they start with /
+    const normalizedMedia = mediaList.map((m) => ({
+      ...m,
+      url: m.url.startsWith('/') ? `https://vxinstagram.com${m.url}` : m.url
+    }))
+
     return {
       shortcode,
       username,
       caption,
-      media,
+      media: normalizedMedia,
       timestamp,
       url: igUrl
     }
