@@ -51,6 +51,7 @@ export class InstagramService {
 
     // Proxy deduplication helper
     const getDeepUrlKey = (url: string) => {
+      // For vxinstagram/ddinstagram URLs, the underlying source is in the token param (JWT)
       const match = url.match(/[?&]token=([^&]+)/)
       if (!match) return url
       try {
@@ -59,14 +60,8 @@ export class InstagramService {
         const payload = JSON.parse(
           Buffer.from(payloadStr, 'base64').toString('utf8')
         )
-        const cdnUrl: string = payload.url || url
-
-        // Extract the unique ID part of the Instagram filename (e.g. 12345_67890_abc)
-        // This is necessary because FB CDN URLs contain ephemeral parameters that change per request.
-        const fileMatch = cdnUrl.match(
-          /\/([a-zA-Z0-9_-]+)\.(?:jpg|heic|mp4|webp|png)/i
-        )
-        return fileMatch ? fileMatch[1]! : cdnUrl
+        // Deduplicate by the actual Instagram CDN URL
+        return payload.url || url
       } catch {
         return url
       }
@@ -84,8 +79,8 @@ export class InstagramService {
         const vxHtml = await vxResponse.text()
         const $ = cheerio.load(vxHtml)
 
-        // Use a Set to track underlying source IDs and avoid duplicates (vx often doubles items in HTML)
-        const seenSourceIds = new Set<string>()
+        // Use a Set to track underlying source URLs and avoid duplicates (vx often doubles items in HTML)
+        const seenSourceUrls = new Set<string>()
 
         // Find all media containers (works for both single posts and carousels)
         $('.media-container').each((_, el) => {
@@ -101,8 +96,8 @@ export class InstagramService {
               : videoSrc
             const key = getDeepUrlKey(absoluteUrl)
 
-            if (!seenSourceIds.has(key)) {
-              seenSourceIds.add(key)
+            if (!seenSourceUrls.has(key)) {
+              seenSourceUrls.add(key)
               mediaList.push({ type: 'video', url: absoluteUrl })
             }
             return // Skip image if video found in same container
@@ -116,8 +111,8 @@ export class InstagramService {
               : imgSrc
             const key = getDeepUrlKey(absoluteUrl)
 
-            if (!seenSourceIds.has(key)) {
-              seenSourceIds.add(key)
+            if (!seenSourceUrls.has(key)) {
+              seenSourceUrls.add(key)
               mediaList.push({ type: 'image', url: absoluteUrl })
             }
           }
@@ -133,6 +128,7 @@ export class InstagramService {
           if (ogVideo) {
             mediaList.push({ type: 'video', url: ogVideo })
           } else if (ogImage) {
+            // Check if it's a grid image - we prefer individual items, but if none found, we take it
             mediaList.push({ type: 'image', url: ogImage })
           }
         }
