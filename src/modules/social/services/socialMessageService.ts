@@ -57,7 +57,7 @@ export class SocialMessageService {
     } = {}
   ) {
     const { spoiler = false, showCaption = true, showStats = true } = options
-    const mediaChunks = this.chunk(post.media, 5)
+    const mediaChunks = this.chunk(post.media, 10)
 
     const buildFirstContainer = () => {
       const emoji = this.getPlatformEmoji(post.platform)
