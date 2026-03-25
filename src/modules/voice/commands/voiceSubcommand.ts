@@ -12,6 +12,7 @@ import { VoiceLockCommand } from '~/modules/voice/commands/_voiceLockCommand'
 import { VoicePermissionClaimCommand } from '~/modules/voice/commands/_voicePermissionClaimCommand'
 import { VoicePermissionTransferCommand } from '~/modules/voice/commands/_voicePermissionTransferCommand'
 import { VoiceRenameCommand } from '~/modules/voice/commands/_voiceRenameCommand'
+import { VoiceResetCommand } from '~/modules/voice/commands/_voiceResetCommand'
 import { VoiceTrustRoleCommand } from '~/modules/voice/commands/_voiceTrustRoleCommand'
 import { VoiceTrustUserCommand } from '~/modules/voice/commands/_voiceTrustUserCommand'
 import { VoiceUnlockCommand } from '~/modules/voice/commands/_voiceUnlockCommand'
@@ -119,6 +120,9 @@ import { VoiceUnlockCommand } from '~/modules/voice/commands/_voiceUnlockCommand
             .setRequired(true)
         )
     )
+    .addSubcommand((sub) =>
+      sub.setName('reset').setDescription('Reset phòng voice về mặc định.')
+    )
 )
 /**
  * Main command class for temporary voice channel management.
@@ -196,6 +200,13 @@ import { VoiceUnlockCommand } from '~/modules/voice/commands/_voiceUnlockCommand
       chatInputRun: 'chatInputInvite',
       preconditions: ['TempVoiceChannelOnly'],
       cooldownDelay: TIME.S15,
+      cooldownLimit: 1
+    },
+    {
+      name: 'reset',
+      chatInputRun: 'chatInputReset',
+      preconditions: ['TempVoiceOwnerOnly'],
+      cooldownDelay: TIME.M1,
       cooldownLimit: 1
     },
     {
@@ -311,5 +322,13 @@ export class VoiceSubcommand extends Subcommand {
    */
   public async chatInputInvite(interaction: ChatInputCommandInteraction) {
     return VoiceInviteCommand.run(interaction)
+  }
+
+  /**
+   * Handles the 'reset' subcommand.
+   * @param interaction The chat input command interaction.
+   */
+  public async chatInputReset(interaction: ChatInputCommandInteraction) {
+    return VoiceResetCommand.run(interaction)
   }
 }
