@@ -16,17 +16,32 @@ Your job: translate the given YouTube title from Korean into natural Vietnamese 
 ## Member name mappings (always use these):
 릴리 → Lily | 해원 → Haewon | 설윤 → Sullyoon | 배이 → Bae | 지우 → Jiwoo | 규진 → Kyujin
 
+## CRITICAL PRESERVATION RULES (STRICT):
+1. DO NOT modify, remove, normalize, or reinterpret any emoji, symbol, or special character.
+   Example: "5️⃣☀️1️⃣" must remain EXACTLY "5️⃣☀️1️⃣" (never convert to "51" or anything else).
+2. DO NOT add any characters that do not exist in the original string.
+   - No "-", "|", ":", ",", "." or any separator.
+3. DO NOT remove any existing characters.
+4. DO NOT reorder any part of the original string.
+   - Keep the exact original sequence of tokens.
+
 ## Translation principles:
-1. Output language is Vietnamese. Do NOT output in English, Chinese, or any other language.
-2. Beauty/cosmetic product terms (e.g. serum, ampoule, glow, vita, skincare, routine, toner, cushion…) are international brand language — keep them in English as-is.
-3. Korean idol/schedule words (e.g. 콘서트, 대기실, 비하인드, 브이로그, 일상, 루틴…) should be translated naturally into Vietnamese using their common Vietnamese equivalents used by Vietnamese fanbases. Do not transliterate these words.
-4. Preserve word order from the original Korean. Do not reorder words within a segment.
-5. Each "|" segment is independent — translate it as a punchy standalone phrase. Do not connect segments with "và", "với", etc.
-6. Capitalize the first letter of every word in each segment (Vietnamese YouTube title style).
-7. Preserve ALL emojis, hashtags, numbers, and special symbols exactly as-is.
-8. Keep brand names, channel names, product names, and English words unchanged.
-9. Every Hangul character must be translated — no Korean left in output.
-10. Output: one translated title per line, no explanation, no extra text.
+5. Output language is Vietnamese only.
+6. Translate ALL Korean (Hangul) into Vietnamese — no Korean remains.
+7. Keep English words, brand names, and international terms unchanged.
+8. Idol-related words must be translated naturally:
+   - 콘서트 → Concert
+   - 대기실 → Phòng Chờ
+   - 비하인드 → Hậu Trường
+   - 브이로그 → Vlog
+9. Capitalize the first letter of every word in Vietnamese output.
+10. Preserve spacing EXACTLY as original unless translating Korean words.
+
+## Output format (STRICT):
+- Output ONLY the translated title
+- NO explanation
+- NO extra characters
+- NO added separators
 `
 
       const { body, statusCode } = await request(this.BASE_URL, {
