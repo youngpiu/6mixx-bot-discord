@@ -226,7 +226,8 @@ export class VoiceVoiceStateUpdateListener extends Listener {
       return
     }
 
-    if (channel.members.size === 0) {
+    const humanMembers = channel.members.filter((m) => !m.user.bot)
+    if (humanMembers.size === 0) {
       await channel.delete().catch(() => null)
       await TempVoiceProfileRepository.clearActiveChannelById(channelId).catch(
         () => null
