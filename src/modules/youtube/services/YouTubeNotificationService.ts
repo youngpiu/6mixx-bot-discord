@@ -3,8 +3,8 @@ import { TextChannel, roleMention } from 'discord.js'
 
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 
-import { OpenRouterService } from '~/modules/youtube/services/OpenRouterService'
 import { YouTubeService } from '~/modules/youtube/services/YouTubeService'
+import { ZApiService } from '~/modules/youtube/services/ZApiService'
 
 export class YouTubeNotificationService {
   /**
@@ -34,7 +34,7 @@ export class YouTubeNotificationService {
       container.logger.info(
         `[YouTubeNotificationService] Original Title: "${videoInfo.snippet.title}"`
       )
-      const translatedTitle = await OpenRouterService.translateYouTubeTitle(
+      const translatedTitle = await ZApiService.translateYouTubeTitle(
         videoInfo.snippet.title
       )
       container.logger.info(
