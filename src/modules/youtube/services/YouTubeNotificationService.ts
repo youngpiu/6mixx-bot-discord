@@ -4,7 +4,6 @@ import { TextChannel, roleMention } from 'discord.js'
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 
 import { YouTubeService } from '~/modules/youtube/services/YouTubeService'
-import { ZApiService } from '~/modules/youtube/services/ZApiService'
 
 export class YouTubeNotificationService {
   /**
@@ -30,16 +29,11 @@ export class YouTubeNotificationService {
       const videoInfo = await YouTubeService.getVideoInfo(videoUrl)
       if (!videoInfo) return false
 
-      // 2. Translate title
+      // 2. Use original title
       container.logger.info(
-        `[YouTubeNotificationService] Original Title: "${videoInfo.snippet.title}"`
+        `[YouTubeNotificationService] Title: "${videoInfo.snippet.title}"`
       )
-      const translatedTitle = await ZApiService.translateYouTubeTitle(
-        videoInfo.snippet.title
-      )
-      container.logger.info(
-        `[YouTubeNotificationService] Translated Title: "${translatedTitle}"`
-      )
+      const title = videoInfo.snippet.title
 
       // 3. Prepare notification
       const guild = await container.client.guilds.fetch(guildId)
@@ -54,7 +48,7 @@ export class YouTubeNotificationService {
         : ''
       const isLive = videoInfo.snippet.liveBroadcastContent === 'live'
 
-      const notificationMessage = `\`\`\`${isLive ? '🔴 LIVE: ' : ''}${translatedTitle}\`\`\`\n${rolePing}\n\nhttps://youtu.be/${videoId}`
+      const notificationMessage = `\`\`\`${isLive ? '🔴 LIVE: ' : ''}${title}\`\`\`\n${rolePing}\n\nhttps://youtu.be/${videoId}`
 
       await postChannel.send({
         content: notificationMessage
