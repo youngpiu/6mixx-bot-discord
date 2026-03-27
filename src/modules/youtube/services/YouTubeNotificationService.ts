@@ -47,14 +47,12 @@ export class YouTubeNotificationService {
       const rolePing = guildConfig.youtubeNotificationRoleId
         ? `${roleMention(guildConfig.youtubeNotificationRoleId)} `
         : ''
-      const isLive = videoInfo.snippet.liveBroadcastContent === 'live'
 
-      const notificationMessage = `\`\`\`${isLive ? '🔴 LIVE: ' : ''}${title}\`\`\`\n${rolePing}\n\nhttps://youtu.be/${videoId}`
-
-      // 4. Send via Webhook
+      // 4. Handle Webhook and Avatar
       const webhooks = await postChannel.fetchWebhooks()
       const channelTitle = videoInfo.snippet.channelTitle
       let webhook = webhooks.find((wh) => wh.name === channelTitle)
+      let avatarUrl = webhook?.avatarURL()
 
       if (!webhook) {
         container.logger.info(
@@ -63,24 +61,48 @@ export class YouTubeNotificationService {
         const channelInfo = await YouTubeService.getChannelInfo(
           videoInfo.snippet.channelId
         )
-        const avatarUrl =
+        avatarUrl =
           channelInfo?.snippet.thumbnails.high?.url ||
           channelInfo?.snippet.thumbnails.medium?.url ||
           channelInfo?.snippet.thumbnails.default?.url
 
         webhook = await postChannel.createWebhook({
           name: channelTitle,
-          avatar: avatarUrl
+          avatar: avatarUrl || undefined
         })
       }
 
+      // 5. Send via Webhook with Embed
       const webhookClient = new WebhookClient({
         id: webhook.id,
         token: webhook.token!
       })
 
+      const isLive = videoInfo.snippet.liveBroadcastContent === 'live'
+      const videoThumbnail =
+        videoInfo.snippet.thumbnails.maxres?.url ||
+        videoInfo.snippet.thumbnails.high?.url ||
+        videoInfo.snippet.thumbnails.medium?.url ||
+        videoInfo.snippet.thumbnails.default?.url
+
+      const content = `\`\`\`${isLive ? '🔴 LIVE: ' : ''}${title.trim()}\`\`\`\n${rolePing}\n`
+
       await webhookClient.send({
-        content: notificationMessage
+        content: content || undefined,
+        embeds: [
+          {
+            author: {
+              name: channelTitle,
+              icon_url: avatarUrl || undefined,
+              url: `https://www.youtube.com/channel/${videoInfo.snippet.channelId}`
+            },
+            description: `**[${title}](https://youtu.be/${videoId})**`,
+            image: {
+              url: videoThumbnail || ''
+            },
+            color: 0xff0000
+          }
+        ]
       })
 
       return true
