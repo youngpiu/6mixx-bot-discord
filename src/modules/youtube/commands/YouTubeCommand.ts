@@ -23,11 +23,19 @@ export class YouTubeCommand extends Command {
             .setDescription('Link video YouTube')
             .setRequired(true)
         )
+        .addStringOption((option) =>
+          option
+            .setName('translated-title')
+            .setDescription('Tiêu đề đã dịch (tùy chọn)')
+            .setRequired(false)
+        )
     )
   }
 
   public override async chatInputRun(interaction: ChatInputCommandInteraction) {
     const url = interaction.options.getString('url', true)
+    const overrideTitle =
+      interaction.options.getString('translated-title') || undefined
     const guildId = interaction.guildId!
 
     const guildConfig = await SettingRepository.find(guildId)
@@ -55,7 +63,8 @@ export class YouTubeCommand extends Command {
 
     const success = await YouTubeNotificationService.processAndNotify(
       guildId,
-      url
+      url,
+      overrideTitle
     )
 
     if (success) {

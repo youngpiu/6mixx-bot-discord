@@ -57,10 +57,21 @@ export interface YouTubeVideoInfo {
   }
 }
 
-export interface YouTubeApiResponse {
+export interface YouTubeChannelInfo {
+  snippet: {
+    title: string
+    thumbnails: {
+      default?: YouTubeThumbnail
+      medium?: YouTubeThumbnail
+      high?: YouTubeThumbnail
+    }
+  }
+}
+
+export interface YouTubeApiResponse<T> {
   kind: string
   etag: string
-  items?: YouTubeVideoInfo[]
+  items?: T[]
   pageInfo: {
     totalResults: number
     resultsPerPage: number
@@ -81,13 +92,31 @@ export class YouTubeService {
       const { body } = await request(
         `${this.BASE_URL}/videos?part=snippet,contentDetails,statistics,liveStreamingDetails&id=${videoId}&key=${this.API_KEY}`
       )
-      const data = (await body.json()) as YouTubeApiResponse
+      const data = (await body.json()) as YouTubeApiResponse<YouTubeVideoInfo>
 
       if (!data.items || data.items.length === 0) return null
 
       return data.items[0]
     } catch (error) {
       console.error('[YouTubeService] Error fetching video info:', error)
+      return null
+    }
+  }
+
+  public static async getChannelInfo(
+    channelId: string
+  ): Promise<YouTubeChannelInfo | null> {
+    try {
+      const { body } = await request(
+        `${this.BASE_URL}/channels?part=snippet&id=${channelId}&key=${this.API_KEY}`
+      )
+      const data = (await body.json()) as YouTubeApiResponse<YouTubeChannelInfo>
+
+      if (!data.items || data.items.length === 0) return null
+
+      return data.items[0]
+    } catch (error) {
+      console.error('[YouTubeService] Error fetching channel info:', error)
       return null
     }
   }

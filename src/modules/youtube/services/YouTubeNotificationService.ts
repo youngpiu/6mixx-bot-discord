@@ -1,5 +1,5 @@
 import { container } from '@sapphire/pieces'
-import { TextChannel, roleMention } from 'discord.js'
+import { TextChannel, WebhookClient, roleMention } from 'discord.js'
 
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 
@@ -14,7 +14,8 @@ export class YouTubeNotificationService {
    */
   public static async processAndNotify(
     guildId: string,
-    videoUrl: string
+    videoUrl: string,
+    overrideTitle?: string
   ): Promise<boolean> {
     const guildConfig = await SettingRepository.find(guildId)
     if (!guildConfig || !guildConfig.youtubeNotificationPostChannelId) {
@@ -29,11 +30,11 @@ export class YouTubeNotificationService {
       const videoInfo = await YouTubeService.getVideoInfo(videoUrl)
       if (!videoInfo) return false
 
-      // 2. Use original title
+      // 2. Use title (prefer override if provided)
+      const title = overrideTitle || videoInfo.snippet.title
       container.logger.info(
-        `[YouTubeNotificationService] Title: "${videoInfo.snippet.title}"`
+        `[YouTubeNotificationService] Title to use: "${title}"`
       )
-      const title = videoInfo.snippet.title
 
       // 3. Prepare notification
       const guild = await container.client.guilds.fetch(guildId)
@@ -50,7 +51,35 @@ export class YouTubeNotificationService {
 
       const notificationMessage = `\`\`\`${isLive ? '🔴 LIVE: ' : ''}${title}\`\`\`\n${rolePing}\n\nhttps://youtu.be/${videoId}`
 
-      await postChannel.send({
+      // 4. Send via Webhook
+      const webhooks = await postChannel.fetchWebhooks()
+      const channelTitle = videoInfo.snippet.channelTitle
+      let webhook = webhooks.find((wh) => wh.name === channelTitle)
+
+      if (!webhook) {
+        container.logger.info(
+          `[YouTubeNotificationService] Creating new webhook for channel: "${channelTitle}"`
+        )
+        const channelInfo = await YouTubeService.getChannelInfo(
+          videoInfo.snippet.channelId
+        )
+        const avatarUrl =
+          channelInfo?.snippet.thumbnails.high?.url ||
+          channelInfo?.snippet.thumbnails.medium?.url ||
+          channelInfo?.snippet.thumbnails.default?.url
+
+        webhook = await postChannel.createWebhook({
+          name: channelTitle,
+          avatar: avatarUrl
+        })
+      }
+
+      const webhookClient = new WebhookClient({
+        id: webhook.id,
+        token: webhook.token!
+      })
+
+      await webhookClient.send({
         content: notificationMessage
       })
 
