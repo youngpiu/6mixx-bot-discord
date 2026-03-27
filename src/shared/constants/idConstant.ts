@@ -133,6 +133,7 @@ export const CUSTOM_ID = {
   // Voice
   MODAL_VOICE_TRUST_USER: 'modal-voice-trust-user',
   SELECT_VOICE_TRUST_USER: 'select-voice-trust-user',
+  SELECT_VOICE_UNTRUST_USER: 'select-voice-untrust-user',
   MODAL_VOICE_TRUST_ROLE: 'modal-voice-trust-role',
   SELECT_VOICE_TRUST_ROLE: 'select-voice-trust-role',
   SELECT_VOICE_KICK: 'select-voice-kick',

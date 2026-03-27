@@ -82,7 +82,7 @@ import { VoiceUnlockCommand } from '~/modules/voice/commands/_voiceUnlockCommand
           sub
             .setName('user')
             .setDescription(
-              'Sửa danh sách người được phép vào phòng thoại khi khoá.'
+              'Sửa danh sách người được và không được phép vào phòng thoại khi khoá.'
             )
         )
         .addSubcommand((sub) =>

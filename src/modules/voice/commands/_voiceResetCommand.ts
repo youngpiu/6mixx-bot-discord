@@ -2,6 +2,7 @@ import { ChatInputCommandInteraction } from 'discord.js'
 
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 
+import { TempVoiceDeniedMemberRepository } from '~/modules/voice/repositories/tempVoiceDeniedMemberRepository'
 import { TempVoiceProfileRepository } from '~/modules/voice/repositories/tempVoiceProfileRepository'
 import { TempVoiceTrustedMemberRepository } from '~/modules/voice/repositories/tempVoiceTrustedMemberRepository'
 import { TempVoiceTrustedRoleRepository } from '~/modules/voice/repositories/tempVoiceTrustedRoleRepository'
@@ -21,9 +22,10 @@ export class VoiceResetCommand {
     const guildId = interaction.guildId!
     const ownerId = profile.ownerId
 
-    const [trustedUsers, trustedRoles] = await Promise.all([
+    const [trustedUsers, trustedRoles, deniedUsers] = await Promise.all([
       TempVoiceTrustedMemberRepository.listByOwner(guildId, ownerId),
-      TempVoiceTrustedRoleRepository.listByOwner(guildId, ownerId)
+      TempVoiceTrustedRoleRepository.listByOwner(guildId, ownerId),
+      TempVoiceDeniedMemberRepository.listByOwner(guildId, ownerId)
     ])
 
     await Promise.all([
@@ -33,8 +35,10 @@ export class VoiceResetCommand {
       }),
       ...trustedUsers.map((u) => channel.permissionOverwrites.delete(u.userId)),
       ...trustedRoles.map((r) => channel.permissionOverwrites.delete(r.roleId)),
+      ...deniedUsers.map((u) => channel.permissionOverwrites.delete(u.userId)),
       TempVoiceTrustedMemberRepository.deleteByOwner(guildId, ownerId),
       TempVoiceTrustedRoleRepository.deleteByOwner(guildId, ownerId),
+      TempVoiceDeniedMemberRepository.deleteByOwner(guildId, ownerId),
       TempVoiceProfileRepository.updateProfile(guildId, ownerId, {
         limit: 0,
         locked: false
@@ -43,7 +47,7 @@ export class VoiceResetCommand {
 
     await InteractionUtil.replySuccess(
       interaction,
-      'Đã reset phòng thoại tạm thời về mặc định (không giới hạn, mở khóa, xóa danh sách tin cậy).'
+      'Đã reset phòng thoại tạm thời về mặc định (không giới hạn, mở khóa, xóa danh sách tin cậy và danh sách cấm).'
     )
   }
 }

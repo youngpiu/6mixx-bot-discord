@@ -18,6 +18,7 @@ model TempVoiceProfile {
 
   trustedMembers TempVoiceTrustedMember[]
   trustedRoles   TempVoiceTrustedRole[]
+  deniedMembers  TempVoiceDeniedMember[]
 
   @@unique([guildId, ownerId])
   @@index([guildId])
@@ -59,4 +60,23 @@ model TempVoiceTrustedRole {
   @@unique([profileId, roleId])
   @@index([profileId])
   @@index([roleId])
+}
+
+/// Denied users for a temp voice profile
+model TempVoiceDeniedMember {
+  id String @id @default(cuid())
+
+  guildId   String
+  profileId String
+  userId    String
+
+  createdAt DateTime @default(now())
+
+  profile TempVoiceProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  guild   Guild            @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  user    GuildMember      @relation("TempVoiceDeniedUser", fields: [guildId, userId], references: [guildId, userId], onDelete: Cascade)
+
+  @@unique([profileId, userId])
+  @@index([profileId])
+  @@index([userId])
 }

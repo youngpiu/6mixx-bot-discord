@@ -10,6 +10,7 @@ import { NormalError } from '~/core/errorResponse'
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 
+import { TempVoiceDeniedMemberRepository } from '~/modules/voice/repositories/tempVoiceDeniedMemberRepository'
 import { TempVoiceTrustedMemberRepository } from '~/modules/voice/repositories/tempVoiceTrustedMemberRepository'
 import { TempVoiceContextService } from '~/modules/voice/services/tempVoiceContextService'
 
@@ -37,8 +38,15 @@ export class ModalVoiceTrustUser extends InteractionHandler {
     )
     const previouslyTrustedUsers = trustedList.map((t) => t.userId)
 
+    const deniedList = await TempVoiceDeniedMemberRepository.listByOwner(
+      interaction.guildId!,
+      profile.ownerId
+    )
+    const previouslyDeniedUsers = deniedList.map((t) => t.userId)
+
     return this.some({
       previouslyTrustedUsers,
+      previouslyDeniedUsers,
       ownerId: profile.ownerId,
       channel
     })
@@ -56,65 +64,143 @@ export class ModalVoiceTrustUser extends InteractionHandler {
   ) {
     await interaction.deferReply({ flags: ['Ephemeral'] })
 
-    const { previouslyTrustedUsers, ownerId, channel } = result
+    const { previouslyTrustedUsers, previouslyDeniedUsers, ownerId, channel } =
+      result
 
-    const selectedUsersCollection = interaction.fields.getSelectedUsers(
+    const selectedTrustedUsersCollection = interaction.fields.getSelectedUsers(
       CUSTOM_ID.SELECT_VOICE_TRUST_USER
+    )
+    const selectedDeniedUsersCollection = interaction.fields.getSelectedUsers(
+      CUSTOM_ID.SELECT_VOICE_UNTRUST_USER
     )
 
     // Filter out bots and the room owner
-    const selectedUsers = selectedUsersCollection
-      ? [...selectedUsersCollection.values()].filter(
-          (u) => !u.bot && u.id !== ownerId
-        )
+    let selectedTrustedUserIds = selectedTrustedUsersCollection
+      ? [...selectedTrustedUsersCollection.values()]
+          .filter((u) => !u.bot && u.id !== ownerId)
+          .map((u) => u.id)
       : []
 
-    const selectedUserIds = selectedUsers.map((u) => u.id)
+    const selectedDeniedUserIds = selectedDeniedUsersCollection
+      ? [...selectedDeniedUsersCollection.values()]
+          .filter((u) => !u.bot && u.id !== ownerId)
+          .map((u) => u.id)
+      : []
 
-    const toRemove = previouslyTrustedUsers.filter(
-      (id) => !selectedUserIds.includes(id)
+    // Priority to Denied: If user is in both, remove from Trusted
+    selectedTrustedUserIds = selectedTrustedUserIds.filter(
+      (id) => !selectedDeniedUserIds.includes(id)
     )
-    const toAdd = selectedUserIds.filter(
+
+    const toRemoveTrusted = previouslyTrustedUsers.filter(
+      (id) => !selectedTrustedUserIds.includes(id)
+    )
+    const toAddTrusted = selectedTrustedUserIds.filter(
       (id) => !previouslyTrustedUsers.includes(id)
     )
 
-    if (toRemove.length === 0 && toAdd.length === 0) {
+    const toRemoveDenied = previouslyDeniedUsers.filter(
+      (id) => !selectedDeniedUserIds.includes(id)
+    )
+    const toAddDenied = selectedDeniedUserIds.filter(
+      (id) => !previouslyDeniedUsers.includes(id)
+    )
+
+    if (
+      toRemoveTrusted.length === 0 &&
+      toAddTrusted.length === 0 &&
+      toRemoveDenied.length === 0 &&
+      toAddDenied.length === 0
+    ) {
       throw new NormalError('Không có thay đổi nào được thực hiện.')
     }
 
-    // Handle removal of trusted members and their permission overwrites
-    const removePromises = toRemove.map(async (userId) => {
-      await TempVoiceTrustedMemberRepository.remove(
-        interaction.guildId!,
-        ownerId,
-        userId
-      )
-      await channel.permissionOverwrites.delete(userId)
-    })
+    const affectedUserIds = new Set([
+      ...previouslyTrustedUsers,
+      ...previouslyDeniedUsers,
+      ...selectedTrustedUserIds,
+      ...selectedDeniedUserIds
+    ])
 
-    // Handle addition of trusted members and their permission overwrites
-    const addPromises = toAdd.map(async (userId) => {
-      await TempVoiceTrustedMemberRepository.add(
-        interaction.guildId!,
-        ownerId,
-        userId
-      )
-      await channel.permissionOverwrites.edit(userId, {
-        Connect: true
-      })
-    })
+    const promises: Promise<unknown>[] = []
 
-    // Wait for all database and Discord API updates to complete
-    await Promise.all([...removePromises, ...addPromises])
+    for (const userId of affectedUserIds) {
+      const isTrustedNow = selectedTrustedUserIds.includes(userId)
+      const isDeniedNow = selectedDeniedUserIds.includes(userId)
+      const wasTrusted = previouslyTrustedUsers.includes(userId)
+      const wasDenied = previouslyDeniedUsers.includes(userId)
+
+      // DB Updates
+      if (isTrustedNow && !wasTrusted) {
+        promises.push(
+          TempVoiceTrustedMemberRepository.add(
+            interaction.guildId!,
+            ownerId,
+            userId
+          )
+        )
+      } else if (!isTrustedNow && wasTrusted) {
+        promises.push(
+          TempVoiceTrustedMemberRepository.remove(
+            interaction.guildId!,
+            ownerId,
+            userId
+          )
+        )
+      }
+
+      if (isDeniedNow && !wasDenied) {
+        promises.push(
+          TempVoiceDeniedMemberRepository.add(
+            interaction.guildId!,
+            ownerId,
+            userId
+          )
+        )
+      } else if (!isDeniedNow && wasDenied) {
+        promises.push(
+          TempVoiceDeniedMemberRepository.remove(
+            interaction.guildId!,
+            ownerId,
+            userId
+          )
+        )
+      }
+
+      // Voice Permission Updates
+      if (isDeniedNow) {
+        promises.push(
+          channel.permissionOverwrites.edit(userId, { Connect: false })
+        )
+      } else if (isTrustedNow) {
+        promises.push(
+          channel.permissionOverwrites.edit(userId, { Connect: true })
+        )
+      } else if (wasTrusted || wasDenied) {
+        promises.push(channel.permissionOverwrites.delete(userId))
+      }
+    }
+
+    await Promise.all(promises)
 
     let replyMessage = ''
-    if (toAdd.length > 0) {
-      replyMessage += `Đã thêm người được phép vào phòng: ${toAdd.map(userMention).join(', ')}\n`
-    }
-    if (toRemove.length > 0) {
-      replyMessage += `Đã loại bỏ người được phép vào phòng: ${toRemove.map(userMention).join(', ')}`
-    }
+    // Filter out users that were implicitly removed because they moved to the other list
+    const trulyRemovedTrusted = toRemoveTrusted.filter(
+      (id) => !toAddDenied.includes(id)
+    )
+    const trulyRemovedDenied = toRemoveDenied.filter(
+      (id) => !toAddTrusted.includes(id)
+    )
 
-    await InteractionUtil.replySuccess(interaction, replyMessage)
+    if (toAddTrusted.length > 0)
+      replyMessage += `Đã thêm người được phép vào phòng: ${toAddTrusted.map(userMention).join(', ')}\n`
+    if (trulyRemovedTrusted.length > 0)
+      replyMessage += `Đã loại bỏ người được phép vào phòng: ${trulyRemovedTrusted.map(userMention).join(', ')}\n`
+    if (toAddDenied.length > 0)
+      replyMessage += `Đã cấm người vào phòng: ${toAddDenied.map(userMention).join(', ')}\n`
+    if (trulyRemovedDenied.length > 0)
+      replyMessage += `Đã gỡ lệnh cấm: ${trulyRemovedDenied.map(userMention).join(', ')}\n`
+
+    await InteractionUtil.replySuccess(interaction, replyMessage.trim())
   }
 }

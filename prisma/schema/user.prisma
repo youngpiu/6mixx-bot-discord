@@ -35,6 +35,7 @@ model GuildMember {
 
   tempVoiceProfiles  TempVoiceProfile[]       @relation("TempVoiceOwner")
   tempVoiceTrustedIn TempVoiceTrustedMember[] @relation("TempVoiceTrustedUser")
+  tempVoiceDeniedIn  TempVoiceDeniedMember[]  @relation("TempVoiceDeniedUser")
 
   vipRole VipRole?
 

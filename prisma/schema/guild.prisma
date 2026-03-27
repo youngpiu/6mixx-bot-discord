@@ -17,6 +17,7 @@ model Guild {
   tempVoiceProfiles       TempVoiceProfile[]
   tempVoiceTrustedMembers TempVoiceTrustedMember[]
   tempVoiceTrustedRoles   TempVoiceTrustedRole[]
+  tempVoiceDeniedMembers  TempVoiceDeniedMember[]
 }
 
 /// Server Settings (1-to-1 with Guild)
