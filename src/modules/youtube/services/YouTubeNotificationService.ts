@@ -85,7 +85,8 @@ export class YouTubeNotificationService {
         videoInfo.snippet.thumbnails.medium?.url ||
         videoInfo.snippet.thumbnails.default?.url
 
-      const content = `\`\`\`${isLive ? '🔴 LIVE: ' : ''}${title.trim()}\`\`\`\n${rolePing}\n`
+      const content =
+        `**${isLive ? '🔴 LIVE: ' : ''}${title.trim()}**\n\n${rolePing}`.trim()
 
       await webhookClient.send({
         content: content || undefined,
