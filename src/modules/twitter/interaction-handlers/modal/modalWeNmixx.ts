@@ -4,16 +4,17 @@ import {
   InteractionHandlerTypes
 } from '@sapphire/framework'
 import {
+  AttachmentBuilder,
   ModalSubmitInteraction,
   TextChannel,
   WebhookClient,
-  roleMention,
-  AttachmentBuilder
+  roleMention
 } from 'discord.js'
 
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
+
 import { TwitterService } from '~/modules/twitter/services/TwitterService'
 
 @ApplyOptions<InteractionHandler.Options>({
@@ -32,13 +33,19 @@ export class ModalWeNmixxHandler extends InteractionHandler {
       flags: ['Ephemeral']
     })
 
-    const url = interaction.fields.getTextInputValue(CUSTOM_ID.INPUT_WE_NMIXX_URL)
-    const member = interaction.fields.getStringSelectValues(CUSTOM_ID.SELECT_WE_NMIXX_MEMBER)[0]
-    
+    const url = interaction.fields.getTextInputValue(
+      CUSTOM_ID.INPUT_WE_NMIXX_URL
+    )
+    const member = interaction.fields.getStringSelectValues(
+      CUSTOM_ID.SELECT_WE_NMIXX_MEMBER
+    )[0]
+
     // Attempt to get the translated description; if left empty, it will be an empty string.
     let translatedDescription: string | null = null
     try {
-      translatedDescription = interaction.fields.getTextInputValue(CUSTOM_ID.INPUT_WE_NMIXX_DESC)
+      translatedDescription = interaction.fields.getTextInputValue(
+        CUSTOM_ID.INPUT_WE_NMIXX_DESC
+      )
     } catch {
       // It's optional, so if not found, just ignore it.
     }
@@ -99,11 +106,14 @@ export class ModalWeNmixxHandler extends InteractionHandler {
         ? `${roleMention(guildConfig.weNmixxNotificationRoleId)}\n`
         : ''
 
-      const cleanText = (translatedDescription && translatedDescription.trim() !== '') ? translatedDescription : tweetInfo.text.replace(/#\S+/g, '').trim()
+      const cleanText =
+        translatedDescription && translatedDescription.trim() !== ''
+          ? translatedDescription
+          : tweetInfo.text.replace(/#\S+/g, '').trim()
 
       // Build content
       const content = `**[${cleanText}](<${url}>)**\n\n${rolePing}`.trim()
-      
+
       // Tải hình ảnh/video về buffer
       const files: AttachmentBuilder[] = []
       for (const [index, m] of tweetInfo.media.slice(0, 10).entries()) {
@@ -116,13 +126,21 @@ export class ModalWeNmixxHandler extends InteractionHandler {
           })
           if (res.ok) {
             const arrayBuffer = await res.arrayBuffer()
-            const name = m.url.split('/').pop()?.split('?')[0] || `media-${index}.jpg`
-            files.push(new AttachmentBuilder(Buffer.from(arrayBuffer), { name }))
+            const name =
+              m.url.split('/').pop()?.split('?')[0] || `media-${index}.jpg`
+            files.push(
+              new AttachmentBuilder(Buffer.from(arrayBuffer), { name })
+            )
           } else {
-            this.container.logger.warn(`[WeNmixxCommand] Media fetch returned status ${res.status} for ${m.url}`)
+            this.container.logger.warn(
+              `[WeNmixxCommand] Media fetch returned status ${res.status} for ${m.url}`
+            )
           }
         } catch (e) {
-          this.container.logger.error(`[WeNmixxCommand] Failed to fetch media ${m.url}:`, e)
+          this.container.logger.error(
+            `[WeNmixxCommand] Failed to fetch media ${m.url}:`,
+            e
+          )
         }
       }
 

@@ -2,12 +2,12 @@ import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Command } from '@sapphire/framework'
 import {
   ChatInputCommandInteraction,
-  ModalBuilder,
   LabelBuilder,
-  TextInputBuilder,
-  TextInputStyle,
+  ModalBuilder,
   StringSelectMenuBuilder,
-  StringSelectMenuOptionBuilder
+  StringSelectMenuOptionBuilder,
+  TextInputBuilder,
+  TextInputStyle
 } from 'discord.js'
 
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
@@ -42,7 +42,7 @@ export class WeNmixxCommand extends Command {
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('https://x.com/WE_NMIXX/status/...')
       .setRequired(true)
-      
+
     const urlLabel = new LabelBuilder()
       .setLabel('Đường dẫn X/Twitter')
       .setTextInputComponent(urlInput)
@@ -59,7 +59,7 @@ export class WeNmixxCommand extends Command {
             .setDescription(`Webhook của ${m}`)
         )
       )
-      
+
     const memberLabel = new LabelBuilder()
       .setLabel('Thành viên NMIXX')
       .setStringSelectMenuComponent(memberSelect)
@@ -67,9 +67,11 @@ export class WeNmixxCommand extends Command {
     const descInput = new TextInputBuilder()
       .setCustomId(CUSTOM_ID.INPUT_WE_NMIXX_DESC)
       .setStyle(TextInputStyle.Paragraph)
-      .setPlaceholder('Nhập nội dung đã dịch để thay thế bài gốc (không bắt buộc)')
+      .setPlaceholder(
+        'Nhập nội dung đã dịch để thay thế bài gốc (không bắt buộc)'
+      )
       .setRequired(false)
-      
+
     const descLabel = new LabelBuilder()
       .setLabel('Mô tả dịch (Tuỳ chọn)')
       .setTextInputComponent(descInput)
