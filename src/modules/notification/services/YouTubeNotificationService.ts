@@ -1,17 +1,10 @@
 import { container } from '@sapphire/pieces'
-import {
-  ActionRowBuilder,
-  AttachmentBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  TextChannel,
-  WebhookClient,
-  roleMention
-} from 'discord.js'
+import { AttachmentBuilder, TextChannel, WebhookClient } from 'discord.js'
 import sharp from 'sharp'
 
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 
+import { WebhookNotificationService } from '~/modules/notification/services/WebhookNotificationService'
 import { YouTubeService } from '~/modules/notification/services/YouTubeService'
 
 export class YouTubeNotificationService {
@@ -107,10 +100,6 @@ export class YouTubeNotificationService {
 
       if (!postChannel || !postChannel.isTextBased()) return false
 
-      const rolePing = guildConfig.youtubeNotificationRoleId
-        ? `${roleMention(guildConfig.youtubeNotificationRoleId)}`
-        : ''
-
       // 4. Handle Webhook and Avatar (auto-create if not found)
       const webhooks = await postChannel.fetchWebhooks()
       const channelTitle = videoInfo.snippet.channelTitle
@@ -142,8 +131,7 @@ export class YouTubeNotificationService {
       })
 
       const isLive = videoInfo.snippet.liveBroadcastContent === 'live'
-      const content =
-        `**${isLive ? '🔴 LIVE: ' : ''}${title}**\n\n${rolePing}`.trim()
+      const contentTitle = `${isLive ? '🔴 LIVE: ' : ''}${title}`.trim()
 
       // 6. Detect Short & fetch thumbnail
       const thumbnailUrl =
@@ -179,22 +167,15 @@ export class YouTubeNotificationService {
         }
       }
 
-      // 7. Link button
-      const linkButton = new ButtonBuilder()
-        .setLabel('Xem trên YouTube')
-        .setStyle(ButtonStyle.Link)
-        .setURL(`https://youtu.be/${videoId}`)
-
-      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        linkButton
-      )
-
-      await webhookClient.send({
-        content: content || undefined,
+      await WebhookNotificationService.send({
+        webhookClient,
+        title: contentTitle,
+        sourceUrl: `https://youtu.be/${videoId}`,
         username: channelTitle,
         avatarURL: avatarUrl || undefined,
-        files: files.length > 0 ? files : undefined,
-        components: [row]
+        roleId: guildConfig.youtubeNotificationRoleId,
+        files,
+        linkLabel: 'Xem trên YouTube'
       })
 
       return true

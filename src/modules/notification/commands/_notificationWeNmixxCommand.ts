@@ -1,6 +1,5 @@
 import {
   ChatInputCommandInteraction,
-  GuildMember,
   LabelBuilder,
   ModalBuilder,
   StringSelectMenuBuilder,
@@ -10,7 +9,6 @@ import {
 } from 'discord.js'
 
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
-import { SettingRepository } from '~/shared/repositories/settingRepository'
 
 const MEMBERS = [
   'Haewon',
@@ -24,24 +22,6 @@ const MEMBERS = [
 export class NotificationWeNmixxCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     if (!interaction.guildId) return
-
-    const guildConfig = await SettingRepository.find(interaction.guildId)
-    const allowedRoleIds = guildConfig?.weNmixxNotificationAllowedRoleIds || []
-
-    const member = interaction.member as GuildMember
-    const hasAllowedRole =
-      allowedRoleIds.length > 0 &&
-      member.roles.cache.some((role) => allowedRoleIds.includes(role.id))
-
-    if (!hasAllowedRole) {
-      return interaction.reply({
-        content:
-          allowedRoleIds.length > 0
-            ? 'Bạn không có vai trò được phép sử dụng lệnh này.'
-            : 'Bạn không có quyền sử dụng lệnh này (Yêu cầu Administrator).',
-        flags: ['Ephemeral']
-      })
-    }
 
     const modal = new ModalBuilder()
       .setCustomId(CUSTOM_ID.MODAL_WE_NMIXX)
@@ -63,10 +43,7 @@ export class NotificationWeNmixxCommand {
       .setRequired(true)
       .addOptions(
         ...MEMBERS.map((m) =>
-          new StringSelectMenuOptionBuilder()
-            .setLabel(m)
-            .setValue(m)
-            .setDescription(`Webhook của ${m}`)
+          new StringSelectMenuOptionBuilder().setLabel(m).setValue(m)
         )
       )
 

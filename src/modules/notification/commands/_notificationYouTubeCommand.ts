@@ -1,6 +1,5 @@
 import {
   ChatInputCommandInteraction,
-  GuildMember,
   LabelBuilder,
   ModalBuilder,
   TextInputBuilder,
@@ -8,32 +7,9 @@ import {
 } from 'discord.js'
 
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
-import { SettingRepository } from '~/shared/repositories/settingRepository'
 
 export class NotificationYouTubeCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
-    const guildId = interaction.guildId!
-    const guildConfig = await SettingRepository.find(guildId)
-
-    // Check role permission
-    if (
-      guildConfig?.youtubeNotificationAllowedRoleIds &&
-      guildConfig.youtubeNotificationAllowedRoleIds.length > 0 &&
-      !interaction.memberPermissions?.has('Administrator')
-    ) {
-      const member = interaction.member as GuildMember
-      if (
-        !member?.roles.cache.hasAny(
-          ...guildConfig.youtubeNotificationAllowedRoleIds
-        )
-      ) {
-        return interaction.reply({
-          content: 'Bạn không có quyền sử dụng lệnh này.',
-          flags: ['Ephemeral']
-        })
-      }
-    }
-
     const modal = new ModalBuilder()
       .setCustomId(CUSTOM_ID.MODAL_YOUTUBE)
       .setTitle('Gửi thông báo YouTube')
