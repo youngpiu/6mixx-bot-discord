@@ -4,6 +4,7 @@ import {
   ChatInputCommandInteraction,
   LabelBuilder,
   ModalBuilder,
+  PermissionFlagsBits,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   TextInputBuilder,
@@ -25,11 +26,13 @@ const MEMBERS = [
   builder
     .setName('we-nmixx')
     .setDescription('Đăng bài từ X/Twitter với webhook của thành viên')
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 )
 @ApplyOptions<Command.Options>({
   name: 'we-nmixx',
   description: 'Đăng bài từ X/Twitter với webhook của thành viên',
-  preconditions: ['GuildOnly']
+  preconditions: ['GuildOnly'],
+  requiredUserPermissions: ['Administrator']
 })
 export class WeNmixxCommand extends Command {
   public override async chatInputRun(interaction: ChatInputCommandInteraction) {
