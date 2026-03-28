@@ -131,7 +131,7 @@ export class YouTubeNotificationService {
       })
 
       const isLive = videoInfo.snippet.liveBroadcastContent === 'live'
-      const contentTitle = `${isLive ? '🔴 LIVE: ' : ''}${title}`.trim()
+      const contentTitle = `${isLive ? '🔴 LIVE: ' : '🔵 MỚI: '}${title}`.trim()
 
       // 6. Detect Short & fetch thumbnail
       const thumbnailUrl =

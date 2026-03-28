@@ -24,7 +24,7 @@ import { NotificationYouTubeCommand } from '~/modules/notification/commands/_not
 @ApplyOptions<Subcommand.Options>({
   name: 'notification',
   description: 'Gửi thông báo qua webhook.',
-  preconditions: ['GuildOnly'],
+  preconditions: ['GuildOnly', 'NotificationPermission'],
   subcommands: [
     {
       name: 'youtube',
