@@ -193,5 +193,11 @@ export const CUSTOM_ID = {
     'select-setting-youtube-listen-channel',
   SELECT_SETTING_YOUTUBE_POST_CHANNEL: 'select-setting-youtube-post-channel',
   SELECT_SETTING_YOUTUBE_ROLE: 'select-setting-youtube-role',
-  SELECT_SETTING_YOUTUBE_ALLOWED_ROLES: 'select-setting-youtube-allowed-roles'
+  SELECT_SETTING_YOUTUBE_ALLOWED_ROLES: 'select-setting-youtube-allowed-roles',
+
+  // Twitter Module Settings
+  BTN_SETTING_TWITTER_MODULE: 'btn-setting-twitter-module',
+  MODAL_SETTING_TWITTER_MODULE: 'modal-setting-twitter-module',
+  SELECT_SETTING_WE_NMIXX_CHANNEL: 'select-setting-we-nmixx-channel',
+  SELECT_SETTING_WE_NMIXX_ROLE: 'select-setting-we-nmixx-role'
 } as const
