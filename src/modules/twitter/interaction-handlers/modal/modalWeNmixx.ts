@@ -112,7 +112,7 @@ export class ModalWeNmixxHandler extends InteractionHandler {
           : tweetInfo.text.replace(/#\S+/g, '').trim()
 
       // Build content
-      const content = `**[${cleanText}](<${url}>)**\n\n${rolePing}`.trim()
+      const content = `**${cleanText}**\n\n${rolePing}`.trim()
 
       // Tải hình ảnh/video về buffer
       const files: AttachmentBuilder[] = []
