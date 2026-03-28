@@ -1,0 +1,209 @@
+import { container } from '@sapphire/pieces'
+import {
+  ActionRowBuilder,
+  AttachmentBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  TextChannel,
+  WebhookClient,
+  roleMention
+} from 'discord.js'
+import sharp from 'sharp'
+
+import { SettingRepository } from '~/shared/repositories/settingRepository'
+
+import { YouTubeService } from '~/modules/notification/services/YouTubeService'
+
+export class YouTubeNotificationService {
+  /**
+   * Detects if a video is a YouTube Short using the redirect trick.
+   * Accessing /shorts/{id} for a Short → 200 (YouTube serves it there).
+   * Accessing /shorts/{id} for a regular video → 3xx (redirected away to /watch).
+   */
+  private static async isShort(videoId: string): Promise<boolean> {
+    try {
+      const res = await fetch(`https://www.youtube.com/shorts/${videoId}`, {
+        method: 'HEAD',
+        redirect: 'manual',
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
+          Accept: 'text/html,application/xhtml+xml',
+          'Accept-Language': 'en-US,en;q=0.9',
+          Referer: 'https://www.youtube.com/'
+        }
+      })
+      // 200 = YouTube serves it at /shorts/ → IS a Short
+      // 3xx = YouTube redirects away to /watch → NOT a Short
+      const result = res.status === 200
+      container.logger.info(
+        `[YouTubeNotificationService] isShort(${videoId}) → HTTP ${res.status} → ${result}`
+      )
+      return result
+    } catch {
+      return false
+    }
+  }
+
+  /**
+   * Crops a landscape (16:9) thumbnail buffer to portrait (9:16) from center.
+   * Used to remove black bars from YouTube Shorts thumbnails.
+   */
+  private static async cropToShortRatio(buffer: Buffer): Promise<Buffer> {
+    const metadata = await sharp(buffer).metadata()
+    const width = metadata.width!
+    const height = metadata.height!
+
+    // Target width for 9:16 crop from a 16:9 source
+    const targetWidth = Math.round(height * (9 / 16))
+    const left = Math.round((width - targetWidth) / 2)
+
+    const result = await sharp(buffer)
+      .extract({ left, top: 0, width: targetWidth, height })
+      .jpeg({ quality: 95 })
+      .toBuffer()
+
+    return Buffer.from(result)
+  }
+
+  /**
+   * Processes a YouTube URL, fetches info, translates title, and sends notification.
+   * @param guildId - The ID of the guild where the notification should be posted.
+   * @param videoUrl - The YouTube video URL.
+   * @param overrideTitle - Optional title override (e.g. translated title).
+   * @returns A boolean indicating whether the process was successful.
+   */
+  public static async processAndNotify(
+    guildId: string,
+    videoUrl: string,
+    overrideTitle?: string
+  ): Promise<boolean> {
+    const guildConfig = await SettingRepository.find(guildId)
+    if (!guildConfig || !guildConfig.youtubeNotificationPostChannelId) {
+      return false
+    }
+
+    const videoId = YouTubeService.extractVideoId(videoUrl)
+    if (!videoId) return false
+
+    try {
+      // 1. Fetch video info
+      const videoInfo = await YouTubeService.getVideoInfo(videoUrl)
+      if (!videoInfo) return false
+
+      // 2. Use title (prefer override if provided), strip hashtags
+      const title = (overrideTitle || videoInfo.snippet.title)
+        .replace(/#\S+/g, '')
+        .trim()
+      container.logger.info(
+        `[YouTubeNotificationService] Title to use: "${title}"`
+      )
+
+      // 3. Prepare notification channel
+      const guild = await container.client.guilds.fetch(guildId)
+      const postChannel = (await guild.channels.fetch(
+        guildConfig.youtubeNotificationPostChannelId
+      )) as TextChannel
+
+      if (!postChannel || !postChannel.isTextBased()) return false
+
+      const rolePing = guildConfig.youtubeNotificationRoleId
+        ? `${roleMention(guildConfig.youtubeNotificationRoleId)}`
+        : ''
+
+      // 4. Handle Webhook and Avatar (auto-create if not found)
+      const webhooks = await postChannel.fetchWebhooks()
+      const channelTitle = videoInfo.snippet.channelTitle
+      let webhook = webhooks.find((wh) => wh.name === channelTitle)
+      let avatarUrl = webhook?.avatarURL()
+
+      if (!webhook) {
+        container.logger.info(
+          `[YouTubeNotificationService] Creating new webhook for channel: "${channelTitle}"`
+        )
+        const channelInfo = await YouTubeService.getChannelInfo(
+          videoInfo.snippet.channelId
+        )
+        avatarUrl =
+          channelInfo?.snippet.thumbnails.high?.url ||
+          channelInfo?.snippet.thumbnails.medium?.url ||
+          channelInfo?.snippet.thumbnails.default?.url
+
+        webhook = await postChannel.createWebhook({
+          name: channelTitle,
+          avatar: avatarUrl || undefined
+        })
+      }
+
+      // 5. Build content
+      const webhookClient = new WebhookClient({
+        id: webhook.id,
+        token: webhook.token!
+      })
+
+      const isLive = videoInfo.snippet.liveBroadcastContent === 'live'
+      const content =
+        `**${isLive ? '🔴 LIVE: ' : ''}${title}**\n\n${rolePing}`.trim()
+
+      // 6. Detect Short & fetch thumbnail
+      const thumbnailUrl =
+        videoInfo.snippet.thumbnails.maxres?.url ||
+        videoInfo.snippet.thumbnails.high?.url ||
+        videoInfo.snippet.thumbnails.medium?.url ||
+        videoInfo.snippet.thumbnails.default?.url
+
+      // Run Short detection and thumbnail fetch in parallel
+      const [short, thumbnailRes] = await Promise.all([
+        this.isShort(videoId),
+        thumbnailUrl ? fetch(thumbnailUrl) : Promise.resolve(null)
+      ])
+
+      const files: AttachmentBuilder[] = []
+      if (thumbnailRes?.ok) {
+        try {
+          const rawBuffer = Buffer.from(await thumbnailRes.arrayBuffer())
+
+          // Crop to 9:16 if it's a Short (removes black letterbox bars)
+          const finalBuffer = short
+            ? await this.cropToShortRatio(rawBuffer)
+            : rawBuffer
+
+          files.push(
+            new AttachmentBuilder(finalBuffer, { name: 'thumbnail.jpg' })
+          )
+        } catch (e) {
+          container.logger.warn(
+            '[YouTubeNotificationService] Failed to process thumbnail:',
+            e
+          )
+        }
+      }
+
+      // 7. Link button
+      const linkButton = new ButtonBuilder()
+        .setLabel('Xem trên YouTube')
+        .setStyle(ButtonStyle.Link)
+        .setURL(`https://youtu.be/${videoId}`)
+
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        linkButton
+      )
+
+      await webhookClient.send({
+        content: content || undefined,
+        username: channelTitle,
+        avatarURL: avatarUrl || undefined,
+        files: files.length > 0 ? files : undefined,
+        components: [row]
+      })
+
+      return true
+    } catch (error) {
+      container.logger.error(
+        '[YouTubeNotificationService] Error processing YouTube notification:',
+        error
+      )
+      return false
+    }
+  }
+}

@@ -63,10 +63,27 @@ export class ButtonTwitterModuleSetting extends InteractionHandler {
       .setLabel('Role ping thông báo (Không bắt buộc)')
       .setRoleSelectMenuComponent(roleSelect)
 
+    const allowedRolesSelect = new RoleSelectMenuBuilder()
+      .setCustomId(CUSTOM_ID.SELECT_SETTING_WE_NMIXX_ALLOWED_ROLES)
+      .setPlaceholder('Chọn role được phép dùng lệnh /notification we-nmixx...')
+      .setMinValues(0)
+      .setMaxValues(25)
+      .setRequired(false)
+
+    if (guildConfig?.weNmixxNotificationAllowedRoleIds?.length) {
+      allowedRolesSelect.setDefaultRoles(
+        ...guildConfig.weNmixxNotificationAllowedRoleIds
+      )
+    }
+
+    const labelAllowedRoles = new LabelBuilder()
+      .setLabel('Role được phép dùng lệnh (Mặc định: Admin)')
+      .setRoleSelectMenuComponent(allowedRolesSelect)
+
     const modal = new ModalBuilder()
       .setCustomId(CUSTOM_ID.MODAL_SETTING_TWITTER_MODULE)
       .setTitle('Cài đặt module Twitter')
-      .addLabelComponents(labelWeNmixxChannel, labelRole)
+      .addLabelComponents(labelWeNmixxChannel, labelRole, labelAllowedRoles)
 
     await interaction.showModal(modal)
   }

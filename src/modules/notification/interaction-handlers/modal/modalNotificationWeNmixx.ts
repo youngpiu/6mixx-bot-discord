@@ -4,7 +4,10 @@ import {
   InteractionHandlerTypes
 } from '@sapphire/framework'
 import {
+  ActionRowBuilder,
   AttachmentBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   ModalSubmitInteraction,
   TextChannel,
   WebhookClient,
@@ -15,12 +18,12 @@ import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
 
-import { TwitterService } from '~/modules/twitter/services/TwitterService'
+import { TwitterService } from '~/modules/notification/services/TwitterService'
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
 })
-export class ModalWeNmixxHandler extends InteractionHandler {
+export class ModalNotificationWeNmixxHandler extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
     if (interaction.customId !== CUSTOM_ID.MODAL_WE_NMIXX) {
       return this.none()
@@ -40,14 +43,13 @@ export class ModalWeNmixxHandler extends InteractionHandler {
       CUSTOM_ID.SELECT_WE_NMIXX_MEMBER
     )[0]
 
-    // Attempt to get the translated description; if left empty, it will be an empty string.
     let translatedDescription: string | null = null
     try {
       translatedDescription = interaction.fields.getTextInputValue(
         CUSTOM_ID.INPUT_WE_NMIXX_DESC
       )
     } catch {
-      // It's optional, so if not found, just ignore it.
+      // Optional field
     }
 
     if (!member) {
@@ -111,7 +113,6 @@ export class ModalWeNmixxHandler extends InteractionHandler {
           ? translatedDescription
           : tweetInfo.text.replace(/#\S+/g, '').trim()
 
-      // Build content
       const content = `**${cleanText}**\n\n${rolePing}`.trim()
 
       // Tải hình ảnh/video về buffer
@@ -133,22 +134,33 @@ export class ModalWeNmixxHandler extends InteractionHandler {
             )
           } else {
             this.container.logger.warn(
-              `[WeNmixxCommand] Media fetch returned status ${res.status} for ${m.url}`
+              `[NotificationWeNmixx] Media fetch returned status ${res.status} for ${m.url}`
             )
           }
         } catch (e) {
           this.container.logger.error(
-            `[WeNmixxCommand] Failed to fetch media ${m.url}:`,
+            `[NotificationWeNmixx] Failed to fetch media ${m.url}:`,
             e
           )
         }
       }
 
+      const linkButton = new ButtonBuilder()
+        .setLabel('Xem trên X')
+        .setStyle(ButtonStyle.Link)
+        .setURL(url)
+        .setEmoji('🐦')
+
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        linkButton
+      )
+
       await webhookClient.send({
         content: content || url,
         username: webhook.name,
         avatarURL: webhook.avatarURL() || undefined,
-        files: files.length > 0 ? files : undefined
+        files: files.length > 0 ? files : undefined,
+        components: [row]
       })
 
       return InteractionUtil.replySuccess(
@@ -157,7 +169,7 @@ export class ModalWeNmixxHandler extends InteractionHandler {
       )
     } catch (error) {
       this.container.logger.error(
-        '[WeNmixxCommand] Error sending webhook:',
+        '[NotificationWeNmixx] Error sending webhook:',
         error
       )
       return InteractionUtil.replyError(

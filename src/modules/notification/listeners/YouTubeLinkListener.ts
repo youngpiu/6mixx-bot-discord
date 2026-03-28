@@ -4,7 +4,7 @@ import { Message } from 'discord.js'
 
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 
-import { YouTubeNotificationService } from '~/modules/youtube/services/YouTubeNotificationService'
+import { YouTubeNotificationService } from '~/modules/notification/services/YouTubeNotificationService'
 
 @ApplyOptions<Listener.Options>({
   event: 'messageCreate'
@@ -33,8 +33,6 @@ export class YouTubeLinkListener extends Listener {
     const triggerRegex = /^(?:yt|youtube)(?::\s*|\s+)(https?:\/\/\S+)/i
     const triggerMatch = content.match(triggerRegex)
 
-    // If not matching prefix + link, check if it's a raw link (if we still want to support that)
-    // The user said "phải có", so I will enforce the prefix.
     if (!triggerMatch) return
 
     // Role restriction check - bypass for other bots

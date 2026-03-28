@@ -32,9 +32,16 @@ export class ModalTwitterModuleSetting extends InteractionHandler {
       .getSelectedRoles(CUSTOM_ID.SELECT_SETTING_WE_NMIXX_ROLE)
       ?.first()?.id
 
+    const weNmixxNotificationAllowedRoleIds =
+      interaction.fields
+        .getSelectedRoles(CUSTOM_ID.SELECT_SETTING_WE_NMIXX_ALLOWED_ROLES)
+        ?.map((role) => role?.id)
+        .filter((id): id is string => !!id) || []
+
     await SettingRepository.update(interaction.guild.id, {
       weNmixxNotificationChannelId,
-      weNmixxNotificationRoleId
+      weNmixxNotificationRoleId,
+      weNmixxNotificationAllowedRoleIds
     })
 
     const formattedFields = formatFields([
@@ -49,6 +56,14 @@ export class ModalTwitterModuleSetting extends InteractionHandler {
         weNmixxNotificationRoleId
           ? roleMention(weNmixxNotificationRoleId)
           : 'Không có'
+      ],
+      [
+        'Role được phép dùng lệnh',
+        weNmixxNotificationAllowedRoleIds.length > 0
+          ? weNmixxNotificationAllowedRoleIds
+              .map((id) => roleMention(id))
+              .join(', ')
+          : 'Mặc định (Admin)'
       ]
     ]).join('\n')
 
