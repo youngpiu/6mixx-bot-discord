@@ -199,5 +199,11 @@ export const CUSTOM_ID = {
   BTN_SETTING_TWITTER_MODULE: 'btn-setting-twitter-module',
   MODAL_SETTING_TWITTER_MODULE: 'modal-setting-twitter-module',
   SELECT_SETTING_WE_NMIXX_CHANNEL: 'select-setting-we-nmixx-channel',
-  SELECT_SETTING_WE_NMIXX_ROLE: 'select-setting-we-nmixx-role'
+  SELECT_SETTING_WE_NMIXX_ROLE: 'select-setting-we-nmixx-role',
+
+  // We Nmixx Command Modal
+  MODAL_WE_NMIXX: 'modal-we-nmixx',
+  INPUT_WE_NMIXX_URL: 'input-we-nmixx-url',
+  SELECT_WE_NMIXX_MEMBER: 'select-we-nmixx-member',
+  INPUT_WE_NMIXX_DESC: 'input-we-nmixx-desc'
 } as const
