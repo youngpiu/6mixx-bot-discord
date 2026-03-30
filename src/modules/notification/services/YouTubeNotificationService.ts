@@ -39,6 +39,21 @@ export class YouTubeNotificationService {
   }
 
   /**
+   * Automatically trims exact homogeneous colored margins (like black bars) from thumbnails.
+   * Useful for letterboxed 4:3 videos or ultra-wide padding without blurred backgrounds.
+   */
+  private static async trimBlackBars(buffer: Buffer): Promise<Buffer> {
+    const result = await sharp(buffer)
+      .trim({
+        threshold: 15 // Tolerance for compression artifacts
+      })
+      .jpeg({ quality: 100 })
+      .toBuffer()
+
+    return Buffer.from(result)
+  }
+
+  /**
    * Crops a landscape (16:9) thumbnail buffer to portrait (9:16) from center.
    * Used to remove black bars from YouTube Shorts thumbnails.
    */
@@ -162,10 +177,11 @@ export class YouTubeNotificationService {
         try {
           const rawBuffer = Buffer.from(await thumbnailRes.arrayBuffer())
 
-          // Crop to 9:16 if it's a Short (removes black letterbox bars)
+          // Crop strictly for Shorts to remove blurred pillars.
+          // For standard videos, trim any homogeneous black letterboxing.
           const finalBuffer = short
             ? await this.cropToShortRatio(rawBuffer)
-            : rawBuffer
+            : await this.trimBlackBars(rawBuffer)
 
           files.push(
             new AttachmentBuilder(finalBuffer, { name: 'thumbnail.jpg' })
