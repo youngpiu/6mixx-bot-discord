@@ -130,8 +130,19 @@ export class YouTubeNotificationService {
         token: webhook.token!
       })
 
-      const isLive = videoInfo.snippet.liveBroadcastContent === 'live'
-      const contentTitle = `${isLive ? 'LIVE: ' : 'MỚI: '}${title}`.trim()
+      const isLive =
+        videoInfo.snippet.liveBroadcastContent === 'live' &&
+        !!videoInfo.liveStreamingDetails?.actualStartTime &&
+        !videoInfo.liveStreamingDetails?.actualEndTime
+
+      const isUpcoming = videoInfo.snippet.liveBroadcastContent === 'upcoming'
+
+      const prefix = isLive
+        ? '🔴 LIVE: '
+        : isUpcoming
+          ? '🔵 SẮP LIVE: '
+          : '🔵 MỚI: '
+      const contentTitle = `\`${prefix}${title}\``
 
       // 6. Detect Short & fetch thumbnail
       const thumbnailUrl =
