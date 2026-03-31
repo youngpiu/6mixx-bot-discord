@@ -12,6 +12,7 @@ import {
 
 import { NormalError } from '~/core/errorResponse'
 
+import { MEMBER_ARRAY } from '~/shared/constants/name'
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 
 import { TwitterService } from '~/modules/social/services/twitterService'
@@ -25,9 +26,11 @@ export class GalleryService {
     guild: Guild
     url: string
     members: readonly string[] // List of member names
-    isOtp: boolean
   }) {
-    const { guild, url, members, isOtp } = options
+    const { guild, url, members } = options
+
+    const isAllMembers = members.length === MEMBER_ARRAY.length
+    const isOtp = members.length > 1 && !isAllMembers
 
     // 1. Get Guild Config
     const config = await SettingRepository.find(guild.id)
@@ -58,18 +61,31 @@ export class GalleryService {
     }
 
     // 3. Determine Thread Name
-    // For OTP, sort members alphabetically and join with ' x '
-    const threadName = isOtp
-      ? [...members].sort().join(' x ')
-      : members[0] || 'NMIXX'
+    const threadName = isAllMembers
+      ? 'NMIXX'
+      : isOtp
+        ? [...members].sort().join(' x ')
+        : members[0] || 'NMIXX'
 
     // 4. Find Thread (MUST EXIST)
-    const thread = await this.findThread(forum, threadName)
+    let thread = await this.findThread(forum, threadName)
 
     if (!thread) {
-      throw new NormalError(
-        `Bộ sưu tập **${threadName}** chưa được khởi tạo. Vui lòng nhấn nút **Tạo bộ sưu tập** trước.`
+      const firstImage = tweetData.media.find(
+        (m: TwitterMedia) => m.type === 'photo' || m.type === 'image'
       )
+      if (!firstImage) {
+        throw new NormalError(
+          `Bộ sưu tập **${threadName}** chưa tồn tại. Để tự tạo nhóm mới, bài đăng đầu tiên bắt buộc phải chứa ít nhất một hình ảnh để làm ảnh đại diện (bài này chỉ có video).`
+        )
+      }
+
+      thread = await forum.threads.create({
+        name: threadName,
+        message: {
+          files: [firstImage.url]
+        }
+      })
     }
 
     // 5. Post Media to Thread
@@ -103,56 +119,6 @@ export class GalleryService {
   }
 
   /**
-   * Creates a new collection (thread) in the forum channel.
-   */
-  public static async createCollection(options: {
-    guild: Guild
-    members: readonly string[]
-    thumbnail: Attachment
-  }) {
-    const { guild, members, thumbnail } = options
-    const isOtp = members.length > 1
-
-    // 1. Get Guild Config
-    const config = await SettingRepository.find(guild.id)
-    const forumId = isOtp
-      ? config?.nmixxOtpForumChannelId
-      : config?.nmixxSingleForumChannelId
-
-    if (!forumId) {
-      throw new NormalError(
-        `Kênh Forum ${isOtp ? 'OTP' : 'đơn'} chưa được cấu hình. Vui lòng liên hệ Admin.`
-      )
-    }
-
-    const forum = await guild.channels.fetch(forumId)
-    if (!forum || forum.type !== ChannelType.GuildForum) {
-      throw new NormalError('Không tìm thấy kênh Forum cấu hình hợp lệ.')
-    }
-
-    // 2. Determine Thread Name
-    const threadName = isOtp
-      ? [...members].sort().join(' x ')
-      : members[0] || 'NMIXX'
-
-    // 3. Check if already exists
-    const existingThread = await this.findThread(forum, threadName)
-    if (existingThread) {
-      throw new NormalError(`Bộ sưu tập **${threadName}** đã tồn tại.`)
-    }
-
-    // 4. Create Thread with Thumbnail
-    const thread = await forum.threads.create({
-      name: threadName,
-      message: {
-        files: [thumbnail]
-      }
-    })
-
-    return thread
-  }
-
-  /**
    * Processes manual file uploads and posts to the appropriate thread.
    */
   public static async postManualToForum(options: {
@@ -161,9 +127,11 @@ export class GalleryService {
     date?: string
     attachments: Attachment[]
     members: readonly string[]
-    isOtp: boolean
   }) {
-    const { guild, user, date, attachments, members, isOtp } = options
+    const { guild, user, date, attachments, members } = options
+
+    const isAllMembers = members.length === MEMBER_ARRAY.length
+    const isOtp = members.length > 1 && !isAllMembers
 
     // 1. Get Guild Config
     const config = await SettingRepository.find(guild.id)
@@ -183,17 +151,31 @@ export class GalleryService {
     }
 
     // 2. Determine Thread Name
-    const threadName = isOtp
-      ? [...members].sort().join(' x ')
-      : members[0] || 'NMIXX'
+    const threadName = isAllMembers
+      ? 'NMIXX'
+      : isOtp
+        ? [...members].sort().join(' x ')
+        : members[0] || 'NMIXX'
 
     // 3. Find Thread (MUST EXIST)
-    const thread = await this.findThread(forum, threadName)
+    let thread = await this.findThread(forum, threadName)
 
     if (!thread) {
-      throw new NormalError(
-        `Bộ sưu tập **${threadName}** chưa được khởi tạo. Vui lòng nhấn nút **Tạo bộ sưu tập** trước.`
+      const firstImage = attachments.find((a) =>
+        a.contentType?.startsWith('image/')
       )
+      if (!firstImage) {
+        throw new NormalError(
+          `Bộ sưu tập **${threadName}** chưa tồn tại. Để tự tạo nhóm mới, bài đăng đầu tiên bắt buộc phải chứa ít nhất một hình ảnh để làm ảnh đại diện (bài này chỉ tải lên video/tệp khác).`
+        )
+      }
+
+      thread = await forum.threads.create({
+        name: threadName,
+        message: {
+          files: [firstImage.url]
+        }
+      })
     }
 
     // 4. Post Media to Thread

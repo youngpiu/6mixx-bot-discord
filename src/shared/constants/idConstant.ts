@@ -165,15 +165,12 @@ export const CUSTOM_ID = {
   MODAL_NMIXX_POST_X: 'modal-nmixx-post-x',
   BTN_NMIXX_POST_MANUAL: 'btn-nmixx-post-manual',
   MODAL_NMIXX_POST_MANUAL: 'modal-nmixx-post-manual',
-  BTN_NMIXX_POST_COLLECTION: 'btn-nmixx-post-collection',
-  MODAL_NMIXX_POST_COLLECTION: 'modal-nmixx-post-collection',
   INPUT_NMIXX_TWEET_URL: 'input-tweet-url',
   SELECT_NMIXX_MEMBER_SINGLE: 'select-nmixx-member-single',
   SELECT_NMIXX_MEMBER_OTP: 'select-nmixx-member-otp',
   INPUT_NMIXX_MANUAL_USER: 'input-nmixx-manual-user',
   INPUT_NMIXX_MANUAL_DATE: 'input-nmixx-manual-date',
   UPLOAD_NMIXX_MANUAL_MEDIA: 'upload-nmixx-manual-media',
-  INPUT_NMIXX_COLLECTION_THUMBNAIL: 'input-nmixx-collection-thumbnail',
 
   // Nmixx Music Quiz Settings
   BTN_SETTING_NMIXX_QUIZ: 'btn-setting-nmixx-quiz',

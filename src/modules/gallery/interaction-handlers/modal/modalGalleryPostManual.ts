@@ -50,15 +50,12 @@ export class ModalGalleryPostManual extends InteractionHandler {
       ? Array.from(attachmentCollection.values())
       : []
 
-    const isOtp = members.length > 1
-
     const thread = await GalleryService.postManualToForum({
       guild: interaction.guild!,
       user,
       date: dateStr || undefined,
       attachments,
-      members,
-      isOtp
+      members
     })
 
     await InteractionUtil.replySuccess(

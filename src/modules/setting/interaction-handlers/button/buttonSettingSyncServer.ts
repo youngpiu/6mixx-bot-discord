@@ -500,11 +500,7 @@ export class ButtonSettingSyncServer extends InteractionHandler {
           new ButtonBuilder()
             .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_MANUAL)
             .setLabel('Đăng thủ công')
-            .setStyle(ButtonStyle.Danger),
-          new ButtonBuilder()
-            .setCustomId(CUSTOM_ID.BTN_NMIXX_POST_COLLECTION)
-            .setLabel('Tạo bộ sưu tập')
-            .setStyle(ButtonStyle.Secondary)
+            .setStyle(ButtonStyle.Danger)
         )
       )
   }

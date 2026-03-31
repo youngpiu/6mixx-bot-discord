@@ -31,13 +31,10 @@ export class ModalGalleryPostX extends InteractionHandler {
       CUSTOM_ID.INPUT_NMIXX_TWEET_URL
     )
 
-    const isOtp = members.length > 1
-
     const thread = await GalleryService.postToForum({
       guild: interaction.guild!,
       url,
-      members,
-      isOtp
+      members
     })
 
     await InteractionUtil.replySuccess(
