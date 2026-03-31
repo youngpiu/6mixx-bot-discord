@@ -2,6 +2,7 @@ import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js'
 
+import { NotificationInstagramCommand } from '~/modules/notification/commands/_notificationInstagramCommand'
 import { NotificationTwitterCommand } from '~/modules/notification/commands/_notificationTwitterCommand'
 import { NotificationYouTubeCommand } from '~/modules/notification/commands/_notificationYouTubeCommand'
 
@@ -18,6 +19,11 @@ import { NotificationYouTubeCommand } from '~/modules/notification/commands/_not
         .setName('twitter')
         .setDescription('Đăng bài từ X/Twitter qua webhook.')
     )
+    .addSubcommand((sub) =>
+      sub
+        .setName('instagram')
+        .setDescription('Đăng bài từ Instagram qua webhook.')
+    )
 )
 @ApplyOptions<Subcommand.Options>({
   name: 'notification',
@@ -31,6 +37,10 @@ import { NotificationYouTubeCommand } from '~/modules/notification/commands/_not
     {
       name: 'twitter',
       chatInputRun: 'chatInputTwitter'
+    },
+    {
+      name: 'instagram',
+      chatInputRun: 'chatInputInstagram'
     }
   ]
 })
@@ -41,5 +51,9 @@ export class NotificationSubcommand extends Subcommand {
 
   public async chatInputTwitter(interaction: ChatInputCommandInteraction) {
     return NotificationTwitterCommand.run(interaction)
+  }
+
+  public async chatInputInstagram(interaction: ChatInputCommandInteraction) {
+    return NotificationInstagramCommand.run(interaction)
   }
 }

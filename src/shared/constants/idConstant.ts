@@ -198,12 +198,24 @@ export const CUSTOM_ID = {
   SELECT_SETTING_TWITTER_CHANNEL: 'select-setting-twitter-channel',
   SELECT_SETTING_TWITTER_ROLE: 'select-setting-twitter-role',
   SELECT_SETTING_TWITTER_ALLOWED_ROLES: 'select-setting-twitter-allowed-roles',
+  // Instagram Module Settings
+  BTN_SETTING_INSTAGRAM_MODULE: 'btn-setting-instagram-module',
+  MODAL_SETTING_INSTAGRAM_MODULE: 'modal-setting-instagram-module',
+  SELECT_SETTING_INSTAGRAM_CHANNEL: 'select-setting-instagram-channel',
+  SELECT_SETTING_INSTAGRAM_ROLE: 'select-setting-instagram-role',
+  SELECT_SETTING_INSTAGRAM_ALLOWED_ROLES:
+    'select-setting-instagram-allowed-roles',
 
   // Twitter Command Modal
   MODAL_TWITTER: 'modal-twitter',
   INPUT_TWITTER_URL: 'input-twitter-url',
   SELECT_TWITTER_MEMBER: 'select-twitter-member',
   INPUT_TWITTER_DESC: 'input-twitter-desc',
+  // Instagram Command Modal
+  MODAL_INSTAGRAM: 'modal-instagram',
+  INPUT_INSTAGRAM_URL: 'input-instagram-url',
+  SELECT_INSTAGRAM_MEMBER: 'select-instagram-member',
+  INPUT_INSTAGRAM_DESC: 'input-instagram-desc',
   // YouTube Command Modal
   MODAL_YOUTUBE: 'modal-youtube',
   INPUT_YOUTUBE_URL: 'input-youtube-url',

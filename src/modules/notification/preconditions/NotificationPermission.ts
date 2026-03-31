@@ -25,7 +25,9 @@ export class NotificationPermissionPrecondition extends Precondition {
         ? guildConfig?.youtubeNotificationAllowedRoleIds || []
         : subcommand === 'twitter'
           ? guildConfig?.twitterNotificationAllowedRoleIds || []
-          : []
+          : subcommand === 'instagram'
+            ? guildConfig?.instagramNotificationAllowedRoleIds || []
+            : []
 
     if (allowedRoleIds.length > 0) {
       if (memberPermission || member.roles.cache.hasAny(...allowedRoleIds)) {
