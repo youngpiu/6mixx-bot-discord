@@ -178,7 +178,7 @@ export class ModalNotificationWeNmixxHandler extends InteractionHandler {
 
       await WebhookNotificationService.send({
         webhookClient,
-        title: `\`${cleanText}\``,
+        title: `\`\`\`${cleanText}\`\`\``,
         sourceUrl: url,
         username: webhook.name,
         avatarURL: webhook.avatarURL() || undefined,
