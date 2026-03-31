@@ -65,7 +65,7 @@ export class ModalNotificationTwitterHandler extends InteractionHandler {
     }
 
     const guildConfig = await SettingRepository.find(interaction.guild!.id)
-    if (!guildConfig || !guildConfig.twitterNotificationChannelId) {
+    if (!guildConfig || !guildConfig.snsTwitterPostChannelId) {
       return InteractionUtil.replyError(
         interaction,
         'Chưa cài đặt kênh thông báo Twitter. Vui lòng dùng lệnh `/setting` để cài đặt.'
@@ -73,7 +73,7 @@ export class ModalNotificationTwitterHandler extends InteractionHandler {
     }
 
     const channel = (await interaction.guild!.channels.fetch(
-      guildConfig.twitterNotificationChannelId
+      guildConfig.snsTwitterPostChannelId
     )) as TextChannel | null
 
     if (!channel || !channel.isTextBased()) {
@@ -193,7 +193,7 @@ export class ModalNotificationTwitterHandler extends InteractionHandler {
         sourceUrl: url,
         username: webhook.name,
         avatarURL: webhook.avatarURL() || undefined,
-        roleId: guildConfig.twitterNotificationRoleId,
+        roleId: guildConfig.snsTwitterRoleId,
         files,
         linkLabel: 'Xem trên X'
       })

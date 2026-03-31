@@ -3,7 +3,7 @@ import {
   InteractionHandler,
   InteractionHandlerTypes
 } from '@sapphire/framework'
-import { ModalSubmitInteraction, channelMention, roleMention } from 'discord.js'
+import { ModalSubmitInteraction, roleMention } from 'discord.js'
 
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { SettingRepository } from '~/shared/repositories/settingRepository'
@@ -15,7 +15,7 @@ import { formatFields } from '~/shared/utils/textUtil'
 })
 export class ModalTwitterModuleSetting extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
-    if (interaction.customId !== CUSTOM_ID.MODAL_SETTING_TWITTER_MODULE)
+    if (interaction.customId !== CUSTOM_ID.MODAL_SETTING_SNS_NOTIFICATION_ROLES)
       return this.none()
     return this.some()
   }
@@ -24,52 +24,55 @@ export class ModalTwitterModuleSetting extends InteractionHandler {
     await interaction.deferReply({ flags: ['Ephemeral'] })
     if (!interaction.guild) return
 
-    const twitterNotificationChannelId = interaction.fields
-      .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_TWITTER_CHANNEL)
+    const snsYouTubeRoleId = interaction.fields
+      .getSelectedRoles(CUSTOM_ID.SELECT_SETTING_SNS_YOUTUBE_ROLE)
       ?.first()?.id
 
-    const twitterNotificationRoleId = interaction.fields
-      .getSelectedRoles(CUSTOM_ID.SELECT_SETTING_TWITTER_ROLE)
+    const snsTwitterRoleId = interaction.fields
+      .getSelectedRoles(CUSTOM_ID.SELECT_SETTING_SNS_TWITTER_ROLE)
       ?.first()?.id
 
-    const twitterNotificationAllowedRoleIds =
+    const snsInstagramRoleId = interaction.fields
+      .getSelectedRoles(CUSTOM_ID.SELECT_SETTING_SNS_INSTAGRAM_ROLE)
+      ?.first()?.id
+
+    const snsAllowedRoleIds =
       interaction.fields
-        .getSelectedRoles(CUSTOM_ID.SELECT_SETTING_TWITTER_ALLOWED_ROLES)
+        .getSelectedRoles(CUSTOM_ID.SELECT_SETTING_SNS_ALLOWED_ROLES)
         ?.map((role) => role?.id)
         .filter((id): id is string => !!id) || []
 
     await SettingRepository.update(interaction.guild.id, {
-      twitterNotificationChannelId,
-      twitterNotificationRoleId,
-      twitterNotificationAllowedRoleIds
+      snsYouTubeRoleId,
+      snsTwitterRoleId,
+      snsInstagramRoleId,
+      snsAllowedRoleIds
     })
 
     const formattedFields = formatFields([
       [
-        'Kênh thông báo Twitter',
-        twitterNotificationChannelId
-          ? channelMention(twitterNotificationChannelId)
-          : 'Không có'
+        'Role ping thông báo YouTube',
+        snsYouTubeRoleId ? roleMention(snsYouTubeRoleId) : 'Không có'
       ],
       [
-        'Role ping thông báo',
-        twitterNotificationRoleId
-          ? roleMention(twitterNotificationRoleId)
-          : 'Không có'
+        'Role ping thông báo Twitter',
+        snsTwitterRoleId ? roleMention(snsTwitterRoleId) : 'Không có'
       ],
       [
-        'Role được phép dùng lệnh',
-        twitterNotificationAllowedRoleIds.length > 0
-          ? twitterNotificationAllowedRoleIds
-              .map((id) => roleMention(id))
-              .join(', ')
-          : 'Mặc định (Admin)'
+        'Role ping thông báo Instagram',
+        snsInstagramRoleId ? roleMention(snsInstagramRoleId) : 'Không có'
+      ],
+      [
+        'Role được phép dùng lệnh notification',
+        snsAllowedRoleIds.length > 0
+          ? snsAllowedRoleIds.map((id) => roleMention(id)).join(', ')
+          : 'Không có'
       ]
     ]).join('\n')
 
     await InteractionUtil.replySuccess(
       interaction,
-      'Cập nhật module Twitter thành công.',
+      'Cập nhật vai trò tính năng thông báo SNS thành công.',
       formattedFields
     )
   }

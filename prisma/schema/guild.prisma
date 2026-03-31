@@ -71,21 +71,15 @@ model GuildSetting {
   nmixxQuizAnswerChannelId   String?
   nmixxQuizVoiceChannelId    String?
 
-  /// --- Youtube Notification Config ---
-  youtubeNotificationListenChannelId String?
-  youtubeNotificationPostChannelId   String?
-  youtubeNotificationRoleId           String?
-  youtubeNotificationAllowedRoleIds   String[] @default([])
-
-  /// --- Twitter Config ---
-  twitterNotificationChannelId      String?
-  twitterNotificationRoleId         String?
-  twitterNotificationAllowedRoleIds String[] @default([])
-
-  /// --- Instagram Config ---
-  instagramNotificationChannelId      String?
-  instagramNotificationRoleId         String?
-  instagramNotificationAllowedRoleIds String[] @default([])
+  /// --- SNS Notification Config ---
+  snsYouTubeListenChannelId String?
+  snsYouTubePostChannelId   String?
+  snsTwitterPostChannelId   String?
+  snsInstagramPostChannelId String?
+  snsYouTubeRoleId          String?
+  snsTwitterRoleId          String?
+  snsInstagramRoleId        String?
+  snsAllowedRoleIds         String[] @default([])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -17,20 +17,18 @@ export class NotificationPermissionPrecondition extends Precondition {
     if (!subcommand) return this.ok()
 
     const guildConfig = await SettingRepository.find(interaction.guildId)
-    const memberPermission = interaction.memberPermissions?.has('Administrator')
+    const isOwner = interaction.guild?.ownerId === interaction.user.id
     const member = interaction.member as GuildMember
 
     const allowedRoleIds =
-      subcommand === 'youtube'
-        ? guildConfig?.youtubeNotificationAllowedRoleIds || []
-        : subcommand === 'twitter'
-          ? guildConfig?.twitterNotificationAllowedRoleIds || []
-          : subcommand === 'instagram'
-            ? guildConfig?.instagramNotificationAllowedRoleIds || []
-            : []
+      subcommand === 'youtube' ||
+      subcommand === 'twitter' ||
+      subcommand === 'instagram'
+        ? guildConfig?.snsAllowedRoleIds || []
+        : []
 
     if (allowedRoleIds.length > 0) {
-      if (memberPermission || member.roles.cache.hasAny(...allowedRoleIds)) {
+      if (isOwner || member.roles.cache.hasAny(...allowedRoleIds)) {
         return this.ok()
       }
 
@@ -41,12 +39,12 @@ export class NotificationPermissionPrecondition extends Precondition {
       })
     }
 
-    if (memberPermission) {
+    if (isOwner) {
       return this.ok()
     }
 
     return this.error({
-      message: 'Bạn không có quyền sử dụng lệnh này (Yêu cầu Administrator).',
+      message: 'Bạn không có quyền sử dụng lệnh này (Yêu cầu Owner).',
       identifier: Identifiers.PreconditionUserPermissions,
       context: { isCustomMessage: true }
     })

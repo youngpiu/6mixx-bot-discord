@@ -183,28 +183,25 @@ export const CUSTOM_ID = {
   MUSIC_QUIZ_TOP_PREFIX: 'music-quiz-top:',
   MUSIC_QUIZ_SONGS_PREFIX: 'music-quiz-songs:',
 
-  // Youtube Notification Settings
-  BTN_SETTING_YOUTUBE_NOTIFICATION: 'btn-setting-youtube-notification',
-  MODAL_SETTING_YOUTUBE_NOTIFICATION: 'modal-setting-youtube-notification',
-  SELECT_SETTING_YOUTUBE_LISTEN_CHANNEL:
-    'select-setting-youtube-listen-channel',
-  SELECT_SETTING_YOUTUBE_POST_CHANNEL: 'select-setting-youtube-post-channel',
-  SELECT_SETTING_YOUTUBE_ROLE: 'select-setting-youtube-role',
-  SELECT_SETTING_YOUTUBE_ALLOWED_ROLES: 'select-setting-youtube-allowed-roles',
-
-  // Twitter Module Settings
-  BTN_SETTING_TWITTER_MODULE: 'btn-setting-twitter-module',
-  MODAL_SETTING_TWITTER_MODULE: 'modal-setting-twitter-module',
-  SELECT_SETTING_TWITTER_CHANNEL: 'select-setting-twitter-channel',
-  SELECT_SETTING_TWITTER_ROLE: 'select-setting-twitter-role',
-  SELECT_SETTING_TWITTER_ALLOWED_ROLES: 'select-setting-twitter-allowed-roles',
-  // Instagram Module Settings
-  BTN_SETTING_INSTAGRAM_MODULE: 'btn-setting-instagram-module',
-  MODAL_SETTING_INSTAGRAM_MODULE: 'modal-setting-instagram-module',
-  SELECT_SETTING_INSTAGRAM_CHANNEL: 'select-setting-instagram-channel',
-  SELECT_SETTING_INSTAGRAM_ROLE: 'select-setting-instagram-role',
-  SELECT_SETTING_INSTAGRAM_ALLOWED_ROLES:
-    'select-setting-instagram-allowed-roles',
+  // SNS Notification Settings
+  BTN_SETTING_SNS_NOTIFICATION_ROLES: 'btn-setting-sns-notification-roles',
+  BTN_SETTING_SNS_NOTIFICATION_CHANNELS:
+    'btn-setting-sns-notification-channels',
+  MODAL_SETTING_SNS_NOTIFICATION_ROLES: 'modal-setting-sns-notification-roles',
+  MODAL_SETTING_SNS_NOTIFICATION_CHANNELS:
+    'modal-setting-sns-notification-channels',
+  SELECT_SETTING_SNS_YOUTUBE_ROLE: 'select-setting-sns-youtube-role',
+  SELECT_SETTING_SNS_TWITTER_ROLE: 'select-setting-sns-twitter-role',
+  SELECT_SETTING_SNS_INSTAGRAM_ROLE: 'select-setting-sns-instagram-role',
+  SELECT_SETTING_SNS_ALLOWED_ROLES: 'select-setting-sns-allowed-roles',
+  SELECT_SETTING_SNS_YOUTUBE_LISTEN_CHANNEL:
+    'select-setting-sns-youtube-listen-channel',
+  SELECT_SETTING_SNS_YOUTUBE_POST_CHANNEL:
+    'select-setting-sns-youtube-post-channel',
+  SELECT_SETTING_SNS_TWITTER_POST_CHANNEL:
+    'select-setting-sns-twitter-post-channel',
+  SELECT_SETTING_SNS_INSTAGRAM_POST_CHANNEL:
+    'select-setting-sns-instagram-post-channel',
 
   // Twitter Command Modal
   MODAL_TWITTER: 'modal-twitter',

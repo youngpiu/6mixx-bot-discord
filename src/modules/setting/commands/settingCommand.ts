@@ -111,24 +111,16 @@ export class SettingCommand extends Command {
       .addActionRowComponents((row) =>
         row.addComponents(
           new ButtonBuilder()
-            .setCustomId(CUSTOM_ID.BTN_SETTING_YOUTUBE_NOTIFICATION)
-            .setLabel('Cài đặt hệ thống thông báo Youtube')
+            .setCustomId(CUSTOM_ID.BTN_SETTING_SNS_NOTIFICATION_ROLES)
+            .setLabel('Cài đặt vai trò tính năng thông báo SNS')
             .setStyle(ButtonStyle.Secondary)
         )
       )
       .addActionRowComponents((row) =>
         row.addComponents(
           new ButtonBuilder()
-            .setCustomId(CUSTOM_ID.BTN_SETTING_TWITTER_MODULE)
-            .setLabel('Cài đặt module Twitter')
-            .setStyle(ButtonStyle.Secondary)
-        )
-      )
-      .addActionRowComponents((row) =>
-        row.addComponents(
-          new ButtonBuilder()
-            .setCustomId(CUSTOM_ID.BTN_SETTING_INSTAGRAM_MODULE)
-            .setLabel('Cài đặt module Instagram')
+            .setCustomId(CUSTOM_ID.BTN_SETTING_SNS_NOTIFICATION_CHANNELS)
+            .setLabel('Cài đặt kênh tính năng thông báo SNS')
             .setStyle(ButtonStyle.Secondary)
         )
       )

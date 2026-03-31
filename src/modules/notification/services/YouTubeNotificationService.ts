@@ -135,7 +135,7 @@ export class YouTubeNotificationService {
     overrideTitle?: string
   ): Promise<boolean> {
     const guildConfig = await SettingRepository.find(guildId)
-    if (!guildConfig || !guildConfig.youtubeNotificationPostChannelId) {
+    if (!guildConfig || !guildConfig.snsYouTubePostChannelId) {
       return false
     }
 
@@ -158,7 +158,7 @@ export class YouTubeNotificationService {
       // 3. Prepare notification channel
       const guild = await container.client.guilds.fetch(guildId)
       const postChannel = (await guild.channels.fetch(
-        guildConfig.youtubeNotificationPostChannelId
+        guildConfig.snsYouTubePostChannelId
       )) as TextChannel
 
       if (!postChannel || !postChannel.isTextBased()) return false
@@ -248,7 +248,7 @@ export class YouTubeNotificationService {
         sourceUrl: `https://youtu.be/${videoId}`,
         username: channelTitle,
         avatarURL: avatarUrl || undefined,
-        roleId: guildConfig.youtubeNotificationRoleId,
+        roleId: guildConfig.snsYouTubeRoleId,
         files,
         linkLabel: 'Xem trên YouTube'
       })

@@ -3,7 +3,7 @@ import {
   InteractionHandler,
   InteractionHandlerTypes
 } from '@sapphire/framework'
-import { ModalSubmitInteraction, channelMention, roleMention } from 'discord.js'
+import { ModalSubmitInteraction, channelMention } from 'discord.js'
 
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { SettingRepository } from '~/shared/repositories/settingRepository'
@@ -15,7 +15,9 @@ import { formatFields } from '~/shared/utils/textUtil'
 })
 export class ModalYouTubeNotificationSetting extends InteractionHandler {
   public override parse(interaction: ModalSubmitInteraction) {
-    if (interaction.customId !== CUSTOM_ID.MODAL_SETTING_YOUTUBE_NOTIFICATION)
+    if (
+      interaction.customId !== CUSTOM_ID.MODAL_SETTING_SNS_NOTIFICATION_CHANNELS
+    )
       return this.none()
     return this.some()
   }
@@ -24,63 +26,59 @@ export class ModalYouTubeNotificationSetting extends InteractionHandler {
     await interaction.deferReply({ flags: ['Ephemeral'] })
     if (!interaction.guild) return
 
-    const youtubeNotificationListenChannelId = interaction.fields
-      .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_YOUTUBE_LISTEN_CHANNEL)
+    const snsYouTubeListenChannelId = interaction.fields
+      .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_SNS_YOUTUBE_LISTEN_CHANNEL)
       ?.first()?.id
 
-    const youtubeNotificationPostChannelId = interaction.fields
-      .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_YOUTUBE_POST_CHANNEL)
+    const snsYouTubePostChannelId = interaction.fields
+      .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_SNS_YOUTUBE_POST_CHANNEL)
       ?.first()?.id
 
-    const youtubeNotificationRoleId = interaction.fields
-      .getSelectedRoles(CUSTOM_ID.SELECT_SETTING_YOUTUBE_ROLE)
+    const snsTwitterPostChannelId = interaction.fields
+      .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_SNS_TWITTER_POST_CHANNEL)
       ?.first()?.id
 
-    const youtubeNotificationAllowedRoleIds =
-      interaction.fields
-        .getSelectedRoles(CUSTOM_ID.SELECT_SETTING_YOUTUBE_ALLOWED_ROLES)
-        ?.filter((role) => !!role)
-        .map((role) => role!.id) || []
+    const snsInstagramPostChannelId = interaction.fields
+      .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_SNS_INSTAGRAM_POST_CHANNEL)
+      ?.first()?.id
 
     await SettingRepository.update(interaction.guild.id, {
-      youtubeNotificationListenChannelId,
-      youtubeNotificationPostChannelId,
-      youtubeNotificationRoleId,
-      youtubeNotificationAllowedRoleIds
+      snsYouTubeListenChannelId,
+      snsYouTubePostChannelId,
+      snsTwitterPostChannelId,
+      snsInstagramPostChannelId
     })
 
     const formattedFields = formatFields([
       [
         'Kênh nhận link',
-        youtubeNotificationListenChannelId
-          ? channelMention(youtubeNotificationListenChannelId)
+        snsYouTubeListenChannelId
+          ? channelMention(snsYouTubeListenChannelId)
           : 'Không có'
       ],
       [
-        'Kênh phát thông báo',
-        youtubeNotificationPostChannelId
-          ? channelMention(youtubeNotificationPostChannelId)
+        'Kênh phát thông báo YouTube',
+        snsYouTubePostChannelId
+          ? channelMention(snsYouTubePostChannelId)
           : 'Không có'
       ],
       [
-        'Role để ping',
-        youtubeNotificationRoleId
-          ? roleMention(youtubeNotificationRoleId)
+        'Kênh phát thông báo Twitter',
+        snsTwitterPostChannelId
+          ? channelMention(snsTwitterPostChannelId)
           : 'Không có'
       ],
       [
-        'Role được phép gửi link',
-        youtubeNotificationAllowedRoleIds.length > 0
-          ? youtubeNotificationAllowedRoleIds
-              .map((id) => roleMention(id))
-              .join(', ')
-          : 'Cho phép tất cả'
+        'Kênh phát thông báo Instagram',
+        snsInstagramPostChannelId
+          ? channelMention(snsInstagramPostChannelId)
+          : 'Không có'
       ]
     ]).join('\n')
 
     await InteractionUtil.replySuccess(
       interaction,
-      'Cập nhật cấu hình thông báo Youtube thành công.',
+      'Cập nhật kênh tính năng thông báo SNS thành công.',
       formattedFields
     )
   }

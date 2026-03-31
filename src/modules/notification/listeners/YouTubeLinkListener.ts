@@ -17,13 +17,13 @@ export class YouTubeLinkListener extends Listener {
     const guildConfig = await SettingRepository.find(message.guild.id)
     if (
       !guildConfig ||
-      !guildConfig.youtubeNotificationListenChannelId ||
-      !guildConfig.youtubeNotificationPostChannelId
+      !guildConfig.snsYouTubeListenChannelId ||
+      !guildConfig.snsYouTubePostChannelId
     ) {
       return
     }
 
-    if (message.channel.id !== guildConfig.youtubeNotificationListenChannelId) {
+    if (message.channel.id !== guildConfig.snsYouTubeListenChannelId) {
       return
     }
 
@@ -38,11 +38,9 @@ export class YouTubeLinkListener extends Listener {
     // Role restriction check - bypass for other bots
     if (
       !message.author.bot &&
-      guildConfig.youtubeNotificationAllowedRoleIds.length > 0 &&
+      guildConfig.snsAllowedRoleIds.length > 0 &&
       (!message.member ||
-        !message.member.roles.cache.hasAny(
-          ...guildConfig.youtubeNotificationAllowedRoleIds
-        ))
+        !message.member.roles.cache.hasAny(...guildConfig.snsAllowedRoleIds))
     ) {
       return
     }

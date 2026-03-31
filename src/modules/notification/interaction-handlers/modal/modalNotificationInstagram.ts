@@ -92,7 +92,7 @@ export class ModalNotificationInstagramHandler extends InteractionHandler {
     }
 
     const guildConfig = await SettingRepository.find(interaction.guild!.id)
-    if (!guildConfig || !guildConfig.instagramNotificationChannelId) {
+    if (!guildConfig || !guildConfig.snsInstagramPostChannelId) {
       return InteractionUtil.replyError(
         interaction,
         'Chưa cài đặt kênh thông báo Instagram. Vui lòng dùng lệnh `/setting` để cài đặt.'
@@ -100,7 +100,7 @@ export class ModalNotificationInstagramHandler extends InteractionHandler {
     }
 
     const channel = (await interaction.guild!.channels.fetch(
-      guildConfig.instagramNotificationChannelId
+      guildConfig.snsInstagramPostChannelId
     )) as TextChannel | null
 
     if (!channel || !channel.isTextBased()) {
@@ -223,7 +223,7 @@ export class ModalNotificationInstagramHandler extends InteractionHandler {
         sourceUrl: igData.url,
         username: webhook.name,
         avatarURL: webhook.avatarURL() || undefined,
-        roleId: guildConfig.instagramNotificationRoleId,
+        roleId: guildConfig.snsInstagramRoleId,
         files,
         linkLabel: 'Xem trên Instagram'
       })
