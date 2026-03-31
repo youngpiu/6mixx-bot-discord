@@ -9,15 +9,7 @@ import {
 } from 'discord.js'
 
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
-
-const MEMBERS = [
-  'Haewon',
-  'Lily',
-  'Sullyoon',
-  'Bae',
-  'Jiwoo',
-  'Kyujin'
-] as const
+import { MEMBER_ARRAY } from '~/shared/constants/name'
 
 export class NotificationWeNmixxCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
@@ -42,7 +34,7 @@ export class NotificationWeNmixxCommand {
       .setPlaceholder('Chọn thành viên NMIXX')
       .setRequired(true)
       .addOptions(
-        ...MEMBERS.map((m) =>
+        ...MEMBER_ARRAY.map((m) =>
           new StringSelectMenuOptionBuilder().setLabel(m).setValue(m)
         )
       )

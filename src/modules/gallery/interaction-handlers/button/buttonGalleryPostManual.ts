@@ -9,12 +9,13 @@ import {
   LabelBuilder,
   ModalBuilder,
   StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
   TextInputBuilder,
   TextInputStyle
 } from 'discord.js'
 
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
-import { NMIXX_MEMBERS } from '~/shared/constants/nmixxConstant'
+import { MEMBER_ARRAY } from '~/shared/constants/name'
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button
@@ -66,9 +67,15 @@ export class ButtonGalleryPostManual extends InteractionHandler {
     const memberSelect = new StringSelectMenuBuilder()
       .setCustomId(CUSTOM_ID.SELECT_NMIXX_MEMBER_OTP)
       .setPlaceholder('Chọn một hoặc nhiều thành viên')
-      .addOptions(NMIXX_MEMBERS)
+      .addOptions(
+        ...MEMBER_ARRAY.map((m) =>
+          new StringSelectMenuOptionBuilder()
+            .setLabel(m.toUpperCase())
+            .setValue(m.toUpperCase())
+        )
+      )
       .setMinValues(1)
-      .setMaxValues(NMIXX_MEMBERS.length)
+      .setMaxValues(MEMBER_ARRAY.length)
 
     const memberLabel = new LabelBuilder()
       .setLabel('Thành viên')
