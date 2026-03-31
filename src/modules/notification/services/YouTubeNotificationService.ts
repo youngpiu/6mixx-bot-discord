@@ -1,5 +1,7 @@
 import { container } from '@sapphire/pieces'
 import { AttachmentBuilder, TextChannel, WebhookClient } from 'discord.js'
+import { readFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
 import sharp from 'sharp'
 
 import { SettingRepository } from '~/shared/repositories/settingRepository'
@@ -8,6 +10,52 @@ import { WebhookNotificationService } from '~/modules/notification/services/Webh
 import { YouTubeService } from '~/modules/notification/services/YouTubeService'
 
 export class YouTubeNotificationService {
+  private static shortLogoBufferPromise: Promise<Buffer> | null = null
+
+  private static async getShortLogoBuffer(): Promise<Buffer> {
+    if (!this.shortLogoBufferPromise) {
+      const logoPath = resolve(process.cwd(), 'data/images/short-logo.png')
+      this.shortLogoBufferPromise = readFile(logoPath)
+    }
+
+    return this.shortLogoBufferPromise
+  }
+
+  private static async addShortLogo(buffer: Buffer): Promise<Buffer> {
+    const metadata = await sharp(buffer).metadata()
+    if (!metadata.width || !metadata.height) return buffer
+
+    const width = metadata.width
+    const height = metadata.height
+    const padding = Math.max(2, Math.round(width * 0.03))
+    const logoWidth = Math.min(300, Math.max(75, Math.round(width * 0.3)))
+
+    const shortLogoBuffer = await this.getShortLogoBuffer()
+    const resizedLogoBuffer = await sharp(shortLogoBuffer)
+      .resize({ width: logoWidth, fit: 'inside' })
+      .png()
+      .toBuffer()
+
+    const resizedLogoMetadata = await sharp(resizedLogoBuffer).metadata()
+    const resizedLogoHeight = resizedLogoMetadata.height ?? logoWidth
+
+    const left = padding
+    const top = Math.max(0, Math.min(padding, height - resizedLogoHeight))
+
+    const result = await sharp(buffer)
+      .composite([
+        {
+          input: resizedLogoBuffer,
+          left,
+          top
+        }
+      ])
+      .jpeg({ quality: 95 })
+      .toBuffer()
+
+    return Buffer.from(result)
+  }
+
   /**
    * Detects if a video is a YouTube Short using the redirect trick.
    * Accessing /shorts/{id} for a Short → 200 (YouTube serves it there).
@@ -180,7 +228,7 @@ export class YouTubeNotificationService {
           // Crop strictly for Shorts to remove blurred pillars.
           // For standard videos, trim any homogeneous black letterboxing.
           const finalBuffer = short
-            ? await this.cropToShortRatio(rawBuffer)
+            ? await this.addShortLogo(await this.cropToShortRatio(rawBuffer))
             : await this.trimBlackBars(rawBuffer)
 
           files.push(
