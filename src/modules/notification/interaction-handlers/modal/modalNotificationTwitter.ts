@@ -20,7 +20,7 @@ import { WebhookNotificationService } from '~/modules/notification/services/Webh
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
 })
-export class ModalNotificationWeNmixxHandler extends InteractionHandler {
+export class ModalNotificationTwitterHandler extends InteractionHandler {
   private static readonly MEDIA_FETCH_RETRY = 3
   private static readonly MEDIA_FETCH_TIMEOUT_MS = 10_000
   private static readonly MEDIA_FETCH_RETRY_DELAY_MS = 700
@@ -30,7 +30,7 @@ export class ModalNotificationWeNmixxHandler extends InteractionHandler {
   }
 
   public override parse(interaction: ModalSubmitInteraction) {
-    if (interaction.customId !== CUSTOM_ID.MODAL_WE_NMIXX) {
+    if (interaction.customId !== CUSTOM_ID.MODAL_TWITTER) {
       return this.none()
     }
     return this.some()
@@ -42,16 +42,16 @@ export class ModalNotificationWeNmixxHandler extends InteractionHandler {
     })
 
     const url = interaction.fields
-      .getTextInputValue(CUSTOM_ID.INPUT_WE_NMIXX_URL)
+      .getTextInputValue(CUSTOM_ID.INPUT_TWITTER_URL)
       .trim()
     const member = interaction.fields.getStringSelectValues(
-      CUSTOM_ID.SELECT_WE_NMIXX_MEMBER
+      CUSTOM_ID.SELECT_TWITTER_MEMBER
     )[0]
 
     let translatedDescription: string | null = null
     try {
       translatedDescription = interaction.fields.getTextInputValue(
-        CUSTOM_ID.INPUT_WE_NMIXX_DESC
+        CUSTOM_ID.INPUT_TWITTER_DESC
       )
     } catch {
       // Optional field
@@ -65,15 +65,15 @@ export class ModalNotificationWeNmixxHandler extends InteractionHandler {
     }
 
     const guildConfig = await SettingRepository.find(interaction.guild!.id)
-    if (!guildConfig || !guildConfig.weNmixxNotificationChannelId) {
+    if (!guildConfig || !guildConfig.twitterNotificationChannelId) {
       return InteractionUtil.replyError(
         interaction,
-        'Chưa cài đặt kênh thông báo WE_NMIXX. Vui lòng dùng lệnh `/setting` để cài đặt.'
+        'Chưa cài đặt kênh thông báo Twitter. Vui lòng dùng lệnh `/setting` để cài đặt.'
       )
     }
 
     const channel = (await interaction.guild!.channels.fetch(
-      guildConfig.weNmixxNotificationChannelId
+      guildConfig.twitterNotificationChannelId
     )) as TextChannel | null
 
     if (!channel || !channel.isTextBased()) {
@@ -89,9 +89,20 @@ export class ModalNotificationWeNmixxHandler extends InteractionHandler {
     )
 
     if (!webhook) {
+      await channel.createWebhook({
+        name: member
+      })
+
       return InteractionUtil.replyError(
         interaction,
-        `Không tìm thấy webhook có tên **${member}** trong kênh ${channel}. Vui lòng tạo thủ công webhook có tên là \`${member}\` trong kênh đó.`
+        `Đã tự động tạo webhook **${member}**. Bạn cần cập nhật avatar cho webhook này trong phần Cài đặt kênh trước khi thực hiện gửi lại yêu cầu.`
+      )
+    }
+
+    if (!webhook.avatarURL()) {
+      return InteractionUtil.replyError(
+        interaction,
+        `Webhook **${member}** hiện đang thiếu avatar. Bạn cần cập nhật avatar cho webhook này để thông báo trông đẹp mắt nhất trước khi gửi lại bài.`
       )
     }
 
@@ -123,7 +134,7 @@ export class ModalNotificationWeNmixxHandler extends InteractionHandler {
 
         for (
           let attempt = 1;
-          attempt <= ModalNotificationWeNmixxHandler.MEDIA_FETCH_RETRY;
+          attempt <= ModalNotificationTwitterHandler.MEDIA_FETCH_RETRY;
           attempt++
         ) {
           try {
@@ -135,7 +146,7 @@ export class ModalNotificationWeNmixxHandler extends InteractionHandler {
                 Referer: 'https://x.com/'
               },
               signal: AbortSignal.timeout(
-                ModalNotificationWeNmixxHandler.MEDIA_FETCH_TIMEOUT_MS
+                ModalNotificationTwitterHandler.MEDIA_FETCH_TIMEOUT_MS
               )
             })
 
@@ -154,11 +165,11 @@ export class ModalNotificationWeNmixxHandler extends InteractionHandler {
           } catch (e) {
             lastErrorMessage = e instanceof Error ? e.message : String(e)
             this.container.logger.warn(
-              `[NotificationWeNmixx] Failed to fetch media ${m.url} (attempt ${attempt}/${ModalNotificationWeNmixxHandler.MEDIA_FETCH_RETRY}): ${lastErrorMessage}`
+              `[NotificationTwitter] Failed to fetch media ${m.url} (attempt ${attempt}/${ModalNotificationTwitterHandler.MEDIA_FETCH_RETRY}): ${lastErrorMessage}`
             )
-            if (attempt < ModalNotificationWeNmixxHandler.MEDIA_FETCH_RETRY) {
-              await ModalNotificationWeNmixxHandler.wait(
-                ModalNotificationWeNmixxHandler.MEDIA_FETCH_RETRY_DELAY_MS *
+            if (attempt < ModalNotificationTwitterHandler.MEDIA_FETCH_RETRY) {
+              await ModalNotificationTwitterHandler.wait(
+                ModalNotificationTwitterHandler.MEDIA_FETCH_RETRY_DELAY_MS *
                   attempt
               )
             }
@@ -167,7 +178,7 @@ export class ModalNotificationWeNmixxHandler extends InteractionHandler {
 
         if (!fetched) {
           this.container.logger.error(
-            `[NotificationWeNmixx] Failed to fetch required media after ${ModalNotificationWeNmixxHandler.MEDIA_FETCH_RETRY} attempts: ${m.url} (${lastErrorMessage})`
+            `[NotificationTwitter] Failed to fetch required media after ${ModalNotificationTwitterHandler.MEDIA_FETCH_RETRY} attempts: ${m.url} (${lastErrorMessage})`
           )
           return InteractionUtil.replyError(
             interaction,
@@ -178,11 +189,11 @@ export class ModalNotificationWeNmixxHandler extends InteractionHandler {
 
       await WebhookNotificationService.send({
         webhookClient,
-        title: `\`\`\`${cleanText}\`\`\``,
+        title: cleanText.trim() ? `\`\`\`${cleanText}\`\`\`` : '',
         sourceUrl: url,
         username: webhook.name,
         avatarURL: webhook.avatarURL() || undefined,
-        roleId: guildConfig.weNmixxNotificationRoleId,
+        roleId: guildConfig.twitterNotificationRoleId,
         files,
         linkLabel: 'Xem trên X'
       })
@@ -193,7 +204,7 @@ export class ModalNotificationWeNmixxHandler extends InteractionHandler {
       )
     } catch (error) {
       this.container.logger.error(
-        '[NotificationWeNmixx] Error sending webhook:',
+        '[NotificationTwitter] Error sending webhook:',
         error
       )
       return InteractionUtil.replyError(

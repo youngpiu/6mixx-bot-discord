@@ -24,8 +24,8 @@ export class WebhookNotificationService {
     const title = payload.title.trim()
     const rolePing = payload.roleId ? `${roleMention(payload.roleId)}\n` : ''
 
-    // Keep WE_NMIXX layout as canonical style for all notification sources.
-    const content = `**${title}**\n\n${rolePing}`.trim()
+    // Keep Twitter layout as canonical style for all notification sources.
+    const content = title ? `**${title}**\n${rolePing}`.trim() : rolePing.trim()
 
     const linkButton = new ButtonBuilder()
       .setLabel(payload.linkLabel)

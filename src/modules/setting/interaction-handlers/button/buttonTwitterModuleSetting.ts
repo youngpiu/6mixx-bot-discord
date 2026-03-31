@@ -34,29 +34,29 @@ export class ButtonTwitterModuleSetting extends InteractionHandler {
   ) {
     const { guildConfig } = result
 
-    const labelWeNmixxChannel = SettingHelper.createChannelLabel({
+    const labelTwitterChannel = SettingHelper.createChannelLabel({
       guild: interaction.guild!,
-      channelId: guildConfig?.weNmixxNotificationChannelId,
-      customId: CUSTOM_ID.SELECT_SETTING_WE_NMIXX_CHANNEL,
+      channelId: guildConfig?.twitterNotificationChannelId,
+      customId: CUSTOM_ID.SELECT_SETTING_TWITTER_CHANNEL,
       channelType: ChannelType.GuildAnnouncement,
-      label: 'Kênh thông báo WE_NMIXX',
+      label: 'Kênh thông báo Twitter',
       placeholders: {
-        channelConfiguredAndExists: 'Chọn kênh thông báo WE_NMIXX',
+        channelConfiguredAndExists: 'Chọn kênh thông báo Twitter',
         channelConfiguredButDeleted: 'Kênh đã thiết lập nhưng không tồn tại',
-        channelNotConfigured: 'Chưa thiết lập kênh thông báo WE_NMIXX',
+        channelNotConfigured: 'Chưa thiết lập kênh thông báo Twitter',
         noChannelsInServer: 'Không có kênh thông báo nào'
       }
     })
 
     const roleSelect = new RoleSelectMenuBuilder()
-      .setCustomId(CUSTOM_ID.SELECT_SETTING_WE_NMIXX_ROLE)
+      .setCustomId(CUSTOM_ID.SELECT_SETTING_TWITTER_ROLE)
       .setPlaceholder('Chọn role để ping thông báo...')
       .setMinValues(0)
       .setMaxValues(1)
       .setRequired(false)
 
-    if (guildConfig?.weNmixxNotificationRoleId) {
-      roleSelect.setDefaultRoles(guildConfig.weNmixxNotificationRoleId)
+    if (guildConfig?.twitterNotificationRoleId) {
+      roleSelect.setDefaultRoles(guildConfig.twitterNotificationRoleId)
     }
 
     const labelRole = new LabelBuilder()
@@ -64,15 +64,15 @@ export class ButtonTwitterModuleSetting extends InteractionHandler {
       .setRoleSelectMenuComponent(roleSelect)
 
     const allowedRolesSelect = new RoleSelectMenuBuilder()
-      .setCustomId(CUSTOM_ID.SELECT_SETTING_WE_NMIXX_ALLOWED_ROLES)
-      .setPlaceholder('Chọn role được phép dùng lệnh /notification we-nmixx...')
+      .setCustomId(CUSTOM_ID.SELECT_SETTING_TWITTER_ALLOWED_ROLES)
+      .setPlaceholder('Chọn role được phép dùng lệnh /notification twitter...')
       .setMinValues(0)
       .setMaxValues(25)
       .setRequired(false)
 
-    if (guildConfig?.weNmixxNotificationAllowedRoleIds?.length) {
+    if (guildConfig?.twitterNotificationAllowedRoleIds?.length) {
       allowedRolesSelect.setDefaultRoles(
-        ...guildConfig.weNmixxNotificationAllowedRoleIds
+        ...guildConfig.twitterNotificationAllowedRoleIds
       )
     }
 
@@ -83,7 +83,7 @@ export class ButtonTwitterModuleSetting extends InteractionHandler {
     const modal = new ModalBuilder()
       .setCustomId(CUSTOM_ID.MODAL_SETTING_TWITTER_MODULE)
       .setTitle('Cài đặt module Twitter')
-      .addLabelComponents(labelWeNmixxChannel, labelRole, labelAllowedRoles)
+      .addLabelComponents(labelTwitterChannel, labelRole, labelAllowedRoles)
 
     await interaction.showModal(modal)
   }

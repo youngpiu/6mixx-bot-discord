@@ -2,7 +2,7 @@ import { ApplyOptions, RegisterChatInputCommand } from '@sapphire/decorators'
 import { Subcommand } from '@sapphire/plugin-subcommands'
 import { ChatInputCommandInteraction, PermissionFlagsBits } from 'discord.js'
 
-import { NotificationWeNmixxCommand } from '~/modules/notification/commands/_notificationWeNmixxCommand'
+import { NotificationTwitterCommand } from '~/modules/notification/commands/_notificationTwitterCommand'
 import { NotificationYouTubeCommand } from '~/modules/notification/commands/_notificationYouTubeCommand'
 
 @RegisterChatInputCommand((builder) =>
@@ -15,10 +15,8 @@ import { NotificationYouTubeCommand } from '~/modules/notification/commands/_not
     )
     .addSubcommand((sub) =>
       sub
-        .setName('we-nmixx')
-        .setDescription(
-          'Đăng bài từ X/Twitter với webhook của thành viên WE_NMIXX.'
-        )
+        .setName('twitter')
+        .setDescription('Đăng bài từ X/Twitter qua webhook.')
     )
 )
 @ApplyOptions<Subcommand.Options>({
@@ -31,8 +29,8 @@ import { NotificationYouTubeCommand } from '~/modules/notification/commands/_not
       chatInputRun: 'chatInputYouTube'
     },
     {
-      name: 'we-nmixx',
-      chatInputRun: 'chatInputWeNmixx'
+      name: 'twitter',
+      chatInputRun: 'chatInputTwitter'
     }
   ]
 })
@@ -41,7 +39,7 @@ export class NotificationSubcommand extends Subcommand {
     return NotificationYouTubeCommand.run(interaction)
   }
 
-  public async chatInputWeNmixx(interaction: ChatInputCommandInteraction) {
-    return NotificationWeNmixxCommand.run(interaction)
+  public async chatInputTwitter(interaction: ChatInputCommandInteraction) {
+    return NotificationTwitterCommand.run(interaction)
   }
 }

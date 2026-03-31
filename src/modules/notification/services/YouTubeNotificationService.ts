@@ -205,7 +205,7 @@ export class YouTubeNotificationService {
         : isUpcoming
           ? '🔵 SẮP LIVE: '
           : '🔵 MỚI: '
-      const contentTitle = `\`\`\`${prefix}${title}\`\`\``
+      const contentTitle = title ? `\`\`\`${prefix}${title}\`\`\`` : ''
 
       // 6. Detect Short & fetch thumbnail
       const thumbnailUrl =

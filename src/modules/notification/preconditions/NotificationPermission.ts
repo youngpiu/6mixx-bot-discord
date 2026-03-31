@@ -23,8 +23,8 @@ export class NotificationPermissionPrecondition extends Precondition {
     const allowedRoleIds =
       subcommand === 'youtube'
         ? guildConfig?.youtubeNotificationAllowedRoleIds || []
-        : subcommand === 'we-nmixx'
-          ? guildConfig?.weNmixxNotificationAllowedRoleIds || []
+        : subcommand === 'twitter'
+          ? guildConfig?.twitterNotificationAllowedRoleIds || []
           : []
 
     if (allowedRoleIds.length > 0) {

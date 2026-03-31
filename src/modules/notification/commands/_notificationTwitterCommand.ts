@@ -9,20 +9,20 @@ import {
 } from 'discord.js'
 
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
-import { MEMBER_ARRAY } from '~/shared/constants/name'
+import { MEMBER_AND_NMIXX_ARRAY } from '~/shared/constants/name'
 
-export class NotificationWeNmixxCommand {
+export class NotificationTwitterCommand {
   public static async run(interaction: ChatInputCommandInteraction) {
     if (!interaction.guildId) return
 
     const modal = new ModalBuilder()
-      .setCustomId(CUSTOM_ID.MODAL_WE_NMIXX)
-      .setTitle('Đăng bài WE_NMIXX')
+      .setCustomId(CUSTOM_ID.MODAL_TWITTER)
+      .setTitle('Đăng bài Twitter')
 
     const urlInput = new TextInputBuilder()
-      .setCustomId(CUSTOM_ID.INPUT_WE_NMIXX_URL)
+      .setCustomId(CUSTOM_ID.INPUT_TWITTER_URL)
       .setStyle(TextInputStyle.Short)
-      .setPlaceholder('https://x.com/WE_NMIXX/status/...')
+      .setPlaceholder('https://x.com/.../status/...')
       .setRequired(true)
 
     const urlLabel = new LabelBuilder()
@@ -30,11 +30,11 @@ export class NotificationWeNmixxCommand {
       .setTextInputComponent(urlInput)
 
     const memberSelect = new StringSelectMenuBuilder()
-      .setCustomId(CUSTOM_ID.SELECT_WE_NMIXX_MEMBER)
+      .setCustomId(CUSTOM_ID.SELECT_TWITTER_MEMBER)
       .setPlaceholder('Chọn thành viên NMIXX')
       .setRequired(true)
       .addOptions(
-        ...MEMBER_ARRAY.map((m) =>
+        ...MEMBER_AND_NMIXX_ARRAY.map((m) =>
           new StringSelectMenuOptionBuilder().setLabel(m).setValue(m)
         )
       )
@@ -44,7 +44,7 @@ export class NotificationWeNmixxCommand {
       .setStringSelectMenuComponent(memberSelect)
 
     const descInput = new TextInputBuilder()
-      .setCustomId(CUSTOM_ID.INPUT_WE_NMIXX_DESC)
+      .setCustomId(CUSTOM_ID.INPUT_TWITTER_DESC)
       .setStyle(TextInputStyle.Paragraph)
       .setPlaceholder(
         'Nhập nội dung đã dịch để thay thế bài gốc (không bắt buộc)'

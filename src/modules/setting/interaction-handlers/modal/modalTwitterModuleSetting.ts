@@ -24,43 +24,43 @@ export class ModalTwitterModuleSetting extends InteractionHandler {
     await interaction.deferReply({ flags: ['Ephemeral'] })
     if (!interaction.guild) return
 
-    const weNmixxNotificationChannelId = interaction.fields
-      .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_WE_NMIXX_CHANNEL)
+    const twitterNotificationChannelId = interaction.fields
+      .getSelectedChannels(CUSTOM_ID.SELECT_SETTING_TWITTER_CHANNEL)
       ?.first()?.id
 
-    const weNmixxNotificationRoleId = interaction.fields
-      .getSelectedRoles(CUSTOM_ID.SELECT_SETTING_WE_NMIXX_ROLE)
+    const twitterNotificationRoleId = interaction.fields
+      .getSelectedRoles(CUSTOM_ID.SELECT_SETTING_TWITTER_ROLE)
       ?.first()?.id
 
-    const weNmixxNotificationAllowedRoleIds =
+    const twitterNotificationAllowedRoleIds =
       interaction.fields
-        .getSelectedRoles(CUSTOM_ID.SELECT_SETTING_WE_NMIXX_ALLOWED_ROLES)
+        .getSelectedRoles(CUSTOM_ID.SELECT_SETTING_TWITTER_ALLOWED_ROLES)
         ?.map((role) => role?.id)
         .filter((id): id is string => !!id) || []
 
     await SettingRepository.update(interaction.guild.id, {
-      weNmixxNotificationChannelId,
-      weNmixxNotificationRoleId,
-      weNmixxNotificationAllowedRoleIds
+      twitterNotificationChannelId,
+      twitterNotificationRoleId,
+      twitterNotificationAllowedRoleIds
     })
 
     const formattedFields = formatFields([
       [
-        'Kênh thông báo WE_NMIXX',
-        weNmixxNotificationChannelId
-          ? channelMention(weNmixxNotificationChannelId)
+        'Kênh thông báo Twitter',
+        twitterNotificationChannelId
+          ? channelMention(twitterNotificationChannelId)
           : 'Không có'
       ],
       [
         'Role ping thông báo',
-        weNmixxNotificationRoleId
-          ? roleMention(weNmixxNotificationRoleId)
+        twitterNotificationRoleId
+          ? roleMention(twitterNotificationRoleId)
           : 'Không có'
       ],
       [
         'Role được phép dùng lệnh',
-        weNmixxNotificationAllowedRoleIds.length > 0
-          ? weNmixxNotificationAllowedRoleIds
+        twitterNotificationAllowedRoleIds.length > 0
+          ? twitterNotificationAllowedRoleIds
               .map((id) => roleMention(id))
               .join(', ')
           : 'Mặc định (Admin)'

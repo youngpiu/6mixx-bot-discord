@@ -195,16 +195,15 @@ export const CUSTOM_ID = {
   // Twitter Module Settings
   BTN_SETTING_TWITTER_MODULE: 'btn-setting-twitter-module',
   MODAL_SETTING_TWITTER_MODULE: 'modal-setting-twitter-module',
-  SELECT_SETTING_WE_NMIXX_CHANNEL: 'select-setting-we-nmixx-channel',
-  SELECT_SETTING_WE_NMIXX_ROLE: 'select-setting-we-nmixx-role',
-  SELECT_SETTING_WE_NMIXX_ALLOWED_ROLES:
-    'select-setting-we-nmixx-allowed-roles',
+  SELECT_SETTING_TWITTER_CHANNEL: 'select-setting-twitter-channel',
+  SELECT_SETTING_TWITTER_ROLE: 'select-setting-twitter-role',
+  SELECT_SETTING_TWITTER_ALLOWED_ROLES: 'select-setting-twitter-allowed-roles',
 
-  // We Nmixx Command Modal
-  MODAL_WE_NMIXX: 'modal-we-nmixx',
-  INPUT_WE_NMIXX_URL: 'input-we-nmixx-url',
-  SELECT_WE_NMIXX_MEMBER: 'select-we-nmixx-member',
-  INPUT_WE_NMIXX_DESC: 'input-we-nmixx-desc',
+  // Twitter Command Modal
+  MODAL_TWITTER: 'modal-twitter',
+  INPUT_TWITTER_URL: 'input-twitter-url',
+  SELECT_TWITTER_MEMBER: 'select-twitter-member',
+  INPUT_TWITTER_DESC: 'input-twitter-desc',
   // YouTube Command Modal
   MODAL_YOUTUBE: 'modal-youtube',
   INPUT_YOUTUBE_URL: 'input-youtube-url',

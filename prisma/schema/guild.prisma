@@ -78,9 +78,9 @@ model GuildSetting {
   youtubeNotificationAllowedRoleIds   String[] @default([])
 
   /// --- Twitter Config ---
-  weNmixxNotificationChannelId      String?
-  weNmixxNotificationRoleId         String?
-  weNmixxNotificationAllowedRoleIds String[] @default([])
+  twitterNotificationChannelId      String?
+  twitterNotificationRoleId         String?
+  twitterNotificationAllowedRoleIds String[] @default([])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

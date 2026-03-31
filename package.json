@@ -39,6 +39,7 @@
     "typescript-eslint": "^8.52.0"
   },
   "dependencies": {
+    "@discordjs/builders": "^1.14.0",
     "@discordjs/voice": "^0.19.1",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
@@ -54,7 +55,7 @@
     "bullmq": "5.67.2",
     "cheerio": "^1.2.0",
     "colorette": "^2.0.20",
-    "discord.js": "^14.25.1",
+    "discord.js": "^14.26.0",
     "dotenv": "^17.2.3",
     "ioredis": "^5.9.1",
     "nanoid": "^5.1.6",
