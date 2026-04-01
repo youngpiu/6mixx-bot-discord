@@ -38,5 +38,12 @@ export const env = {
   LASTFM_BOT_USERNAME: getEnvVar('LASTFM_BOT_USERNAME'),
   LASTFM_BOT_PASSWORD: getEnvVar('LASTFM_BOT_PASSWORD'),
 
-  YOUTUBE_API_KEY: getEnvVar('YOUTUBE_API_KEY')
+  YOUTUBE_API_KEY: getEnvVar('YOUTUBE_API_KEY'),
+
+  BUBBLE_AUTO_ENABLED:
+    (getEnvVar('BUBBLE_AUTO_ENABLED', false) || 'true') === 'true',
+  BUBBLE_POLL_INTERVAL_MINUTES: Number(
+    getEnvVar('BUBBLE_POLL_INTERVAL_MINUTES', false) || '30'
+  ),
+  BUBBLE_X_AUTH_TOKEN: getEnvVar('BUBBLE_X_AUTH_TOKEN', false)
 }

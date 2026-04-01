@@ -111,6 +111,14 @@ export class SettingCommand extends Command {
       .addActionRowComponents((row) =>
         row.addComponents(
           new ButtonBuilder()
+            .setCustomId(CUSTOM_ID.BTN_SETTING_BUBBLE_MODULE)
+            .setLabel('Cài đặt tính năng Bubble')
+            .setStyle(ButtonStyle.Secondary)
+        )
+      )
+      .addActionRowComponents((row) =>
+        row.addComponents(
+          new ButtonBuilder()
             .setCustomId(CUSTOM_ID.BTN_SETTING_SNS_NOTIFICATION_ROLES)
             .setLabel('Cài đặt vai trò tính năng thông báo SNS')
             .setStyle(ButtonStyle.Secondary)

@@ -128,7 +128,7 @@ export class ModalNotificationTwitterHandler extends InteractionHandler {
 
       // Tải hình ảnh/video về buffer (bắt buộc tải đủ tất cả media)
       const files: AttachmentBuilder[] = []
-      const mediaList = tweetInfo.media.slice(0, 10)
+      const mediaList = tweetInfo.media
       for (const [index, m] of mediaList.entries()) {
         let fetched = false
         let lastErrorMessage = ''
@@ -196,7 +196,8 @@ export class ModalNotificationTwitterHandler extends InteractionHandler {
         avatarURL: webhook.avatarURL() || undefined,
         roleId: guildConfig.snsTwitterRoleId,
         files,
-        linkLabel: 'Xem trên X'
+        linkLabel: 'Xem trên X',
+        splitFilesIntoFollowUps: true
       })
 
       return InteractionUtil.replySuccess(

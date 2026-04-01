@@ -148,7 +148,7 @@ export class ModalNotificationInstagramHandler extends InteractionHandler {
           : normalizeMultilineText((igData.caption || '').replace(/#\S+/g, ''))
 
       const files: AttachmentBuilder[] = []
-      const mediaList = igData.media.slice(0, 10)
+      const mediaList = igData.media
       for (const [index, m] of mediaList.entries()) {
         let fetched = false
         let lastErrorMessage = ''
@@ -226,7 +226,8 @@ export class ModalNotificationInstagramHandler extends InteractionHandler {
         avatarURL: webhook.avatarURL() || undefined,
         roleId: guildConfig.snsInstagramRoleId,
         files,
-        linkLabel: 'Xem trên Instagram'
+        linkLabel: 'Xem trên Instagram',
+        splitFilesIntoFollowUps: true
       })
 
       return InteractionUtil.replySuccess(

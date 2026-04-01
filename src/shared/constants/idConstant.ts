@@ -179,6 +179,12 @@ export const CUSTOM_ID = {
     'select-setting-nmixx-quiz-answer-channel',
   SELECT_SETTING_NMIXX_QUIZ_VOICE_CHANNEL:
     'select-setting-nmixx-quiz-voice-channel',
+
+  // Bubble Settings
+  BTN_SETTING_BUBBLE_MODULE: 'btn-setting-bubble-module',
+  MODAL_SETTING_BUBBLE_MODULE: 'modal-setting-bubble-module',
+  SELECT_SETTING_BUBBLE_CATEGORY: 'select-setting-bubble-category',
+  INPUT_SETTING_BUBBLE_X_USERNAME: 'input-setting-bubble-x-username',
   // Music Quiz
   MUSIC_QUIZ_TOP_PREFIX: 'music-quiz-top:',
   MUSIC_QUIZ_SONGS_PREFIX: 'music-quiz-songs:',

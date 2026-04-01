@@ -91,4 +91,32 @@ export class SettingRepository {
   public static async invalidateIChartCache() {
     await CacheService.invalidate('guild_settings:ichart')
   }
+
+  /**
+   * Retrieves all guild settings that have Bubble category configured.
+   * Used by Bubble scheduled task to deliver notifications per guild.
+   */
+  public static async findManyWithBubbleConfig() {
+    return container.prisma.guildSetting.findMany({
+      where: {
+        bubbleIdolCategoryId: { not: null }
+      },
+      select: {
+        guildId: true,
+        bubbleIdolCategoryId: true,
+        bubbleXUsername: true,
+        updatedAt: true
+      }
+    })
+  }
+
+  /**
+   * Updates Bubble source username globally across all guild settings.
+   */
+  public static async setBubbleUsernameGlobal(username: string) {
+    await container.prisma.guildSetting.updateMany({
+      data: { bubbleXUsername: username }
+    })
+    await CacheService.invalidatePattern('guild_setting:*')
+  }
 }
