@@ -21,6 +21,53 @@ export const lines = (...text: (string | false | null | undefined)[]) =>
 export const codeLines = (...text: (string | false | null | undefined)[]) =>
   `\`\`\`\n${text.filter(Boolean).join('\n')}\`\`\``
 
+/**
+ * Normalizes multiline text content for cleaner message output.
+ * - Converts CRLF/CR to LF
+ * - Removes leading/trailing blank lines
+ * - Collapses consecutive blank lines to a single blank line
+ *
+ * @param text - Input text.
+ * @returns Normalized text.
+ */
+export function normalizeMultilineText(text: string): string {
+  const invisibleBlankRegex = /[\u200B-\u200D\uFEFF\u2060\u00A0\u2800]/g
+
+  const lines = text
+    .replace(/\r\n?/g, '\n')
+    .split('\n')
+    .map((line) => line.replace(invisibleBlankRegex, '').trim())
+
+  while (lines.length > 0 && lines[0].trim() === '') {
+    lines.shift()
+  }
+
+  while (lines.length > 0 && lines[lines.length - 1].trim() === '') {
+    lines.pop()
+  }
+
+  if (lines.length === 0) return ''
+
+  const collapsed: string[] = []
+  let previousWasBlank = false
+
+  for (const line of lines) {
+    const isBlank = line.trim() === ''
+    if (isBlank) {
+      if (!previousWasBlank) {
+        collapsed.push('')
+      }
+      previousWasBlank = true
+      continue
+    }
+
+    collapsed.push(line)
+    previousWasBlank = false
+  }
+
+  return collapsed.join('\n')
+}
+
 type Field = [key: string, value: string | null | undefined]
 
 /**

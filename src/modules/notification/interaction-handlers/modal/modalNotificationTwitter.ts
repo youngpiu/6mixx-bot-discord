@@ -13,6 +13,7 @@ import {
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
+import { normalizeMultilineText } from '~/shared/utils/textUtil'
 
 import { TwitterService } from '~/modules/notification/services/TwitterService'
 import { WebhookNotificationService } from '~/modules/notification/services/WebhookNotificationService'
@@ -122,8 +123,8 @@ export class ModalNotificationTwitterHandler extends InteractionHandler {
     try {
       const cleanText =
         translatedDescription && translatedDescription.trim() !== ''
-          ? translatedDescription
-          : tweetInfo.text.replace(/#\S+/g, '').trim()
+          ? normalizeMultilineText(translatedDescription)
+          : normalizeMultilineText(tweetInfo.text.replace(/#\S+/g, ''))
 
       // Tải hình ảnh/video về buffer (bắt buộc tải đủ tất cả media)
       const files: AttachmentBuilder[] = []

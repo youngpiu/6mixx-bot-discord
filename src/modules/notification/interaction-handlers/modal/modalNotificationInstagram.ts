@@ -13,6 +13,7 @@ import {
 import { CUSTOM_ID } from '~/shared/constants/idConstant'
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 import { InteractionUtil } from '~/shared/utils/messageUtil'
+import { normalizeMultilineText } from '~/shared/utils/textUtil'
 
 import { WebhookNotificationService } from '~/modules/notification/services/WebhookNotificationService'
 import { InstagramService } from '~/modules/social/services/instagramService'
@@ -143,8 +144,8 @@ export class ModalNotificationInstagramHandler extends InteractionHandler {
     try {
       const cleanText =
         translatedDescription && translatedDescription.trim() !== ''
-          ? translatedDescription
-          : (igData.caption || '').replace(/#\S+/g, '').trim()
+          ? normalizeMultilineText(translatedDescription)
+          : normalizeMultilineText((igData.caption || '').replace(/#\S+/g, ''))
 
       const files: AttachmentBuilder[] = []
       const mediaList = igData.media.slice(0, 10)
