@@ -198,13 +198,7 @@ export class YouTubeNotificationService {
         !!videoInfo.liveStreamingDetails?.actualStartTime &&
         !videoInfo.liveStreamingDetails?.actualEndTime
 
-      const isUpcoming = videoInfo.snippet.liveBroadcastContent === 'upcoming'
-
-      const prefix = isLive
-        ? '🔴 LIVE: '
-        : isUpcoming
-          ? '🔵 SẮP LIVE: '
-          : '🔵 MỚI: '
+      const prefix = isLive ? '🔴 LIVE: ' : '🔵 MỚI: '
       const contentTitle = title ? `\`\`\`${prefix}${title}\`\`\`` : ''
 
       // 6. Detect Short & fetch thumbnail
