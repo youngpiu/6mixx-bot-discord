@@ -194,9 +194,8 @@ export class YouTubeNotificationService {
       })
 
       const isLive =
-        videoInfo.snippet.liveBroadcastContent === 'live' &&
-        !!videoInfo.liveStreamingDetails?.actualStartTime &&
-        !videoInfo.liveStreamingDetails?.actualEndTime
+        videoInfo.snippet.liveBroadcastContent === 'live' ||
+        videoInfo.snippet.liveBroadcastContent === 'upcoming'
 
       const prefix = isLive ? '🔴 LIVE: ' : '🔵 MỚI: '
       const contentTitle = title ? `\`\`\`${prefix}${title}\`\`\`` : ''
