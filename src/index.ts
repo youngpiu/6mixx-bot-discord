@@ -115,7 +115,40 @@ export class BotClient extends SapphireClient {
 
     container.prisma = prisma
     container.redis = redis
+
+    // Clean up stale repeatable jobs from previous runs before re-registering them.
+    // Without this, every restart adds a duplicate job to the BullMQ queue in Redis,
+    // causing tasks to run N times per interval (once per restart), leading to
+    // log spam and potentially filling disk space.
+    await this.cleanupRepeatableJobs()
+
     return super.login(token)
+  }
+
+  /**
+   * Removes all existing repeatable jobs from the BullMQ queue before re-registering.
+   * Prevents job duplication across bot restarts.
+   */
+  private async cleanupRepeatableJobs(): Promise<void> {
+    try {
+      const queue = container.tasks.client
+      const repeatableJobs = await queue.getRepeatableJobs()
+
+      if (repeatableJobs.length > 0) {
+        container.logger.info(
+          `[BotClient] Cleaning up ${repeatableJobs.length} stale repeatable job(s) before restart...`
+        )
+        await Promise.all(
+          repeatableJobs.map((job) => queue.removeRepeatableByKey(job.key))
+        )
+        container.logger.info('[BotClient] Stale repeatable jobs cleared.')
+      }
+    } catch (error) {
+      container.logger.warn(
+        '[BotClient] Failed to clean up repeatable jobs (non-fatal):',
+        error
+      )
+    }
   }
 }
 
