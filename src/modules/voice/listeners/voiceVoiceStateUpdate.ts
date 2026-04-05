@@ -3,6 +3,7 @@ import { Listener } from '@sapphire/framework'
 import { ChannelType, ContainerBuilder, Events, VoiceState } from 'discord.js'
 
 import { ANIMATED_EMOJI } from '~/shared/constants/emojiConstant'
+import { RECRUITMENT_MESSAGE } from '~/shared/constants/recruitmentConstant'
 import { SettingRepository } from '~/shared/repositories/settingRepository'
 import { MessageUtil } from '~/shared/utils/messageUtil'
 
@@ -203,6 +204,16 @@ export class VoiceVoiceStateUpdateListener extends Listener {
       )
 
     await MessageUtil.sendWithContainer(tempChannel, welcomeContainer)
+
+    // Send recruitment message to the new temp channel
+    const recruitmentContainer =
+      new ContainerBuilder().addTextDisplayComponents((t) =>
+        t.setContent(
+          `${RECRUITMENT_MESSAGE.HEADER}\n\n${RECRUITMENT_MESSAGE.CONTENT}`
+        )
+      )
+
+    await MessageUtil.sendWithContainer(tempChannel, recruitmentContainer)
   }
 
   /**
