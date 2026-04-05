@@ -48,6 +48,8 @@ services:
       - redis-server
       - --appendonly
       - 'yes'
+      - --aof-load-truncated
+      - 'yes'
       - --maxmemory
       - 256mb
       - --maxmemory-policy
