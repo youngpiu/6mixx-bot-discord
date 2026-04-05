@@ -31,6 +31,12 @@ jobs:
             cd /root/6mixx-bot-discord
             git pull origin main
             docker compose --profile prod build --no-cache bot migrate
+            echo "🔄 Starting infrastructure services..."
+            docker compose up -d postgres redis
+            echo "⏳ Waiting for postgres and redis to be healthy..."
+            timeout 60 bash -c 'until docker inspect --format="{{.State.Health.Status}}" 6mixx-postgres 2>/dev/null | grep -q healthy; do sleep 2; done'
+            timeout 60 bash -c 'until docker inspect --format="{{.State.Health.Status}}" 6mixx-redis 2>/dev/null | grep -q healthy; do sleep 2; done'
+            echo "✅ Infrastructure healthy"
             echo "🔄 Running database migrations..."
             docker compose --profile prod run --rm migrate
             echo "✅ Migrations complete"

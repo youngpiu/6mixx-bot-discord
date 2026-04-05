@@ -44,11 +44,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    command: >
-      redis-server
-      --appendonly yes
-      --maxmemory 256mb
-      --maxmemory-policy noeviction
+    command:
+      - redis-server
+      - --appendonly
+      - 'yes'
+      - --maxmemory
+      - 256mb
+      - --maxmemory-policy
+      - noeviction
     logging:
       driver: json-file
       options:
