@@ -22,6 +22,11 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    logging:
+      driver: json-file
+      options:
+        max-size: '20m'
+        max-file: '5'
     networks:
       - bot-network
 
@@ -44,6 +49,11 @@ services:
       --appendonly yes
       --maxmemory 256mb
       --maxmemory-policy noeviction
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
     networks:
       - bot-network
 
@@ -94,6 +104,11 @@ services:
       YOUTUBE_API_KEY: ${YOUTUBE_API_KEY}
     volumes:
       - ${MUSIC_QUIZ_BASE_PATH}:${MUSIC_QUIZ_BASE_PATH}:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: '50m'
+        max-file: '5'
     networks:
       - bot-network
 
