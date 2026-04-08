@@ -22,6 +22,8 @@ import { InstagramService } from '~/modules/social/services/instagramService'
   interactionHandlerType: InteractionHandlerTypes.ModalSubmit
 })
 export class ModalNotificationInstagramHandler extends InteractionHandler {
+  private static readonly NOTIFICATION_RETRY = 3
+  private static readonly NOTIFICATION_RETRY_DELAY_MS = 1_000
   private static readonly MEDIA_FETCH_RETRY = 3
   private static readonly MEDIA_FETCH_TIMEOUT_MS = 10_000
   private static readonly MEDIA_FETCH_RETRY_DELAY_MS = 700
@@ -134,89 +136,140 @@ export class ModalNotificationInstagramHandler extends InteractionHandler {
       )
     }
 
-    const igData = await InstagramService.fetchInstagramData(shortcode)
-
     const webhookClient = new WebhookClient({
       id: webhook.id,
       token: webhook.token!
     })
 
     try {
+      let igData: Awaited<
+        ReturnType<typeof InstagramService.fetchInstagramData>
+      > | null = null
+      let files: AttachmentBuilder[] = []
+
+      for (
+        let requestAttempt = 1;
+        requestAttempt <= ModalNotificationInstagramHandler.NOTIFICATION_RETRY;
+        requestAttempt++
+      ) {
+        try {
+          const candidateIgData =
+            await InstagramService.fetchInstagramData(shortcode)
+
+          if (candidateIgData.media.length === 0) {
+            this.container.logger.warn(
+              `[NotificationInstagram] Empty media list for ${shortcode} (attempt ${requestAttempt}/${ModalNotificationInstagramHandler.NOTIFICATION_RETRY})`
+            )
+          } else {
+            const candidateFiles: AttachmentBuilder[] = []
+            const mediaList = candidateIgData.media.slice(0, 10)
+            let allMediaFetched = true
+
+            for (const [index, m] of mediaList.entries()) {
+              let fetched = false
+              let lastErrorMessage = ''
+
+              for (
+                let mediaAttempt = 1;
+                mediaAttempt <=
+                ModalNotificationInstagramHandler.MEDIA_FETCH_RETRY;
+                mediaAttempt++
+              ) {
+                try {
+                  const res = await fetch(m.url, {
+                    headers: {
+                      'User-Agent':
+                        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                      Accept: '*/*',
+                      Referer: 'https://www.instagram.com/'
+                    },
+                    signal: AbortSignal.timeout(
+                      ModalNotificationInstagramHandler.MEDIA_FETCH_TIMEOUT_MS
+                    )
+                  })
+
+                  if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`)
+                  }
+
+                  const arrayBuffer = await res.arrayBuffer()
+                  const guessedName = m.url.split('/').pop()?.split('?')[0]
+                  const fallbackExt = m.type === 'video' ? 'mp4' : 'jpg'
+                  const extFromHeader =
+                    ModalNotificationInstagramHandler.getExtensionFromContentType(
+                      res.headers.get('content-type')
+                    )
+                  const hasExtension = !!guessedName?.match(/\.[a-z0-9]{2,5}$/i)
+                  const name = guessedName
+                    ? hasExtension
+                      ? guessedName
+                      : `${guessedName}.${extFromHeader || fallbackExt}`
+                    : `media-${index}.${extFromHeader || fallbackExt}`
+                  candidateFiles.push(
+                    new AttachmentBuilder(Buffer.from(arrayBuffer), { name })
+                  )
+                  fetched = true
+                  break
+                } catch (e) {
+                  lastErrorMessage = e instanceof Error ? e.message : String(e)
+                  this.container.logger.warn(
+                    `[NotificationInstagram] Failed to fetch media ${m.url} (attempt ${mediaAttempt}/${ModalNotificationInstagramHandler.MEDIA_FETCH_RETRY}) on request attempt ${requestAttempt}: ${lastErrorMessage}`
+                  )
+                  if (
+                    mediaAttempt <
+                    ModalNotificationInstagramHandler.MEDIA_FETCH_RETRY
+                  ) {
+                    await ModalNotificationInstagramHandler.wait(
+                      ModalNotificationInstagramHandler.MEDIA_FETCH_RETRY_DELAY_MS *
+                        mediaAttempt
+                    )
+                  }
+                }
+              }
+
+              if (!fetched) {
+                allMediaFetched = false
+                this.container.logger.warn(
+                  `[NotificationInstagram] Missing required media after ${ModalNotificationInstagramHandler.MEDIA_FETCH_RETRY} attempts: ${m.url} (${lastErrorMessage})`
+                )
+                break
+              }
+            }
+
+            if (allMediaFetched) {
+              igData = candidateIgData
+              files = candidateFiles
+              break
+            }
+          }
+        } catch (error) {
+          this.container.logger.warn(
+            `[NotificationInstagram] Failed to fetch post data for ${shortcode} (attempt ${requestAttempt}/${ModalNotificationInstagramHandler.NOTIFICATION_RETRY})`,
+            error
+          )
+        }
+
+        if (
+          requestAttempt < ModalNotificationInstagramHandler.NOTIFICATION_RETRY
+        ) {
+          await ModalNotificationInstagramHandler.wait(
+            ModalNotificationInstagramHandler.NOTIFICATION_RETRY_DELAY_MS *
+              requestAttempt
+          )
+        }
+      }
+
+      if (!igData || files.length === 0) {
+        return InteractionUtil.replyError(
+          interaction,
+          'Không thể lấy đầy đủ media của bài viết sau 3 lần thử. Vui lòng thử lại sau.'
+        )
+      }
+
       const cleanText =
         translatedDescription && translatedDescription.trim() !== ''
           ? normalizeMultilineText(translatedDescription)
           : normalizeMultilineText((igData.caption || '').replace(/#\S+/g, ''))
-
-      const files: AttachmentBuilder[] = []
-      const mediaList = igData.media.slice(0, 10)
-      for (const [index, m] of mediaList.entries()) {
-        let fetched = false
-        let lastErrorMessage = ''
-
-        for (
-          let attempt = 1;
-          attempt <= ModalNotificationInstagramHandler.MEDIA_FETCH_RETRY;
-          attempt++
-        ) {
-          try {
-            const res = await fetch(m.url, {
-              headers: {
-                'User-Agent':
-                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                Accept: '*/*',
-                Referer: 'https://www.instagram.com/'
-              },
-              signal: AbortSignal.timeout(
-                ModalNotificationInstagramHandler.MEDIA_FETCH_TIMEOUT_MS
-              )
-            })
-
-            if (!res.ok) {
-              throw new Error(`HTTP ${res.status}`)
-            }
-
-            const arrayBuffer = await res.arrayBuffer()
-            const guessedName = m.url.split('/').pop()?.split('?')[0]
-            const fallbackExt = m.type === 'video' ? 'mp4' : 'jpg'
-            const extFromHeader =
-              ModalNotificationInstagramHandler.getExtensionFromContentType(
-                res.headers.get('content-type')
-              )
-            const hasExtension = !!guessedName?.match(/\.[a-z0-9]{2,5}$/i)
-            const name = guessedName
-              ? hasExtension
-                ? guessedName
-                : `${guessedName}.${extFromHeader || fallbackExt}`
-              : `media-${index}.${extFromHeader || fallbackExt}`
-            files.push(
-              new AttachmentBuilder(Buffer.from(arrayBuffer), { name })
-            )
-            fetched = true
-            break
-          } catch (e) {
-            lastErrorMessage = e instanceof Error ? e.message : String(e)
-            this.container.logger.warn(
-              `[NotificationInstagram] Failed to fetch media ${m.url} (attempt ${attempt}/${ModalNotificationInstagramHandler.MEDIA_FETCH_RETRY}): ${lastErrorMessage}`
-            )
-            if (attempt < ModalNotificationInstagramHandler.MEDIA_FETCH_RETRY) {
-              await ModalNotificationInstagramHandler.wait(
-                ModalNotificationInstagramHandler.MEDIA_FETCH_RETRY_DELAY_MS *
-                  attempt
-              )
-            }
-          }
-        }
-
-        if (!fetched) {
-          this.container.logger.error(
-            `[NotificationInstagram] Failed to fetch required media after ${ModalNotificationInstagramHandler.MEDIA_FETCH_RETRY} attempts: ${m.url} (${lastErrorMessage})`
-          )
-          return InteractionUtil.replyError(
-            interaction,
-            'Không thể tải đầy đủ media của bài viết sau 3 lần thử. Vui lòng thử lại sau.'
-          )
-        }
-      }
 
       await WebhookNotificationService.send({
         webhookClient,
