@@ -38,5 +38,8 @@ export const env = {
   LASTFM_BOT_USERNAME: getEnvVar('LASTFM_BOT_USERNAME'),
   LASTFM_BOT_PASSWORD: getEnvVar('LASTFM_BOT_PASSWORD'),
 
-  YOUTUBE_API_KEY: getEnvVar('YOUTUBE_API_KEY')
+  YOUTUBE_API_KEY: getEnvVar('YOUTUBE_API_KEY'),
+  COHERE_API_KEY: getEnvVar('COHERE_API_KEY'),
+  COHERE_CHAT_MODEL:
+    getEnvVar('COHERE_CHAT_MODEL', false) || 'command-a-plus-05-2026'
 }

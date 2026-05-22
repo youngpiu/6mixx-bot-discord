@@ -5,6 +5,7 @@ import { resolve } from 'node:path'
 import sharp from 'sharp'
 
 import { SettingRepository } from '~/shared/repositories/settingRepository'
+import { CohereService } from '~/shared/services/cohereService'
 
 import { WebhookNotificationService } from '~/modules/notification/services/WebhookNotificationService'
 import { YouTubeService } from '~/modules/notification/services/YouTubeService'
@@ -148,9 +149,13 @@ export class YouTubeNotificationService {
       if (!videoInfo) return false
 
       // 2. Use title (prefer override if provided), strip hashtags
-      const title = (overrideTitle || videoInfo.snippet.title)
+      const baseTitle = (overrideTitle || videoInfo.snippet.title)
         .replace(/#\S+/g, '')
         .trim()
+      const title =
+        !overrideTitle && baseTitle
+          ? await CohereService.translateToVietnamese(baseTitle)
+          : baseTitle
       container.logger.info(
         `[YouTubeNotificationService] Title to use: "${title}"`
       )

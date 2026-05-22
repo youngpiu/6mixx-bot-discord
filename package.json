@@ -54,6 +54,7 @@
     "bottleneck": "^2.19.5",
     "bullmq": "5.67.2",
     "cheerio": "^1.2.0",
+    "cohere-ai": "^8.0.0",
     "colorette": "^2.0.20",
     "discord.js": "^14.26.0",
     "dotenv": "^17.2.3",
